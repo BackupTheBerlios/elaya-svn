@@ -7,7 +7,7 @@ This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
-
+                                                       j
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -20,19 +20,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit varuse;
 interface
-uses compbase,simplist,error,progutil,useitem,varbase;
+uses ddefinit,compbase,simplist,error,progutil,useitem,varbase,elatypes;
 
 type
-
-TVarUseItem=class(TUseItem)
-		private
-				voDefinition : TVarBase;
-				property iDefinition : TVarBase read voDefinition write voDefinition;
-		public
-				property fDefinition : TVarBase read voDefinition;
-				function GetDefinition  : TBaseDefinition;override;
-				constructor Create(ParDefinition : TVarBase);
-		end;
 
 
 
@@ -44,15 +34,19 @@ public
 	function AreAllUnused:boolean;
 end;
 
-TStructDefinitionUseItem=class(TDefinitionUseItemBase)
+TStructDefinitionUseItem=class(TUseItem)
 private
 	voSubList : TStructDefinitionUseSubList;
+	voDefinition : TBaseDefinition;
+	property iDefinition : TBaseDefinition read voDefinition write voDefinition;
 protected
 	property iSubList : TStructDefinitionUseSubList read voSubList write voSubList;
 	procedure Commonsetup;override;
 	procedure Clear;override;
+	procedure InitSubList;virtual;
 public
 	property fSubList : TStructDefinitionUseSubList read voSubList;
+	property fDefinition : TBaseDefinition read voDefinition;
 	function GetSubList : TUseList;override;
 	procedure CombineFlow(ParOther : TUseItem);override;
 	procedure SetToSometimes;override;
@@ -63,24 +57,168 @@ public
 	procedure SetDefault(ParRead:boolean);override;
 	procedure CombineIfWithElseUse(ParElse : TUseItem);override;
 	function IsUnused:boolean;override;
+	constructor create(ParDefinition : TBaseDefinition);
+	function GetDefinition : TBaseDefinition;override;
+end;
+
+
+TUnionItemUseItem=class(TUseItem)
+private
+	voUseItem : TUseItem;
+	voSize    : TSize;
+	property iUseItem : TUseItem read voUseItem write voUseItem;
+	property iSize    : TSize    read voSize    write voSize;
+
+protected
+	procedure Clear;override;
+
+public
+	property fUseItem : TUseItem read voUseItem;
+	property fSize    : TSize    read voSize;
+
+
+	constructor Create(ParItem : TUseItem;ParSize : TSize);
+	function GetDefinition : TBaseDefinition;override;
+	function IsUnused:boolean;override;
+	procedure CombineIfWithElseUse(ParElse : TUseItem);override;
+
+   function IsCompleetInitialised : TDefinitionUseMode;override;
+   function Clone : TUseItem;override;
+	procedure CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);override;
+	function SetAccess(ParMode : TAccessMode):TAccessStatus;override;
+	procedure SetToSometimes;override;
+	procedure CombineFlow(ParOther : TUseItem);override;
+	procedure SetDefault(ParRead:boolean);override;
+
+end;
+
+
+TUnionUseList=class(TStructDefinitionUseSubList)
+public
+				function SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TUseItem) : TAccessStatus;override;
+end;
+
+TUnionUseItem=class(TStructDefinitionUseItem)
+public
+	procedure InitSubList;override;
 end;
 
 implementation
 
+{-----( TUnionUseList )-----------------------------------------------------------------}
 
-{----( TVarUseItem )--------------------------------------------------------------------------}
-constructor TVarUseItem.Create(ParDefinition : TVarBase);
+function TUnionUseList.SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TUseItem) : TAccessStatus;
+var
+	vlMode    : TAccessStatus;
+	vlNewMode : TAccessStatus;
+	vlCurrent : TUnionItemUseItem;
+	vlSize    : TSize;
+	vlThis    : TUnionItemUseItem;
 begin
-		iDefinition := ParDefinition;
-		inherited Create;
+	vlMode := inherited SetAccess(ParDefinition,ParMode,ParItem);
+	vlCurrent := TUnionItemUseItem(fStart);
+	if not(ParItem is TUnionItemUseItem) then begin
+		runerror(1);
+	end;
+	vlThis := TUnionItemUseItem(ParItem);
+	vlSize :=vlThis.fSize;
+	while vlCurrent<> nil do begin
+		if (vlCurrent <> vlTHis) then begin
+			if vlCurrent.fSize <= vlThis.fSIze then begin
+				vlNewMode := vlCurrent.SetAccess(ParMode);
+				case vlNewMode of
+				as_no_write,AS_NO_Read : vlMode := vlNewMode;
+				as_maybe_no_write,as_maybe_no_read:if vlMode=AS_Normal then vlMode := vlNewMOde;
+            end;
+			end;
+      end;
+		vlCurrent := TUnionItemUseItem(vlCurrent.fNxt);
+	end;
+	exit(vlMode);
 end;
 
-function TVarUseItem.GetDefinition : TBaseDefinition;
+{---( TUnionUseItem )---------------------------------------------------------}
+procedure TUnionUseItem.InitSubList;
 begin
-	exit(iDefinition);
+	iSubList := TUnionUseList.Create(nil);
 end;
+
+{---( TUnionItemUseItem )-----------------------------------------------------}
+
+
+	procedure TUnionItemUseItem.CombineFlow(ParOther : TUseItem);
+	begin
+		if ParOther is TUnionItemUseItem then begin
+			iUseItem.CombineFlow(TUnionItemUseItem(ParOther).fUseItem);
+		end;
+	end;
+
+	procedure TUnionItemUseItem.SetToSometimes;
+	begin
+		iUseItem.SetToSomeTimes;
+	end;
+
+	function TUnionItemUseItem.SetAccess(ParMode : TAccessMode):TAccessStatus;
+   begin
+		exit(iUseItem.SetAccess(ParMode));
+	end;
+
+
+	procedure TUnionItemUseItem.CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);
+   begin
+		iUseItem.CheckUnUsed(ParCre,ParOwnerBase);
+	end;
+
+	function TUnionItemUseItem.Clone : TUseItem;
+	begin
+		exit(TUnionItemUseItem.Create(iUseItem.clone,iSize));
+	end;
+
+   function TUnionItemUseItem.IsCompleetInitialised : TDefinitionUseMode;
+   begin
+		exit(iUseItem.IsCompleetInitialised);
+	end;
+
+	procedure TUnionItemUseItem.SetDefault(ParRead:boolean);
+	begin
+		iUseItem.SetDefault(ParRead);
+	end;
+
+	procedure TUnionItemUseItem.CombineIfWithElseUse(ParElse : TUseItem);
+	begin
+		if(ParElse is TUnionItemUseItem) then begin
+			iUseItem.CombineIfWithElseUse(TUnionItemUseItem(ParElse).fUseItem);
+		end;
+	end;
+
+	function TUnionItemUseItem.IsUnused:boolean;
+	begin
+		exit(iUseItem.IsUnUsed);
+	end;
+
+constructor TUnionItemUseItem.Create(ParItem : TUseItem;ParSize :TSize);
+begin
+	iUseItem := ParItem;
+	iSize    := ParSize;
+	inherited Create;
+end;
+
+procedure TUnionItemUseItem.Clear;
+begin
+	if iUseItem <> nil then iUseItem.Destroy;
+	inherited Clear;
+end;
+
+function TUnionItemUseItem.GetDefinition : TBaseDefinition;
+begin
+	exit(iUseItem.GetDefinition);
+end;
+
+
+
 
 {---( TStructDefinitionUseSubList )-----------------------------------------------------------}
+
 procedure TStructDefinitionUseSubList.SetAllDefault(ParRead:boolean);
 var
 	vlCurrent : TUseItem;
@@ -137,6 +275,16 @@ end;
 
 {---( TStructDefinitionUseItem)----------------------------------------------------------------}
 
+constructor TStructDefinitionUSeItem.create(ParDefinition : TBaseDefinition);
+begin
+	iDefinition := ParDefinition;
+	inherited Create;
+end;
+
+function TStructDefinitionuseItem.GetDefinition : TBaseDefinition;
+begin
+	exit(iDefinition);
+end;
 
 function TStructDefinitionUseItem.IsUnused:boolean;
 begin
@@ -213,11 +361,15 @@ begin
 	exit(vlStatus);
 end;
 
+procedure TStructDefinitionUseItem.InitSubList;
+begin
+	iSubList := TStructDefinitionUseSubList.Create(nil);
+end;
 
 procedure TStructDefinitionUseItem.Commonsetup;
 begin
 	inherited Commonsetup;
-	iSubList := TStructDefinitionUseSubList.Create(nil);
+	InitSubList;
    iSubList.fContext := self;
 end;
 

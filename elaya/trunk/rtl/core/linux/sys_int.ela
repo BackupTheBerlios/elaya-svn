@@ -345,7 +345,6 @@ end;
 function int_filePos(ParFile:cint):cint;
 var
 	vlSize : off_t;
-	vlStat : boolean;
 begin
 	ResetErrors;
 	vlSize := linux_lseek(ParFile,0,Seek_Cur);
@@ -387,7 +386,6 @@ function int_WaitForRead(ParHandle,ParTimeOut:cint):boolean;
 var
 	vlSetr,vlSetW,vlSetE:fd_set;
 	vlTime:Time_val;
-	vlLoop  : long;
 	vlNum   : long;
 begin
 	ResetErrors;
@@ -407,7 +405,6 @@ function int_WaitForWrite(ParHandle,ParTimeOut:cint):boolean;
 var
 	vlSetr,vlSetW,vlSetE:fd_set;
 	vlTime:Time_val;
-	vlLoop  : long;
 	vlNum   : long;
 begin
 	ResetErrors;
@@ -480,7 +477,6 @@ begin
 end;
 
 procedure int_GetArgument(ParNo:long;var ParStr:string);
-var vlAsc:PAsc;
 begin
    if ParNo > int_GetNumberOfArguments then begin
             ParStr.length := 0;

@@ -86,6 +86,7 @@ begin
 	AddObjectToStreamList(longint(IC_BooleanType),TBooleanType);
 	AddObjectToStreamList(longint(IC_EnumCollection),TEnumCollection);
 	AddObjectToStreamList(longint(IC_ConstantVariable),TConstantVariable);
+	AddObjectToStreamList(longint(IC_UnionFrameVariable),TUnionFrameVariable);
 end;
 
 procedure DoneStreams;

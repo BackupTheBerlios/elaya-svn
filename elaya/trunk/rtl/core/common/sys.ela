@@ -142,7 +142,7 @@ var
 end public
 var
 	vlNormalFileSelf : TFileSelf;
-         vlTextFileSelf   : TFileSelf;
+   vlTextFileSelf   : TFileSelf;
 
 
 {---( Enviroment )-------------------------------------------------}

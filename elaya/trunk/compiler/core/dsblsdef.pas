@@ -29,6 +29,8 @@ type
       property   iParts : TIdentList read voParts write voParts;
 		procedure   Commonsetup;override;
 		procedure   clear;override;
+		procedure   initParts;virtual;
+
 
 	public
 		property   fParts:TIdentList read voParts;
@@ -36,7 +38,6 @@ type
 		procedure   SetHashingObject(Parhash:THashing);override;
 		function    Validate(ParIdent : TDefinition):TErrorType;
 		function    Addident(Parident:TDefinition):TErrorType;override;
-		procedure   initParts;virtual;
 		function    SearchOwner:boolean;virtual;
 		function    GetDefaultIdent(ParCode : TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
 		procedure   PrintParts(ParDis:TDisplay);
@@ -44,7 +45,7 @@ type
 		function    saveitem(ParWrite:TObjectStream):boolean;override;
 		procedure   AddGlobalsToHashing(ParHash:THashing);override;
 		function    GetPtrByName(const ParName:string;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
-		function     GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function    GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 		function    HasGlobalParts : boolean;override;
 	end;
 	

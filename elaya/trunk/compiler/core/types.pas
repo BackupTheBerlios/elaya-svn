@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit types;
 
 interface
-uses vars,dsblsdef,frames,largenum,varbase,strmbase,streams,compbase,linklist,display,error,elacons,stdobj,ddefinit,
+uses vars,dsblsdef,didentls,frames,largenum,varbase,strmbase,streams,compbase,linklist,display,error,elacons,stdobj,ddefinit,
 elatypes,pocobj,macobj,node,formbase,progutil,asminfo,cmp_type,elacfg,simplist,useitem,varuse;
 	
 type
@@ -337,9 +337,14 @@ type
 
 	
 	TUnionType =class(TVarStructType)
-		function  AddIdent(ParItem:TDefinition):TErrorType;override;
+	protected
 		procedure CommonSetup;override;
+	public
+		function  AddIdent(ParItem:TDefinition):TErrorType;override;
 		procedure Print(ParDis:TDisplay);override;
+		function  CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
+		function  CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
+
 	end;
 	
 	TRecordType=class(TVarStructType)
@@ -347,7 +352,6 @@ type
 		procedure CommonSetup;override;
 		procedure Print(ParDis:TDisplay);override;
 		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
-
 	end;
 
 
@@ -358,7 +362,13 @@ type
 		function  GetSign : boolean;override;
 	end;
 
-	
+	TUnionFrameVariable=class(TFrameVariable)
+	protected
+		procedure Commonsetup;override;
+	public
+		function CreateDefinitionUseItem : TUseItem; override;
+	end;
+
 implementation
 
 uses NdCreat,procs,classes;
@@ -472,7 +482,8 @@ end;
 
 
 function TVarStructType.CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;
-var vlVar :TFrameVariable;
+var
+	vlVar :TFrameVariable;
 begin
 	vlVar := TFrameVariable.Create(ParName,iFrame,iFrame.fFrameSize,TType(ParType));
 	exit(vlVar);
@@ -487,10 +498,35 @@ begin
 	end;
 end;
 
+{----( TUnionSubList )--------------------------------------------------}
+
+function  TUnionFrameVariable.CreateDefinitionUseItem : TUseItem;
+begin
+	exit(TUnionItemUseItem.Create(inherited CreateDefinitionUseItem,GetSize));
+end;
+
+procedure TUnionFrameVariable.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode := IC_UnionFrameVariable;
+end;
+
+
 {----( TUnionType )-----------------------------------------------------}
 
+function TUnionType.CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;
+var
+	vlVar :TFrameVariable;
+begin
+	vlVar := TUnionFrameVariable.Create(ParName,iFrame,iFrame.fFrameSize,TType(ParType));
+	exit(vlVar);
+end;
+
+
+
 function  TUnionType.AddIdent(ParItem:TDefinition):TErrorType;
-var vlSize:TSize;
+var
+	vlSize:TSize;
 begin
 	if not(ParItem is TFrameVariable) then AddIdent := ERR_Not_A_Var
 	else begin
@@ -503,7 +539,7 @@ end;
 procedure TUnionType.CommonSetup;
 begin
 	inherited Commonsetup;
-	iIdentCode:= (IC_Union);
+	iIdentCode:= IC_Union;
 end;
 
 procedure TUnionType.Print(ParDis:TDisplay);
@@ -516,6 +552,14 @@ begin
 end;
 
 
+function TUnionType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;
+var
+	vlItem : TStructDefinitionUseItem;
+begin
+	vlItem := TUnionUseItem.Create(ParVar);
+	fParts.AddItemsToUseList(vlItem.fSubList);
+   exit(vlItem);
+end;
 
 
 {------( TRecordType )--------------------------------------------------}

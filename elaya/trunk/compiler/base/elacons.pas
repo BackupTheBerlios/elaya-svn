@@ -209,7 +209,8 @@ IC_EnumCollection       := 205,
 Ic_Abstract				   := 206,
 IC_ConstantVariable     := 207,
 IC_ValueClassType       := 208,
-IC_ObjectClassType      := 209
+IC_ObjectClassType      := 209,
+IC_UnionFrameVariable   := 210
 );
 
 TResourceIdentCode=(

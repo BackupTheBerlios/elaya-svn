@@ -61,7 +61,7 @@ type
 		function  Validate(ParDef:TDefinition):TErrorType;virtual;
 		procedure  commonsetup;override;
 		procedure  AddToHashing;
-		procedure AddItemsToUseList(ParUse : TUseList);
+		procedure AddItemsToUseList(ParUse : TUseList);virtual;
 
 	end;
 	
@@ -77,8 +77,7 @@ var
 begin
 	vlCurrent := TDefinition(fStart);
 	while vlCurrent <> nil do begin
-
-		ParUse.AddItem(vlCurrent.CreateDefinitionUseItem);
+  		ParUse.AddItem(vlCurrent.CreateDefinitionUseItem);
 		vlCurrent := TDefinition(vlCurrent.fNxt);
 	end;
 end;
