@@ -83,7 +83,7 @@ var
 .)
 .
 
-RNumber:"number"<var ParNum : TNumber;ParValid : boolean>
+RNumber:"number"<var ParNum : TNumber;var ParValid : boolean>
 =
 	(.
 		loadlong(ParNum,0);

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit DDefinit ;
 interface
-uses useitem,varuse,streams,cmp_type,elacons,progutil,compbase,hashing,display,node,stdobj,elatypes,error,asmdata;
+uses useitem,streams,cmp_type,elacons,progutil,compbase,hashing,display,node,stdobj,elatypes,error,asmdata;
 type
 	TDefinition=class(TBaseDefinition)
 	private

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit FormBase;
 interface
 uses  Largenum,streams,elacons,elatypes,error,Pocobj,MacObj,node,stdobj,asminfo,
-compbase,display,ProgUtil,DSbLsDef,ddefinit,confval,useitem,varuse;
+compbase,display,ProgUtil,DSbLsDef,ddefinit,confval,useitem;
 type
 	TFormulaNode=class;
 	TTypeClass=class of TType;

@@ -218,7 +218,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RAlign;
       Procedure _RDefIdentObj ( var ParDef : TDefinition;ParAccCheck : boolean);
       Procedure _RIdentObj ( var ParDef:TDefinition);
-      Procedure _RNumber ( var ParNum : TNumber;ParValid : boolean);
+      Procedure _RNumber ( var ParNum : TNumber;var ParValid : boolean);
       Procedure _RDec_Number ( var ParNum:TNumber; var ParValid:boolean);
       Procedure _RBin_Number ( var ParNum:TNumber;var ParValid : boolean);
       Procedure _RHex_Number ( var ParNum:TNumber;var ParValid : boolean);
@@ -4175,7 +4175,7 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RNumber ( var ParNum : TNumber;ParValid : boolean);
+      Procedure TELA_Parser._RNumber ( var ParNum : TNumber;var ParValid : boolean);
       begin
              
             	loadlong(ParNum,0);
