@@ -588,6 +588,7 @@ function TFormulaNode.Can(ParCan:TCan_Types):boolean;
 begin
 	if GetType <> nil then ParCan := ParCan - [Can_Size];
 	Can := (ParCan - [Can_read]=[]);
+	writeln(classname,Can,can_execute in ParCan);
 end;
 
 

@@ -7,7 +7,7 @@ uses dynset;
 const
 
 	MaxP  =121;
-	MaxSS =15;
+	MaxSS =18;
 	SetSize=16;
 
 var

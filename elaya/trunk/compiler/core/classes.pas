@@ -1,4 +1,4 @@
-{ 5~5~                                                   5;3~
+{
     Elaya, the compiler for the elasya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
@@ -60,7 +60,6 @@ type
 		voMetaFrame : TFrame;
 		voObject    : TObjectRepresentor;
 		voIncompleet: boolean;
-		voPtrType   : TType;
 	protected
 		property iParent    : TClassType         read voParent     write voParent;
 		property iMeta      : TClassMeta         read voMeta       write voMeta;
@@ -68,7 +67,6 @@ type
 		property iMetaFrame : TFrame             read voMetaFrame  write voMetaFrame;
 		property iObject    : TObjectRepresentor read voObject     write voObject;
 		property iIncompleet: boolean			     read voIncompleet write voIncompleet;
-		property iPtrType   : TType              read voPtrType    write voPtrType;
 		procedure SetParent(ParType :TClassTYpe);virtual;
 	protected
 		procedure Commonsetup;override;
@@ -116,10 +114,14 @@ type
 	end;
 
 	TValueClassType=class(TClassType)
+	private
+		voPtrType : TType;
+
 	protected
+		property iPtrType   : TType              read voPtrType    write voPtrType;
 		procedure Commonsetup;override;
 		procedure SetParent(ParType : TClassTYpe);override;
-
+      procedure clear;override;
 	public
 		procedure AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);override;
 		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
@@ -707,6 +709,12 @@ begin
 end;
 
 {---( TValueClassType )----------------------------------------------------------------------------}
+
+procedure TValueClassType.Clear;
+begin
+	inherited Clear;
+	if iPtrType <> nil then iPtrType.Destroy;
+end;
 
 procedure TValueClassType.Commonsetup;
 begin
