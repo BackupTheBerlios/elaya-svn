@@ -2547,7 +2547,10 @@ begin
                   _RVarDecl;
             end;
             _IEnd;
-              Endident; ;
+             
+            					fNDCreator.AllignToCurrentDefMode(ParType);
+            					Endident;
+            				 ;
       end;
       
       Procedure TELA_Parser._RUnion ( var ParType :TType);

@@ -30,4 +30,4 @@ install_as:
 	cp $(interw32_out) $(Dir_Rtl)
 
 $(interw32_out):
-	asw interw32.as -o$(interw32_out)
+	$(Dir_as) interw32.as -o$(interw32_out)

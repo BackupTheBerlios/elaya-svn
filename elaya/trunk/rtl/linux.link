@@ -1,11 +1,34 @@
 inter 'inter.o' linked cdecl ;
 libc 'libc.so' linked  cdecl ;
-libglib 'libglib.so' linked cdecl;
-libgdk  'libgdk.so' linked cdecl;
-libgtk 'libgtk.so' linked cdecl;
 mysql  'mysql/libmysqlclient.so' linked cdecl;
+
 x11 '/usr/X11R6/lib/libX11.so' linked cdecl;
 xext '/usr/X11R6/lib/libXext.so' linked cdecl;
 xt '/usr/X11R6/lib/libXt.so' linked cdecl;
 xi '/usr/X11R6/lib/libXi.so' linked cdecl;
 libm 'libm.so' linked cdecl;
+
+libglib 'libglib.so' linked cdecl;
+
+libgdk  
+	'libgdk.so' 
+	linked cdecl 
+	depend 
+		x11,
+		xext,
+		xt,
+		xi,
+		libm
+;
+libgtk 
+	'libgtk.so' 
+	linked cdecl
+	depend	
+		libgdk
+;
+libgdk
+	'libgdk.so'
+	linked cdecl
+	depend
+		libglib
+;

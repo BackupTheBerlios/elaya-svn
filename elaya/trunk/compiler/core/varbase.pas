@@ -1,27 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {    Elaya, thecompiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 web : www.elaya.org

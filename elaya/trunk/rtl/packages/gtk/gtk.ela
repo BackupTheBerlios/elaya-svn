@@ -1,7 +1,7 @@
 unit;
 	uses glib,gdk;
 
-public
+public cdecl
 
   
   const
@@ -13,8 +13,7 @@ public
      GTK_MICRO_VERSION_CONST = 5;
      GTK_BINARY_AGE_CONST = 2;
      GTK_INTERFACE_AGE_CONST = 0;
-function  GTK_CHECK_VERSION(major,minor,micro:longint):boolean;
- 
+
  
  
  
@@ -390,17 +389,6 @@ const
 Type
   GTK_OBJECT = PGtkObject;
   GTK_OBJECT_CLASS = PGtkObjectClass;
-function  GTK_OBJECT_TYPE(obj : PGtkobject) : TGtkType;
-function  GTK_OBJECT_SIGNALS(obj : PGtkobject) : Pguint;
-function  GTK_OBJECT_NSIGNALS(obj : PGtkobject) : guint;
-function  GTK_OBJECT_FLAGS(obj : PGtkobject) : longint;
-function  GTK_OBJECT_DESTROYED(obj : PGtkobject) : boolean;
-function  GTK_OBJECT_FLOATING(obj : PGtkobject) : boolean;
-function  GTK_OBJECT_CONNECTED(obj : PGtkobject) : boolean;
-function  GTK_OBJECT_IS_CONSTRUCTED(obj : PGtkobject) : boolean;
-function  GTK_IS_OBJECT(obj:pointer):boolean;
-function  GTK_IS_OBJECT_CLASS(klass:pointer):boolean;
- 
  
  
  
@@ -439,40 +427,6 @@ const
      GTK_TYPE_STRUCTURED_LAST = GTK_TYPE_FOREIGN;
      GTK_TYPE_FUNDAMENTAL_LAST = GTK_TYPE_OBJECT;
      GTK_TYPE_FUNDAMENTAL_MAX = 32;
-function  GTK_CHECK_CLASS_TYPE(type_class:PGtkTypeClass;otype:TGtkType) : boolean;cdecl;
-
-function  GTK_IS_IDENTIFIER(obj:pointer):boolean;
-function  GTK_IS_IDENTIFIER_CLASS(klass:pointer):boolean;
-function  GTK_TYPE_MAKE(parent_t,seqno:TGtkType):TGtkType;
-function  GTK_FUNDAMENTAL_TYPE(thetype : TGtkType) : TGtkFundamentalType;
-function  GTK_TYPE_SEQNO(thetype : TGtkType) : TGtkType;
-function  GTK_VALUE_CHAR(const a : TGtkArg) : gchar;
-function  GTK_VALUE_UCHAR(const a : TGtkArg) : guchar;
-function  GTK_VALUE_BOOL(const a : TGtkArg) : gboolean;
-function  GTK_VALUE_INT(const a : TGtkArg) : gint;
-function  GTK_VALUE_UINT(const a : TGtkArg) : guint;
-function  GTK_VALUE_LONG(const a : TGtkArg) : glong;
-function  GTK_VALUE_ULONG(const a : TGtkArg) : gulong;
-function  GTK_VALUE_FLOAT(const a : TGtkArg) : gfloat;
-function  GTK_VALUE_DOUBLE(const a : TGtkArg) : gdouble;
-function  GTK_VALUE_ENUM(const a : TGtkArg) : longint;
-function  GTK_VALUE_FLAGS(const a : TGtkArg) : longint;
-function  GTK_VALUE_BOXED(const a : TGtkArg) : gpointer;
-function  GTK_VALUE_POINTER(const a : TGtkArg) : gpointer;
-function  GTK_VALUE_OBJECT(const a : TGtkArg): gpointer;
- 
-function  GTK_RETLOC_CHAR(const a : TGtkArg) : Pgchar;
-function  GTK_RETLOC_UCHAR(const a : TGtkArg) : Pguchar;
-function  GTK_RETLOC_BOOL(const a : TGtkArg) : Pgboolean;
-function  GTK_RETLOC_INT(const a : TGtkArg) : Pgint;
-function  GTK_RETLOC_UINT(const a : TGtkArg) : Pguint;
-function  GTK_RETLOC_LONG(const a : TGtkArg) : Pglong;
-function  GTK_RETLOC_ULONG(const a : TGtkArg) : Pgulong;
-function  GTK_RETLOC_FLOAT(const a : TGtkArg) : Pgfloat;
-function  GTK_RETLOC_DOUBLE(const a : TGtkArg) : Pgdouble;
-function  GTK_RETLOC_ENUM(const a : TGtkArg) : Pgint;
-function  GTK_RETLOC_FLAGS(const a : TGtkArg) : Pguint;
-function  GTK_RETLOC_BOXED(const a : TGtkArg) : Pgpointer;
     type
        PGtkTypeInfo = ptr TGtkTypeInfo;
        TGtkTypeInfo = record
@@ -803,29 +757,6 @@ Type
           draw_handle : procedure (style:PGtkStyle; window:PGdkWindow; state_type:TGtkStateType; shadow_type:TGtkShadowType; area:PGdkRectangle; widget:PGtkWidget; detail:Pgchar; x:gint; y:gint; width:gint; height:gint; orientation:TGtkOrientation);cdecl;
         end;
  
-function  GTK_WIDGET_STATE(wid : PGtkwidget) : longint;
-function  GTK_WIDGET_SAVED_STATE(wid : PGtkwidget) : longint;
-function  GTK_WIDGET_FLAGS(wid : PGtkwidget) : longint;
-function  GTK_WIDGET_TOPLEVEL(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_NO_WINDOW(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_REALIZED(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_MAPPED(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_VISIBLE(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_DRAWABLE(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_SENSITIVE(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_PARENT_SENSITIVE(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_IS_SENSITIVE(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_CAN_FOCUS(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_HAS_FOCUS(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_CAN_DEFAULT(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_HAS_DEFAULT(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_HAS_GRAB(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_RC_STYLE(wid : PGtkwidget) : boolean;
-function  GTK_WIDGET_COMPOSITE_CHILD(wid : PGtkWidget) : boolean;
-function  GTK_WIDGET_APP_PAINTABLE(wid : PGtkWidget) : boolean;
-function  GTK_WIDGET_RECEIVES_DEFAULT(wid : PGtkWidget) : boolean;
-procedure GTK_WIDGET_SET_FLAGS(wid : PGtkwidget;flag:longint);
-procedure GTK_WIDGET_UNSET_FLAGS(wid : PGtkwidget;flag:longint);
 Type
   GTK_WIDGET=PGtkWidget;
   GTK_WIDGET_CLASS=PGtkWidgetClass;
@@ -877,10 +808,7 @@ Type
      bp_TGtkLabel_max_width = 0;
      bm_TGtkLabel_jtype = $30000;
      bp_TGtkLabel_jtype = 16;
-function  max_width(var a : TGtkLabel) : guint;
-procedure set_max_width(var a : TGtkLabel; __max_width : guint);
-function  jtype(var a : TGtkLabel) : guint;
-procedure set_jtype(var a : TGtkLabel; __jtype : guint);
+
     type
        PGtkLabelClass = ptr TGtkLabelClass;
        TGtkLabelClass = record
@@ -906,15 +834,6 @@ const
      PRIVATE_GTK_HAS_SHAPE_MASK = 1 shl 5;
      PRIVATE_GTK_IN_REPARENT = 1 shl 6;
      PRIVATE_GTK_IS_OFFSCREEN = 1 shl 7;
-function  GTK_PRIVATE_FLAGS(wid : PGtkWidget) : longint;
-function  GTK_WIDGET_USER_STYLE(obj : PGtkWidget) : boolean;
-function  GTK_WIDGET_REDRAW_PENDING(obj : PGtkWidget) : boolean;
-function  GTK_CONTAINER_RESIZE_PENDING(obj : PGtkWidget) : boolean;
-function  GTK_WIDGET_RESIZE_NEEDED(obj : PGtkWidget) : boolean;
-function  GTK_WIDGET_LEAVE_PENDING(obj : PGtkWidget) : boolean;
-function  GTK_WIDGET_HAS_SHAPE_MASK(obj : PGtkWidget) : boolean;
-function  GTK_WIDGET_IN_REPARENT(obj : PGtkWidget) : boolean;
-function  GTK_WIDGET_IS_OFFSCREEN(obj : PGtkWidget) : boolean;
  
  
  
@@ -1003,12 +922,7 @@ Type
      bp_TGtkContainer_need_resize = 16;
      bm_TGtkContainer_resize_mode = $60000;
      bp_TGtkContainer_resize_mode = 17;
-function  border_width(var a : TGtkContainer) : guint;
-procedure set_border_width(var a : TGtkContainer; __border_width : guint);
-function  need_resize(var a : TGtkContainer) : guint;
-procedure set_need_resize(var a : TGtkContainer; __need_resize : guint);
-function  resize_mode(var a : TGtkContainer) : guint;
-procedure set_resize_mode(var a : TGtkContainer; __resize_mode : guint);
+
     type
        PGtkContainerClass = ptr TGtkContainerClass;
        TGtkContainerClass = record
@@ -1030,8 +944,6 @@ procedure set_resize_mode(var a : TGtkContainer; __resize_mode : guint);
 Type
   GTK_CONTAINER = PGtkContainer;
   GTK_CONTAINER_CLASS = PGtkContainerClass;
-function  GTK_IS_CONTAINER(obj:pointer):boolean;
-function  GTK_IS_CONTAINER_CLASS(klass:pointer):boolean;
  
  
  
@@ -1049,8 +961,6 @@ function  GTK_IS_CONTAINER_CLASS(klass:pointer):boolean;
 Type
   GTK_BIN=PGtkBin;
   GTK_BIN_CLASS=PGtkBinClass;
-function  GTK_IS_BIN(obj:pointer):boolean;
-function  GTK_IS_BIN_CLASS(klass:pointer):boolean;
  
  
  
@@ -1073,8 +983,6 @@ function  GTK_IS_BIN_CLASS(klass:pointer):boolean;
     const
        bm_TGtkSignalQuery_is_user_signal = $1;
        bp_TGtkSignalQuery_is_user_signal = 0;
-function  is_user_signal(var a : TGtkSignalQuery) : guint;
-procedure set_is_user_signal(var a : TGtkSignalQuery; __is_user_signal : guint);
  
  
  
@@ -1095,8 +1003,6 @@ Type
   GTK_ITEM=PGtkItem;
   GTK_ITEM_CLASS=PGtkItemClass;
 
-function  GTK_IS_ITEM(obj:pointer):boolean;
-function  GTK_IS_ITEM_CLASS(klass:pointer):boolean;
  
  
  
@@ -1153,10 +1059,6 @@ function  GTK_IS_ITEM_CLASS(klass:pointer):boolean;
      bp_TGtkBindingEntry_destroyed = 0;
      bm_TGtkBindingEntry_in_emission = $2;
      bp_TGtkBindingEntry_in_emission = 1;
-function  destroyed(var a : TGtkBindingEntry) : guint;
-procedure set_destroyed(var a : TGtkBindingEntry; __destroyed : guint);
-function  in_emission(var a : TGtkBindingEntry) : guint;
-procedure set_in_emission(var a : TGtkBindingEntry; __in_emission : guint);
  
  
  
@@ -1172,8 +1074,6 @@ procedure set_in_emission(var a : TGtkBindingEntry; __in_emission : guint);
 type
   GTK_INVISIBLE=PGtkInvisible;
   GTK_INVISIBLE_CLASS=PGtkInvisibleClass;
-function  GTK_IS_INVISIBLE(obj:pointer):boolean;
-function  GTK_IS_INVISIBLE_CLASS(klass:pointer):boolean;
  
  
  
@@ -1194,8 +1094,6 @@ function  GTK_IS_INVISIBLE_CLASS(klass:pointer):boolean;
 Type
   GTK_ALIGNMENT=PGtkAlignment;
   GTK_ALIGNMENT_CLASS=PGtkAlignmentClass;
-function  GTK_IS_ALIGNMENT(obj:pointer):boolean;
-function  GTK_IS_ALIGNMENT_CLASS(klass:pointer):boolean;
  
  
  
@@ -1229,20 +1127,10 @@ function  GTK_IS_ALIGNMENT_CLASS(klass:pointer):boolean;
        bp_position = 5;
        bm_use_uposition = 128;
        bp_use_uposition = 7;
-function  modal(var a : TGtkWindow) : guint;
-procedure set_modal(var a : TGtkWindow; __modal : guint);
-function  allow_shrink(var a : TGtkWindow) : guint;
-procedure set_allow_shrink(var a : TGtkWindow; __allow_shrink : guint);
-function  allow_grow(var a : TGtkWindow) : guint;
-procedure set_allow_grow(var a : TGtkWindow; __allow_grow : guint);
-function  auto_shrink(var a : TGtkWindow) : guint;
-procedure set_auto_shrink(var a : TGtkWindow; __auto_shrink : guint);
-function  handling_resize(var a : TGtkWindow) : guint;cdecl;
-procedure set_handling_resize(var a : TGtkWindow; __handling_resize : guint);cdecl;
-function  position(var a : TGtkWindow) : guint;
-procedure set_position(var a : TGtkWindow; __position : guint);
-function  use_uposition(var a : TGtkWindow) : guint;
-procedure set_use_uposition(var a : TGtkWindow; __use_uposition : guint);
+
+
+
+
     type
        PGtkWindowClass = ptr TGtkWindowClass;
        TGtkWindowClass = record
@@ -1252,8 +1140,6 @@ procedure set_use_uposition(var a : TGtkWindow; __use_uposition : guint);
 Type
   GTK_WINDOW = PGtkWindow;
   GTK_WINDOW_CLASS = PGtkWindowClass;
-function  GTK_IS_WINDOW(obj:pointer):boolean;
-function  GTK_IS_WINDOW_CLASS(klass:pointer):boolean;
  
  
  
@@ -1296,14 +1182,8 @@ type
      bp_TGtkSocket_have_size = 2;
      bm_TGtkSocket_need_map = $8;
      bp_TGtkSocket_need_map = 3;
-function  same_app(var a : TGtkSocket) : guint;
-procedure set_same_app(var a : TGtkSocket; __same_app : guint);
-function  focus_in(var a : TGtkSocket) : guint;
-procedure set_focus_in(var a : TGtkSocket; __focus_in : guint);
-function  have_size(var a : TGtkSocket) : guint;
-procedure set_have_size(var a : TGtkSocket; __have_size : guint);
-function  need_map(var a : TGtkSocket) : guint;
-procedure set_need_map(var a : TGtkSocket; __need_map : guint);
+
+
   type
      PGtkSocketClass = ptr TGtkSocketClass;
      TGtkSocketClass = record
@@ -1376,8 +1256,6 @@ type
 type
   GTK_PACKER=PGtkPacker;
   GTK_PACKER_CLASS=PGtkPackerClass;
-function  GTK_IS_PACKER(obj:pointer):boolean;
-function  GTK_IS_PACKER_CLASS(klass:pointer):boolean;
  
  
  
@@ -1408,8 +1286,6 @@ function  GTK_IS_PACKER_CLASS(klass:pointer):boolean;
 type
   GTK_LAYOUT=PGtkLayout;
   GTK_LAYOUT_CLASS=PGtkLayoutClass;
-function  GTK_IS_LAYOUT(obj:pointer):boolean;
-function  GTK_IS_LAYOUT_CLASS(klass:pointer):boolean;
  
  
  
@@ -1432,8 +1308,6 @@ function  GTK_IS_LAYOUT_CLASS(klass:pointer):boolean;
 Type
   GTK_FRAME=PGtkFrame;
   GTK_FRAME_CLASS=PGtkFrameClass;
-function  GTK_IS_FRAME(obj:pointer):boolean;
-function  GTK_IS_FRAME_CLASS(klass:pointer):boolean;
  
  
  
@@ -1455,8 +1329,6 @@ function  GTK_IS_FRAME_CLASS(klass:pointer):boolean;
 Type
   GTK_ASPECT_FRAME=PGtkAspectFrame;
   GTK_ASPECT_FRAME_CLASS=PGtkAspectFrameClass;
-function  GTK_IS_ASPECT_FRAME(obj:pointer):boolean;
-function  GTK_IS_ASPECT_FRAME_CLASS(klass:pointer):boolean;
 
  
  
@@ -1480,8 +1352,6 @@ function  GTK_IS_ASPECT_FRAME_CLASS(klass:pointer):boolean;
 Type
   GTK_VIEWPORT = PGtkViewport;
   GTK_VIEWPORT_CLASS = PGtkViewportClass;
-function  GTK_IS_VIEWPORT(obj:pointer):boolean;
-function  GTK_IS_VIEWPORT_CLASS(klass:pointer):boolean;
  
  
  
@@ -1517,16 +1387,9 @@ function  GTK_IS_VIEWPORT_CLASS(klass:pointer):boolean;
        bp_click_child = 8;
        bm_need_timer = 2048;
        bp_need_timer = 11;
-function  policy(var a : TGtkRange) : guint;
-procedure set_policy(var a : TGtkRange; __policy : guint);
-function  scroll_type(var a : TGtkRange) : guint;
-procedure set_scroll_type(var a : TGtkRange; __scroll_type : guint);
-function  in_child(var a : TGtkRange) : guint;overload;
-procedure set_in_child(var a : TGtkRange; __in_child : guint);overload;
-function  click_child(var a : TGtkRange) : guint;overload;
-procedure set_click_child(var a : TGtkRange; __click_child : guint);overload;
-function  need_timer(var a : TGtkRange) : guint;overload;
-procedure set_need_timer(var a : TGtkRange; __need_timer : guint);overload;
+
+
+
     type
        PGtkRangeClass = ptr TGtkRangeClass;
        TGtkRangeClass = record
@@ -1554,8 +1417,8 @@ procedure set_need_timer(var a : TGtkRange; __need_timer : guint);overload;
 Type
   GTK_RANGE=PGtkRange;
   GTK_RANGE_CLASS=PGtkRangeClass;
-function  GTK_IS_RANGE(obj:pointer):boolean;
-function  GTK_IS_RANGE_CLASS(klass:pointer):boolean;
+
+
   type
      TGtkImageLoader = function (window:PGdkWindow; colormap:PGdkColormap; mask:PPGdkBitmap; transparent_color:PGdkColor; filename:Pgchar):PGdkPixmap;cdecl;
   type
@@ -1614,12 +1477,10 @@ function  GTK_IS_RANGE_CLASS(klass:pointer):boolean;
      bp_TGtkEditable_editable = 1;
      bm_TGtkEditable_visible = $4;
      bp_TGtkEditable_visible = 2;
-function  has_selection(var a : TGtkEditable) : guint;
-procedure set_has_selection(var a : TGtkEditable; __has_selection : guint);
-function  editable(var a : TGtkEditable) : guint;
-procedure set_editable(var a : TGtkEditable; __editable : guint);
-function  visible(var a : TGtkEditable) : guint;overload;
-procedure set_visible(var a : TGtkEditable; __visible : guint);overload;
+
+
+
+
   type
      PGtkEditableClass = ptr TGtkEditableClass;
      TGtkEditableClass = record
@@ -1648,8 +1509,6 @@ procedure set_visible(var a : TGtkEditable; __visible : guint);overload;
 Type
   GTK_EDITABLE=PGtkEditable;
   GTK_EDITABLE_CLASS=PGtkEditableClass;
-function  GTK_IS_EDITABLE(obj:pointer):boolean;
-function  GTK_IS_EDITABLE_CLASS(klass:pointer):boolean;
  
  
  
@@ -1717,12 +1576,8 @@ function  GTK_IS_EDITABLE_CLASS(klass:pointer):boolean;
      bp_TGtkText_word_wrap = 1;
      bm_TGtkText_use_wchar = $4;
      bp_TGtkText_use_wchar = 2;
-function  line_wrap(var a : TGtkText) : guint;
-procedure set_line_wrap(var a : TGtkText; __line_wrap : guint);
-function  word_wrap(var a : TGtkText) : guint;
-procedure set_word_wrap(var a : TGtkText; __word_wrap : guint);
-function  use_wchar(var a : TGtkText) : guint; overload;
-procedure set_use_wchar(var a : TGtkText; __use_wchar : guint);overload;
+
+
   type
      PGtkTextClass = ptr TGtkTextClass;
      TGtkTextClass = record
@@ -1732,9 +1587,6 @@ procedure set_use_wchar(var a : TGtkText; __use_wchar : guint);overload;
 Type
   GTK_TEXT=PGtkText;
   GTK_TEXT_CLASS=PGtkTextClass;
-function  GTK_TEXT_INDEX(t:PGtkText; index:longint):char;
-function  GTK_IS_TEXT(obj:pointer):boolean;
-function  GTK_IS_TEXT_CLASS(klass:pointer):boolean;
  
     type
        PGtkArrow = ptr TGtkArrow;
@@ -1765,8 +1617,8 @@ Type
   const
      bm_TGtkPixmap_build_insensitive = $1;
      bp_TGtkPixmap_build_insensitive = 0;
-function  build_insensitive(var a : TGtkPixmap) : guint;
-procedure set_build_insensitive(var a : TGtkPixmap; __build_insensitive : guint);
+
+
   type
      PGtkPixmapClass = ptr TGtkPixmapClass;
      TGtkPixmapClass = record
@@ -1775,8 +1627,6 @@ procedure set_build_insensitive(var a : TGtkPixmap; __build_insensitive : guint)
 Type
   GTK_PIXMAP=PGtkPixmap;
   GTK_PIXMAP_CLASS=PGtkPixmapClass;
-function  GTK_IS_PIXMAP(obj:pointer):boolean;
-function  GTK_IS_PIXMAP_CLASS(klass:pointer):boolean;
  
  
  
@@ -1795,12 +1645,7 @@ function  GTK_IS_PIXMAP_CLASS(klass:pointer):boolean;
        bp_button_down = 1;
        bm_relief = 4;
        bp_relief = 2;
-function  in_button(var a : TGtkButton) : guint;overload;
-procedure set_in_button(var a : TGtkButton; __in_button : guint);overload;
-function  button_down(var a : TGtkButton) : guint;
-procedure set_button_down(var a : TGtkButton; __button_down : guint);
-function  relief(var a : TGtkButton) : guint;
-procedure set_relief(var a : TGtkButton; __button_down : guint);
+
     type
        PGtkButtonClass = ptr TGtkButtonClass;
        TGtkButtonClass = record
@@ -1814,8 +1659,6 @@ procedure set_relief(var a : TGtkButton; __button_down : guint);
 Type
   GTK_BUTTON=PGtkButton;
   GTK_BUTTON_CLASS=PGtkButtonClass;
-function  GTK_IS_BUTTON(obj:pointer):boolean;
-function  GTK_IS_BUTTON_CLASS(klass:pointer):boolean;
  
  
  
@@ -1832,10 +1675,8 @@ function  GTK_IS_BUTTON_CLASS(klass:pointer):boolean;
      bp_TGtkToggleButton_active = 0;
      bm_TGtkToggleButton_draw_indicator = $2;
      bp_TGtkToggleButton_draw_indicator = 1;
-function  active(var a : TGtkToggleButton) : guint;overload;
-procedure set_active(var a : TGtkToggleButton; __active : guint);overload;
-function  draw_indicator(var a : TGtkToggleButton) : guint;
-procedure set_draw_indicator(var a : TGtkToggleButton; __draw_indicator : guint);
+
+
     type
        PGtkToggleButtonClass = ptr TGtkToggleButtonClass;
        TGtkToggleButtonClass = record
@@ -1845,8 +1686,6 @@ procedure set_draw_indicator(var a : TGtkToggleButton; __draw_indicator : guint)
 Type
   GTK_TOGGLE_BUTTON=PGtkToggleButton;
   GTK_TOGGLE_BUTTON_CLASS=PGtkToggleButtonClass;
-function  GTK_IS_TOGGLE_BUTTON(obj:pointer):boolean;
-function  GTK_IS_TOGGLE_BUTTON_CLASS(klass:pointer):boolean;
 
  
  
@@ -1867,8 +1706,6 @@ function  GTK_IS_TOGGLE_BUTTON_CLASS(klass:pointer):boolean;
 Type
   GTK_CHECK_BUTTON=PGtkCheckButton;
   GTK_CHECK_BUTTON_CLASS=PGtkCheckButtonClass;
-function  GTK_IS_CHECK_BUTTON(obj:pointer):boolean;
-function  GTK_IS_CHECK_BUTTON_CLASS(klass:pointer):boolean;
  
  
  
@@ -1895,16 +1732,9 @@ function  GTK_IS_CHECK_BUTTON_CLASS(klass:pointer):boolean;
        bp_submenu_direction = 3;
        bm_right_justify = 16;
        bp_right_justify = 4;
-function  show_toggle_indicator(var a : TGtkMenuItem) : guint;
-procedure set_show_toggle_indicator(var a : TGtkMenuItem; __show_toggle_indicator : guint);
-function  show_submenu_indicator(var a : TGtkMenuItem) : guint;
-procedure set_show_submenu_indicator(var a : TGtkMenuItem; __show_submenu_indicator : guint);
-function  submenu_placement(var a : TGtkMenuItem) : guint;overload;
-procedure set_submenu_placement(var a : TGtkMenuItem; __submenu_placement : guint);overload;
-function  submenu_direction(var a : TGtkMenuItem) : guint;
-procedure set_submenu_direction(var a : TGtkMenuItem; __submenu_direction : guint);
-function  right_justify(var a : TGtkMenuItem) : guint;
-procedure set_right_justify(var a : TGtkMenuItem; __right_justify : guint);
+
+
+
     type
        PGtkMenuItemClass = ptr TGtkMenuItemClass;
        TGtkMenuItemClass = record
@@ -1917,9 +1747,6 @@ procedure set_right_justify(var a : TGtkMenuItem; __right_justify : guint);
 Type
   GTK_MENU_ITEM=PGtkMenuItem;
   GTK_MENU_ITEM_CLASS=PGtkMenuItemClass;
-function  GTK_IS_MENU_ITEM(obj:pointer):boolean;
-function  GTK_IS_MENU_ITEM_CLASS(klass:pointer):boolean;
- 
  
  
  
@@ -1935,10 +1762,6 @@ function  GTK_IS_MENU_ITEM_CLASS(klass:pointer):boolean;
        bm_checkmenuitem_always_show_toggle = 2;
        bp_checkmenuitem_always_show_toggle = 1;
 
-function  active(var a : TGtkCheckMenuItem) : guint;overload;
-procedure set_active(var a : TGtkCheckMenuItem; __active : guint);overload;
-function  always_show_toggle(var a : TGtkCheckMenuItem) : guint;
-procedure set_always_show_toggle(var a : TGtkCheckMenuItem; __always_show_toggle : guint);
     type
        PGtkCheckMenuItemClass = ptr TGtkCheckMenuItemClass;
        TGtkCheckMenuItemClass = record
@@ -1949,8 +1772,6 @@ procedure set_always_show_toggle(var a : TGtkCheckMenuItem; __always_show_toggle
 Type
   GTK_CHECK_MENU_ITEM=PGtkCheckMenuItem;
   GTK_CHECK_MENU_ITEM_CLASS=PGtkCheckMenuItemClass;
-function  GTK_IS_CHECK_MENU_ITEM(obj:pointer):boolean;
-function  GTK_IS_CHECK_MENU_ITEM_CLASS(klass:pointer):boolean;
 
  
  
@@ -1965,8 +1786,7 @@ function  GTK_IS_CHECK_MENU_ITEM_CLASS(klass:pointer):boolean;
   const
      bm_TGtkTearoffMenuItem_torn_off = $1;
      bp_TGtkTearoffMenuItem_torn_off = 0;
-function  torn_off(var a : TGtkTearoffMenuItem) : guint;overload;
-procedure set_torn_off(var a : TGtkTearoffMenuItem; __torn_off : guint);overload;
+
   type
      PGtkTearoffMenuItemClass = ptr TGtkTearoffMenuItemClass;
      TGtkTearoffMenuItemClass = record
@@ -1975,8 +1795,6 @@ procedure set_torn_off(var a : TGtkTearoffMenuItem; __torn_off : guint);overload
 type
   GTK_TEAROFF_MENU_ITEM=PGtkTearoffMenuItem;
   GTK_TEAROFF_MENU_ITEM_CLASS=PGtkTearoffMenuItemClass;
-function  GTK_IS_TEAROFF_MENU_ITEM(obj:pointer):boolean;
-function  GTK_IS_TEAROFF_MENU_ITEM_CLASS(klass:pointer):boolean;
 
  
  
@@ -2011,14 +1829,6 @@ Type
   GTK_CURVE=PGtkCurve;
   GTK_CURVE_CLASS=PGtkCurveClass;
 
-function  GTK_IS_CURVE(obj:pointer):boolean;
-function  GTK_IS_CURVE_CLASS(klass:pointer):boolean;
-
-
-
-
-function  GTK_IS_DIALOG(obj:pointer):boolean;
-function  GTK_IS_DIALOG_CLASS(klass:pointer):boolean;
 
 
   type
@@ -2065,12 +1875,8 @@ Type
      bp_TGtkEntry_text_mb_dirty = 0;
      bm_TGtkEntry_use_wchar = $2;
      bp_TGtkEntry_use_wchar = 1;
-function  visible(var a : TGtkEntry) : guint;overload;
-procedure set_visible(var a : TGtkEntry; __visible : guint);overload;
-function  text_mb_dirty(var a : TGtkEntry) : guint;
-procedure set_text_mb_dirty(var a : TGtkEntry; __text_mb_dirty : guint);
-function  use_wchar(var a : TGtkEntry) : guint;overload;
-procedure set_use_wchar(var a : TGtkEntry; __use_wchar : guint);overload;
+
+
   type
      PGtkEntryClass = ptr TGtkEntryClass;
      TGtkEntryClass = record
@@ -2079,8 +1885,6 @@ procedure set_use_wchar(var a : TGtkEntry; __use_wchar : guint);overload;
 Type
   GTK_ENTRY=PGtkEntry;
   GTK_ENTRY_CLASS=PGtkEntryClass;
-function  GTK_IS_ENTRY(obj:pointer):boolean;
-function  GTK_IS_ENTRY_CLASS(klass:pointer):boolean;
  
  
  
@@ -2098,8 +1902,6 @@ Type
   GTK_EVENT_BOX=PGtkEventBox;
   GTK_EVENT_BOX_CLASS=PGtkEventBoxClass;
 
-function  GTK_IS_EVENT_BOX(obj:pointer):boolean;
-function  GTK_IS_EVENT_BOX_CLASS(klass:pointer):boolean;
 
  
  
@@ -2138,8 +1940,6 @@ Type
   GTK_FILE_SELECTION=PGtkFileSelection;
   GTK_FILE_SELECTION_CLASS=PGtkFileSelectionClass;
 
-function  GTK_IS_FILE_SELECTION(obj:pointer):boolean;
-function  GTK_IS_FILE_SELECTION_CLASS(klass:pointer):boolean;
 
  
  
@@ -2165,8 +1965,6 @@ Type
   GTK_FIXED=PGtkFixed;
   GTK_FIXED_CLASS=PGtkFixedClass;
 
-function  GTK_IS_FIXED(obj:pointer):boolean;
-function  GTK_IS_FIXED_CLASS(klass:pointer):boolean;
 
 
  
@@ -2199,18 +1997,7 @@ function  GTK_IS_FIXED_CLASS(klass:pointer):boolean;
      bp_TGtkHandleBox_shrink_on_detach = 5;
      bm_TGtkHandleBox_snap_edge = $1C0;
      bp_TGtkHandleBox_snap_edge = 6;
-function  handle_position(var a : TGtkHandleBox) : guint;
-procedure set_handle_position(var a : TGtkHandleBox; __handle_position : guint);
-function  float_window_mapped(var a : TGtkHandleBox) : guint;
-procedure set_float_window_mapped(var a : TGtkHandleBox; __float_window_mapped : guint);
-function  child_detached(var a : TGtkHandleBox) : guint;
-procedure set_child_detached(var a : TGtkHandleBox; __child_detached : guint);
-function  in_Drag(var a : TGtkHandleBox) : guint;overload;
-procedure set_in_drag(var a : TGtkHandleBox; __in_drag : guint);overload;
-function  shrink_on_detach(var a : TGtkHandleBox) : guint;
-procedure set_shrink_on_detach(var a : TGtkHandleBox; __shrink_on_detach : guint);
-function  snap_edge(var a : TGtkHandleBox) : gint;
-procedure set_snap_edge(var a : TGtkHandleBox; __snap_edge : gint);
+
   type
      PGtkHandleBoxClass = ptr TGtkHandleBoxClass;
      TGtkHandleBoxClass = record
@@ -2222,11 +2009,6 @@ Type
   GTK_HANDLE_BOX=PGtkHandleBox;
   GTK_HANDLE_BOX_CLASS=PGtkHandleBoxClass;
 
-function  GTK_IS_HANDLE_BOX(obj:pointer):boolean;
-function  GTK_IS_HANDLE_BOX_CLASS(klass:pointer):boolean;
-
- 
- 
  
  
   type
@@ -2243,8 +2025,6 @@ function  GTK_IS_HANDLE_BOX_CLASS(klass:pointer):boolean;
 Type
   GTK_IMAGE=PGtkImage;
   GTK_IMAGE_CLASS=PGtkImageClass;
-function  GTK_IS_IMAGE(obj:pointer):boolean;
-function  GTK_IS_IMAGE_CLASS(klass:pointer):boolean;
 
  
  
@@ -2272,12 +2052,6 @@ function  GTK_IS_IMAGE_CLASS(klass:pointer):boolean;
 Type
   GTK_INPUT_DIALOG=PGtkInputDialog;
   GTK_INPUT_DIALOG_CLASS=PGtkInputDialogClass;
-function  GTK_IS_INPUT_DIALOG(obj:pointer):boolean;
-
-
- 
- 
-function  GTK_IS_INPUT_DIALOG_CLASS(klass:pointer):boolean;
  
  
   type
@@ -2304,12 +2078,7 @@ function  GTK_IS_INPUT_DIALOG_CLASS(klass:pointer):boolean;
      bp_TGtkList_drag_selection = 2;
      bm_TGtkList_add_mode = $8;
      bp_TGtkList_add_mode = 3;
-function  selection_mode(var a : TGtkList) : guint;overload;
-procedure set_selection_mode(var a : TGtkList; __selection_mode : guint);overload;
-function  drag_selection(var a : TGtkList) : guint;cdecl;
-procedure set_drag_selection(var a : TGtkList; __drag_selection : guint);cdecl;
-function  add_mode(var a : TGtkList) : guint;
-procedure set_add_mode(var a : TGtkList; __add_mode : guint);
+
   type
      PGtkListClass = ptr TGtkListClass;
      TGtkListClass = record
@@ -2322,11 +2091,7 @@ Type
   GTK_LIST=PGtkList;
   GTK_LIST_CLASS=PGtkListClass;
 
-function  GTK_IS_LIST(obj:pointer):boolean;
-function  GTK_IS_LIST_CLASS(klass:pointer):boolean;
 
- 
- 
  
  
   type
@@ -2352,8 +2117,6 @@ Type
   GTK_LIST_ITEM=PGtkListItem;
   GTK_LIST_ITEM_CLASS=PGtkListItemClass;
 
-function  GTK_IS_LIST_ITEM(obj:pointer):boolean;
-function  GTK_IS_LIST_ITEM_CLASS(klass:pointer):boolean;
 
  
  
@@ -2382,20 +2145,7 @@ function  GTK_IS_LIST_ITEM_CLASS(klass:pointer):boolean;
      bp_TGtkMenuShell_menu_flag = 6;
      bm_TGtkMenuShell_ignore_enter = $80;
      bp_TGtkMenuShell_ignore_enter = 7;
-function  active(var a : TGtkMenuShell) : guint;overload;
-procedure set_active(var a : TGtkMenuShell; __active : guint);overload;
-function  have_grab(var a : TGtkMenuShell) : guint;
-procedure set_have_grab(var a : TGtkMenuShell; __have_grab : guint);
-function  have_xgrab(var a : TGtkMenuShell) : guint;
-procedure set_have_xgrab(var a : TGtkMenuShell; __have_xgrab : guint);
-function  button(var a : TGtkMenuShell) : guint;overload;
-procedure set_button(var a : TGtkMenuShell; __button : guint);overload;
-function  ignore_leave(var a : TGtkMenuShell) : guint;
-procedure set_ignore_leave(var a : TGtkMenuShell; __ignore_leave : guint);
-function  menu_flag(var a : TGtkMenuShell) : guint;
-procedure set_menu_flag(var a : TGtkMenuShell; __menu_flag : guint);
-function  ignore_enter(var a : TGtkMenuShell) : guint;
-procedure set_ignore_enter(var a : TGtkMenuShell; __ignore_enter : guint);
+
   type
      PGtkMenuShellClass = ptr TGtkMenuShellClass;
      TGtkMenuShellClass = record
@@ -2410,14 +2160,10 @@ procedure set_ignore_enter(var a : TGtkMenuShell; __ignore_enter : guint);
   const
      bm_TGtkMenuShellClass_submenu_placement = $1;
      bp_TGtkMenuShellClass_submenu_placement = 0;
-function  submenu_placement(var a : TGtkMenuShellClass) : guint;overload;
-procedure set_submenu_placement(var a : TGtkMenuShellClass; __submenu_placement : guint);overload;
 Type
   GTK_MENU_SHELL=PGtkMenuShell;
   GTK_MENU_SHELL_CLASS=PGtkMenuShellClass;
 
-function  GTK_IS_MENU_SHELL(obj:pointer):boolean;
-function  GTK_IS_MENU_SHELL_CLASS(klass:pointer):boolean;
 
  
  
@@ -2470,8 +2216,7 @@ function  GTK_IS_MENU_SHELL_CLASS(klass:pointer):boolean;
      bm_TGtkMenu_torn_off = $1;
      bp_TGtkMenu_torn_off = 0;
 
-function  torn_off(var a : TGtkMenu) : guint;overload;
-procedure set_torn_off(var a : TGtkMenu; __torn_off : guint);overload;
+
 type
      PGtkMenuClass = ptr TGtkMenuClass;
      TGtkMenuClass = record
@@ -2481,8 +2226,6 @@ Type
   GTK_MENU = PGtkMenu;
   GTK_MENU_CLASS = PGtkMenuClass;
 
-function  GTK_IS_MENU(obj:pointer):boolean;
-function  GTK_IS_MENU_CLASS(klass:pointer):boolean;
 
  
  
@@ -2501,8 +2244,6 @@ function  GTK_IS_MENU_CLASS(klass:pointer):boolean;
 Type
   GTK_MENU_BAR=PGtkMenuBar;
   GTK_MENU_BAR_CLASS=PGtkMenuBarClass;
-function  GTK_IS_MENU_BAR(obj:pointer):boolean;
-function  GTK_IS_MENU_BAR_CLASS(klass:pointer):boolean;
  
  
  
@@ -2524,8 +2265,6 @@ Type
   GTK_OPTION_MENU=PGtkOptionMenu;
   GTK_OPTION_MENU_CLASS=PGtkOptionMenuClass;
 
-function  GTK_IS_OPTION_MENU(obj:pointer):boolean;
-function  GTK_IS_OPTION_MENU_CLASS(klass:pointer):boolean;
 
  
  
@@ -2548,10 +2287,7 @@ function  GTK_IS_OPTION_MENU_CLASS(klass:pointer):boolean;
      bp_TGtkPreview_type = 0;
      bm_TGtkPreview_expand = $2;
      bp_TGtkPreview_expand = 1;
-function  thetype(var a : TGtkPreview) : guint;
-procedure set_thetype(var a : TGtkPreview; __type : guint);
-function  expand(var a : TGtkPreview) : guint;overload;
-procedure set_expand(var a : TGtkPreview; __expand : guint);overload;
+
   type
      PGtkPreviewInfo = ptr TGtkPreviewInfo;
      PGtkDitherInfo = ptr TGtkDitherInfo;
@@ -2573,8 +2309,6 @@ procedure set_expand(var a : TGtkPreview; __expand : guint);overload;
 Type
   GTK_PREVIEW=PGtkPreview;
   GTK_PREVIEW_CLASS=PGtkPreviewClass;
-function  GTK_IS_PREVIEW(obj:pointer):boolean;
-function  GTK_IS_PREVIEW_CLASS(klass:pointer):boolean;
 
  
  
@@ -2626,15 +2360,10 @@ function  GTK_IS_PREVIEW_CLASS(klass:pointer):boolean;
      bp_TGtkItemFactoryItem_modified = 0;
      bm_TGtkItemFactoryItem_in_propagation = $2;
      bp_TGtkItemFactoryItem_in_propagation = 1;
-function  modified(var a : TGtkItemFactoryItem) : guint;
-procedure set_modified(var a : TGtkItemFactoryItem; __modified : guint);
-function  in_propagation(var a : TGtkItemFactoryItem) : guint;
-procedure set_in_propagation(var a : TGtkItemFactoryItem; __in_propagation : guint);
+
 type
   GTK_ITEM_FACTORY=TGtkItemFactory;
   GTK_ITEM_FACTORY_CLASS=TGtkItemFactoryClass;
-function  GTK_IS_ITEM_FACTORY(obj:pointer):boolean;
-function  GTK_IS_ITEM_FACTORY_CLASS(klass:pointer):boolean;
 
  
  
@@ -2655,10 +2384,7 @@ function  GTK_IS_ITEM_FACTORY_CLASS(klass:pointer):boolean;
      bp_TGtkProgress_show_text = 0;
      bm_TGtkProgress_activity_mode = $2;
      bp_TGtkProgress_activity_mode = 1;
-function  show_text(var a : TGtkProgress) : guint;
-procedure set_show_text(var a : TGtkProgress; __show_text : guint);
-function  activity_mode(var a : TGtkProgress) : guint;
-procedure set_activity_mode(var a : TGtkProgress; __activity_mode : guint);
+
   type
      PGtkProgressClass = ptr TGtkProgressClass;
      TGtkProgressClass = record
@@ -2670,8 +2396,6 @@ procedure set_activity_mode(var a : TGtkProgress; __activity_mode : guint);
 type
   GTK_PROGRESS=PGtkProgress;
   GTK_PROGRESS_CLASS=PGtkProgressClass;
-function  GTK_IS_PROGRESS(obj:pointer):boolean;
-function  GTK_IS_PROGRESS_CLASS(klass:pointer):boolean;
 
  
  
@@ -2705,8 +2429,7 @@ function  GTK_IS_PROGRESS_CLASS(klass:pointer):boolean;
   const
      bm_TGtkProgressBar_activity_dir = $1;
      bp_TGtkProgressBar_activity_dir = 0;
-function  activity_dir(var a : TGtkProgressBar) : guint;
-procedure set_activity_dir(var a : TGtkProgressBar; __activity_dir : guint);
+
   type
      PGtkProgressBarClass = ptr TGtkProgressBarClass;
      TGtkProgressBarClass = record
@@ -2715,8 +2438,6 @@ procedure set_activity_dir(var a : TGtkProgressBar; __activity_dir : guint);
 Type
   GTK_PROGRESS_BAR=PGtkProgressBar;
   GTK_PROGRESS_BAR_CLASS=PGtkProgressBarClass;
-function  GTK_IS_PROGRESS_BAR(obj:pointer):boolean;
-function  GTK_IS_PROGRESS_BAR_CLASS(klass:pointer):boolean;
  
  
  
@@ -2734,8 +2455,7 @@ function  GTK_IS_PROGRESS_BAR_CLASS(klass:pointer):boolean;
 Type
   GTK_RADIO_BUTTON=PGtkRadioButton;
   GTK_RADIO_BUTTON_CLASS=PGtkRadioButtonClass;
-function  GTK_IS_RADIO_BUTTON(obj:pointer):boolean;
-function  GTK_IS_RADIO_BUTTON_CLASS(klass:pointer):boolean;
+ 
  
  
  
@@ -2753,8 +2473,6 @@ function  GTK_IS_RADIO_BUTTON_CLASS(klass:pointer):boolean;
 Type
   GTK_RADIO_MENU_ITEM=PGtkRadioMenuItem;
   GTK_RADIO_MENU_ITEM_CLASS=PGtkRadioMenuItemClass;
-function  GTK_IS_RADIO_MENU_ITEM(obj:pointer):boolean;
-function  GTK_IS_RADIO_MENU_ITEM_CLASS(klass:pointer):boolean;
  
  
  
@@ -2778,16 +2496,8 @@ function  GTK_IS_RADIO_MENU_ITEM_CLASS(klass:pointer):boolean;
      bp_TGtkScrolledWindow_vscrollbar_visible = 5;
      bm_TGtkScrolledWindow_window_placement = $C0;
      bp_TGtkScrolledWindow_window_placement = 6;
-function  hscrollbar_policy(var a : TGtkScrolledWindow) : guint;
-procedure set_hscrollbar_policy(var a : TGtkScrolledWindow; __hscrollbar_policy : guint);
-function  vscrollbar_policy(var a : TGtkScrolledWindow) : guint;
-procedure set_vscrollbar_policy(var a : TGtkScrolledWindow; __vscrollbar_policy : guint);
-function  hscrollbar_visible(var a : TGtkScrolledWindow) : guint;
-procedure set_hscrollbar_visible(var a : TGtkScrolledWindow; __hscrollbar_visible : guint);
-function  vscrollbar_visible(var a : TGtkScrolledWindow) : guint;
-procedure set_vscrollbar_visible(var a : TGtkScrolledWindow; __vscrollbar_visible : guint);
-function  window_placement(var a : TGtkScrolledWindow) : guint;
-procedure set_window_placement(var a : TGtkScrolledWindow; __window_placement : guint);
+
+
   type
      PGtkScrolledWindowClass = ptr TGtkScrolledWindowClass;
      TGtkScrolledWindowClass = record
@@ -2797,8 +2507,6 @@ procedure set_window_placement(var a : TGtkScrolledWindow; __window_placement : 
 Type
   GTK_SCROLLED_WINDOW=PGtkScrolledWindow;
   GTK_SCROLLED_WINDOW_CLASS=PGtkScrolledWindowClass;
-function  GTK_IS_SCROLLED_WINDOW(obj:pointer):boolean;
-function  GTK_IS_SCROLLED_WINDOW_CLASS(klass:pointer):boolean;
  
  
  
@@ -2881,24 +2589,7 @@ function  GTK_IS_SCROLLED_WINDOW_CLASS(klass:pointer):boolean;
      bp_TGtkSpinButton_wrap = 14;
      bm_TGtkSpinButton_snap_to_ticks = $8000;
      bp_TGtkSpinButton_snap_to_ticks = 15;
-function  in_child(var a : TGtkSpinButton) : guint;overload;
-procedure set_in_child(var a : TGtkSpinButton; __in_child : guint);overload;
-function  click_child(var a : TGtkSpinButton) : guint;overload;
-procedure set_click_child(var a : TGtkSpinButton; __click_child : guint);overload;
-function  button(var a : TGtkSpinButton) : guint;overload;
-procedure set_button(var a : TGtkSpinButton; __button : guint);overload;
-function  need_timer(var a : TGtkSpinButton) : guint;overload;
-procedure set_need_timer(var a : TGtkSpinButton; __need_timer : guint);overload;
-function  timer_calls(var a : TGtkSpinButton) : guint;
-procedure set_timer_calls(var a : TGtkSpinButton; __timer_calls : guint);
-function  digits(var a : TGtkSpinButton) : guint;
-procedure set_digits(var a : TGtkSpinButton; __digits : guint);
-function  numeric(var a : TGtkSpinButton) : guint;
-procedure set_numeric(var a : TGtkSpinButton; __numeric : guint);
-function  wrap(var a : TGtkSpinButton) : guint;
-procedure set_wrap(var a : TGtkSpinButton; __wrap : guint);
-function  snap_to_ticks(var a : TGtkSpinButton) : guint;
-procedure set_snap_to_ticks(var a : TGtkSpinButton; __snap_to_ticks : guint);
+
   type
      PGtkSpinButtonClass = ptr TGtkSpinButtonClass;
      TGtkSpinButtonClass = record
@@ -2907,9 +2598,6 @@ procedure set_snap_to_ticks(var a : TGtkSpinButton; __snap_to_ticks : guint);
 Type
   GTK_SPIN_BUTTON = PGtkSpinButton;
   GTK_SPIN_BUTTON_CLASS = PGtkSpinButtonClass;
-function  GTK_IS_SPIN_BUTTON(obj:pointer):boolean;
-function  GTK_IS_SPIN_BUTTON_CLASS(klass:pointer):boolean;
- 
  
  
  
@@ -2952,8 +2640,7 @@ function  GTK_IS_SPIN_BUTTON_CLASS(klass:pointer):boolean;
      bm_TGtkTable_homogeneous = $1;
      bp_TGtkTable_homogeneous = 0;
 
-function  homogeneous(var a : TGtkTable) : guint;overload;
-procedure set_homogeneous(var a : TGtkTable; __homogeneous : guint);overload;
+
   const
      bm_TGtkTableChild_xexpand = $1;
      bp_TGtkTableChild_xexpand = 0;
@@ -2967,18 +2654,6 @@ procedure set_homogeneous(var a : TGtkTable; __homogeneous : guint);overload;
      bp_TGtkTableChild_xfill = 4;
      bm_TGtkTableChild_yfill = $20;
      bp_TGtkTableChild_yfill = 5;
-function  xexpand(var a : TGtkTableChild) : guint;
-procedure set_xexpand(var a : TGtkTableChild; __xexpand : guint);
-function  yexpand(var a : TGtkTableChild) : guint;
-procedure set_yexpand(var a : TGtkTableChild; __yexpand : guint);
-function  xshrink(var a : TGtkTableChild) : guint;
-procedure set_xshrink(var a : TGtkTableChild; __xshrink : guint);
-function  yshrink(var a : TGtkTableChild) : guint;
-procedure set_yshrink(var a : TGtkTableChild; __yshrink : guint);
-function  xfill(var a : TGtkTableChild) : guint;
-procedure set_xfill(var a : TGtkTableChild; __xfill : guint);
-function  yfill(var a : TGtkTableChild) : guint;
-procedure set_yfill(var a : TGtkTableChild; __yfill : guint);
   const
      bm_TGtkTableRowCol_need_expand = $1;
      bp_TGtkTableRowCol_need_expand = 0;
@@ -2990,21 +2665,11 @@ procedure set_yfill(var a : TGtkTableChild; __yfill : guint);
      bp_TGtkTableRowCol_shrink = 3;
      bm_TGtkTableRowCol_empty = $10;
      bp_TGtkTableRowCol_empty = 4;
-function  need_expand(var a : TGtkTableRowCol) : guint;
-procedure set_need_expand(var a : TGtkTableRowCol; __need_expand : guint);
-function  need_shrink(var a : TGtkTableRowCol) : guint;
-procedure set_need_shrink(var a : TGtkTableRowCol; __need_shrink : guint);
-function  expand(var a : TGtkTableRowCol) : guint;overload;
-procedure set_expand(var a : TGtkTableRowCol; __expand : guint);overload;
-function  shrink(var a : TGtkTableRowCol) : guint;
-procedure set_shrink(var a : TGtkTableRowCol; __shrink : guint);
-function  empty(var a : TGtkTableRowCol) : guint;
-procedure set_empty(var a : TGtkTableRowCol; __empty : guint);
+
+
 Type
   GTK_TABLE=PGtkTable;
   GTK_TABLE_CLASS=PGtkTableClass;
-function  GTK_IS_TABLE(obj:pointer):boolean;
-function  GTK_IS_TABLE_CLASS(klass:pointer):boolean;
  
  
  
@@ -3025,10 +2690,8 @@ function  GTK_IS_TABLE_CLASS(klass:pointer):boolean;
      bp_TGtkTipsQuery_emit_always = 0;
      bm_TGtkTipsQuery_in_query = $2;
      bp_TGtkTipsQuery_in_query = 1;
-function  emit_always(var a : TGtkTipsQuery) : guint;
-procedure set_emit_always(var a : TGtkTipsQuery; __emit_always : guint);
-function  in_query(var a : TGtkTipsQuery) : guint;
-procedure set_in_query(var a : TGtkTipsQuery; __in_query : guint);
+
+
   type
      PGtkTipsQueryClass = ptr TGtkTipsQueryClass;
      TGtkTipsQueryClass = record
@@ -3041,9 +2704,6 @@ procedure set_in_query(var a : TGtkTipsQuery; __in_query : guint);
 Type
   GTK_TIPS_QUERY=PGtkTipsQuery;
   GTK_TIPS_QUERY_CLASS=PGtkTipsQueryClass;
-function  GTK_IS_TIPS_QUERY(obj:pointer):boolean;
-function  GTK_IS_TIPS_QUERY_CLASS(klass:pointer):boolean;
- 
  
  
  
@@ -3075,10 +2735,7 @@ function  GTK_IS_TIPS_QUERY_CLASS(klass:pointer):boolean;
      bp_TGtkTooltips_delay = 0;
      bm_TGtkTooltips_enabled = $40000000;
      bp_TGtkTooltips_enabled = 30;
-function  delay(var a : TGtkTooltips) : guint;
-procedure set_delay(var a : TGtkTooltips; __delay : guint);
-function  enabled(var a : TGtkTooltips) : guint;
-procedure set_enabled(var a : TGtkTooltips; __enabled : guint);
+
   type
      PGtkTooltipsClass = ptr TGtkTooltipsClass;
      TGtkTooltipsClass = record
@@ -3087,8 +2744,6 @@ procedure set_enabled(var a : TGtkTooltips; __enabled : guint);
 Type
   GTK_TOOLTIPS=PGtkTooltips;
   GTK_TOOLTIPS_CLASS=PGtkTooltipsClass;
-function  GTK_IS_TOOLTIPS(obj:pointer):boolean;
-function  GTK_IS_TOOLTIPS_CLASS(klass:pointer):boolean;
 
  
  
@@ -3156,8 +2811,8 @@ Type
   const
      bm_TGtkTreeItem_expanded = $1;
      bp_TGtkTreeItem_expanded = 0;
-function  expanded(var a : TGtkTreeItem) : guint;
-procedure set_expanded(var a : TGtkTreeItem; __expanded : guint);
+
+
   type
      PGtkTreeItemClass = ptr TGtkTreeItemClass;
      TGtkTreeItemClass = record
@@ -3168,13 +2823,7 @@ procedure set_expanded(var a : TGtkTreeItem; __expanded : guint);
 Type
   GTK_TREE_ITEM=PGtkTreeItem;
   GTK_TREE_ITEM_CLASS=PGtkTreeItemClass;
-function  GTK_TREE_ITEM_SUBTREE(obj : PGtktreeitem) : PGTkWidget;
-function  GTK_IS_TREE_ITEM(obj:pointer):boolean;
-function  GTK_IS_TREE_ITEM_CLASS(klass:pointer):boolean;
- 
- 
- 
- 
+
   type
      TGtkTreeViewMode = longint;
   const
@@ -3200,12 +2849,7 @@ function  GTK_IS_TREE_ITEM_CLASS(klass:pointer):boolean;
      bp_TGtkTree_view_mode = 2;
      bm_TGtkTree_view_line = $8;
      bp_TGtkTree_view_line = 3;
-function  selection_mode(var a : TGtkTree) : guint;overload;
-procedure set_selection_mode(var a : TGtkTree; __selection_mode : guint);overload;
-function  view_mode(var a : TGtkTree) : guint;
-procedure set_view_mode(var a : TGtkTree; __view_mode : guint);
-function  view_line(var a : TGtkTree) : guint;
-procedure set_view_line(var a : TGtkTree; __view_line : guint);
+
   type
      PGtkTreeClass = ptr TGtkTreeClass;
      TGtkTreeClass = record
@@ -3217,9 +2861,6 @@ procedure set_view_line(var a : TGtkTree; __view_line : guint);
 Type
   GTK_TREE = PGtkTree;
   GTK_TREE_CLASS = PGtkTreeClass;
-function  GTK_IS_ROOT_TREE(obj : PGtkTree) : gboolean;
-function  GTK_TREE_ROOT_TREE(obj : PGtkTree) : PGtkTree;
-function  GTK_TREE_SELECTION(obj : PGtkTree) : PGList;
  
  
  
@@ -3235,8 +2876,6 @@ function  GTK_TREE_SELECTION(obj : PGtkTree) : PGList;
     const
        bm_box_homogeneous = 1;
        bp_box_homogeneous = 0;
-function  homogeneous(var a : TGtkBox) : guint;overload;
-procedure set_homogeneous(var a : TGtkBox; __homogeneous : guint);overload;
     type
        PGtkBoxClass = ptr TGtkBoxClass;
        TGtkBoxClass = record
@@ -3255,17 +2894,10 @@ procedure set_homogeneous(var a : TGtkBox; __homogeneous : guint);overload;
        bp_box_fill = 1;
        bm_box_pack = 4;
        bp_box_pack = 2;
-function  expand(var a : TGtkBoxChild) : guint;overload;
-procedure set_expand(var a : TGtkBoxChild; __expand : guint);overload;
-function  fill(var a : TGtkBoxChild) : guint;overload;
-procedure set_fill(var a : TGtkBoxChild; __fill : guint);overload;
-function  pack(var a : TGtkBoxChild) : guint;overload;
-procedure set_pack(var a : TGtkBoxChild; __pack : guint);overload;
+
 Type
   GTK_BOX=PGtkBox;
   GTK_BOX_CLASS=PGtkBoxClass;
-function  GTK_IS_BOX(obj:pointer):boolean;
-function  GTK_IS_BOX_CLASS(klass:pointer):boolean;
  
  
  
@@ -3282,8 +2914,6 @@ function  GTK_IS_BOX_CLASS(klass:pointer):boolean;
 Type
   GTK_HBOX=PGtkHBox;
   GTK_HBOX_CLASS=PGtkHBoxClass;
-function  GTK_IS_HBOX(obj:pointer):boolean;
-function  GTK_IS_HBOX_CLASS(klass:pointer):boolean;
  
  
  
@@ -3300,8 +2930,6 @@ function  GTK_IS_HBOX_CLASS(klass:pointer):boolean;
 Type
   GTK_VBOX=PGtkVBox;
   GTK_VBOX_CLASS=PGtkVBoxClass;
-function  GTK_IS_VBOX(obj:pointer):boolean;
-function  GTK_IS_VBOX_CLASS(klass:pointer):boolean;
  
  
  
@@ -3326,8 +2954,6 @@ function  GTK_IS_VBOX_CLASS(klass:pointer):boolean;
 Type
   GTK_BUTTON_BOX=PGtkButtonBox;
   GTK_BUTTON_BOX_CLASS=PGtkButtonBoxClass;
-function  GTK_IS_BUTTON_BOX(obj:pointer):boolean;
-function  GTK_IS_BUTTON_BOX_CLASS(klass:pointer):boolean;
 
  
  
@@ -3346,8 +2972,6 @@ function  GTK_IS_BUTTON_BOX_CLASS(klass:pointer):boolean;
 Type
   GTK_HBUTTON_BOX=PGtkHButtonBox;
   GTK_HBUTTON_BOX_CLASS=PGtkHButtonBoxClass;
-function  GTK_IS_HBUTTON_BOX(obj:pointer):boolean;
-function  GTK_IS_HBUTTON_BOX_CLASS(klass:pointer):boolean;
  
  
  
@@ -3363,8 +2987,6 @@ function  GTK_IS_HBUTTON_BOX_CLASS(klass:pointer):boolean;
 Type
   GTK_VBUTTON_BOX=PGtkVButtonBox;
   GTK_VBUTTON_BOX_CLASS=PGtkVButtonBoxClass;
-function  GTK_IS_VBUTTON_BOX(obj:pointer):boolean;
-function  GTK_IS_VBUTTON_BOX_CLASS(klass:pointer):boolean;
  
  
  
@@ -3401,18 +3023,7 @@ function  GTK_IS_VBUTTON_BOX_CLASS(klass:pointer):boolean;
      bp_TGtkPaned_child2_shrink = 4;
      bm_TGtkPaned_child2_resize = $20;
      bp_TGtkPaned_child2_resize = 5;
-function  position_set(var a : TGtkPaned) : guint;
-procedure set_position_set(var a : TGtkPaned; __position_set : guint);
-function  in_drag(var a : TGtkPaned) : guint;overload;
-procedure set_in_drag(var a : TGtkPaned; __in_drag : guint);overload;
-function  child1_shrink(var a : TGtkPaned) : guint;
-procedure set_child1_shrink(var a : TGtkPaned; __child1_shrink : guint);
-function  child1_resize(var a : TGtkPaned) : guint;
-procedure set_child1_resize(var a : TGtkPaned; __child1_resize : guint);
-function  child2_shrink(var a : TGtkPaned) : guint;
-procedure set_child2_shrink(var a : TGtkPaned; __child2_shrink : guint);
-function  child2_resize(var a : TGtkPaned) : guint;
-procedure set_child2_resize(var a : TGtkPaned; __child2_resize : guint);
+
   type
      PGtkPanedClass = ptr TGtkPanedClass;
      TGtkPanedClass = record
@@ -3421,9 +3032,7 @@ procedure set_child2_resize(var a : TGtkPaned; __child2_resize : guint);
 Type
   GTK_PANED=PGtkPaned;
   GTK_PANED_CLASS=PGtkPanedClass;
-function  GTK_IS_PANED(obj:pointer):boolean;
-function  GTK_IS_PANED_CLASS(klass:pointer):boolean;
- 
+
  
  
  
@@ -3439,8 +3048,6 @@ function  GTK_IS_PANED_CLASS(klass:pointer):boolean;
 Type
   GTK_HPANED=PGtkHPaned;
   GTK_HPANED_CLASS=PGtkHPanedClass;
-function  GTK_IS_HPANED(obj:pointer):boolean;
-function  GTK_IS_HPANED_CLASS(klass:pointer):boolean;
  
  
  
@@ -3456,12 +3063,7 @@ function  GTK_IS_HPANED_CLASS(klass:pointer):boolean;
 Type
   GTK_VPANED=PGtkVPaned;
   GTK_VPANED_CLASS=PGtkVPanedClass;
-function  GTK_IS_VPANED(obj:pointer):boolean;
-function  GTK_IS_VPANED_CLASS(klass:pointer):boolean;
- 
- 
- 
- 
+
   type
      PGtkRulerMetric = ptr TGtkRulerMetric;
      PGtkRuler = ptr TGtkRuler;
@@ -3494,8 +3096,6 @@ function  GTK_IS_VPANED_CLASS(klass:pointer):boolean;
 Type
   GTK_RULER=PGtkRuler;
   GTK_RULER_CLASS=PGtkRulerClass;
-function  GTK_IS_RULER(obj:pointer):boolean;
-function  GTK_IS_RULER_CLASS(klass:pointer):boolean;
  
  
  
@@ -3513,8 +3113,6 @@ Type
   GTK_HRULER=PGtkHRuler;
   GTK_HRULER_CLASS=PGtkHRulerClass;
 
-function  GTK_IS_HRULER(obj:pointer):boolean;
-function  GTK_IS_HRULER_CLASS(klass:pointer):boolean;
 
  
  
@@ -3532,8 +3130,6 @@ function  GTK_IS_HRULER_CLASS(klass:pointer):boolean;
 Type
   GTK_VRULER=PGtkVRuler;
   GTK_VRULER_CLASS=PGtkVRulerClass;
-function  GTK_IS_VRULER(obj:pointer):boolean;
-function  GTK_IS_VRULER_CLASS(klass:pointer):boolean;
 
  
  
@@ -3550,10 +3146,7 @@ function  GTK_IS_VRULER_CLASS(klass:pointer):boolean;
      bp_TGtkScale_draw_value = 0;
      bm_TGtkScale_value_pos = $6;
      bp_TGtkScale_value_pos = 1;
-function  draw_value(var a : TGtkScale) : guint;
-procedure set_draw_value(var a : TGtkScale; __draw_value : guint);
-function  value_pos(var a : TGtkScale) : guint;
-procedure set_value_pos(var a : TGtkScale; __value_pos : guint);
+
   type
      PGtkScaleClass = ptr TGtkScaleClass;
      TGtkScaleClass = record
@@ -3565,9 +3158,6 @@ procedure set_value_pos(var a : TGtkScale; __value_pos : guint);
 Type
   GTK_SCALE=PGtkScale;
   GTK_SCALE_CLASS=PGtkScaleClass;
-function  GTK_IS_SCALE(obj:pointer):boolean;
-function  GTK_IS_SCALE_CLASS(klass:pointer):boolean;
- 
  
  
  
@@ -3583,8 +3173,6 @@ function  GTK_IS_SCALE_CLASS(klass:pointer):boolean;
 Type
   GTK_HSCALE=PGtkHScale;
   GTK_HSCALE_CLASS=PGtkHScaleClass;
-function  GTK_IS_HSCALE(obj:pointer):boolean;
-function  GTK_IS_HSCALE_CLASS(klass:pointer):boolean;
  
  
  
@@ -3601,10 +3189,6 @@ function  GTK_IS_HSCALE_CLASS(klass:pointer):boolean;
 Type
   GTK_VSCALE=PGtkVScale;
   GTK_VSCALE_CLASS=PGtkVScaleClass;
-function  GTK_IS_VSCALE(obj:pointer):boolean;
-function  GTK_IS_VSCALE_CLASS(klass:pointer):boolean;
- 
- 
  
     type
        PGtkScrollbar = ptr TGtkScrollbar;
@@ -3618,8 +3202,6 @@ function  GTK_IS_VSCALE_CLASS(klass:pointer):boolean;
 Type
   GTK_SCROLLBAR=PGtkScrollbar;
   GTK_SCROLLBAR_CLASS=PGtkScrollbarClass;
-function  GTK_IS_SCROLLBAR(obj:pointer):boolean;
-function  GTK_IS_SCROLLBAR_CLASS(klass:pointer):boolean;
  
 
  
@@ -3638,11 +3220,7 @@ function  GTK_IS_SCROLLBAR_CLASS(klass:pointer):boolean;
 Type
   GTK_HSCROLLBAR=PGtkHScrollbar;
   GTK_HSCROLLBAR_CLASS=PGtkHScrollbarClass;
-function  GTK_IS_HSCROLLBAR(obj:pointer):boolean;
-function  GTK_IS_HSCROLLBAR_CLASS(klass:pointer):boolean;
 
- 
- 
  
  
     type
@@ -3658,8 +3236,6 @@ Type
   GTK_VSCROLLBAR=PGtkVScrollbar;
   GTK_VSCROLLBAR_CLASS=PGtkVScrollbarClass;
 
-function  GTK_IS_VSCROLLBAR(obj:pointer):boolean;
-function  GTK_IS_VSCROLLBAR_CLASS(klass:pointer):boolean;
 
  
  
@@ -3677,11 +3253,7 @@ function  GTK_IS_VSCROLLBAR_CLASS(klass:pointer):boolean;
 Type
   GTK_SEPARATOR=PGtkSeparator;
   GTK_SEPARATOR_CLASS=PGtkSeparatorClass;
-function  GTK_IS_SEPARATOR(obj:pointer):boolean;
-function  GTK_IS_SEPARATOR_CLASS(klass:pointer):boolean;
 
-
- 
  
  
   type
@@ -3696,8 +3268,6 @@ function  GTK_IS_SEPARATOR_CLASS(klass:pointer):boolean;
 Type
   GTK_HSEPARATOR=PGtkHSeparator;
   GTK_HSEPARATOR_CLASS=PGtkHSeparatorClass;
-function  GTK_IS_HSEPARATOR(obj:pointer):boolean;
-function  GTK_IS_HSEPARATOR_CLASS(klass:pointer):boolean;
 
  
  
@@ -3716,8 +3286,6 @@ Type
   GTK_VSEPARATOR=PGtkVSeparator;
   GTK_VSEPARATOR_CLASS=PGtkVSeparatorClass;
 
-function  GTK_IS_VSEPARATOR(obj:pointer):boolean;
-function  GTK_IS_VSEPARATOR_CLASS(klass:pointer):boolean;
 
  
  
@@ -3748,16 +3316,8 @@ function  GTK_IS_VSEPARATOR_CLASS(klass:pointer):boolean;
      bp_use_arrows = 3;
      bm_use_arrows_always = 16;
      bp_use_arrows_always = 4;
-function  value_in_list(var a : TGtkCombo) : guint;
-procedure set_value_in_list(var a : TGtkCombo; __value_in_list : guint);
-function  ok_if_empty(var a : TGtkCombo) : guint;
-procedure set_ok_if_empty(var a : TGtkCombo; __ok_if_empty : guint);
-function  case_sensitive(var a : TGtkCombo) : guint;
-procedure set_case_sensitive(var a : TGtkCombo; __case_sensitive : guint);
-function  use_arrows(var a : TGtkCombo) : guint;
-procedure set_use_arrows(var a : TGtkCombo; __use_arrows : guint);
-function  use_arrows_always(var a : TGtkCombo) : guint;
-procedure set_use_arrows_always(var a : TGtkCombo; __use_arrows_always : guint);
+
+
   type
      PGtkComboClass = ptr TGtkComboClass;
      TGtkComboClass = record
@@ -3850,8 +3410,6 @@ Type
   GTK_COLOR_SELECTION_DIALOG=PGtkColorSelectionDialog;
   GTK_COLOR_SELECTION_DIALOG_CLASS=PGtkColorSelectionDialogClass;
  
-function  GTK_IS_COLOR_SELECTION(obj:pointer):boolean;
-function  GTK_IS_COLOR_SELECTION_CLASS(klass:pointer):boolean;
  
  
  
@@ -4091,12 +3649,7 @@ type
        bp_TGtkCListRow_bg_set = 1;
        bm_TGtkCListRow_selectable = $4;
        bp_TGtkCListRow_selectable = 2;
-function  fg_set(var a : TGtkCListRow) : guint;cdecl;
-procedure set_fg_set(var a : TGtkCListRow; __fg_set : guint);cdecl;
-function  bg_set(var a : TGtkCListRow) : guint;cdecl;
-procedure set_bg_set(var a : TGtkCListRow; __bg_set : guint);cdecl;
-function  selectable(var a : TGtkCListRow) : guint;
-procedure set_selectable(var a : TGtkCListRow; __selectable : guint);
+
 Type
   GTK_CLIST=PGtkCList;
   GTK_CLIST_CLASS=PGtkCListClass;
@@ -4157,28 +3710,7 @@ Type
      bp_TGtkNotebook_child_has_focus = 13;
      bm_TGtkNotebook_have_visible_child = $4000;
      bp_TGtkNotebook_have_visible_child = 14;
-function  show_tabs(var a : TGtkNotebook) : guint;
-procedure set_show_tabs(var a : TGtkNotebook; __show_tabs : guint);
-function  homogeneous(var a : TGtkNotebook) : guint;overload;
-procedure set_homogeneous(var a : TGtkNotebook; __homogeneous : guint);overload;
-function  show_border(var a : TGtkNotebook) : guint;
-procedure set_show_border(var a : TGtkNotebook; __show_border : guint);
-function  tab_pos(var a : TGtkNotebook) : guint;
-procedure set_tab_pos(var a : TGtkNotebook; __tab_pos : guint);
-function  scrollable(var a : TGtkNotebook) : guint;
-procedure set_scrollable(var a : TGtkNotebook; __scrollable : guint);
-function  in_child(var a : TGtkNotebook) : guint;overload;
-procedure set_in_child(var a : TGtkNotebook; __in_child : guint);overload;
-function  click_child(var a : TGtkNotebook) : guint;overload;
-procedure set_click_child(var a : TGtkNotebook; __click_child : guint);overload;
-function  button(var a : TGtkNotebook) : guint;overload;
-procedure set_button(var a : TGtkNotebook; __button : guint);overload;
-function  need_timer(var a : TGtkNotebook) : guint;overload;
-procedure set_need_timer(var a : TGtkNotebook; __need_timer : guint);overload;
-function  child_has_focus(var a : TGtkNotebook) : guint;
-procedure set_child_has_focus(var a : TGtkNotebook; __child_has_focus : guint);
-function  have_visible_child(var a : TGtkNotebook) : guint;
-procedure set_have_visible_child(var a : TGtkNotebook; __have_visible_child : guint);
+
   const
      bm_TGtkNotebookPage_default_menu = $1;
      bp_TGtkNotebookPage_default_menu = 0;
@@ -4190,16 +3722,7 @@ procedure set_have_visible_child(var a : TGtkNotebook; __have_visible_child : gu
      bp_TGtkNotebookPage_fill = 3;
      bm_TGtkNotebookPage_pack = $10;
      bp_TGtkNotebookPage_pack = 4;
-function  default_menu(var a : TGtkNotebookPage) : guint;
-procedure set_default_menu(var a : TGtkNotebookPage; __default_menu : guint);
-function  default_tab(var a : TGtkNotebookPage) : guint;
-procedure set_default_tab(var a : TGtkNotebookPage; __default_tab : guint);
-function  expand(var a : TGtkNotebookPage) : guint;overload;
-procedure set_expand(var a : TGtkNotebookPage; __expand : guint);overload;
-function  fill(var a : TGtkNotebookPage) : guint;overload;
-procedure set_fill(var a : TGtkNotebookPage; __fill : guint);overload;
-function  pack(var a : TGtkNotebookPage) : guint;overload;
-procedure set_pack(var a : TGtkNotebookPage; __pack : guint);overload;
+
 Type
   GTK_NOTEBOOK=PGtkNotebook;
   GTK_NOTEBOOK_CLASS=PGtkNotebookClass;
@@ -4282,12 +3805,6 @@ Type
      bp_TGtkCTree_expander_style = 2;
      bm_TGtkCTree_show_stub = $10;
      bp_TGtkCTree_show_stub = 4;
-function  line_style(var a : TGtkCTree) : guint;
-procedure set_line_style(var a : TGtkCTree; __line_style : guint);
-function  expander_style(var a : TGtkCTree) : guint;
-procedure set_expander_style(var a : TGtkCTree; __expander_style : guint);
-function  show_stub(var a : TGtkCTree) : guint;
-procedure set_show_stub(var a : TGtkCTree; __show_stub : guint);
   const
      bm_TGtkCTreeRow_is_leaf = $1;
      bp_TGtkCTreeRow_is_leaf = 0;
@@ -4436,6 +3953,492 @@ type
   GTK_FONT_SELECTION_CLASS=PGtkFontSelectionClass;
   GTK_FONT_SELECTION_DIALOG=PGtkFontSelectionDialog;
   GTK_FONT_SELECTION_DIALOG_CLASS=PGtkFontSelectionDialogClass;
+end public
+
+public
+function  submenu_placement(var a : TGtkMenuShellClass) : guint;overload;
+procedure set_submenu_placement(var a : TGtkMenuShellClass; __submenu_placement : guint);overload;
+function  GTK_IS_MENU_ITEM(obj:pointer):boolean;
+function  GTK_IS_MENU_ITEM_CLASS(klass:pointer):boolean;
+function  GTK_IS_LIST_ITEM(obj:pointer):boolean;
+function  GTK_IS_LIST_ITEM_CLASS(klass:pointer):boolean;
+function  GTK_IS_ENTRY(obj:pointer):boolean;
+function  GTK_IS_ENTRY_CLASS(klass:pointer):boolean;
+function  GTK_IS_BUTTON(obj:pointer):boolean;
+function  GTK_IS_BUTTON_CLASS(klass:pointer):boolean;
+function  GTK_IS_WINDOW(obj:pointer):boolean;
+function  GTK_IS_WINDOW_CLASS(klass:pointer):boolean;
+function  GTK_IS_INVISIBLE(obj:pointer):boolean;
+function  GTK_IS_INVISIBLE_CLASS(klass:pointer):boolean;
+function  max_width(var a : TGtkLabel) : guint;
+procedure set_max_width(var a : TGtkLabel; __max_width : guint);
+function  jtype(var a : TGtkLabel) : guint;
+procedure set_jtype(var a : TGtkLabel; __jtype : guint);
+function  GTK_CHECK_VERSION(major,minor,micro:longint):boolean;
+function  visible(var a : TGtkEntry) : guint;overload;
+procedure set_visible(var a : TGtkEntry; __visible : guint);overload;
+function  text_mb_dirty(var a : TGtkEntry) : guint;
+procedure set_text_mb_dirty(var a : TGtkEntry; __text_mb_dirty : guint);
+function  use_wchar(var a : TGtkEntry) : guint;overload;
+procedure set_use_wchar(var a : TGtkEntry; __use_wchar : guint);overload;
+function  GTK_IS_CURVE(obj:pointer):boolean;
+function  GTK_IS_CURVE_CLASS(klass:pointer):boolean;
+function  GTK_IS_TEAROFF_MENU_ITEM(obj:pointer):boolean;
+function  GTK_IS_TEAROFF_MENU_ITEM_CLASS(klass:pointer):boolean;
+function  torn_off(var a : TGtkTearoffMenuItem) : guint;overload;
+procedure set_torn_off(var a : TGtkTearoffMenuItem; __torn_off : guint);overload;
+function  show_toggle_indicator(var a : TGtkMenuItem) : guint;
+procedure set_show_toggle_indicator(var a : TGtkMenuItem; __show_toggle_indicator : guint);
+function  show_submenu_indicator(var a : TGtkMenuItem) : guint;
+procedure set_show_submenu_indicator(var a : TGtkMenuItem; __show_submenu_indicator : guint);
+function  submenu_placement(var a : TGtkMenuItem) : guint;overload;
+procedure set_submenu_placement(var a : TGtkMenuItem; __submenu_placement : guint);overload;
+function  submenu_direction(var a : TGtkMenuItem) : guint;
+procedure set_submenu_direction(var a : TGtkMenuItem; __submenu_direction : guint);
+function  right_justify(var a : TGtkMenuItem) : guint;
+procedure set_right_justify(var a : TGtkMenuItem; __right_justify : guint);
+function  GTK_IS_CHECK_BUTTON(obj:pointer):boolean;
+function  GTK_IS_CHECK_BUTTON_CLASS(klass:pointer):boolean;
+function  GTK_IS_TOGGLE_BUTTON(obj:pointer):boolean;
+function  GTK_IS_TOGGLE_BUTTON_CLASS(klass:pointer):boolean;
+function  active(var a : TGtkToggleButton) : guint;overload;
+procedure set_active(var a : TGtkToggleButton; __active : guint);overload;
+function  draw_indicator(var a : TGtkToggleButton) : guint;
+procedure set_draw_indicator(var a : TGtkToggleButton; __draw_indicator : guint);
+
+function  in_button(var a : TGtkButton) : guint;overload;
+procedure set_in_button(var a : TGtkButton; __in_button : guint);overload;
+function  button_down(var a : TGtkButton) : guint;
+procedure set_button_down(var a : TGtkButton; __button_down : guint);
+function  relief(var a : TGtkButton) : guint;
+procedure set_relief(var a : TGtkButton; __button_down : guint);
+function  GTK_IS_PIXMAP(obj:pointer):boolean;
+function  GTK_IS_PIXMAP_CLASS(klass:pointer):boolean;
+function  build_insensitive(var a : TGtkPixmap) : guint;
+procedure set_build_insensitive(var a : TGtkPixmap; __build_insensitive : guint);
+function  GTK_TEXT_INDEX(t:PGtkText; index:longint):char;
+function  GTK_IS_TEXT(obj:pointer):boolean;
+function  GTK_IS_TEXT_CLASS(klass:pointer):boolean;
+function  line_wrap(var a : TGtkText) : guint;
+procedure set_line_wrap(var a : TGtkText; __line_wrap : guint);
+function  word_wrap(var a : TGtkText) : guint;
+procedure set_word_wrap(var a : TGtkText; __word_wrap : guint);
+function  use_wchar(var a : TGtkText) : guint; overload;
+procedure set_use_wchar(var a : TGtkText; __use_wchar : guint);overload;
+function  GTK_IS_EDITABLE(obj:pointer):boolean;
+function  GTK_IS_EDITABLE_CLASS(klass:pointer):boolean;
+function  has_selection(var a : TGtkEditable) : guint;
+procedure set_has_selection(var a : TGtkEditable; __has_selection : guint);
+function  editable(var a : TGtkEditable) : guint;
+procedure set_editable(var a : TGtkEditable; __editable : guint);
+function  visible(var a : TGtkEditable) : guint;overload;
+procedure set_visible(var a : TGtkEditable; __visible : guint);overload;
+function  GTK_IS_RANGE(obj:pointer):boolean;
+function  GTK_IS_RANGE_CLASS(klass:pointer):boolean;
+function  policy(var a : TGtkRange) : guint;
+procedure set_policy(var a : TGtkRange; __policy : guint);
+function  scroll_type(var a : TGtkRange) : guint;
+procedure set_scroll_type(var a : TGtkRange; __scroll_type : guint);
+function  in_child(var a : TGtkRange) : guint;overload;
+procedure set_in_child(var a : TGtkRange; __in_child : guint);overload;
+function  click_child(var a : TGtkRange) : guint;overload;
+procedure set_click_child(var a : TGtkRange; __click_child : guint);overload;
+function  need_timer(var a : TGtkRange) : guint;overload;
+procedure set_need_timer(var a : TGtkRange; __need_timer : guint);overload;
+function  GTK_IS_VIEWPORT(obj:pointer):boolean;
+function  GTK_IS_VIEWPORT_CLASS(klass:pointer):boolean;
+function  GTK_IS_ASPECT_FRAME(obj:pointer):boolean;
+function  GTK_IS_ASPECT_FRAME_CLASS(klass:pointer):boolean;
+function  GTK_IS_FRAME(obj:pointer):boolean;
+function  GTK_IS_FRAME_CLASS(klass:pointer):boolean;
+function  GTK_IS_LAYOUT(obj:pointer):boolean;
+function  GTK_IS_LAYOUT_CLASS(klass:pointer):boolean;
+function  GTK_IS_PACKER(obj:pointer):boolean;
+function  GTK_IS_PACKER_CLASS(klass:pointer):boolean;
+function  same_app(var a : TGtkSocket) : guint;
+procedure set_same_app(var a : TGtkSocket; __same_app : guint);
+function  focus_in(var a : TGtkSocket) : guint;
+procedure set_focus_in(var a : TGtkSocket; __focus_in : guint);
+function  have_size(var a : TGtkSocket) : guint;
+procedure set_have_size(var a : TGtkSocket; __have_size : guint);
+function  need_map(var a : TGtkSocket) : guint;
+procedure set_need_map(var a : TGtkSocket; __need_map : guint);
+function  modal(var a : TGtkWindow) : guint;
+procedure set_modal(var a : TGtkWindow; __modal : guint);
+function  allow_shrink(var a : TGtkWindow) : guint;
+procedure set_allow_shrink(var a : TGtkWindow; __allow_shrink : guint);
+function  allow_grow(var a : TGtkWindow) : guint;
+procedure set_allow_grow(var a : TGtkWindow; __allow_grow : guint);
+function  auto_shrink(var a : TGtkWindow) : guint;
+procedure set_auto_shrink(var a : TGtkWindow; __auto_shrink : guint);
+function  handling_resize(var a : TGtkWindow) : guint;cdecl;
+procedure set_handling_resize(var a : TGtkWindow; __handling_resize : guint);cdecl;
+function  position(var a : TGtkWindow) : guint;
+procedure set_position(var a : TGtkWindow; __position : guint);
+function  use_uposition(var a : TGtkWindow) : guint;
+procedure set_use_uposition(var a : TGtkWindow; __use_uposition : guint);
+function  GTK_IS_ALIGNMENT(obj:pointer):boolean;
+function  GTK_IS_ALIGNMENT_CLASS(klass:pointer):boolean;
+function  destroyed(var a : TGtkBindingEntry) : guint;
+procedure set_destroyed(var a : TGtkBindingEntry; __destroyed : guint);
+function  in_emission(var a : TGtkBindingEntry) : guint;
+procedure set_in_emission(var a : TGtkBindingEntry; __in_emission : guint);
+function  GTK_IS_ITEM(obj:pointer):boolean;
+function  GTK_IS_ITEM_CLASS(klass:pointer):boolean;
+function  is_user_signal(var a : TGtkSignalQuery) : guint;
+procedure set_is_user_signal(var a : TGtkSignalQuery; __is_user_signal : guint);
+function  GTK_IS_BIN(obj:pointer):boolean;
+function  GTK_IS_BIN_CLASS(klass:pointer):boolean;
+function  GTK_IS_CONTAINER(obj:pointer):boolean;
+function  GTK_IS_CONTAINER_CLASS(klass:pointer):boolean;
+function  GTK_PRIVATE_FLAGS(wid : PGtkWidget) : longint;
+function  GTK_WIDGET_USER_STYLE(obj : PGtkWidget) : boolean;
+function  GTK_WIDGET_REDRAW_PENDING(obj : PGtkWidget) : boolean;
+function  GTK_CONTAINER_RESIZE_PENDING(obj : PGtkWidget) : boolean;
+function  GTK_WIDGET_RESIZE_NEEDED(obj : PGtkWidget) : boolean;
+function  GTK_WIDGET_LEAVE_PENDING(obj : PGtkWidget) : boolean;
+function  GTK_WIDGET_HAS_SHAPE_MASK(obj : PGtkWidget) : boolean;
+function  GTK_WIDGET_IN_REPARENT(obj : PGtkWidget) : boolean;
+function  GTK_WIDGET_IS_OFFSCREEN(obj : PGtkWidget) : boolean;
+function  GTK_CHECK_CLASS_TYPE(type_class:PGtkTypeClass;otype:TGtkType) : boolean;cdecl;
+
+function  GTK_IS_IDENTIFIER(obj:pointer):boolean;
+function  GTK_IS_IDENTIFIER_CLASS(klass:pointer):boolean;
+function  GTK_TYPE_MAKE(parent_t,seqno:TGtkType):TGtkType;
+function  GTK_FUNDAMENTAL_TYPE(thetype : TGtkType) : TGtkFundamentalType;
+function  GTK_TYPE_SEQNO(thetype : TGtkType) : TGtkType;
+function  GTK_VALUE_CHAR(const a : TGtkArg) : gchar;
+function  GTK_VALUE_UCHAR(const a : TGtkArg) : guchar;
+function  GTK_VALUE_BOOL(const a : TGtkArg) : gboolean;
+function  GTK_VALUE_INT(const a : TGtkArg) : gint;
+function  GTK_VALUE_UINT(const a : TGtkArg) : guint;
+function  GTK_VALUE_LONG(const a : TGtkArg) : glong;
+function  GTK_VALUE_ULONG(const a : TGtkArg) : gulong;
+function  GTK_VALUE_FLOAT(const a : TGtkArg) : gfloat;
+function  GTK_VALUE_DOUBLE(const a : TGtkArg) : gdouble;
+function  GTK_VALUE_ENUM(const a : TGtkArg) : longint;
+function  GTK_VALUE_FLAGS(const a : TGtkArg) : longint;
+function  GTK_VALUE_BOXED(const a : TGtkArg) : gpointer;
+function  GTK_VALUE_POINTER(const a : TGtkArg) : gpointer;
+function  GTK_VALUE_OBJECT(const a : TGtkArg): gpointer;
+ 
+function  GTK_RETLOC_CHAR(const a : TGtkArg) : Pgchar;
+function  GTK_RETLOC_UCHAR(const a : TGtkArg) : Pguchar;
+function  GTK_RETLOC_BOOL(const a : TGtkArg) : Pgboolean;
+function  GTK_RETLOC_INT(const a : TGtkArg) : Pgint;
+function  GTK_RETLOC_UINT(const a : TGtkArg) : Pguint;
+function  GTK_RETLOC_LONG(const a : TGtkArg) : Pglong;
+function  GTK_RETLOC_ULONG(const a : TGtkArg) : Pgulong;
+function  GTK_RETLOC_FLOAT(const a : TGtkArg) : Pgfloat;
+function  GTK_RETLOC_DOUBLE(const a : TGtkArg) : Pgdouble;
+function  GTK_RETLOC_ENUM(const a : TGtkArg) : Pgint;
+function  GTK_RETLOC_FLAGS(const a : TGtkArg) : Pguint;
+function  GTK_RETLOC_BOXED(const a : TGtkArg) : Pgpointer;
+function  border_width(var a : TGtkContainer) : guint;
+procedure set_border_width(var a : TGtkContainer; __border_width : guint);
+function  need_resize(var a : TGtkContainer) : guint;
+procedure set_need_resize(var a : TGtkContainer; __need_resize : guint);
+function  resize_mode(var a : TGtkContainer) : guint;
+procedure set_resize_mode(var a : TGtkContainer; __resize_mode : guint);
+function  active(var a : TGtkCheckMenuItem) : guint;overload;
+procedure set_active(var a : TGtkCheckMenuItem; __active : guint);overload;
+function  always_show_toggle(var a : TGtkCheckMenuItem) : guint;
+procedure set_always_show_toggle(var a : TGtkCheckMenuItem; __always_show_toggle : guint);
+function  GTK_IS_CHECK_MENU_ITEM(obj:pointer):boolean;
+function  GTK_IS_CHECK_MENU_ITEM_CLASS(klass:pointer):boolean;
+function  GTK_IS_DIALOG(obj:pointer):boolean;
+function  GTK_IS_DIALOG_CLASS(klass:pointer):boolean;
+function  GTK_IS_EVENT_BOX(obj:pointer):boolean;
+function  GTK_IS_EVENT_BOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_FILE_SELECTION(obj:pointer):boolean;
+function  GTK_IS_FILE_SELECTION_CLASS(klass:pointer):boolean;
+function  GTK_IS_FIXED(obj:pointer):boolean;
+function  GTK_IS_FIXED_CLASS(klass:pointer):boolean;
+function  handle_position(var a : TGtkHandleBox) : guint;
+procedure set_handle_position(var a : TGtkHandleBox; __handle_position : guint);
+function  float_window_mapped(var a : TGtkHandleBox) : guint;
+procedure set_float_window_mapped(var a : TGtkHandleBox; __float_window_mapped : guint);
+function  child_detached(var a : TGtkHandleBox) : guint;
+procedure set_child_detached(var a : TGtkHandleBox; __child_detached : guint);
+function  in_Drag(var a : TGtkHandleBox) : guint;overload;
+procedure set_in_drag(var a : TGtkHandleBox; __in_drag : guint);overload;
+function  shrink_on_detach(var a : TGtkHandleBox) : guint;
+procedure set_shrink_on_detach(var a : TGtkHandleBox; __shrink_on_detach : guint);
+function  snap_edge(var a : TGtkHandleBox) : gint;
+procedure set_snap_edge(var a : TGtkHandleBox; __snap_edge : gint);
+function  GTK_IS_HANDLE_BOX(obj:pointer):boolean;
+function  GTK_IS_HANDLE_BOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_IMAGE(obj:pointer):boolean;
+function  GTK_IS_IMAGE_CLASS(klass:pointer):boolean;
+function  GTK_IS_INPUT_DIALOG(obj:pointer):boolean;
+function  selection_mode(var a : TGtkList) : guint;overload;
+procedure set_selection_mode(var a : TGtkList; __selection_mode : guint);overload;
+function  drag_selection(var a : TGtkList) : guint;cdecl;
+procedure set_drag_selection(var a : TGtkList; __drag_selection : guint);cdecl;
+function  add_mode(var a : TGtkList) : guint;
+procedure set_add_mode(var a : TGtkList; __add_mode : guint);
+function  GTK_IS_LIST(obj:pointer):boolean;
+function  GTK_IS_LIST_CLASS(klass:pointer):boolean;
+function  GTK_IS_INPUT_DIALOG_CLASS(klass:pointer):boolean;
+function  active(var a : TGtkMenuShell) : guint;overload;
+procedure set_active(var a : TGtkMenuShell; __active : guint);overload;
+function  have_grab(var a : TGtkMenuShell) : guint;
+procedure set_have_grab(var a : TGtkMenuShell; __have_grab : guint);
+function  have_xgrab(var a : TGtkMenuShell) : guint;
+procedure set_have_xgrab(var a : TGtkMenuShell; __have_xgrab : guint);
+function  button(var a : TGtkMenuShell) : guint;overload;
+procedure set_button(var a : TGtkMenuShell; __button : guint);overload;
+function  ignore_leave(var a : TGtkMenuShell) : guint;
+procedure set_ignore_leave(var a : TGtkMenuShell; __ignore_leave : guint);
+function  menu_flag(var a : TGtkMenuShell) : guint;
+procedure set_menu_flag(var a : TGtkMenuShell; __menu_flag : guint);
+function  ignore_enter(var a : TGtkMenuShell) : guint;
+procedure set_ignore_enter(var a : TGtkMenuShell; __ignore_enter : guint);
+function  GTK_IS_MENU_SHELL(obj:pointer):boolean;
+function  GTK_IS_MENU_SHELL_CLASS(klass:pointer):boolean;
+function  torn_off(var a : TGtkMenu) : guint;overload;
+procedure set_torn_off(var a : TGtkMenu; __torn_off : guint);overload;
+function  GTK_IS_MENU(obj:pointer):boolean;
+function  GTK_IS_MENU_CLASS(klass:pointer):boolean;
+function  GTK_IS_MENU_BAR(obj:pointer):boolean;
+function  GTK_IS_MENU_BAR_CLASS(klass:pointer):boolean;
+function  GTK_IS_OPTION_MENU(obj:pointer):boolean;
+function  GTK_IS_OPTION_MENU_CLASS(klass:pointer):boolean;
+function  thetype(var a : TGtkPreview) : guint;
+procedure set_thetype(var a : TGtkPreview; __type : guint);
+function  expand(var a : TGtkPreview) : guint;overload;
+procedure set_expand(var a : TGtkPreview; __expand : guint);overload;
+function  GTK_IS_PREVIEW(obj:pointer):boolean;
+function  GTK_IS_PREVIEW_CLASS(klass:pointer):boolean;
+function  modified(var a : TGtkItemFactoryItem) : guint;
+procedure set_modified(var a : TGtkItemFactoryItem; __modified : guint);
+function  in_propagation(var a : TGtkItemFactoryItem) : guint;
+procedure set_in_propagation(var a : TGtkItemFactoryItem; __in_propagation : guint);
+
+function  GTK_IS_ITEM_FACTORY(obj:pointer):boolean;
+function  GTK_IS_ITEM_FACTORY_CLASS(klass:pointer):boolean;
+function  show_text(var a : TGtkProgress) : guint;
+procedure set_show_text(var a : TGtkProgress; __show_text : guint);
+function  activity_mode(var a : TGtkProgress) : guint;
+procedure set_activity_mode(var a : TGtkProgress; __activity_mode : guint);
+function  GTK_IS_PROGRESS(obj:pointer):boolean;
+function  GTK_IS_PROGRESS_CLASS(klass:pointer):boolean;
+function  activity_dir(var a : TGtkProgressBar) : guint;
+procedure set_activity_dir(var a : TGtkProgressBar; __activity_dir : guint);
+function  GTK_IS_PROGRESS_BAR(obj:pointer):boolean;
+function  GTK_IS_PROGRESS_BAR_CLASS(klass:pointer):boolean;
+function  GTK_IS_RADIO_BUTTON(obj:pointer):boolean;
+function  GTK_IS_RADIO_BUTTON_CLASS(klass:pointer):boolean;
+function  GTK_IS_RADIO_MENU_ITEM(obj:pointer):boolean;
+function  GTK_IS_RADIO_MENU_ITEM_CLASS(klass:pointer):boolean;
+function  hscrollbar_policy(var a : TGtkScrolledWindow) : guint;
+procedure set_hscrollbar_policy(var a : TGtkScrolledWindow; __hscrollbar_policy : guint);
+function  vscrollbar_policy(var a : TGtkScrolledWindow) : guint;
+procedure set_vscrollbar_policy(var a : TGtkScrolledWindow; __vscrollbar_policy : guint);
+function  hscrollbar_visible(var a : TGtkScrolledWindow) : guint;
+procedure set_hscrollbar_visible(var a : TGtkScrolledWindow; __hscrollbar_visible : guint);
+function  vscrollbar_visible(var a : TGtkScrolledWindow) : guint;
+procedure set_vscrollbar_visible(var a : TGtkScrolledWindow; __vscrollbar_visible : guint);
+function  window_placement(var a : TGtkScrolledWindow) : guint;
+procedure set_window_placement(var a : TGtkScrolledWindow; __window_placement : guint);
+function  GTK_IS_SCROLLED_WINDOW(obj:pointer):boolean;
+function  GTK_IS_SCROLLED_WINDOW_CLASS(klass:pointer):boolean;
+function  in_child(var a : TGtkSpinButton) : guint;overload;
+procedure set_in_child(var a : TGtkSpinButton; __in_child : guint);overload;
+function  click_child(var a : TGtkSpinButton) : guint;overload;
+procedure set_click_child(var a : TGtkSpinButton; __click_child : guint);overload;
+function  button(var a : TGtkSpinButton) : guint;overload;
+procedure set_button(var a : TGtkSpinButton; __button : guint);overload;
+function  need_timer(var a : TGtkSpinButton) : guint;overload;
+procedure set_need_timer(var a : TGtkSpinButton; __need_timer : guint);overload;
+function  timer_calls(var a : TGtkSpinButton) : guint;
+procedure set_timer_calls(var a : TGtkSpinButton; __timer_calls : guint);
+function  digits(var a : TGtkSpinButton) : guint;
+procedure set_digits(var a : TGtkSpinButton; __digits : guint);
+function  numeric(var a : TGtkSpinButton) : guint;
+procedure set_numeric(var a : TGtkSpinButton; __numeric : guint);
+function  wrap(var a : TGtkSpinButton) : guint;
+procedure set_wrap(var a : TGtkSpinButton; __wrap : guint);
+function  snap_to_ticks(var a : TGtkSpinButton) : guint;
+procedure set_snap_to_ticks(var a : TGtkSpinButton; __snap_to_ticks : guint);
+function  GTK_IS_SPIN_BUTTON(obj:pointer):boolean;
+function  homogeneous(var a : TGtkTable) : guint;overload;
+procedure set_homogeneous(var a : TGtkTable; __homogeneous : guint);overload;
+function  xexpand(var a : TGtkTableChild) : guint;
+procedure set_xexpand(var a : TGtkTableChild; __xexpand : guint);
+function  yexpand(var a : TGtkTableChild) : guint;
+procedure set_yexpand(var a : TGtkTableChild; __yexpand : guint);
+function  xshrink(var a : TGtkTableChild) : guint;
+procedure set_xshrink(var a : TGtkTableChild; __xshrink : guint);
+function  yshrink(var a : TGtkTableChild) : guint;
+procedure set_yshrink(var a : TGtkTableChild; __yshrink : guint);
+function  xfill(var a : TGtkTableChild) : guint;
+procedure set_xfill(var a : TGtkTableChild; __xfill : guint);
+function  yfill(var a : TGtkTableChild) : guint;
+procedure set_yfill(var a : TGtkTableChild; __yfill : guint);
+function  GTK_IS_SPIN_BUTTON_CLASS(klass:pointer):boolean;
+function  need_expand(var a : TGtkTableRowCol) : guint;
+procedure set_need_expand(var a : TGtkTableRowCol; __need_expand : guint);
+function  need_shrink(var a : TGtkTableRowCol) : guint;
+procedure set_need_shrink(var a : TGtkTableRowCol; __need_shrink : guint);
+function  expand(var a : TGtkTableRowCol) : guint;overload;
+procedure set_expand(var a : TGtkTableRowCol; __expand : guint);overload;
+function  shrink(var a : TGtkTableRowCol) : guint;
+procedure set_shrink(var a : TGtkTableRowCol; __shrink : guint);
+function  empty(var a : TGtkTableRowCol) : guint;
+procedure set_empty(var a : TGtkTableRowCol; __empty : guint);
+function  GTK_IS_TABLE(obj:pointer):boolean;
+function  GTK_IS_TABLE_CLASS(klass:pointer):boolean;
+function  emit_always(var a : TGtkTipsQuery) : guint;
+procedure set_emit_always(var a : TGtkTipsQuery; __emit_always : guint);
+function  in_query(var a : TGtkTipsQuery) : guint;
+procedure set_in_query(var a : TGtkTipsQuery; __in_query : guint);
+function  GTK_IS_TIPS_QUERY(obj:pointer):boolean;
+function  GTK_IS_TIPS_QUERY_CLASS(klass:pointer):boolean;
+function  delay(var a : TGtkTooltips) : guint;
+procedure set_delay(var a : TGtkTooltips; __delay : guint);
+function  enabled(var a : TGtkTooltips) : guint;
+procedure set_enabled(var a : TGtkTooltips; __enabled : guint);
+function  GTK_IS_TOOLTIPS(obj:pointer):boolean;
+function  GTK_IS_TOOLTIPS_CLASS(klass:pointer):boolean;
+function  expanded(var a : TGtkTreeItem) : guint;
+procedure set_expanded(var a : TGtkTreeItem; __expanded : guint);
+function  GTK_TREE_ITEM_SUBTREE(obj : PGtktreeitem) : PGTkWidget;
+function  GTK_IS_TREE_ITEM(obj:pointer):boolean;
+function  GTK_IS_TREE_ITEM_CLASS(klass:pointer):boolean;
+function  selection_mode(var a : TGtkTree) : guint;overload;
+procedure set_selection_mode(var a : TGtkTree; __selection_mode : guint);overload;
+function  view_mode(var a : TGtkTree) : guint;
+procedure set_view_mode(var a : TGtkTree; __view_mode : guint);
+function  view_line(var a : TGtkTree) : guint;
+procedure set_view_line(var a : TGtkTree; __view_line : guint);
+function  GTK_IS_ROOT_TREE(obj : PGtkTree) : gboolean;
+function  GTK_TREE_ROOT_TREE(obj : PGtkTree) : PGtkTree;
+function  GTK_TREE_SELECTION(obj : PGtkTree) : PGList;
+function  homogeneous(var a : TGtkBox) : guint;overload;
+procedure set_homogeneous(var a : TGtkBox; __homogeneous : guint);overload;
+function  expand(var a : TGtkBoxChild) : guint;overload;
+procedure set_expand(var a : TGtkBoxChild; __expand : guint);overload;
+function  fill(var a : TGtkBoxChild) : guint;overload;
+procedure set_fill(var a : TGtkBoxChild; __fill : guint);overload;
+function  pack(var a : TGtkBoxChild) : guint;overload;
+procedure set_pack(var a : TGtkBoxChild; __pack : guint);overload;
+function  GTK_IS_BOX(obj:pointer):boolean;
+function  GTK_IS_BOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_HBOX(obj:pointer):boolean;
+function  GTK_IS_HBOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_VBOX(obj:pointer):boolean;
+function  GTK_IS_VBOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_BUTTON_BOX(obj:pointer):boolean;
+function  GTK_IS_BUTTON_BOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_HBUTTON_BOX(obj:pointer):boolean;
+function  GTK_IS_HBUTTON_BOX_CLASS(klass:pointer):boolean;
+function  GTK_IS_VBUTTON_BOX(obj:pointer):boolean;
+function  GTK_IS_VBUTTON_BOX_CLASS(klass:pointer):boolean;
+function  position_set(var a : TGtkPaned) : guint;
+procedure set_position_set(var a : TGtkPaned; __position_set : guint);
+function  in_drag(var a : TGtkPaned) : guint;overload;
+procedure set_in_drag(var a : TGtkPaned; __in_drag : guint);overload;
+function  child1_shrink(var a : TGtkPaned) : guint;
+procedure set_child1_shrink(var a : TGtkPaned; __child1_shrink : guint);
+function  child1_resize(var a : TGtkPaned) : guint;
+procedure set_child1_resize(var a : TGtkPaned; __child1_resize : guint);
+function  child2_shrink(var a : TGtkPaned) : guint;
+procedure set_child2_shrink(var a : TGtkPaned; __child2_shrink : guint);
+function  child2_resize(var a : TGtkPaned) : guint;
+procedure set_child2_resize(var a : TGtkPaned; __child2_resize : guint);
+function  GTK_IS_PANED(obj:pointer):boolean;
+function  GTK_IS_PANED_CLASS(klass:pointer):boolean;
+function  GTK_IS_HPANED(obj:pointer):boolean;
+function  GTK_IS_HPANED_CLASS(klass:pointer):boolean;
+function  GTK_IS_VPANED(obj:pointer):boolean;
+function  GTK_IS_VPANED_CLASS(klass:pointer):boolean;
+function  GTK_IS_RULER(obj:pointer):boolean;
+function  GTK_IS_RULER_CLASS(klass:pointer):boolean;
+function  GTK_IS_HRULER(obj:pointer):boolean;
+function  GTK_IS_HRULER_CLASS(klass:pointer):boolean;
+function  GTK_IS_VRULER(obj:pointer):boolean;
+function  GTK_IS_VRULER_CLASS(klass:pointer):boolean;
+function  draw_value(var a : TGtkScale) : guint;
+procedure set_draw_value(var a : TGtkScale; __draw_value : guint);
+function  value_pos(var a : TGtkScale) : guint;
+procedure set_value_pos(var a : TGtkScale; __value_pos : guint);
+function  GTK_IS_SCALE(obj:pointer):boolean;
+function  GTK_IS_SCALE_CLASS(klass:pointer):boolean;
+function  GTK_IS_HSCALE(obj:pointer):boolean;
+function  GTK_IS_HSCALE_CLASS(klass:pointer):boolean;
+function  GTK_IS_VSCALE(obj:pointer):boolean;
+function  GTK_IS_VSCALE_CLASS(klass:pointer):boolean;
+function  GTK_IS_SCROLLBAR(obj:pointer):boolean;
+function  GTK_IS_SCROLLBAR_CLASS(klass:pointer):boolean;
+function  GTK_IS_HSCROLLBAR(obj:pointer):boolean;
+function  GTK_IS_HSCROLLBAR_CLASS(klass:pointer):boolean;
+function  GTK_IS_VSCROLLBAR(obj:pointer):boolean;
+function  GTK_IS_VSCROLLBAR_CLASS(klass:pointer):boolean;
+function  GTK_IS_SEPARATOR(obj:pointer):boolean;
+function  GTK_IS_SEPARATOR_CLASS(klass:pointer):boolean;
+function  GTK_IS_HSEPARATOR(obj:pointer):boolean;
+function  GTK_IS_HSEPARATOR_CLASS(klass:pointer):boolean;
+function  GTK_IS_VSEPARATOR(obj:pointer):boolean;
+function  GTK_IS_VSEPARATOR_CLASS(klass:pointer):boolean;
+function  value_in_list(var a : TGtkCombo) : guint;
+procedure set_value_in_list(var a : TGtkCombo; __value_in_list : guint);
+function  ok_if_empty(var a : TGtkCombo) : guint;
+procedure set_ok_if_empty(var a : TGtkCombo; __ok_if_empty : guint);
+function  case_sensitive(var a : TGtkCombo) : guint;
+procedure set_case_sensitive(var a : TGtkCombo; __case_sensitive : guint);
+function  use_arrows(var a : TGtkCombo) : guint;
+procedure set_use_arrows(var a : TGtkCombo; __use_arrows : guint);
+function  use_arrows_always(var a : TGtkCombo) : guint;
+procedure set_use_arrows_always(var a : TGtkCombo; __use_arrows_always : guint);
+function  GTK_IS_COLOR_SELECTION(obj:pointer):boolean;
+function  GTK_IS_COLOR_SELECTION_CLASS(klass:pointer):boolean;
+function  fg_set(var a : TGtkCListRow) : guint;cdecl;
+procedure set_fg_set(var a : TGtkCListRow; __fg_set : guint);cdecl;
+function  bg_set(var a : TGtkCListRow) : guint;cdecl;
+procedure set_bg_set(var a : TGtkCListRow; __bg_set : guint);cdecl;
+function  selectable(var a : TGtkCListRow) : guint;
+procedure set_selectable(var a : TGtkCListRow; __selectable : guint);
+function  show_tabs(var a : TGtkNotebook) : guint;
+procedure set_show_tabs(var a : TGtkNotebook; __show_tabs : guint);
+function  homogeneous(var a : TGtkNotebook) : guint;overload;
+procedure set_homogeneous(var a : TGtkNotebook; __homogeneous : guint);overload;
+function  show_border(var a : TGtkNotebook) : guint;
+procedure set_show_border(var a : TGtkNotebook; __show_border : guint);
+function  tab_pos(var a : TGtkNotebook) : guint;
+procedure set_tab_pos(var a : TGtkNotebook; __tab_pos : guint);
+function  scrollable(var a : TGtkNotebook) : guint;
+procedure set_scrollable(var a : TGtkNotebook; __scrollable : guint);
+function  in_child(var a : TGtkNotebook) : guint;overload;
+procedure set_in_child(var a : TGtkNotebook; __in_child : guint);overload;
+function  click_child(var a : TGtkNotebook) : guint;overload;
+procedure set_click_child(var a : TGtkNotebook; __click_child : guint);overload;
+function  button(var a : TGtkNotebook) : guint;overload;
+procedure set_button(var a : TGtkNotebook; __button : guint);overload;
+function  need_timer(var a : TGtkNotebook) : guint;overload;
+procedure set_need_timer(var a : TGtkNotebook; __need_timer : guint);overload;
+function  child_has_focus(var a : TGtkNotebook) : guint;
+procedure set_child_has_focus(var a : TGtkNotebook; __child_has_focus : guint);
+function  have_visible_child(var a : TGtkNotebook) : guint;
+procedure set_have_visible_child(var a : TGtkNotebook; __have_visible_child : guint);
+function  default_menu(var a : TGtkNotebookPage) : guint;
+procedure set_default_menu(var a : TGtkNotebookPage; __default_menu : guint);
+function  default_tab(var a : TGtkNotebookPage) : guint;
+procedure set_default_tab(var a : TGtkNotebookPage; __default_tab : guint);
+function  expand(var a : TGtkNotebookPage) : guint;overload;
+procedure set_expand(var a : TGtkNotebookPage; __expand : guint);overload;
+function  fill(var a : TGtkNotebookPage) : guint;overload;
+procedure set_fill(var a : TGtkNotebookPage; __fill : guint);overload;
+function  pack(var a : TGtkNotebookPage) : guint;overload;
+procedure set_pack(var a : TGtkNotebookPage; __pack : guint);overload;
+function  line_style(var a : TGtkCTree) : guint;
+procedure set_line_style(var a : TGtkCTree; __line_style : guint);
+function  expander_style(var a : TGtkCTree) : guint;
+procedure set_expander_style(var a : TGtkCTree; __expander_style : guint);
+function  show_stub(var a : TGtkCTree) : guint;
+procedure set_show_stub(var a : TGtkCTree; __show_stub : guint);
+ 
+ 
 
 function  visible(var a : TGtkCListColumn) : guint;overload;
 procedure set_visible(var a : TGtkCListColumn; __visible : guint);overload;
@@ -4497,6 +4500,39 @@ function  GTK_IS_CLIST_CLASS(klass:pointer):boolean;
 function  latin1_to_char(var a : TGtkAccelLabelClass) : guint;
 procedure set_latin1_to_char(var a : TGtkAccelLabelClass; __latin1_to_char : guint);
 function  GTK_NOTEBOOK_PAGE(_glist_ : PGList) : PGtkNotebookPage;
+function  GTK_OBJECT_TYPE(obj : PGtkobject) : TGtkType;
+function  GTK_OBJECT_SIGNALS(obj : PGtkobject) : Pguint;
+function  GTK_OBJECT_NSIGNALS(obj : PGtkobject) : guint;
+function  GTK_OBJECT_FLAGS(obj : PGtkobject) : longint;
+function  GTK_OBJECT_DESTROYED(obj : PGtkobject) : boolean;
+function  GTK_OBJECT_FLOATING(obj : PGtkobject) : boolean;
+function  GTK_OBJECT_CONNECTED(obj : PGtkobject) : boolean;
+function  GTK_OBJECT_IS_CONSTRUCTED(obj : PGtkobject) : boolean;
+function  GTK_IS_OBJECT(obj:pointer):boolean;
+function  GTK_IS_OBJECT_CLASS(klass:pointer):boolean;
+function  GTK_WIDGET_STATE(wid : PGtkwidget) : longint;
+function  GTK_WIDGET_SAVED_STATE(wid : PGtkwidget) : longint;
+function  GTK_WIDGET_FLAGS(wid : PGtkwidget) : longint;
+function  GTK_WIDGET_TOPLEVEL(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_NO_WINDOW(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_REALIZED(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_MAPPED(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_VISIBLE(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_DRAWABLE(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_SENSITIVE(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_PARENT_SENSITIVE(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_IS_SENSITIVE(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_CAN_FOCUS(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_HAS_FOCUS(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_CAN_DEFAULT(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_HAS_DEFAULT(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_HAS_GRAB(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_RC_STYLE(wid : PGtkwidget) : boolean;
+function  GTK_WIDGET_COMPOSITE_CHILD(wid : PGtkWidget) : boolean;
+function  GTK_WIDGET_APP_PAINTABLE(wid : PGtkWidget) : boolean;
+function  GTK_WIDGET_RECEIVES_DEFAULT(wid : PGtkWidget) : boolean;
+procedure GTK_WIDGET_SET_FLAGS(wid : PGtkwidget;flag:longint);
+procedure GTK_WIDGET_UNSET_FLAGS(wid : PGtkwidget;flag:longint);
 
 
 external libgtk

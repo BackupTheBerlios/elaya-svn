@@ -82,13 +82,13 @@ type
 		function    CheckParameterName(ParParam :TParameterVar;var PArDifText:ansistring):boolean;
 		function    IsAutomatic:boolean;virtual;
 		procedure   SetPosition(ParNo : cardinal);
+		function    GetPushSize:TSize;
 		
 		constructor create(const ParName : ansistring;ParFrame:TFrame;Partype:TType;ParTranType:TParamTransferType;ParVirtual : boolean);
 		function    CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		procedure   Print(ParDis:TDisplay);override;
 		function    SaveItem(parStream:TObjectStream):boolean;override;
 		function    LoadItem(ParStream:TObjectStream):boolean;override;
-		function    GetPushSize:TSize;
 		function    CreateAutomaticParamNode(ParContext,ParOrgOwner : TDefinition;ParCre:TCreator;  var ParTTL:TTLVarNode):TParamNode; virtual;
 		function    CreateAutomaticMac(ParContext : TDefinition;parCre:TSecCreator):TMacBase;virtual;
 		procedure   DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);virtual;
@@ -1366,9 +1366,12 @@ begin
 end;
 
 function   TProcParList.GetCurOffsetAndInc(ParVar:TParameterVar):TOffset;
+var
+	vlVar : TParameterVar;
 begin
-	GetCurOffsetAndInc := iParamSize+Size_Parambegin;
-	iParamSize := iParamSize + ParVar.GetPushSize;
+	GetCurOffsetAndInc := iParamSize+Size_Parambegin;	
+	vlVar := ParVar;
+	iParamSize := iParamSize + vlVar.GetPushSize;
 end;
 
 function  TProcParList.GetLocalOFfsetAndInc(Parvar:TProcVar):TOffset;

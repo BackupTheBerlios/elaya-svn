@@ -1,15 +1,21 @@
 unit;
 uses glib;
 
-public
-   type
-	  PChar     = pasc;
-	  PPChar	   = ptr PChar;
+public 
+type
+     PChar     = pasc;
+     PPChar    = ptr PChar;
      PPPChar   = ptr PPchar;
      PPguchar  = Pguchar;
      PPgchar   = ptr Pgchar;
      PPPgchar  = ptr PPgchar;
      PPgint    = ptr Pgint;
+end public
+
+public cdecl
+
+   type
+
 
      PGdkWChar = ptr TGdkWChar;
      TGdkWChar = guint32;
@@ -2440,22 +2446,8 @@ procedure gdk_add_client_message_filter(message_type:TGdkAtom; func:TGdkFilterFu
 array
 procedure gdk_gc_set_dashes(gc:PGdkGC;dash_offset:gint;dashlist:array of gchar;n:gint); name 'gdk_gc_set_dashes';}
 
-external libm
-end;
-
-external xi
-end;
-
-external xt
-end;
-
-external xext
-end;
-
-external x11
-	
-end;
-
+end public
+public
 external libgdk
 	procedure gdk_rgb_init; name 'gdk_rgb_init';
 	function  gdk_rgb_xpixel_from_rgb(rgb:guint32):gulong; name 'gdk_rgb_xpixel_from_rgb';

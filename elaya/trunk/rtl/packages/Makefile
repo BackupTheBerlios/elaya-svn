@@ -36,9 +36,9 @@ oth_win32:
 install:
 	$(MAKE) install -C eel
 	$(MAKE) install -C cgi
-	$(MAKE) install -C gtk
-	$(MAKE) install -C mysql
-	$(MAKE) install -C native
+#	$(MAKE) install -C gtk
+#	$(MAKE) install -C mysql
+#	$(MAKE) install -C native
 	$(MAKE) install -C math
    
 clean:

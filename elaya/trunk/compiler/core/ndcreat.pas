@@ -20,10 +20,10 @@ unit NDCreat;
 interface
 uses largenum,streams,sysutils,stdobj,files,compbase,idlist,DSbLsDef,node,elatypes,formbase,progutil,asminfo,ddefinit,cmp_type,
 	hashing,types,elacons,cmp_base,elacfg,module,error,curitem,confval,linkobj;
-	
+
 type
-	
-	
+
+
 	TNDCreator=class(TCreator)
 	private
 		voCollection      : TIdentListCollection;
@@ -74,7 +74,7 @@ type
 		function  MakeLoadNodeByDef(ParSource : TFormulaDefinition;ParSourceContext : TDefinition;ParDestination : TFormulaDefinition;ParDestContext : TDefinition) : TNodeIdent;
 		function  MakeLoadNodeToDef(ParSourceNode : TFormulaNode;ParDestination : TFormulaDefinition;ParContext :TDefinition) : TFormulaNode;
 		function  MakeLoadNode(ParSource,ParDest : TFormulaNode) : TFormulaNode;
-		
+
 		{Create new constants}
 		procedure   AddStringConst(ParName:TNameList;const PArStr:ansistring);
 		procedure   AddConstant(ParName:TNameList;const ParCon:TValue);
@@ -82,7 +82,7 @@ type
 		function    AddConstant(const ParName : ansistring;const ParCon : TValue;ParType : TType):TDefinition;
 
 		function    ConvertTextToNode( ParStr : TStringBaseValue) : TNodeIdent;
-		
+
 		function    AddUnion:TType;
 		function    AddType(const ParNames:ansistring;ParType:TType):TType;
 		procedure   InitModule(const ParName:ansistring);
@@ -131,7 +131,7 @@ type
 		function    GetIdentByName(const ParName : ansistring;var ParOwner,ParItem : TDefinition):boolean;
 		function    GetCheckitem(const ParName:ansistring):TDefinition;
 		function    GetPtrInCurrentList(const ParName:ansistring;var ParOwner,ParItem : TDefinition):boolean;
-		
+
 		{Get Default idents}
 		function    GetDefaultIdent(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TType;
 		function    GetDefaultNew : TDefinition;
@@ -139,19 +139,19 @@ type
 		function    GetIntType(ParNum1,ParNum2:TNumber):TType;
 		function    GetDefaultChar : TType;
 		function    GetCheckDefaultType(ParDef : TDefaultTypeCode;ParSize : TSize;ParSign : boolean;const ParMsg : ansistring) : TType;
-		
+
 		{adding current}
-		
+
 		procedure AddCurrentDefinitionEx(ParDef : TDefinition;ParIsolated,ParQuery : boolean);
 		procedure AddCurrentDefinition(ParDef:TDefinition);
 		procedure AddCurrentNode(ParNode:TNodeIdent);
-		
+
 		function  GetCurrentDefinition:TDefinition;
 		function  GetCurrentRoutine:TDefinition;
 		function  GetCurrentLoopCbNode:TNodeIdent;
 		function  GetCurrentClass : TDefinition;
 		function  GetCurrentInsertItem : TDefinition;
-        function  GetCurrentDefinitionByNum(ParNum : cardinal) : TDefinition;
+		function  GetCurrentDefinitionByNum(ParNum : cardinal) : TDefinition;
 
 		procedure PreAdd(ParDef:TDefinition;var ParCur:TDefinition);
 		function  FindRoutineByDef(ParRoutine:TDefinition;var ParOwner,ParCB:TDefinition):TCFoundResult;
@@ -171,16 +171,24 @@ type
 		procedure AddGlobalOnce(ParItem : TDefinition);
 		procedure AddGlobal(ParItem : TDefinition);
 		procedure CheckAfter;
+		{ Type fy}
+		procedure AllignToCurrentDefMode(ParType : TType);
 	end;
-	
-	
-	
+
+
+
 implementation
 
 uses procs,vars,execobj,cblkbase,ela_user,classes,doperfun,stmnodes;
 
 {---( TNDCreator )-----------------------------------------------------}
 
+procedure TNDCreator.AllignToCurrentDefMode(ParType : TType);
+begin
+	if DM_CPublic in fCurrentDefModes then begin
+		if ParType.fSize mod 4 <> 0 then ParType.SetSize((4 - (ParType.fSize mod 4))+ParType.fSize);
+	end;
+end;
 
 procedure TNDCreator.CheckAccessLevel(ParItem : TDefinition);
 var vlDef      : TDefAccess;
@@ -193,7 +201,7 @@ begin
 	vlOwner := ParItem.fOwner;
 	while (vlOwner <> nil) do begin
 		VlCurrent := GetCurrentDefinition;
-    	vlDef2    := AF_Public;
+		vlDef2    := AF_Public;
 		while(vlCurrent <> nil) do begin
 			vlDef2 := CombineAccess(vlDef,vlCurrent.fDefAccess);
 			if(vlOwner = vlCurrent) or (vlOwner.IsParentOf(vlCurrent)) then begin
@@ -223,36 +231,36 @@ var
 	vlDifText    : ansistring;
 	vlOwner      : TDefinition;
 begin
-	
+
 	ParOut := nil;
 	vlDef := GetCurrentDefinition;
-	
+
 	if vlDef = nil then begin
-		
+
 		FindRoutineByDef(ParIn,vlOwner,vlDefinition);
-		
+
 		if (vlDefinition <> nil) and vlDefinition.GetForwardDefined then begin
 			if not (vlDefinition.IsCompleet) then begin
-				
+
 				ParIn.fDefAccess := AF_Public;
-				
+
 				if not vlDefinition.IsSameAsForward(TRoutine(ParIn),vlDifText) then begin
-					
+
 					ErrorText(Err_Differs_From_Prev_Def,':'+vlDifText);
-					
+
 				end;
-				
+
 				ParOut := vlDefinition;
-				
+
 			end;
 		end;
-		
+
 	end else begin
-		
+
 		vlDef.ConsiderForward(self,ParIn,ParOut);
-		
+
 	end;
-	
+
 end;
 
 
@@ -459,7 +467,7 @@ end;
 
 procedure  TNDCreator.ProcessUseClause;
 begin
-	
+
 	iUnitUseList.ProcessUnitList(self);
 	if SuccessFul then begin
 		iUnitUseList.LoadUnits(self);
@@ -484,7 +492,7 @@ begin
 	else begin
 		vlStr := CNF_Write;
 	end;
-	
+
 	if not GetIdentByName(vlStr,ParOwner,ParItem) then begin
 		ErrorText(Err_Cant_Find_Write_Proc,vlStr);
 		exit(false);
@@ -527,7 +535,7 @@ end;
 
 procedure  TNDCreator.AddForwardBind(const ParName:ansistring;ParBind:TPtrType);
 begin
-	
+
 	fForwardList.addBind(ParName,ParBind);
 end;
 
@@ -937,7 +945,7 @@ begin
 	ParDef.fOwner     := GetCurrentDefinition;
 	ParDef.SetModule(fCurrentUnit);
 	if DM_CPublic in fCurrentDefModes then begin
-		if (ParDef.SignalCPublic) {and ((ParCur = nil) or (ParCur.HasGlobalParts))} then fCurrentUnit.AddGlobal(self,ParDef);
+		if (ParDef.SignalCPublic) and ((ParCur = nil) or (ParCur.HasGlobalParts)) then fCurrentUnit.AddGlobal(self,ParDef);
 	end;
 	if fInPublicSection then ParDef.SignalInPublicSection;
 end;
@@ -1172,7 +1180,7 @@ begin
 			AddIdent(vlVar);
 			vlCurrent := TNameItem(vlCurrent.fNxt);
 		end;
-		
+
 	end;
 end;
 

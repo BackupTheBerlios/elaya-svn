@@ -24,7 +24,7 @@ interface
 uses AsmDisp,i386cons,display,progutil,compbase,stdobj,elatypes,node,
 elacons,error,asmdata,elacfg,extAppl,cmp_base,DIdentLs,confval,cmp_type  ;
 type
-	
+
 	TAsmCreator=class(TCreator)
 	private
 		voName  : TString;
@@ -35,7 +35,7 @@ type
 		voData  : TAsmDefinitionList;
 		voAlign : TSize;
 		voLink  : boolean;
-		
+
 		property  iName : TString            read voName  write voName;
 		property  iAsm  : TAsmDisplay        read voAsm   write voAsm;
 		property  iLis  : TFileDIsplay       read voLis   write voLis;
@@ -49,7 +49,7 @@ type
 		procedure   CommonSetup;override;
 
 	public
-		
+
 		property  fLis   : TFileDisplay read voLis;
 		property  fAsm   : TAsmDisplay  read voAsm;
 		property  fName  : TString      read voName;
@@ -64,7 +64,7 @@ type
 		procedure   AddData(ParData : TAssemDef);
 		function    RunAsm : TErrorType;
 	end;
-	
+
 implementation
 
 uses asminfo;
@@ -222,7 +222,7 @@ begin
 	iAsm.Destroy;
 	iAsm := nil;
 	exit(runasm);
-	
+
 end;
 
 end.

@@ -37,7 +37,7 @@ type
 
 		T_GcHandle=record
 			vrGC     : PGdkGc;
-      	vrFont   : PGdkFont;
+		      	vrFont   : PGdkFont;
 			vrColorMap : PGdkColorMap;
 			vrWindow : PGdkWindow;
 		end;

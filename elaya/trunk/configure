@@ -67,6 +67,9 @@ else
  	exit
 fi
 
+conf_as_program=$as_program
+conf_ld_program=$ld_program
+
 if(test -z $vlHost); then
 	echo "Host platform unkown, use -p option to set host platform";
 fi
@@ -79,11 +82,6 @@ vlLdPathProg=""
 vlInstallDir=""
 vlConfigDir=""
 
-cd build_files/programs
-sh conf.$vlHost $vlTarget
-cd ../..
-
-source config/config_conf.$vlHost.$vlTarget
 
 #
 # read previous config
@@ -104,7 +102,7 @@ fi
 
 OPTIND=1
 
-while getopts ":hp:r:a:l:zL:A:c:" vlOption
+while getopts ":hp:r:a:l:zL:A:c:i:" vlOption
 do
 	case $vlOption in
 	p ) ;;
@@ -124,13 +122,27 @@ done
 # If parameter not set use automatic values
 #
 
+if(test -z "$vlAsPathProg");then vlAsPathProg=$conf_as_program;fi;
+if(test -z "$vlLdPathProg");then vlLdPathProg=$conf_ld_program;fi;
+
+echo "as=$conf_as_program"
+
+echo "#config" >"config/config_conf.$vlHost.$vlTarget"
+
+cd build_files/programs
+sh find_paths $vlHost $vlTarget  as "$vlAsPathDir" "$vlAsPathProg" 
+sh find_paths $vlHost $vlTarget  ld "$vlLdPathDir" "$vlLdPathProg" 
+cd ../..
+
+source config/config_conf.$vlHost.$vlTarget
+
+if(test -z "$vlAsPathDir");then vlAsPathDir=$conf_as_dir;fi;
+if(test -z "$vlLdPathDir");then vlLdPathDir=$conf_ld_dir;fi;
+
+
 
 vlInstallExtra=$install_extra
 vlLinkExeTo=$link_exe_to
-if(test -z "$vlAsPathDir");then vlAsPathDir=$conf_as_dir;fi;
-if(test -z "$vlLdPathDir");then vlLdPathDir=$conf_ld_dir;fi;
-if(test -z "$vlAsPathProg");then vlAsPathProg=$conf_as_program;fi;
-if(test -z "$vlLdPathProg");then vlLdPathProg=$conf_ld_program;fi;
 if(test -z $vlInstallDir);then vlInstallDir=$install_dir;fi;
 if(test -z $vlConfigDir);then vlConfigDir=$install_cfg;fi;
 
@@ -190,7 +202,7 @@ Fpc="ppc386"
 ela="ela"
 eladep="eladep"
 
-Opt_Fpc="-dmalloc -a  -O2 -Ci- -gl -Ch1000000  -S2c  -vrwen -Ratt"
+Opt_Fpc="-dmalloc -a  -O3 -Ci-   -Ch1000000  -S2c -Si  -vrwen -Ratt"
 Fpc_Opt_Unit_Path=""
 
 

@@ -63,16 +63,20 @@ TInterInterface=class inherit TRoot
 		procedure Show(ParWidget :  PWidgetHandle;ParShow : boolean);
 		procedure ClearWidget(ParWidget : PWidgetHandle);
 		procedure ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);
+
 		procedure SetToolTip(ParWidget : PWidgetHandle;const ParText : string);{todo veranderen in TString?}
 		procedure GetToolTip(ParWidget : PWidgetHandle;var ParText : string);
-      procedure SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
-      procedure SetFgColor(ParWidget : PWidgetHandle;const ParColor: TColor);
-      procedure DestroyWidget(ParWidget : PWidgetHandle);
+	      procedure SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+      	procedure SetFgColor(ParWidget : PWidgetHandle;const ParColor: TColor);
+	      procedure DestroyWidget(ParWidget : PWidgetHandle);
 		procedure DestroyGC(var ParGC : TGCHandle);
 		function  CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;
 		procedure Line(var ParGC :TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
 		procedure DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);
 		procedure GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);
+		procedure GetGcFgColor(var ParGC : TGCHandle;var ParColor : TColor);
+		procedure GetGCBgColor(var ParGC : TGCHandle;var ParColor : TCOlor);
+		procedure point(var ParGC : TGCHandle;ParX,ParY : Longint);
 		procedure SetGcFgColor(var ParGC : TGCHandle;const ParColor : TColor);
 		procedure SetGcBgColor(var ParGC : TGCHandle;const ParColor : TColor);
 		procedure CreatePixmap(ParWidth,ParHeight,ParDepth: long;ParImage : PPixmapHandle);
@@ -96,6 +100,18 @@ end;
 
 
 {--( TInterInterface )-----------------------------------------------------------------------}
+		procedure TInterInterface.GetGcFgColor(var ParGC : TGCHandle;var ParCOlor : TCOlor);
+		begin	
+		end;
+
+		procedure TInterInterface.GetGCBgColor(var ParGC : TGCHandle;var ParColor : TCOlor);
+		begin
+		end;
+
+		procedure TInterInterface.point(var ParGC : TGCHandle;ParX,ParY : Longint);
+		begin
+ 		end;
+
 		function TInterInterface.GetEditText(ParWidget : PWidgetHandle;ParFrom,ParTo : longint) : TString;{TODO}
 		begin
 			exit(nil);
@@ -163,9 +179,10 @@ begin
 	WindowClass.hIcon := 0;
 	WindowClass.hCursor := 0;
 	WindowClass.hbrBackground := GetStockObject(WHITE_BRUSH);
-   WindowClass.lpszMenuName  := nil;
+	WindowClass.lpszMenuName  := nil;
 	WIndowClass.lpszClassName := 'eclguiclass';
 	vlRet := RegisterClass(voWindowClass);
+	writeln('RegisterClass=',vlRet);
 end;
 
 procedure TInterInterface.DestroyWidget(ParWidget : PWidgetHandle);
@@ -244,6 +261,7 @@ begin
 	vlParent := 0;
 	if ParParent <> nil then vlParent := ParParent^.vrWindow;
 	ParWidget^.vrWindow := CreateWindow(windowclass.lpszClassName,@vlTItle,WS_OVERLAPPEDWINDOW,ParX,ParY,ParW,ParH,vlParent,0,GetInstance,nil);
+	writeln('Create window=',Parwidget^.vrWindow);
 	ShowWIndow(ParWidget^.vrWindow,1);
 	UpdateWIndow(ParWIdget^.vrWindow);
 end;

@@ -135,7 +135,10 @@ RUnion<var ParType :TType>
 RRecord<var PArType:TType>
 = IRecord 					(. ParType := fNDCreator.CreateRecord; .)
   {RVarDecl}
-  IEnd						(. Endident; .)
+  IEnd						(.
+  							fNDCreator.AllignToCurrentDefMode(ParType);cd
+							Endident;
+						 .)
 .
 
 

@@ -11,6 +11,8 @@ type
 		procedure Clear;override;
 		procedure SetFgColor(const ParColor : TCOlor);
 		procedure SetBgColor(const ParColor : TColor);
+		function  GetFgColor : TColor;
+		function  GetBgColor : TColor;
 	public
 
 		property Handle : TInterface.TGCHandle;
@@ -19,24 +21,43 @@ type
 			private write voHandle;
 		end;
 
-		{TODO : read of FG and BGColor}
+
 		property FgColor : TColor;
 		begin
-      	public write SetFgColor;
+			public read  GetFgColor;
+			public write SetFgColor;
 		end;
 
 		property BgCOlor : TColor;
 		begin
+			public read  GetBgColor;
 			public write SetBgColor;
 		end;
 
 		constructor Create(ParWindow : TInterface.PWidgetHandle);
 		procedure Line(ParX0,ParY0,ParX1,ParY1 : longint);
-      procedure DrawText(ParX,ParY : longint;const ParText : string);
+		procedure DrawText(ParX,ParY : longint;const ParText : string);
 		procedure GetTextMeasure(const ParText : string;var ParW,ParH : long);
+		procedure  Point(ParX,ParY : longint);
 	end;
 
 end public
+
+function TGC.GetFgColor:TColor;
+var
+	vlResult : TColor;
+begin
+	vgInterface.GetGcFgColor(Handle,vlResult);
+	exit(vlResult);
+end;
+
+function TGC.GetBgColor: TColor;
+var
+	vLResult : TColor;
+begin
+	vgInterface.GetGcBgColor(Handle,vLResult);
+	exit(vlResult);
+end;
 
 
 procedure TGC.SetFgColor(const ParColor : TColor);
@@ -77,6 +98,10 @@ begin
 	vgInterface.LIne(Handle,ParX0,ParY0,ParX1,ParY1);
 end;
 
+procedure TGC.Point(ParX,ParY : longint);
+begin
+	vgInterface.Point(Handle,ParX,ParY);
+end;
 
 
 end.

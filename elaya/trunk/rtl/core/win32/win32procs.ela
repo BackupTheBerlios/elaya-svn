@@ -23,17 +23,17 @@ unit;
 
 uses core,win32types;
 public
-External linked 'interw32.obj' cdecl
+External interw32
 	function GetInstance : handle;name 'inter_getinstance';
 	function GetPrvInstance : handle;name 'inter_getprvinstance';
 end;
 
-External &Kernel_Lib_Type &Kernel_Lib_Name &Kernel_Lib_CallType
+External kernelw32
   function InterlockedIncrement(lpAddend:LPLONG):LONG;  name 'InterlockedIncrement';
 
   function InterlockedDecrement(lpAddend:LPLONG):LONG;  name 'InterlockedDecrement';
 
-  function InterlockedExchange(Target:LPLONG; Value:LONG):LONG;  name 'InterlockedExchange';
+  function InterlockedExchange(Target:LPLONG; _Value:LONG):LONG;  name 'InterlockedExchange';
 
   function FreeResource(hResData:HGLOBAL):WINBOOL;  name 'FreeResource';
 

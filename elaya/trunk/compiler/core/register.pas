@@ -230,10 +230,10 @@ var vlCnt : cardinal;
 begin
 	if (ParEnd < ParBegin) or (ParEnd > iMaximalSize) or (ParBegin < iMiniMalSize) then fatal(fat_Invalid_Byte_Pos,['Range=',ParBegin,'-',ParEnd]);
 	vlCnt := ParBegin;
-	while vlCnt <= ParBegin do begin
+	while vlCnt <= ParEnd do begin
 		if voLocks[vlCnt] = 0 then fatal(fat_Master_not_locked,['Code = ',iCode,' Range=',ParBegin,'-',ParEnd]);
 		dec(voLocks[vlCnt]);
-		dec(vlCnt);
+		inc(vlCnt);
 	end;
 end;
 

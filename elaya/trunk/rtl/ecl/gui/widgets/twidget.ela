@@ -9,7 +9,7 @@ type
 	TWidget=class;
 	TEnterEvent=object procedure(ParWidget : TWidget);
 	TLeaveEvent=object procedure(ParWidget : TWidget);
-   TAllocationChangedEvent=object procedure(ParWidget : TWidget;ParX,ParY:longint;ParW,ParH: long);
+	TAllocationChangedEvent=object procedure(ParWidget : TWidget;ParX,ParY:longint;ParW,ParH: long);
 	TWidget=class inherit TVisualComponent
 	private
 		var

@@ -1088,9 +1088,9 @@ begin
 					LargeNot(vlLi);
 				end;
 
-				{$R-}
+
 				vlMask := ((1 shl (vlSize *8-1)) shl 1) -1;
-				
+
 				 {TODO: SHould be in Largenum unit something like LargeMask()}
 				vlLi.vrNumber := vlLi.vrNUmber and vlMask;
 				TNumberMac(vlMac).fInt := vlLi;

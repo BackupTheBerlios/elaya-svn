@@ -2,7 +2,7 @@ unit;
 uses core,win32types,win32procs;
 public
 
-external dll 'AdvApi32.dll'
+external AdvApi32
 
     function RegCloseKey(hKey:HKEY):LONG;  name 'RegCloseKey';
 
@@ -353,7 +353,7 @@ end;
 end;
 }{not in win98}
 
-external dll 'USER32.dll'
+external user32
 
 {    function DdeConnect(_para1:DWORD; _para2:HSZ; _para3:HSZ; var _para4:CONVCONTEXT):HCONV; name 'DdeConnect';}
 
@@ -1177,7 +1177,7 @@ end;
 
 
 
-external dll 'version'
+external version
   function VerInstallFile(uFlags:DWORD; szSrcFileName:LPSTR; szDestFileName:LPSTR; szSrcDir:LPSTR; szDestDir:LPSTR;
              szCurDir:LPSTR; szTmpFile:LPSTR; lpuTmpFileLen:PUINT):DWORD;  name 'VerInstallFileA';
 
@@ -1195,7 +1195,7 @@ end;
 
 
 
-external dll 'mpr.dll'
+external mpr
 
   function WNetAddConnection(lpRemoteName:LPCSTR; lpPassword:LPCSTR; lpLocalName:LPCSTR):DWORD;  name 'WNetAddConnectionA';
 
@@ -1242,7 +1242,7 @@ external dll 'mpr.dll'
   function MultinetGetConnectionPerformance(lpNetResource:LPNETRESOURCE; lpNetConnectInfoStruct:LPNETCONNECTINFOSTRUCT):DWORD;  name 'MultinetGetConnectionPerformanceA';
 end;
 
-external dll 'shell32.dll'
+external shell32
 
     procedure SHAddToRecentDocs(_para1:UINT; _para2:LPCVOID);  name 'SHAddToRecentDocs';
 

@@ -1059,7 +1059,7 @@ begin
 	end;
 
 	vlCnt := 0;
-   vlList := TLinkObjList.Create;
+	vlList := TLinkObjList.Create;
 	while GetConfigValues.GetLinkInfoFile(vlCnt,vlName) do begin
 		ReadLinkInfo(vlName,vlList);
 		inc(vlCnt);
@@ -1154,54 +1154,74 @@ end;
 
 function  TELa_User.CreateExternalInterface(const ParName : ansistring;ParHAsAt : boolean;ParAt: longint;var ParCdecl : boolean):TExternalInterface;
 var
-	vlInter : TExternalInterface;
-	vlTYpe  : TExternalType;
 	vlInfo  : TLInkObjItem;
-	vlFileName : ansiString;
+	vlInter : TExternalInterface;
+
+
+	function addExternalInterface(ParItem : TLinkObjItem) : TExternalInterface;
+	var
+		vlInter : TExternalInterface;
+		vlTYpe  : TExternalType;
+		vlFileName : ansiString;
+		vlItem  : TDefinition;
+		vlOwner : TDefinition;
+		vlDepInfo : TDependItem;
+	begin
+	
+		vlType := ParItem.fType;
+		vlFileName := ParItem.fFile;
+	  	ParCDecl := ParItem.fCDecl;
+		fNDCreator.GetPtrInCurrentList(parItem.fFile,vlOwner,vlItem);
+		if(vlItem <> nil) then begin
+			if vlItem is TExternalInterface then exit(TExternalInterface(vlItem));
+		end;
+		vlDepInfo := TDependItem(ParItem.fDependencyList.Fstart);		
+		while(vlDepInfo <> nil) do begin
+			AddExternalInterface(vlDepInfo.fItem);
+			vlDepInfo := TDependItem(vlDepInfo.fNxt);
+		end;
+		vlInter := nil;
+		case vlType of
+			ET_Linked : vlInter := TExternalObjectFileInterface.Create(vlFileName);
+			ET_Dll    : if GetConfigValues.fCanUseDll then begin
+					vlInter := TExternalLibraryInterfaceWindows.Create(vlFileName);
+			  	    end;
+		end;
+		case vlType of
+			ET_Linked : AddObjectFile(vlFileName,false,ParHasAt,ParAt);
+		end;
+		AddIdent(vlInter);
+		exit(vlInter);
+	end;
+
 begin
 	vlInter := nil;
 	vlInfo  := nil;
-	if iLinkObjList <> nil then vlInfo := iLinkObjList.GetItemByName(ParName);
+	if iLinkObjList <> nil then  vlInfo := iLinkObjList.GetItemByName(ParName);
 	if(vlInfo <> nil) then begin
-		vlType := vlInfo.fType;
-		vlFileName := vlInfo.fFile;
-	  	ParCDecl := vlInfo.fCDecl;
+		vlInter := AddExternalInterface(vlInfo);
 	end else begin
-		ErrorText(Err_Link_Name_Unkown,ParName);
-		vlType := ET_Linked;
-      		EmptyString(vlFileName);
-		ParCDecl := false;
+		ErrorText(Err_Link_Name_Unkown,ParName);	
 	end;
 
-	case vlType of
-		ET_Linked : vlInter := TExternalObjectFileInterface.Create(vlFileName);
-		ET_Dll    : if GetConfigValues.fCanUseDll then begin
-				vlInter := TExternalLibraryInterfaceWindows.Create(vlFileName);
-			end;
+	if vlInter = nil then begin
+		SemError(Err_Feature_Not_Possible);
+		vlInter := TExternalObjectFileInterface.Create(ParName);
+		AddIdent(vlInter);
 	end;
 
 
 
-    if vlInter = nil then begin
-    	SemError(Err_Feature_Not_Possible);
-    	vlInter := TExternalObjectFileInterface.Create(vlFileName);
-    	vlType := ET_Linked;
-     end;
-
-     case vlType of
-       ET_Linked : AddObjectFile(vlFileName,false,ParHasAt,ParAt);
-     end;
-
-     AddIdent(vlInter);
-     fndCreator.AddCurrentDefinition(vlInter);
-     exit(vlInter);
+	fndCreator.AddCurrentDefinition(vlInter);
+	
+	exit(vlInter);
 end;
 
 
-function  TEla_USer.ProcessOperator(const ParParameters     : array of TRoot;
-									var ParPrvPar    : TNodeIdent;
-									const ParOperStr : ansistring;
-									ParError : boolean):TOperatorProcessResult;
+function  TEla_USer.ProcessOperator(const ParParameters : array of TRoot;
+				    var ParPrvPar    : TNodeIdent;
+				    const ParOperStr : ansistring;
+				    ParError : boolean):TOperatorProcessResult;
 var
 	vlCallNode   : TCallNode;
 	vlResult     : TOperatorProcessResult;
@@ -1355,32 +1375,50 @@ var
 	vlPrv       : char;
 	vlType      : TExternalType;
 	vlTypeStr   : ansistring;
-   vlLastNl    : pchar;
+	vlLastNl    : pchar;
+	vlItem      : TLinkObjItem;
+	vlDependItem: TLinkObjItem;
+	vlText      : ansistring;
 
-	function MakeErrorString(ParMsg : ansistring):ansistring;
+	procedure Ignores;
+	begin
+		while (vlScan^ <> #0) and (vlScan^ in [#32,#9,#13,#10]) do begin
+         		if (vlScan^ = #13) or (vlScan^ = #10) then begin
+					if ((vlPrv <>#13 ) or (vlScan^ <> #10))  and  ((vlPrv <>  #10) or (vlScan^ <> #13))  then inc(vlLine);
+				 	vlLastNl := vlScan;
+			end;
+			vlPrv := vlScan^;
+			inc(vlScan);
+		end;
+	end;
+
+
+	procedure MakeErrorString(ParMsg : ansistring);
 	var
 			vlLineStr: ansistring;
 			vlColStr : ansistring;
+			vlMsg    : ansistring;
 	begin
 			Str(vlScan - vlLastNl,vlColStr);
 			Str(vlLine,vlLineStr);
-			exit(ParMsg + ' in line ' + vlLineStr+' col '+vlColStr);
+			vlMsg := (ParMsg + ' in line ' + vlLineStr+' col '+vlColStr);
+			Error(Err_Error_In_Lib_Info,0,0,0,vlMsg);
 	end;
 
 
 	procedure  GetNextString(var ParResult : ansistring) ;
 	begin
 		EmptyString(ParResult);
-		while(vlScan^ in [#9,#32]) do inc(vlScan);
-  	 if(vlScan^=#39) then begin
+		Ignores;
+		if(vlScan^=#39) then begin
 			inc(vLScan);
-  		   while(vlScan^ <> #39)  and (vlScan^ <> #0)do begin
+			while(vlScan^ <> #39)  and (vlScan^ <> #0)do begin
 				ParResult := ParResult + vlScan^;
 				inc(vlScan);
 			end;
 			if (vlScan^ <> #0) then inc(vlScan);
 		end else if vlScan^ in ['a'..'z','A'..'Z','_','0'..'9']  then begin
-     	 while (vlScan^ in ['a'..'z','A'..'Z','_','0'..'9']) do begin
+			while (vlScan^ in ['a'..'z','A'..'Z','_','0'..'9']) do begin
 				ParResult := ParResult + vlScan^;
 				inc(vlScan);
 			end;
@@ -1416,53 +1454,55 @@ begin
 		EmptyString(vlName);
 		GetNextString(vlName);
 		if(vlScan^ = #0) then begin
-			Error(Err_Error_In_Lib_Info,0,0,0,MakeErrorString('Filename expected'));
+			MakeErrorString('Filename expected');
 			break;
 		end;
 		UpperStr(vlName);
 		GetNextString(vlFileName);
 		if(vlScan^ = #0) then begin
-			Error(Err_Error_In_Lib_Info,0,0,0,MakeErrorString('File type expected'));
+			MakeErrorString('File type expected');
 			break;
 		end;
 		GetNextString(vlTypeStr);
 		UpperStr(vlTypeStr);
 		if vlTypeStr= 'LINKED' then vlType := ET_Linked else
 		if vlTypeStr= 'DLL' then vlType  := ET_DLL else begin
-			Error(Err_Error_In_Lib_Info,0,0,0,MakeErrorString('"Linked" or "DLL" expected and not "'+vlTypeStr+'" '));
+			MakeErrorString('"Linked" or "DLL" expected and not "'+vlTypeStr+'" ');
 			break;
 		end;
 
 		GetNextString(vlCDecl);
+		UpperStr(vlCDecl);
 		vlCDeclFlag := false;
-		if(vlCDecl <> ';') then begin
-				upperstr(vlCDecl);
-			      	if  vlCDecl <> 'CDECL' then begin
-					Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('"CDecl" or ";" expected'));
-					break;
+		if(vlCDecl = 'CDECL') then begin
+			vlCDeclFlag := true;
+			GetNextString(vlCDecl);
+			UpperStr(vlCDecl);
+		end;	
+		vlItem := ParList.AddObject(vlName,vlFileName,vlType,vlCdeclFlag);
+		if(vlCDecl = 'DEPEND') then begin
+			vlText := vlCdecl;
+			while (vlText <> ';') and (vlScan^<> #0) do begin
+				GetNextString(vlText);
+				UpperStr(vlText);
+
+				vlDependItem := ParList.GetItembyName(vlText);
+				if vlDependItem = nil then begin
+					MakeErrorString('Unkown library name "'+vlText+'"');
 				end else begin
-					vlCDeclFlag := true;
+					vlItem.AddDependency(vlDependItem);
 				end;
-
-				GetNextString(vlCDecl);
-		   	end;
-
+				GetNextString(vlText);
+				if(vlText <> ';') and (vlText <> ',') then MakeErrorString('"," or ";" expected and not "'+vlText+'"');
+			end;
+			vlCDecl := vlText;
+		end;
 		if(vLCDecl <> ';') then begin
-				Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('";" expected'));
+			MakeErrorString('";" expected');
    			break;
 		end;
-		ParList.AddObject(vlName,vlFileName,vlType,vlCdeclFlag);
-
 		vlPrv := #0;
-		while (vlScan^ <> #0) and (vlScan^ in [#32,#9,#13,#10]) do begin
-         		if (vlScan^ = #13) or (vlScan^ = #10) then begin
-					if ((vlPrv <>#13 ) or (vlScan^ <> #10))  and  ((vlPrv <>  #10) or (vlScan^ <> #13))  then inc(vlLine);
-				 	vlLastNl := vlScan;
-			end;
-			vlPrv := vlScan^;
-			inc(vlScan);
-		end;
-
+		Ignores;
 	end;
 	freemem(vlBuffer,vlSize+1);
 end;

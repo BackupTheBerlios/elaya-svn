@@ -6,7 +6,7 @@ type
 	TDate=record
 		Day : long;
 		Month : long;
-		Year : long;
+		Year : longint;
 	end;
 
 function GetDayOfWeek(const ParDate : TDate):long;
@@ -14,6 +14,8 @@ function GetDayNumber(const ParDate : TDate):long;
 function DaysSindsBeginYear(const parDate : TDate):long;
 function DaysInMonth(ParMonth:long;ParYear : long):long;
 function IsLeapYear(ParYear : long):boolean;
+function MonthsBetween(var ParDateBegin,ParDateEnd: TDate) : longint;
+
 procedure NumberToDate(ParNumber : long;var ParDate : TDate);
 operator (const ParDate1 : TDate) - (const ParDate2 : TDate):longint;overload;
 operator (const ParDate : TDate) - (ParNum : longint): TDate;overload;
@@ -38,7 +40,7 @@ type TDateInfo=record
 			vrMonthNames:array[1 to 12] of pstring;
 			vrShortMonthNames:array[1 to 12] of pstring;
 			vrDayNames : array[1 to 7] of pstring;
-         vrShortDayNames : array[1 to 7] of pstring;
+		        vrShortDayNames : array[1 to 7] of pstring;
 			vrDefaultFormat : pstring;
 		end;
 
@@ -46,6 +48,20 @@ type TDateInfo=record
 var
 		vlInfo : TDateInfo;
 
+
+
+function MonthsBetween(var ParDateBegin,ParDateEnd: TDate) : longint;
+var
+	vlDiff : longint;
+begin
+	vlDiff := (ParDateEnd.Year - ParDateEnd.Year) * 12 + (ParDateEnd.Month - ParDateEnd.Month);
+	if (ParDateEnd.Month > ParDateBegin.Month) and (ParDateEnd.Day < ParDateBegin.Day) then begin
+		dec(vlDiff);
+	end else if(ParDateEnd.Month < ParDateBegin.Month) and (ParDateEnd.Day > ParDateBegin.Day) then begin
+		inc(vlDiff);
+	end;
+	exit(vlDiff);
+end;
 
 function IsLeapYear(ParYear : long):boolean;
 begin
@@ -90,16 +106,16 @@ end;
 
 procedure NumberToDate(ParNumber : long;var ParDate : TDate);
 var
-	vlYear : long;	
+	vlYear : long;
 	vlNum : long;
 	vlRes : long;
 
 begin
 	ParDate.Day := 1;
 	ParDate.Month := 1;
-	ParDate.Year := ParNumber div 365 -1;
+	ParDate.Year := ParNumber div 366 -1;
 	repeat
-		inc ParDate.Year;
+		inc ParDate.Year;+
 		vlNum := GetDayNumber(ParDate);
 	until vlNum > ParNumber;
 	dec(ParDate.Year);
@@ -110,15 +126,15 @@ begin
 		if vlNum > vlRes then break;
 		dec vlRes with vlNum;
 		inc ParDate.month ;
-	until false;	
+	until false;
 	ParDate.Day := vlRes;
 end;
-	
-	
+
+
 
 
 function GetDayNumber(const ParDate : TDate):long;
-var 
+var
 	vlYear : long;
 begin
 	vlYear := ParDate.Year ;
@@ -308,7 +324,7 @@ begin
 			end else if vlPart='cc' then begin
 				vlTxt := IntToStr(ParDate.year div 100);
 			end else if vlPart='ms' then begin
-            vlTxt := GetShortMonthName(ParDate.Month);
+            			vlTxt := GetShortMonthName(ParDate.Month);
 			end else begin
 				exit(true);
 			end;

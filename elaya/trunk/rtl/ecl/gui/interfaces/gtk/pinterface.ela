@@ -30,9 +30,11 @@ Type
 TInterInterface=class inherit TRoot
 	public
 	type
-      TWidgetHandle = T_WidgetHandle;
+     	
+		TWidgetHandle = T_WidgetHandle;
 		PWidgetHandle = P_WidgetHandle;
-      TGCHandle     = T_GcHandle;
+    
+	  	TGCHandle     = T_GcHandle;
 		TPixmapHandle  = T_PixmapHandle;
 		PPixmapHandle  = P_PixmapHandle;
 	var
@@ -110,11 +112,18 @@ TInterInterface=class inherit TRoot
 		procedure ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);
 		procedure SetToolTip(ParWidget : PWidgetHandle;const ParText : string);{todo veranderen in TString?}
 		procedure GetToolTip(ParWidget : PWidgetHandle;var ParText : string);
+
+		{----( GC: Color )-------------------------------------------------------}
 		procedure SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
 		procedure SetFgColor(ParWidget : PWidgetHandle;const ParColor: TColor);
+		procedure  GetGCFgColor(var ParGc : TGCHandle;var ParColor : TColor);
+		procedure  GetGCBgColor(var ParGc : TGCHandle;var ParColor : TColor);
+
+
 		procedure DestroyWidget(ParWidget : PWidgetHandle);
 		procedure DestroyGC(var ParGC : TGCHandle);
 		function  CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;
+		procedure Point(var ParGC : TGCHandle;ParX,ParY : longint);
 		procedure Line(var ParGC :TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
 		procedure DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);
 		procedure GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);
@@ -293,7 +302,7 @@ var
 	vlWindow   : PGdkWindow;
 begin
 	vlFileName := ParFileName;
-   vlWindow   := nil;
+	 vlWindow   := nil;
 	if ParWindow <> nil then begin
 		if ParWindow^.vrDrawWidget <> nil then vlWindow := ParWindow^.vrDrawWidget^.Window;
 	end;
@@ -305,6 +314,27 @@ end;
 procedure TInterInterface.DrawPixmap(var ParGC : TGCHandle; ParPixmap : PPixmapHandle;ParX,ParY : longint);
 begin
    gdk_draw_Pixmap(ParGc.vrWindow,ParGc.vrGc,ParPixmap^.vrPixmap as PGdkDrawable,0,0,ParX,ParY,-1,-1);
+end;
+
+procedure TInterInterface.GetGCFgColor(var ParGc : TGCHandle;var ParColor : TColor);
+var	
+	vlValues : TGdkGCValues;
+begin
+	gdk_gc_get_values(ParGc.vrGc,@vlValues);
+	ParColor.Red := (vlValues.foreground.red as long) shl 16;
+	ParColor.Green := (vlValues.foreground.Green as long) shl 16;
+	ParColor.Blue := (vlValues.foreground.Blue as long) shl 16;
+end;
+
+
+procedure TInterInterface.GetGCBgColor(var ParGc : TGCHandle;var ParColor : TColor);
+var
+	vlValues : TGdkGCValues;
+begin
+	gdk_gc_get_values(ParGc.vrGc,@vlValues);
+	ParColor.Red := (vlValues.background.red as long)shl 16;
+	ParColor.Green := (vlValues.background.Green as long) shl 16;
+	ParColor.Blue := (vlValues.background.Blue as long) shl 16;
 end;
 
 procedure TInterInterface.SetGcFgColor(var ParGc : TGCHandle;const ParColor : TColor);
@@ -324,6 +354,7 @@ procedure TInterInterface.SetGcBgColor(var PArGC : TGCHandle;const ParColor : TC
 var
 	vlColor : TGdkColor;
 begin
+	vlColor.Pixel := 0;
 	vlColor.Red := ParColor.red shr 16;
 	vlColor.Green := ParColor.Green shr 16;
 	vlColor.Blue := ParColor.Blue shr 16;
@@ -352,6 +383,11 @@ var
 begin
 	vlText := ParText;
 	gdk_draw_text(parGC.vrWIndow,ParGC.vrFont,ParGc.vrGc,ParX,ParY,(@vlText) as PGChar,ParText.length);
+end;
+
+procedure TInterInterface.Point(var ParGC : TGCHandle;ParX,ParY : longint);
+begin
+	gdk_draw_point(ParGc.vrWindow,ParGc.vrGc,ParX,ParY);
 end;
 
 procedure TInterInterface.Line(var ParGC : TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
@@ -421,6 +457,8 @@ procedure TInterInterface.SetFgColor(ParWidget : PWidgetHandle;const ParColor : 
 begin
 	gtk_setfgcolor(ParWidget^.vrFgWidget,ParColor);
 end;
+
+
 
 procedure TInterInterface.gtk_setfgcolor(ParWidget : PGtkWidget;const ParColor : TColor);
 var

@@ -3,7 +3,7 @@ uses core,win32types,win32op;
 
 public
 
-external dll 'gdi32.dll'
+external gdi32
     function SetPixelFormat(_para1:HDC; _para2:longint; var _para3:PIXELFORMATDESCRIPTOR):WINBOOL; name 'SetPixelFormat';
 
     function SwapBuffers(_para1:HDC):WINBOOL; name 'SwapBuffers';

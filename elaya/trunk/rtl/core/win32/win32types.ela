@@ -21,7 +21,7 @@
 
 unit;
 uses core;
-public
+public 
   type
   	align 4;
      WINBOOL=long;
@@ -5882,7 +5882,7 @@ type
 
      FIXED = record
           fract : WORD;
-          value : integer;
+          _value : integer; {TODO Key word}
        end;
      _FIXED = FIXED;
      TFIXED = FIXED;
@@ -6751,7 +6751,7 @@ type
      DDEDATA = record
           flag0 : word;
           cfFormat : integer;
-          Value : array[0 to 0] of BYTE;
+          _Value : array[0 to 0] of BYTE; {TODO key word}
        end;
      PDDEDATA = PTR DDEDATA;
   const
@@ -6798,7 +6798,7 @@ type
      DDEPOKE = record
           flag0 : word;
           cfFormat : integer;
-          Value : array[0 to 0] of BYTE;
+          _Value : array[0 to 0] of BYTE; {TODO key word}
        end;
      TDDEPOKE = DDEPOKE;
      PDDEPOKE = PTR DDEPOKE;
@@ -8867,7 +8867,7 @@ align 4;
      PJOBINFO1 = PTR JOB_INFO_1;
 
      SID_IDENTIFIER_AUTHORITY = record
-          Value : array[0 to 5] of BYTE;
+          _Value : array[0 to 5] of BYTE;{TODO key word}
        end;
      LPSID_IDENTIFIER_AUTHORITY = PTR SID_IDENTIFIER_AUTHORITY;
      PSID_IDENTIFIER_AUTHORITY = PTR SID_IDENTIFIER_AUTHORITY;
