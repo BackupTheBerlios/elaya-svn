@@ -254,10 +254,11 @@ RExprDigi<vlDigiL>
 
 
 
-RLeave<ParNode : TNodeIdent>
+RLeave<var ParNode : TNodeIdent>
 =
-ILeave  (. if ParNode <> nil then ParNode.AddNode(TLeaveNode.Create); .)
+ILeave  (. if ParNode <> nil then ParNode :=TLeaveNode.Create; .)
 .
+
 
 RCode:"code item"<ParNode:TNodeIdent>
 (.
@@ -286,8 +287,8 @@ RCode:"code item"<ParNode:TNodeIdent>
 |RRepeat<vlNode>
 |RExit<vlNode>
 |RIncDec<vlNode>
-|RCodes<ParNode>
-|RLeave<ParNode>
+|RLeave<vlNode>
+|RCodes<vlNode>
 |RWrite<ParNode>)
 
 (.
@@ -298,27 +299,24 @@ RCode:"code item"<ParNode:TNodeIdent>
 
 
 
-RCodes<ParNode:TNodeIdent>
-(.
-	var
-		vlNode : TBlockNode;
-.)
+RCodes<var ParNode:TNodeIdent>
 =
+	(. ParNode := TBlockNode.Create;.)
 IBegin
-	(.
-		vlNode := TBlockNode.Create;
-		AddNodeToNode(ParNode,vlNode);
-	.)
-
-	  { RCode<vlNode>";"}
+	  { RCode<ParNode>";"}
 IEnd
 .
 
 RBlockOfCode<ParNode : TNodeIdent>
-=
-RCodes<ParNode>
 (.
-	if ParNode <> nil then ParNode.FinishNode(fNDCreator,true);
+	var
+		vlNode : TNodeIdent;
+.)
+=
+RCodes<vlNode>
+(.
+	AddNodeToNode(ParNode,vlNode);
+	if vlNode <> nil then vlNode.FinishNode(fNDCreator,true);
 .)
 .
 

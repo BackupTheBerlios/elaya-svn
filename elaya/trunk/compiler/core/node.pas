@@ -70,7 +70,6 @@ public
 	procedure SetCanDelete(ParDelete:boolean);
 	function  GetReplace(ParCre:TCreator):TNodeIdent;virtual;
 	function  GetPartByNum(ParNum:cardinal):TNodeIdent;
-	procedure SetParts(ParNode:TNodeList);
 	procedure GetPos(var ParLine,ParCol,ParPos:longint);
 	procedure SetPos(ParLine,ParCol,ParPos:longint);
 	procedure SetPosToNode(ParNode : TNodeIDent);
@@ -711,17 +710,8 @@ end;
 
 function TNodeIDent.GetPartByNum(ParNum:cardinal):TNodeIdent;
 begin
-	GetPartByNum := TNodeIdent(iParts.GetItemByNum(ParNum));
+	exit(TNodeIdent(iParts.GetItemByNum(ParNum)));
 end;
-
-procedure TNodeIdent.SetParts(ParNode:TNodeList);
-begin
-	if voParts <> nil then voParts.Destroy;
-	voParts := ParNode;
-end;
-
-
-
 
 function  TNodeIDent.CreateSec(ParCre:TSecCreator):boolean;
 begin
@@ -736,7 +726,7 @@ end;
 
 procedure TNodeident.InitParts;
 begin
-	SetParts(TNodeList.create);
+	iParts := TNodeList.create;
 end;
 
 function  TNodeIdent.CreatePartsSec(ParCre:TSecCreator):boolean;

@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elaya language
+{    Elaya, the comp[5~iler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -41,9 +41,8 @@ type
 	TNumberDataDef=class(TDataDef)
 	private
 		voNumber:longint;
+		property iNumber : longint read voNumber write voNumber;{TODO: to TNumber?}
 	public
-		procedure SetNumber(ParNumber:Longint);
-		function  GetNumber:longint;
 		constructor Create(ParNumber:Longint);
 		procedure Print(ParDis:TAsmDisplay);override;
 	end;
@@ -51,22 +50,15 @@ type
 	TTextDataDef=class(TDataDef)
 	private
 		voText:TString;
-	protected
-		procedure   commonsetup;override;
-
+		property iText : TString read voText write voText;
 	public
-		function    GetName:TString;
-		procedure   SetName(const ParName:string);
+		property fText : TString read voText;
 		constructor Create(const ParName:string);
 		destructor  destroy;override;
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
-	
-	
-	
-	
-	
-	TAssemDef=class(TListITem)
+
+   TAssemDef=class(TListITem)
 	private
 		voType   : TDatType;
 		voPublic : boolean;
@@ -95,15 +87,16 @@ type
 	end;
 	
 	
-	TOpperAssemDef=class(TAssemdef)
+	TOperAssemDef=class(TAssemdef)
 	private
-		voOpper:TDataDef;
+		voOperand:TDataDef;
+		property iOperand : TDataDef read voOperand Write voOperand;
+	protected
+		procedure   clear;override;
+		property fOperand : TDataDef read voOperand Write voOperand;
+
 	public
-		constructor Create(ParType : TDatType;ParOpper:TDataDef);
-		procedure   commonsetup;override;
-		procedure   SetOperand(ParOpper:TDataDef);
-		function    GetOperand:TDataDef;
-		destructor  destroy;override;
+		constructor Create(ParType : TDatType;ParOper:TDataDef);
 		procedure   Print(parDIs:TAsmDisplay);override;
 	end;
 	
@@ -112,40 +105,42 @@ type
 	TalignDef=class(TAssemDef)
 	private
 		voalign : TSize;
+		property iAlign : TSIze read voAlign write voAlign;
 	public
+
 		constructor Create(ParType : TDatType;ParAlign : TSize);
-		function  Getalign : TSize;
-		procedure Setalign(Paralign : TSize);
 		procedure Print(ParDis:TAsmDisplay);override;
 	end;
 	
-	TExternalCode=class(TOpperAssemDef)
+	TExternalCode=class(TAssemDef)
 	private
 		voLabel:TString;
+		voName : TString;
 		property iLabel : TString read voLabel write voLabel;
-	public
-		property fLabel : TString read voLabel;
+		property iName  : TString  read voName  write voName;
+	protected
 		procedure Clear;override;
-		constructor Create(Partype : TDatType;const ParLabel:string;ParOpper:TDataDef;ParPublic:boolean);
+	public
+		constructor Create(Partype : TDatType;const ParLabel,ParName:string;ParPublic:boolean);
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
 	
-	TGenLongDef=class(TOpperAssemDef)
+	TGenLongDef=class(TOperAssemDef)
 		procedure GetDefName(var ParName : string);override;
 	end;
 	
-	TLongDef = class(TOpperAssemDef)
+	TLongDef = class(TOperAssemDef)
 		constructor Create(parType : TDatType;ParNumber:Longint);
 		procedure   GetDefName(var ParName:String);override;
 	end;
 	
-	TShortDef = class(TOpperAssemDef)
+	TShortDef = class(TOperAssemDef)
 		constructor Create(parType : TDatType;ParNumber:Longint);
 		procedure   GetDefName(var ParName:String);override;
 	end;
 	
 	
-	TRvaDef = class(TOpperAssemDef)
+	TRvaDef = class(TOperAssemDef)
 		procedure GetDefName(var ParName:string);override;
 	end;
 	
@@ -154,9 +149,10 @@ type
 	TTextDef = class(TAssemDef)
 	private
 		voText: TString;
-		property fText : TString read voText write voText;
+		property iText : TString read voText write voText;
 	public
-		property    GetText : TString read voText;
+		property fText : TString read voText;
+
 		constructor Create(ParType : TDatType;ParString:String);
 		procedure   Clear;override;
 	end;
@@ -273,25 +269,15 @@ end;
 
 {----( TalignDef )--------------------------------------------------}
 
-function  TalignDef.Getalign : TSize;
-begin
-	Getalign := voalign;
-end;
-
-procedure TalignDef.Setalign(Paralign : TSize);
-begin
-	voalign := Paralign;
-end;
-
 constructor TalignDef.Create(ParType : TDatType ; ParAlign : TSize);
 begin
 	inherited Create(parType);
-	Setalign(Paralign);
+	iAlign := ParAlign;
 end;
 
 procedure TalignDef.Print(ParDis:TAsmDisplay);
 begin
-	ParDis.AsPrintAlign(GetAlign);
+	ParDis.AsPrintAlign(iAlign);
 end;
 
 
@@ -302,23 +288,23 @@ procedure TExternalCode.Clear;
 begin
 	inherited Clear;
 	if iLabel <> nil then iLabel.destroy;
+	if iName <> nil then iName.Destroy;
 end;
 
-constructor TExternalCode.Create(ParType : TDatType;const ParLabel:string;ParOpper:TDataDef;ParPublic:boolean);
+constructor TExternalCode.Create(ParType : TDatType;const ParLabel,ParName : string;ParPublic:boolean);
 begin
-	inherited Create(ParType,ParOpper);
-	iPublic := ParPublic;
+	inherited Create(ParType);
+	iName   := TString.Create(ParName);
 	iLabel  := TString.Create(ParLabel);
 end;
 
 procedure   TExternalCode.Print(ParDis:TAsmDisplay);
-var vlStr:string;
+var
+	vlName:string;
 begin
-	if iPublic then begin
-		TTextDataDef(GetOperand).GetName.GetString(vlStr);
-		ParDis.Writenl(GetAssemblerInfo.GetGlobalText(vlStr));
-	end;;
-	ParDis.WritePst(TTextDataDef(GetOperand).GetName);
+	iName.GetString(vlName);
+	if iPublic then ParDis.Writenl(GetAssemblerInfo.GetGlobalText(vlName));
+	ParDis.Write(vlName);
 	ParDis.Writenl(':');
 	ParDis.Print([MN_JUMP,' ']);
 	ParDis.WritePst(iLabel);
@@ -362,7 +348,7 @@ end;
 
 constructor TLongDef.Create(ParType : TDatType;ParNumber:Longint);
 begin
-	inherited Create(ParType,(TNumberDataDef.Create(ParNUmber)));
+	inherited Create(ParType,TNumberDataDef.Create(ParNUmber));
 end;
 
 procedure   TLongDef.GetDefName(var ParName:String);
@@ -373,7 +359,7 @@ end;
 
 constructor TShortDef.Create(ParType : TDatType;ParNumber:Longint);
 begin
-	inherited Create(ParType,(TNumberDataDef.Create(ParNUmber)));
+	inherited Create(ParType,TNumberDataDef.Create(ParNUmber));
 end;
 
 procedure   TShortDef.GetDefName(var ParName:String);
@@ -383,25 +369,16 @@ end;
 
 {----( TNumberDef )------------------------------------------}
 
-procedure    TNumberDataDef.SetNumber(ParNumber:Longint);
-begin
-	voNumber := ParNumber;
-end;
-
-function     TNumberDataDef.GetNumber:longint;
-begin
-	GetNumber := voNumber;
-end;
 
 constructor  TNumberDataDef.Create(ParNumber:Longint);
 begin
 	inherited Create;
-	SetNumber(ParNumber);
+	iNumber := ParNumber;
 end;
 
 procedure    TNumberDataDef.Print(ParDis:TAsmDisplay);
 begin
-	ParDis.WriteInt(GetNumber);
+	ParDis.WriteInt(iNumber);
 end;
 
 {----( TAsciiDef )----------------------------------------}
@@ -427,55 +404,39 @@ end;
 constructor TTextDef.Create(ParType : TDatType;ParString:String);
 begin
 	inherited Create(Partype);
-	fText := TString.Create(ParString);
+	iText := TString.Create(ParString);
 end;
 
 
 procedure TTextDef.Clear;
 begin
 	inherited Clear;
-	if fText <>nil then fText.Destroy;
+	if iText <>nil then iText.Destroy;
 end;
 
 {----( TTextDataDef )--------------------------------------}
-
-function   TTextDataDef.GetName:TString;
-begin
-	GetName :=voText;
-end;
-
-procedure   TTextDataDef.SetName(const ParName:string);
-var vlStr:String;
-begin
-	if GetNAme <> nil then GetName.destroy;
-	ToAsString(ParName,vlStr);
-	voText := TString.Create(vlStr);
-end;
 
 
 destructor  TTextDataDef.destroy;
 begin
 	inherited destroy;
-	if GetName <> nil then GetName.destroy;
+	if iText <> nil then iText.destroy;
 end;
 
 constructor TTextDataDef.Create(const ParName:string);
+var
+	vlStr : string;
 begin
 	inherited Create;
-	SetName(ParName);
+	ToAsString(ParName,vlStr);
+	iText := TString.Create(vlStr);
 end;
 
 procedure   TTextDataDef.Print(ParDis:TAsmDisplay);
 begin
 	ParDis.Write('"');
-	ParDis.WritePst(GetName);
+	ParDis.WritePst(iText);
 	ParDis.Write('\000"');
-end;
-
-procedure   TTextDataDef.Commonsetup;
-begin
-	inherited COmmonSetup;
-	voText := nil;
 end;
 
 
@@ -487,43 +448,29 @@ begin
 end;
 
 
-{-----( TOpperAssemDef )-------------------------------------}
+{-----( TOperAssemDef )-------------------------------------}
 
-constructor TOpperAssemDef.Create(ParType : TDatType;ParOpper:TDataDef);
+constructor TOperAssemDef.Create(ParType : TDatType;ParOper:TDataDef);
 begin
 	inherited Create(ParType);
-	SetOperand(ParOpper);
+	iOperand := ParOper;
 end;
 
-procedure  TOpperAssemDef.commonsetup;
+procedure TOperAssemDef.Clear;
 begin
-	inherited COmmonsetup;
-	voOpper := nil;
+	inherited Clear;
+	if iOperand <> nil then iOperand.Clear;
 end;
 
-destructor TOpperAssemDef.destroy;
-begin
-	inherited destroy;
-	if GetOperand <>  nil then GetOperand.destroy;;
-end;
-
-procedure TOpperAssemDef.SetOperand(ParOpper:TDataDef);
-begin
-	voOpper := ParOpper;
-end;
-
-function  TOpperAssemDef.GetOperand:TDataDef;
-begin
-	GetOperand := voOpper;
-end;
-procedure TOpperAssemDef.Print(parDIs:TAsmDisplay);
-var vlname:String;
+procedure TOperAssemDef.Print(parDIs:TAsmDisplay);
+var
+	vlName:String;
 begin
 	PArDis.SetLeftMargin(SIZE_AsmLeftMargin);
 	GetDefName(vlName);
 	PArDis.Write(vlName);
 	ParDis.Write(' ');
-	if GetOperand <> nil then GetOperand.Print(ParDis);
+	if iOperand <> nil then iOperand.Print(ParDis);
 	PArDis.SetLeftMargin(-SIZE_AsmLeftMargin);
 end;
 

@@ -388,7 +388,7 @@ var
 	vlRoutine : TRoutine;
 	vlLevel   : cardinal;
 	vlItem    : TIdentDigiItem;
-	vlName : string;
+{	vlName : string; }
 begin
 	ParDigi := nil;
 	vlRoutine := TRoutine(fNDCreator.GetCurrentRoutine);
@@ -401,7 +401,7 @@ begin
 		if vlRoutine.fPhysicalAddress = nil then begin
 			SemError(Err_Rtn_Has_No_Main);
 		end else begin
-			vlRoutine.fPhysicalAddress.GetTextStr(vlName);
+		{	vlRoutine.fPhysicalAddress.GetTextStr(vlName);}
 			vlItem := TIdentDigiItem.Create(vlRoutine.fPhysicalAddress,vlRoutine);
 			SetDigiPos(vlItem);
 			ParDigi := TIdentHookDigiItem.Create(vlItem);
@@ -419,7 +419,7 @@ var
 	vlDef     : TFormulaDefinition;
 	vlOwner   : TFormulaDefinition;
 begin
-	if ParlOcal = nil then begin
+	if Parlocal = nil then begin
 		fNDCreator.GetIdentByName(ParIdent,vlOwner,TDefinition(vlDef));
 	end else begin
 		ParLocal.GetPtrByName(ParIdent,[SO_Local],vlOwner,TDefinition(vlDef));
@@ -427,7 +427,7 @@ begin
 	vlMention := MT_Other;
 	if vlDef<> nil then begin
 		if vlDef.Can([Can_Type]) then vlMention := MT_Type;
-			if vlDef.Can([Can_Execute]) then vlMention := MT_Call;
+		if vlDef.Can([Can_Execute]) then vlMention := MT_Call;
 	end else  begin
 		vlMention := MT_Error;
 		ErrorText(Err_Unkown_Ident,ParIdent);
@@ -439,7 +439,8 @@ begin
 end;
 
 procedure TEla_User.HandleRoutineDotName(const ParName : string);
-var vLDef : TDefinition;
+var
+	vLDef : TDefinition;
 	vlOwner : TDefinition;
 	vlName  : string;
 begin
@@ -1138,11 +1139,11 @@ begin
 	vlType  := ParType;
    if ParName = nil then ParName := TString.Create('');{TODO ParName=>vlName and ''=some descriptive name}
 	case ParType of
-	ET_Linked : vlInter := TExternalObjectFileInterface.Create(ParName);
-	ET_Dll    : if GetConfigValues.fCanUseDll then begin
-		vlInter := TExternalLibraryInterfaceWindows.Create(ParName);
-	   end;
-    end;
+		ET_Linked : vlInter := TExternalObjectFileInterface.Create(ParName);
+		ET_Dll    : if GetConfigValues.fCanUseDll then begin
+			vlInter := TExternalLibraryInterfaceWindows.Create(ParName);
+		end;
+	end;
 
     if vlInter = nil then begin
     	SemError(Err_Feature_Not_Possible);

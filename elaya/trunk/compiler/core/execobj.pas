@@ -1747,7 +1747,7 @@ end;
 
 procedure TNotNode.InitParts;
 begin
-	SetParts((TLogicList.create(TNotFor,false)));
+	iParts := TLogicList.create(TNotFor,false);
 end;
 
 
@@ -1791,7 +1791,7 @@ end;
 
 procedure TAndNode.InitParts;
 begin
-	SetParts((TLogicList.create(TAndFor,false)));
+	iParts := TLogicList.create(TAndFor,false);
 end;
 
 
@@ -1827,7 +1827,7 @@ end;
 
 procedure TOrNode.initParts;
 begin
-	SetParts(TLogicList.create(TOrFor,true));
+	iParts := TLogicList.create(TOrFor,true);
 end;
 
 
@@ -1849,7 +1849,7 @@ end;
 
 procedure TXorNode.initParts;
 begin
-	SetParts(TOperatorNodeList.create(TXorFor));
+	iParts := TOperatorNodeList.create(TXorFor);
 end;
 
 
@@ -1987,7 +1987,7 @@ end;
 
 procedure TModNode.InitParts;
 begin
-	SetParts(TOperatorNodeList.Create(TModFor));
+	iParts := TOperatorNodeList.Create(TModFor);
 end;
 
 {--------( TDivNode )-------------------------------------------}
@@ -1995,7 +1995,7 @@ end;
 
 procedure TDivNode.InitParts;
 begin
-	SetParts(TOperatorNodeList.Create(TDivFor));
+	iParts := TOperatorNodeList.Create(TDivFor);
 end;
 
 procedure TDivNode.CommonSetup;
@@ -2109,7 +2109,7 @@ end;
 
 procedure TShrNode.InitParts;
 begin
-	SetParts(TShrNodeList.Create(TShrFor));
+	iParts := TShrNodeList.Create(TShrFor);
 end;
 
 Procedure TShrNode.GetOperStr(var ParOper : string);
@@ -2129,7 +2129,7 @@ end;
 
 procedure TShlNode.InitParts;
 begin
-	SetParts(TShrNodeList.Create(TShlFor));
+	iParts := TShrNodeList.Create(TShlFor);
 end;
 
 Procedure TShlNode.GetOperStr(var ParOper : string);
@@ -2147,11 +2147,9 @@ end;
 {--------( TMulNode )-------------------------------------------}
 
 
-
-
 procedure TMulNode.InitParts;
 begin
-	SetParts(TMulNodeList.create(TMulFor));
+	iParts := TMulNodeList.create(TMulFor);
 end;
 
 procedure TMulNode.GetOperStr(var ParOper:String);
@@ -2216,7 +2214,6 @@ begin
 end;
 
 
-
 {------( TDualOperNode )----------------------------------------}
 
 
@@ -2236,11 +2233,6 @@ begin
 	end;
 	exit(vlItem);
 end;
-
-
-
-
-
 
 
 {----( TByPtrNode )-----------------------------------------}
@@ -2283,9 +2275,9 @@ end;
 procedure TByPtrNode.commonsetup;
 begin
 	inherited Commonsetup;
-	iIdentCode := IC_ByPtrNode;
+	iIdentCode   := IC_ByPtrNode;
 	iExtraOffset := 0;
-	iCOmplexity := CPX_ByPointer;
+	iCOmplexity  := CPX_ByPointer;
 end;
 
 
@@ -2441,7 +2433,7 @@ end;
 
 procedure TOperatorNode.InitParts;
 begin
-	SetParts(TOperatorNodeList.create(nil));
+	iParts := TOperatorNodeList.create(nil);
 end;
 
 function  TOperatorNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
@@ -2625,7 +2617,7 @@ end;
 
 procedure TCompNode.InitParts;
 begin
-	SetParts(TFormulaList.Create);
+	iParts := TFormulaList.Create;
 end;
 
 

@@ -1,4 +1,4 @@
-{Copyright (C) ;1999-2003  J.v.Iddekinge.
+{Copyright (C) 1999-2004  J.v.Iddekinge.
 Web   : www.elaya.org
 
 This program is free software; you can redistribute it and/or modify
@@ -36,11 +36,9 @@ type
 			voNeedStackFrame      : boolean;
 			voHasNeverStackFrame  : boolean;
 			voLocalFrame          : TFrame;
-			voParameterFrame      : TFrame;
 			voHasOwnFramePtr      : boolean;
 			voObjectList          : TObjectList;
 		protected
-			property  iParameterFrame     : TFrame        read voParameterFrame     write voParameterFrame;
 			property  iLocalFrame         : TFrame        read voLocalFrame         write voLocalFrame;
 			property  iExitLabel          : TLabelPoc     read voExitLabel          write voExitLabel;
 			property  iLocalFramePtr      : TMacBase      read voLocalFramePtr      write voLocalFramePtr;
@@ -63,7 +61,7 @@ type
 			property  fLocalFramePtr      : TMacBase  read voLocalFramePtr;
 			property  fCDeclFlag          : boolean   read voCDeclFlag;
 			property  fName               : TString   read voName;
-			constructor Create(const ParName : String;ParCDeclFlag : boolean;ParOwnerPoc : TRoutinePoc;ParRoutine : TRoutine;ParParameterFrame,ParLocalframe : TFrame;ParlocalSize,ParParamSize : TSize);
+			constructor Create(const ParName : String;ParCDeclFlag : boolean;ParOwnerPoc : TRoutinePoc;ParRoutine : TRoutine;ParLocalframe : TFrame;ParlocalSize,ParParamSize : TSize);
 			
 			
 			function  CreateInst(ParCre:TInstCreator):boolean;override;
@@ -143,15 +141,10 @@ type
 		
 		TRoutineNode=class(TNodeIdent)
 		private
-			voParameterFrame : TFrame;
-			voLocalFrame     : TFrame;
 			voProcedure      : TRoutine;
 			property  iRoutine : TRoutine read voProcedure write voProcedure;
 			procedure SetProcedureObj(ParProc:TRoutine);
-			property    iLocalFrame     : TFrame     read voLocalFrame     write voLocalFrame;
-			property    iParameterFrame : TFrame     read voParameterFrame write voParameterFrame;
 		public
-			property    fLocalFrame     : TFrame     read voLocalFrame write voLocalFrame;
 			property    fRoutine : TRoutine read voProcedure;
 			constructor Create(ParProc:TRoutine);
 			function    CreateSec(ParCre:TSecCreator):boolean;override;
@@ -185,7 +178,7 @@ type
 			procedure  InitStorageList;virtual;
 			function   CheckAccessLevel(ParParent : TRoutine):boolean;
 			function   CreateRoutineAsm : TRoutineAsm;
-			
+
 		protected
 			property  iParent	         : TRoutine        read voParent             write voParent;
 			property  iPhysicalAddress   : TRoutine        read voPhysicalAddress    write voPhysicalAddress;
@@ -443,16 +436,15 @@ type
 		if iHasNeverStackFrame then begin
 			exit(0);
 		end else begin
-			exit(TFrame(iLocalFrame).GetTotalSize);
+			exit(iLocalFrame.GetTotalSize);
 		end;
 	end;
 	
 	constructor TRoutinePoc.Create(const ParName : String;ParCDeclFlag : boolean;
 							ParOwnerPoc : TRoutinePoc;ParRoutine : TRoutine;
-					ParParameterFrame,ParLocalframe : TFrame ;ParlocalSize,ParParamSize : TSize);
+					ParLocalframe : TFrame ;ParlocalSize,ParParamSize : TSize);
 	begin
 		iLocalFrame     := ParLocalFrame;
-		iParameterFrame := ParParameterFrame;
 		inherited Create;
 		iCDeclFlag     := ParCDeclFlag;
 		iParamSize     := ParParamSize;
@@ -466,7 +458,7 @@ type
 			iObjectList.AddObject(iLocalFramePtr);
 		end;
 		
-		TFrame(iLocalFrame).AddAddressing(ParRoutine,ParRoutine,iLocalFramePtr,false);
+		iLocalFrame.AddAddressing(ParRoutine,ParRoutine,iLocalFramePtr,false);
 	end;
 	
 	procedure TRoutinePoc.Clear;
@@ -1937,8 +1929,6 @@ type
 	begin
 		inherited Create;
 		SetProcedureObj(ParProc);
-		iLocalFrame := ParProc.fLocalFrame;
-		iParameterFrame := ParProc.fParameterFrame;
 	end;
 	
 	function  TRoutineNode.CreateSec(ParCre:TSecCreator):boolean;
@@ -1958,7 +1948,6 @@ type
 		RTM_CDecl in fRoutine.fRoutineModes,
 		vlOwnerPoc,
 		fRoutine,
-		fRoutine.fParameterFrame,
 		fRoutine.fLocalFrame,
 		fRoutine.GetLocalSize,
 		fRoutine.GetParamSize);
@@ -2254,7 +2243,7 @@ end;
 	
 	procedure TCallNode.InitParts;
 	begin
-		SetParts(TCallNodeList.Create);
+		iParts := TCallNodeList.Create;
 	end;
 	
 	
@@ -2384,7 +2373,7 @@ var
 	vlUsed : boolean;
 	vlLi   : TLargeNumber;
 begin
-	if not iIsProcessed then runerror(3);
+	if not iIsProcessed then begin writeln(iRoutineItem.GetErrorName); runerror(3);  end;
 
 	DoInitDotFrame(ParCre);
 	vlUSed := false;

@@ -168,7 +168,7 @@ type
 
 	public
 		procedure GetOperStr(var ParOper:string);override;
-		function  CreateSec(ParCre:TSecCreator):boolean;override;
+			function  CreateSec(ParCre:TSecCreator):boolean;override;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
 		function CheckConvertTest(ParType1,ParType2 : TType) : boolean;override;

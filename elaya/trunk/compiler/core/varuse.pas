@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elasya language
+{    Elaya, the compiler for the elasya lan5;3~5;3~guage
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -122,6 +122,7 @@ TDefinitionUseList=class(TSMList)
 				procedure SetAllDefault(ParRead :boolean);
 				function AreAllInitialised : TVarUseMode;
 				procedure SetAllAccessSilent(ParMode : TAccessMode);
+				function AreAllUnused:boolean;
 	end;
 
 TStructDefinitionUseItem=class(TDefinitionUseItemBase)
@@ -142,7 +143,7 @@ public
    function IsCompleetInitialised : TVarUseMode;override;
 	procedure SetDefault(ParRead:boolean);override;
 	procedure CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);override;
-
+	function IsUnused:boolean;override;
 end;
 
 implementation
@@ -190,8 +191,27 @@ begin
 end;
 
 
+function TStructDefinitionUseSubList.AreAllUnused : boolean;
+var
+	vlCurrent : TDefinitionUseItemBase;
+begin
+	vlCurrent := TDefinitionUSeItemBase(fStart);
+	while vlCurrent <> nil do begin
+
+		if not(vlCurrent.IsUnused) then exit(false);
+		vlCurrent := TDefinitionUSeItemBAse(vlCurrent.fNxt);
+	end;
+	exit(true);
+end;
+
 
 {---( TStructDefinitionUseItem)----------------------------------------------------------------}
+
+
+function TStructDefinitionUseItem.IsUnused:boolean;
+begin
+	exit(iSubList.AreAllUnUsed);
+end;
 
 procedure TStructDefinitionUseItem.CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);
 begin
@@ -226,8 +246,24 @@ begin
 end;
 
 procedure TStructDefinitionUseItem.CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);{TODO}
+var
+	vlDef   : TBaseDefinition;
+	vlOwner : string;
+	vlName  : string;
 begin
-	iSubList.CheckUnUsed(ParCre);
+	if IsUnused then begin
+   	vlName := iDefinition.GetErrorName;
+      if(iContext <> nil) then begin
+      	vlOwner := iContext.GetName+'.'
+		end else begin
+      	EmptyString(vlOwner);
+      end;
+		vlDef := iDefinition;
+		if(iContext <> nil) then vlDef := iContext.fDefinition;
+		ParCre.AddDefinitionWarning(vlDef,ERR_Variable_Not_Used,vlName+'/'+vlOwner+GetName);
+	end else begin
+		iSubList.CheckUnUsed(ParCre);
+	end;
 end;
 
 function TStructDefinitionUseItem.SetAccess(ParMode : TAccessMode):TAccessStatus;
@@ -524,7 +560,7 @@ var
    vlOwner : string;
 	vlDef   : TBaseDefinition;
 begin
-    if (iRead=VM_Not) and (iWrite=VM_Not) then begin
+    if IsUnUsed then begin
 		if ParOwner <> nil then begin
 			vlName := ParOwner.GetErrorName;
 		end else begin

@@ -87,7 +87,7 @@ REnum<var ParType:TType>
 	vlCollection.SetText(vlName);
 	LoadLong(vlVal, 0);
 	AddIdent(vlCollection);
-    fNDCreator.AddCurrentDefinition(vlCollection);
+   fNDCreator.AddCurrentDefinition(vlCollection);
 .)
   {REnumident<vlVal> ";"}
   IEnd

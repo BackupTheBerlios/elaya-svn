@@ -211,7 +211,7 @@ end;
 
 procedure TSubNode.InitParts;
 begin
-	setParts(TSubNodeList.create(TSubFor));
+	iParts := TSubNodeList.create(TSubFor);
 end;
 
 procedure TSubNode.GetOperStr(var ParOper:string);
@@ -501,7 +501,7 @@ end;
 
 procedure TAddNode.InitParts;
 begin
-	setParts(TAddNodeList.create(TAddFor));
+	iParts := TAddNodeList.create(TAddFor);
 end;
 
 procedure TAddNode.GetOperStr(var ParOper:string);
@@ -512,7 +512,7 @@ end;
 procedure TAddNode.CommonSetup;
 begin
 	inherited CommonSetup;
-	iIdentCode := (IC_AddNode);
+	iIdentCode := IC_AddNode;
 end;
 
 end.

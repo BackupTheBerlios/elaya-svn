@@ -39,8 +39,8 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RLogic ( var ParDigi :TDigiItem);
       Procedure _RCompare ( var ParExp:TDigiItem);
       Procedure _RIdentOper ( var ParExp : TDigiItem);
-      Procedure _RCodes ( ParNode:TNodeIdent);
-      Procedure _RLeave ( ParNode : TNodeIdent);
+      Procedure _RCodes ( var ParNode:TNodeIdent);
+      Procedure _RLeave ( var ParNode : TNodeIdent);
       Procedure _RExprDigi ( var ParExpr : TDigiItem);
       Procedure _RLoad ( var Parexp:TFormulaNode);
       Procedure _RRepeat ( var ParNode:TNodeIdent);
@@ -104,9 +104,11 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RDirectMul ( var ParVal:TValue;var ParInValid:boolean);
       Procedure _RDirectAdd ( var ParVal:TValue;var ParInValid:boolean);
       Procedure _RDirectLogic ( var ParVal : TValue;var ParInvalid:boolean);
-      Procedure _RCharConst ( var ParValue : TValue);
       Procedure _RDirectExpr ( var ParVal:TValue);
+      Procedure _RNumberConstant ( var ParValue : TValue;var ParInvalid : boolean);
+      Procedure _RStringConstant ( var ParValue : TValue);
       Procedure _RDirectNumber ( var ParNum:TNumber);
+      Procedure _RCharConst ( var ParValue : TValue);
       Procedure _IXor;
       Procedure _IWith;
       Procedure _IWhile;
@@ -911,28 +913,21 @@ begin
               ParExp := vlDigiL ;
       end;
       
-      Procedure TELA_Parser._RCodes ( ParNode:TNodeIdent);
-       
-      var
-      	vlNode : TBlockNode;
-      
+      Procedure TELA_Parser._RCodes ( var ParNode:TNodeIdent);
       begin
+              ParNode := TBlockNode.Create;;
             _IBegin;
-             
-            	vlNode := TBlockNode.Create;
-            	AddNodeToNode(ParNode,vlNode);
-            ;
             WHILE vgDynSet[4].isSet(GetSym) do begin
-                  _RCode( vlNode);
+                  _RCode( ParNode);
                   Expect(8);
             end;
             _IEnd;
       end;
       
-      Procedure TELA_Parser._RLeave ( ParNode : TNodeIdent);
+      Procedure TELA_Parser._RLeave ( var ParNode : TNodeIdent);
       begin
             _ILeave;
-              if ParNode <> nil then ParNode.AddNode(TLeaveNode.Create); ;
+              if ParNode <> nil then ParNode :=TLeaveNode.Create; ;
       end;
       
       Procedure TELA_Parser._RExprDigi ( var ParExpr : TDigiItem);
@@ -1204,11 +1199,11 @@ begin
                   31, 50 : begin
                         _RIncDec( vlNode);
                   end;
-                  20 : begin
-                        _RCodes( ParNode);
-                  end;
                   43 : begin
-                        _RLeave( ParNode);
+                        _RLeave( vlNode);
+                  end;
+                  20 : begin
+                        _RCodes( vlNode);
                   end;
                   97..98 : begin
                         _RWrite( ParNode);
@@ -2613,7 +2608,7 @@ begin
             vlCollection.SetText(vlName);
             LoadLong(vlVal, 0);
             AddIdent(vlCollection);
-             fNDCreator.AddCurrentDefinition(vlCollection);
+            fNDCreator.AddCurrentDefinition(vlCollection);
             ;
             WHILE (GetSym = 1) do begin
                   _REnumident( vlVal);
@@ -2706,15 +2701,14 @@ begin
       
       Procedure TELA_Parser._RNum_Or_Const_2 ( var ParVal:TValue);
         var
-          vlValid : boolean;
-          vlNum   : TNumber;
-          vlStr   : String;
-          vlNeg   : boolean;
+          vlInValid : boolean;
+          vlNum     : TNumber;
+          vlStr     : String;
+          vlNeg     : boolean;
       
       begin
              
              ParVal  := nil;
-             vlValid := true;
              vlNeg   := false;
             ;
             if (GetSym in [3 , 4 , 5 , 105 , 106]) then begin
@@ -2727,29 +2721,19 @@ begin
                               Get;
                         end
                         ;end;
-                  _RNumber( vlNum,vlValid);
+                  _RNumberConstant( ParVal,vlInValid);
                    
-                  	if vlNeg then LargeNeg(vlNum);
-                  	if Not(LargeInRange(vlNum, Min_Longint, Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'3');
-                  	ParVal := TLongint.Create(vlNum);
-                  	if not vlValid then SemError(Err_int_Invalid_Number);
+                  	if vlNeg then ParVal.neg;
+                  	if vlInValid then SemError(Err_int_Invalid_Number);
                   ;
             end
-             else if (GetSym = 25) then begin
-                  _RCharConst( ParVal);
-            end
-             else if (GetSym in [2 , 6]) then begin
-                  _RText( vlStr);
-                     ParVal := TString.Create(vlStr); ;
+             else if (GetSym in [2 , 6 , 25]) then begin
+                  _RStringConstant( ParVal);
             end
             else begin
                   SynError(147);
             end;
-            ; 
-            if ParVal = nil then begin
-            	ParVal := TLongint.Create(1);
-            end;
-            ;
+            ; if ParVal = nil then ParVal := TLongint.Create(1); ;
       end;
       
       Procedure TELA_Parser._RConstantDecl;
@@ -2805,24 +2789,9 @@ begin
       end;
       
       Procedure TELA_Parser._RConstantStringValue ( var ParValue : TString);
-       
-      var
-      	vlStr : string;
-      
       begin
-            if (GetSym = 25) then begin
-                  _RCharConst( ParValue);
-            end
-             else if (GetSym in [2 , 6]) then begin
-                  _RText( vlStr);
-                   
-                  	ParValue := TString.Create(vlStr);
-                  ;
-            end
-            else begin
-                  SynError(148);
-            end;
-            ;end;
+            _RStringConstant( ParValue);
+      end;
       
       Procedure TELA_Parser._RConstantStringFact ( var ParString : TString);
       begin
@@ -2839,7 +2808,7 @@ begin
                   Expect(104);
             end
             else begin
-                  SynError(149);
+                  SynError(148);
             end;
             ;end;
       
@@ -2891,42 +2860,32 @@ begin
       Procedure TELA_Parser._RNum_Or_Const ( var ParVal:TValue;var ParInvalid : boolean);
         var vlConst : TConstant;
       			       vlValid : boolean;
-      			       vlNum   : TNumber;
-      			       vlStr   : String; 
+      			
       begin
                 ParVal := nil;
             			     vlValid := true; ;
             if (GetSym in [3 , 4 , 5]) then begin
-                  _RNumber( vlNum,vlValid);
-                   
-                  			 if not(LargeInRange(vlNum, Min_Longint,Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'2');
-                  			 ParVal := TLongint.Create(vlNum);
-                              if not vlValid then ParInvalid := true;
-                  		 ;
+                  _RNumberConstant( ParVal,ParInvalid);
             end
              else if (GetSym = 1) then begin
                   _RDefIdentObj( TDefinition(vlConst),false);
                    
-                  ParVal := nil;
-                  if (vlConst <> nil) then begin
-                  	if not(vlConst is TConstant) then begin
-                  		SemError(Err_Not_An_Integer_Const)
-                  	end else begin
-                  		ParVal := vlConst.fVal.Clone;
+                  	ParVal := nil;
+                  	if (vlConst <> nil) then begin
+                  		if not(vlConst is TConstant) then begin
+                  			SemError(Err_Not_An_Integer_Const)
+                  		end else begin
+                  			ParVal := vlConst.fVal.Clone;
+                  		end;
                   	end;
-                  end;
-                  if ParVal = nil then ParVal := (TLongint.Create(1));
+                  	if ParVal = nil then ParVal := TLongint.Create(1);
                   ;
             end
-             else if (GetSym = 25) then begin
-                  _RCharConst( ParVal);
-            end
-             else if (GetSym in [2 , 6]) then begin
-                  _RText( vlStr);
-                     ParVal := TString.Create(vlStr); ;
+             else if (GetSym in [2 , 6 , 25]) then begin
+                  _RStringConstant( ParVal);
             end
             else begin
-                  SynError(150);
+                  SynError(149);
             end;
             ; 
             if ParVal = nil then begin
@@ -2982,7 +2941,7 @@ begin
                   ;
             end
             else begin
-                  SynError(151);
+                  SynError(150);
             end;
             ;  if ParVal = nil then ParVal := (TLongint.Create(1));;
       end;
@@ -3092,22 +3051,6 @@ begin
             end;
       end;
       
-      Procedure TELA_Parser._RCharConst ( var ParValue : TValue);
-       
-      var
-      		vlNumber : TNumber;
-      
-      begin
-            _ICharType;
-            Expect(103);
-            _RDirectNumber( vlNumber);
-            Expect(104);
-             
-            if not(LargeInIntRange(vlNumber,0,255)) then SemError(Err_Num_Out_Of_range);
-            ParValue := TString.Create(chr(vlNumber.vrNumber));
-            ;
-      end;
-      
       Procedure TELA_Parser._RDirectExpr ( var ParVal:TValue);
        
       var
@@ -3118,6 +3061,39 @@ begin
             _RDirectLogic( ParVal,vlInValid);
               if vlInValid then SemError(Err_Invalid_Operation); ;
       end;
+      
+      Procedure TELA_Parser._RNumberConstant ( var ParValue : TValue;var ParInvalid : boolean);
+       
+      var
+      	vlNumber : TNumber;
+      	vlValid  : boolean;
+      
+      begin
+            _RNumber( vlNumber,vlValid);
+             
+            if not(LargeInRange(vlNumber, Min_Longint,Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'2');
+            ParValue := TLongint.Create(vlNumber);
+            if not(vlValid) then ParInvalid := true;
+            ;
+      end;
+      
+      Procedure TELA_Parser._RStringConstant ( var ParValue : TValue);
+       
+      var
+      	vlStr : string;
+      
+      begin
+            if (GetSym = 25) then begin
+                  _RCharConst( ParValue);
+            end
+             else if (GetSym in [2 , 6]) then begin
+                  _RText( vlStr);
+                   ParValue := TString.Create(vlStr);;
+            end
+            else begin
+                  SynError(151);
+            end;
+            ;end;
       
       Procedure TELA_Parser._RDirectNumber ( var ParNum:TNumber);
        
@@ -3133,6 +3109,22 @@ begin
             end else begin
             	LoadLong(ParNum , 0);
             end;
+            ;
+      end;
+      
+      Procedure TELA_Parser._RCharConst ( var ParValue : TValue);
+       
+      var
+      		vlNumber : TNumber;
+      
+      begin
+            _ICharType;
+            Expect(103);
+            _RDirectNumber( vlNumber);
+            Expect(104);
+             
+            if not(LargeInIntRange(vlNumber,0,255)) then SemError(Err_Num_Out_Of_range);
+            ParValue := TString.Create(chr(vlNumber.vrNumber));
             ;
       end;
       
@@ -3557,10 +3549,15 @@ begin
       end;
       
       Procedure TELA_Parser._RBlockOfCode ( ParNode : TNodeIdent);
+       
+      var
+      	vlNode : TNodeIdent;
+      
       begin
-            _RCodes( ParNode);
+            _RCodes( vlNode);
              
-            if ParNode <> nil then ParNode.FinishNode(fNDCreator,true);
+            AddNodeToNode(ParNode,vlNode);
+            if vlNode <> nil then vlNode.FinishNode(fNDCreator,true);
             ;
       end;
       
@@ -4384,14 +4381,14 @@ begin
                   			+'ected';
                   		147: ParErr :='Invalid identifier:"-","+",binary number ,hexidecimal number'
                   			+',integer number,"CHARTYPE","&",string expected';
-                  		148: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
-                  		149: ParErr :='Invalid string constant:"CHARTYPE","&",string,identifier,"("'
+                  		148: ParErr :='Invalid string constant:"CHARTYPE","&",string,identifier,"("'
                   			+' expected';
-                  		150: ParErr :='Invalid identifier:binary number ,hexidecimal number,integer'
+                  		149: ParErr :='Invalid identifier:binary number ,hexidecimal number,integer'
                   			+' number,identifier,"CHARTYPE","&",string expected';
-                  		151: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
+                  		150: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
                   			+'mber,integer number,string,identifier,"(","NIL","NOT","SIZEO'
                   			+'F" expected';
+                  		151: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
                   		152: ParErr :='Invalid routine:"BEGIN","END" expected';
                   		153: ParErr :='Invalid type declaration:identifier,"ALIGN" expected';
                   		154: ParErr :='Invalid program definition:"BEGIN","END" expected';

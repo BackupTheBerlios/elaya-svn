@@ -546,9 +546,7 @@ end;
 
 procedure TCDTorsRoutine.ValidateSelf(ParCre : TNDCreator);
 begin
-	if RTM_Isolate in fRoutineModes then begin
-		ParCre.ErrorDef(Err_CD_Cant_be_isolated,self);
-	end;
+	if RTM_Isolate in fRoutineModes then ParCre.ErrorDef(Err_CD_Cant_be_isolated,self);
 	if(RTS_ForwardDefined in fRoutineStates) and (fDefAccess <> AF_Public) then ParCre.ErrorDef(Err_CD_Must_Be_Public,self);
 end;
 
@@ -584,7 +582,7 @@ end;
 	
 procedure TClassMeta.CreatePreDB(ParCre : TCreator);
 begin
-TAsmCreator(ParCre).AddData(TGenLongDef.Create(Dat_code,TNumberDataDef.Create(iClassSize)));
+	TAsmCreator(ParCre).AddData(TGenLongDef.Create(Dat_code,TNumberDataDef.Create(iClassSize)));
 end;
 
 function  TClassMeta.CreateObjectPointerNode(ParCre:TCreator;ParContext : TDefinition):TNodeIdent;

@@ -566,7 +566,7 @@ end;
 
 procedure TFormulaNode.InitParts;
 begin
-	SetParts((TFormulaList.Create));
+	iParts := TFormulaList.Create;
 end;
 
 

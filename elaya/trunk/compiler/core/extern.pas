@@ -1,5 +1,4 @@
-{
-    Elaya, the compiler for the elaya language
+{    Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 
 This program is free software; you can redistribute it and/or modify
@@ -160,13 +159,14 @@ end;
 
 
 function TExternalObjectFileObject.CreateDb(ParCre:TCreator):boolean;
-var vlName:String;
+var
+	vlName:String;
 	vlExtName:String;
 begin
 	GetTextStr(vlExtName);
 	fObject.GetMangledName(vlName);
-	TAsmCreator(PArCre).AddData((TExternalCode.Create(DAT_Text,vlExtName,(TTextDataDef.Create(vlName)),IsAsmGlobal)));
-	CreateDB := false;
+	TAsmCreator(PArCre).AddData(TExternalCode.Create(DAT_Text,vlExtName,vlName,IsAsmGlobal));
+	exit( false);
 end;
 
 
@@ -190,16 +190,16 @@ begin
 	fObject.GetMangledName(vlMangName);
 	vlNameLabel := getNewLabelNo;
 	vlAdrLabel  := GetNewLabelNo;
-	TAsmCreator(ParCre).AddData((TLabelDef.Create(DAT_Jump_tables,vlAdrLabel)));
-	TAsmCreator(PArCre).AddData((TRvaDef.Create(DAT_jump_tables,(TLabelDataDef.Create(vlNameLabel)))));
-	TAsmCreator(PArCre).AddData((TRvaDef.Create(DAT_Ext_names_Index,(TLabelDataDef.Create(vlNameLabel)))));
-	TAsmCreator(ParCre).AddData((TLabelDef.Create(DAT_External_Names,vlNameLabel)));
-	TAsmCreator(ParCre).AddData((TShortDef.Create(DAT_External_Names,0)));
-	TAsmCreator(ParCre).AddData((TAsciizDef.Create(DAT_External_Names,vlName)));
+	TAsmCreator(ParCre).AddData(TLabelDef.Create(DAT_Jump_tables,vlAdrLabel));
+	TAsmCreator(PArCre).AddData(TRvaDef.Create(DAT_jump_tables,(TLabelDataDef.Create(vlNameLabel))));
+	TAsmCreator(PArCre).AddData(TRvaDef.Create(DAT_Ext_names_Index,(TLabelDataDef.Create(vlNameLabel))));
+	TAsmCreator(ParCre).AddData(TLabelDef.Create(DAT_External_Names,vlNameLabel));
+	TAsmCreator(ParCre).AddData(TShortDef.Create(DAT_External_Names,0));
+	TAsmCreator(ParCre).AddData(TAsciizDef.Create(DAT_External_Names,vlName));
 	str(vlAdrLabel,vlLabel);
 	vlLabel := '*.L'+vlLabel;
-	TAsmCreator(ParCre).AddData((TExternalCode.Create(DAT_Text,vlLabel,(TTextDataDef.Create(vlMangName)),IsAsmGlobal)));
-	CreateDb := false;
+	TAsmCreator(ParCre).AddData(TExternalCode.Create(DAT_Text,vlLabel,vlMangName,IsAsmGlobal));
+	exit(false);
 end;
 
 {---( TExternalLibraryObject )--------------------------------------------}

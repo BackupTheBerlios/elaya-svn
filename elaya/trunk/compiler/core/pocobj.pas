@@ -787,8 +787,8 @@ procedure TMetaPoc.CommonSetup;
 begin
 	inherited CommonSetup;
 	iGroupBegin := nil;
-	iGroupEnd := nil;
-	iIdentCode := Ic_MetaPoc;
+	iGroupEnd   := nil;
+	iIdentCode  := Ic_MetaPoc;
 	iMeta := true;
 end;
 
@@ -1878,7 +1878,6 @@ begin
 	ParDis.Write('DIV ');
 	inherited Print(ParDis);
 end;
-
 
 
 procedure TDivFor.Commonsetup;

@@ -1,5 +1,5 @@
 {    Elaya, the compiler for the elaya language
-Copyright (C) 1999-2003  J.v.Iddekinge.
+Copyright (C) 1999-2004  J.v.Iddekinge.
 Web   : www.elaya.org
 
 This program is free software; you can redistribute it and/or modify

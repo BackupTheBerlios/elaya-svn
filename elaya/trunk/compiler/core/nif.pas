@@ -164,7 +164,7 @@ end;
 
 procedure TIfNode.Initparts;
 begin
-	SetParts (TIfNodeLIst.create);
+	iParts := TIfNodeLIst.create;
 end;
 
 procedure TIfNode.CommonSetup;

@@ -2161,9 +2161,7 @@ end;
 procedure TParameterVar.ProduceFrame(ParCre : TSecCreator;ParContext : TDefinition);
 var
    vlPoc : TPocBase;
-	vlOpt : TMacCreateOption;
 	vlMacS : TMacBase;
-	vlLoad :  TLoadFor;
 	vlMacD : TMacBase;
 begin
 		if (fSecondVar <> nil)  then begin

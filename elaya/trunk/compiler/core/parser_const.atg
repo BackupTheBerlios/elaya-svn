@@ -1,5 +1,48 @@
 PRODUCTIONS
+(* Basic defs *)
 
+RCharConst:"char constant"<var ParValue : TValue>
+(.
+	var
+			vlNumber : TNumber;
+.)
+=
+ICharType "(" RDirectNumber<vlNumber> ")"
+(.
+	if not(LargeInIntRange(vlNumber,0,255)) then SemError(Err_Num_Out_Of_range);
+	ParValue := TString.Create(chr(vlNumber.vrNumber));
+.)
+.
+
+RStringConstant:"string constant"<var ParValue : TValue>
+(.
+	var
+		vlStr : string;
+.)
+=
+RCharConst<ParValue>
+|(RText<vlStr> (.ParValue := TString.Create(vlStr);.))
+.
+
+
+RNumberConstant:"Constant Number"<var ParValue : TValue;var ParInvalid : boolean>
+(.
+	var
+		vlNumber : TNumber;
+		vlValid  : boolean;
+.)
+=
+
+RNumber<vlNumber,vlValid>
+(.
+	if not(LargeInRange(vlNumber, Min_Longint,Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'2');
+	ParValue := TLongint.Create(vlNumber);
+	if not(vlValid) then ParInvalid := true;
+.)
+.
+
+
+(* End basic *)
 RDirectNumber<var ParNum:TNumber>
 (.
 	var
@@ -17,18 +60,6 @@ RDirectExpr<vlValue>
 .)
 .
 
-RCharConst<var ParValue : TValue>
-(.
-	var
-			vlNumber : TNumber;
-.)
-=
-ICharType "("RDirectNumber<vlNumber> ")"
-(.
-	if not(LargeInIntRange(vlNumber,0,255)) then SemError(Err_Num_Out_Of_range);
-	ParValue := TString.Create(chr(vlNumber.vrNumber));
-.)
-.
 
 
 RDirectCardinal<var ParNum : cardinal>
@@ -54,7 +85,7 @@ RDirectExpr<var ParVal:TValue>
 =
 (. vlInValid := false; .)
 	RDirectLogic<ParVal,vlInValid>          (. if vlInValid then SemError(Err_Invalid_Operation); .)
-.
+. 
 
 
 RDirectLogic<var ParVal : TValue;var ParInvalid:boolean>
@@ -189,17 +220,8 @@ RConstantStringFact:"string constant"<var ParString : TString>
 .
 
 RConstantStringValue:"string constant"<var ParValue : TString>
-(.
-	var
-		vlStr : string;
-.)
 =
- RCharConst<ParValue>
-|(RText<vlStr>
-	(.
-		ParValue := TString.Create(vlStr);
-	.)
-)
+RStringConstant<ParValue>
 .
 
 
@@ -264,37 +286,26 @@ RConstant
 RNum_Or_Const:"identifier"<var ParVal:TValue;var ParInvalid : boolean>
 				(. var vlConst : TConstant;
 				       vlValid : boolean;
-				       vlNum   : TNumber;
-				       vlStr   : String; .)
+				.)
 =
 				(.   ParVal := nil;
 				     vlValid := true; .)
-(((
-RNumber<vlNum,vlValid>
-		 		 (.
-					 if not(LargeInRange(vlNum, Min_Longint,Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'2');
-					 ParVal := TLongint.Create(vlNum);
-                     if not vlValid then ParInvalid := true;
-				 .)
-)|
 (
-RDefIdentObj<TDefinition(vlConst),false>
-(.
-	ParVal := nil;
-	if (vlConst <> nil) then begin
-		if not(vlConst is TConstant) then begin
-			SemError(Err_Not_An_Integer_Const)
-		end else begin
-			ParVal := vlConst.fVal.Clone;
+RNumberConstant<ParVal,ParInvalid>
+|(RDefIdentObj<TDefinition(vlConst),false>
+	(.
+		ParVal := nil;
+		if (vlConst <> nil) then begin
+			if not(vlConst is TConstant) then begin
+				SemError(Err_Not_An_Integer_Const)
+			end else begin
+				ParVal := vlConst.fVal.Clone;
+			end;
 		end;
-	end;
-	if ParVal = nil then ParVal := (TLongint.Create(1));
-.)
+		if ParVal = nil then ParVal := TLongint.Create(1);
+	.)
+)|RStringConstant<ParVal>
 )
-|(RCharConst<ParVal>)
-|(RText<vlStr>  (.  ParVal := TString.Create(vlStr); .)
-)
-))
 (.
  if ParVal = nil then begin
  	ParVal := TLongint.Create(1);
@@ -307,40 +318,30 @@ RDefIdentObj<TDefinition(vlConst),false>
 
 RNum_Or_Const_2:"identifier"<var ParVal:TValue>
 (. var
-       vlValid : boolean;
-       vlNum   : TNumber;
-       vlStr   : String;
-       vlNeg   : boolean;
+       vlInValid : boolean;
+       vlNum     : TNumber;
+       vlStr     : String;
+       vlNeg     : boolean;
 .)
 =
 (.
     ParVal  := nil;
-    vlValid := true;
     vlNeg   := false;
 .)
 (
+
   (
-	(
-[('-'  (. vlNeg := true; .))
-|'+']
-RNumber<vlNum,vlValid>
-)
+	[('-'  (. vlNeg := true; .))
+	|'+']
+	RNumberConstant<ParVal,vlInValid>
 	(.
-		if vlNeg then LargeNeg(vlNum);
-		if Not(LargeInRange(vlNum, Min_Longint, Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'3');
-		ParVal := TLongint.Create(vlNum);
-		if not vlValid then SemError(Err_int_Invalid_Number);
+		if vlNeg then ParVal.neg;
+		if vlInValid then SemError(Err_int_Invalid_Number);
 	.)
   )
-  |RCharConst<ParVal>
-  |(RText<vlStr>              (.  ParVal := TString.Create(vlStr); .)
-  )
+|RStringConstant<ParVal>
 )
-(.
-	if ParVal = nil then begin
-		ParVal := TLongint.Create(1);
-	end;
-.)
+(.if ParVal = nil then ParVal := TLongint.Create(1); .)
 
 .
 
