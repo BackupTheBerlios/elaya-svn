@@ -1,13 +1,8 @@
-Host_Type=linux
 Opt_Ela="-votB -Cu -Ok+ -d -t linux"
-Cpl_Target=linux
-Rtl_Target=linux
 cmd_rm="rm -f"
 cmd_cp=cp
 auto_load="core,strings,classes"
 as_program=as
-as_path=
 ld_program=ld
-ld_path=
 pp_unit_ext=.ppu
 exe_ext=

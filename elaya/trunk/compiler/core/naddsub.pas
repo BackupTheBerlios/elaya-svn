@@ -86,6 +86,7 @@ type
 		procedure Commonsetup; override;
 		procedure  clear;override;
 	public
+		procedure Optimize(ParCre : TCreator);override;
 		procedure proces(ParCre : TCreator);override;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
@@ -98,6 +99,13 @@ type
 	
 implementation
 {---( TIncDecNode )------------------------------------------------------------}
+
+procedure TIncDecNode.Optimize(ParCre : TCreator);
+begin
+	inherited Optimize(ParCre);
+	if iIncrementor <> nil then iIncrementor.Optimize(ParCre);
+	if iValue <> nil then iValue.Optimize(ParCre);
+end;
 
 procedure TIncDecNode.proces(ParCre : TCreator);
 begin

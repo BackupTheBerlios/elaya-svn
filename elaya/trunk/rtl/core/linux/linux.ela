@@ -340,11 +340,12 @@ const
 	O_WrOnly     = 1;
 	O_RDWR       = 2;
 	O_Creat       = 64;
-	O_Append      = 8192;
+	O_Trunc       = 512;
 	O_NonBlock    = 2048;
 	O_NDelay      = O_NonBlock;
 	O_Sync        = 4096;
 	O_FSync       = O_Sync;
+	O_Append      = 8192;
 	O_ASync       = 8192;
 
 	StdIn_FileNo  =  0;

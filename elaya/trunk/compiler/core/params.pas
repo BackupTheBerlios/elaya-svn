@@ -1884,6 +1884,7 @@ var
 	vlNode : TFormulaNode;
 begin
 	inherited ValidateAfter(ParCre);
+	if iNode <> nil then iNode.ValidateAfter(ParCre);
 	if fParam <> nil then begin
 		vlType := fParam.fType;
 		if (vlType <> nil) and (iNode <> nil)  then begin

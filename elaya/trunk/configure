@@ -20,15 +20,22 @@
 function help()
 {
 	echo "configure options:"
-	echo "-p <host>   where host is win32 or linux"
-	echo "-t <target> where target is win32 or linux"
-	echo "-a <aspath> path to as assembler (including name of as)"
+	echo "-p <host>   set host platgorm win32 or linux (default automatic detection)"
+	echo "-r <target> set rtl target is win32 or linux (default automatic detection)"
+	echo "-l <ld path> set path to the gnu 'ld' program (default tries automatic detection)"
+	echo "-L <ld name> set name of the gnu 'ld' program (default ld)"
+	echo "-a <as path> path to as assembler (including name of as)"
+	echo "-A <as name> set name of the gnu 'as' program (default as)"
+	echo "-R <path>   set root path of elaya"
+	echo "-z          don't use pervious configuration"
 	echo "-h          this help info"
 	exit
 }
 
 
 echo "config started" >config.log
+vlUsePrevious="1"
+
 
 if test $HOME = "/"; then HOME=`pwd`;fi;
 vlHost=""
@@ -37,34 +44,109 @@ case $OSTYPE in
 	"cygwin" ) vlHost="win32";;
 esac
 vlTarget=$vlHost
-vlAsPath=""  
 
-while getopts ":hp:t:a:" vlOption
+
+while getopts ":hp:r:a:l:zL:A:" vlOption
 do
 	case $vlOption in
-	p ) $vlHost=$OPTARG;;
-	t ) $vlTarget=$OPTARG;;
-	a ) $vlAsPath=$OPTARG;;
-	* ) echo " Unsupported option";exit;;
+	p ) vlHost=$OPTARG;;
+	r ) vlTarget=$OPTARG;;
+	z ) vlUsePrevious="0";;
+	h ) help
+		 exit;;
 esac
 done
-if(test $vlHost = ""); then
-	echo "Host platform unkown, use -h option to set host platform";
-fi
-echo "Host platform = $vlHost"
-echo "Target        = $vlTarget"
-echo "Assembler path= $vlAsPath"
 
-cd build_files/programs
-sh conf.$vlHost $vlTarget
-cd ../..
-source config/config_conf.$vlHost.$vlTarget
+
 source build_files/config/param.$vlHost.$vlTarget
-
 
 Dir_Program=$HOME/bin/elaya/bin
 Dir_Cpl_Lib=$HOME/bin/lib
 Dir_Ela_Rtl=$HOME/bin/elaya/lib
+
+
+if(test $vlHost = ""); then
+	echo "Host platform unkown, use -p option to set host platform";
+fi
+
+
+vlAsPathDir=""
+vlLdPathDir=""
+vlAsPathProg=""
+vlLdPathProg=""
+
+cd build_files/programs
+sh conf.$vlHost $vlTarget
+cd ../..
+
+source config/config_conf.$vlHost.$vlTarget
+echo $pp_unit_ext
+#
+# read previous config
+#
+
+vlPrevConfig="config/config.pref.$vlHost.$vlTarget"
+
+
+if(test "$vlUsePrevious" = "1" -a -e $vlPrevConfig);
+then
+	echo "Use previous configuration :$vlPrevConfig"
+	source $vlPrevConfig;
+fi
+
+#
+#Read remaining parameters
+#
+
+OPTIND=1
+
+while getopts ":hp:r:a:l:zL:A:" vlOption
+do
+	case $vlOption in
+	p ) ;;
+	r ) ;;
+	z ) ;;
+	a ) vlAsPathDir="$OPTARG";;
+	A ) vlAsPathProg=$OPTARG;;
+	l ) vlLdPathDir="$OPTARG";;
+	L ) vlAsPathProg="$OPTARG";;
+	* ) echo " Unsupported option:$OPTARG";exit;;
+esac
+done
+
+#
+# If parameter not set use automatic values
+#
+
+
+if(test -z "$vlAsPathDir");then vlAsPathDir=$conf_as_dir;fi;
+if(test -z "$vlLdPathDir");then vlLdPathDir=$conf_ld_dir;fi;
+if(test -z "$vlAsPathProg");then vlAsPathProg=$conf_as_program;fi;
+if(test -z "$vlLdPathProg");then vlLdPathProg=$conf_ld_program;fi;
+
+vlAsPath="$vlAsPathDir$vlAsPathProg"
+vlLdPath="$vlLdPathDir$vlLdPathProg"
+
+
+#
+# Write config to file for use later
+#
+
+
+
+echo "# previous session  config,automaticly genenrated.Don't change"   >$vlPrevConfig
+echo "#"  >>$vlPrevConfig
+echo "vlAsPathDir='$vlAsPathDir'" >>$vlPrevConfig
+echo "vlLdPathDir='$vlLdPathDir'" >>$vlPrevConfig
+#echo "vlAsPathProg='$vlAsPathProg'" >>$vlPrevConfig
+#echo "vlLdPathProg='$vlLdPathProg'" >>$vlPrevConfig
+
+echo "Host platform = $vlHost"
+echo "Rtl target    = $vlTarget"
+echo "Assembler path= $vlAsPath"
+echo "Linker path   = $vlLdPath"
+
+
 
 #set to y when compiling win32 and linux under linux.
 #compile linux under win32 supported, but the
@@ -84,6 +166,7 @@ Fpc_Opt_Unit_Path="/home/jeroen/fpc/"
 
 build_conf_gen="config/build_conf.gen"
 
+echo "#General configuration " >$build_conf_gen
 echo "os_host=$vlHost" >>$build_conf_gen
 
 build_conf="config/build_conf.$vlHost.$vlTarget"
@@ -108,8 +191,8 @@ echo cmd_rm=$cmd_rm>>$build_conf
 echo cmd_cp=$cmd_cp>>$build_conf
 echo Dir_Dirt=./bin>>$build_conf
 echo Dir_Sep=/>>$build_conf
-echo Dir_as=$conf_as_path>>$build_conf
-echo Dir_ld=$conf_ld_path>>$build_conf
+echo Dir_as=$vlAsPath>>$build_conf
+echo Dir_ld=$vlLdPath>>$build_conf
 echo auto_load=$_auto_load>>$build_conf
 echo pp_unit_ext=$pp_unit_ext>>$build_conf
 echo eladep=$eladep>>$build_conf

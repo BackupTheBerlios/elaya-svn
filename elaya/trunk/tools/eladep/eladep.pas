@@ -1004,7 +1004,7 @@ begin
 		end else begin
 			vlFiles.AddFile(vlStr);
 		end;
-	end;
+	end;   
 	exit(false);
 end;
 

@@ -1003,7 +1003,7 @@ function TTypeNode.Can(ParCan:TCan_Types):boolean;
 begin
 	Can := true;
 	if CAN_Dot in ParCan then begin
-		if (iType <> nil) and (iType.Can([Can_Type])) then ParCan := ParCan - [Can_Dot];
+		if (iType <> nil) and (iType.Can([Can_Dot])) then ParCan := ParCan - [Can_Dot];
 	end;
 	if iNode = nil then begin
 		Can    := (ParCan - [Can_Size,Can_Type] = []);
@@ -2311,6 +2311,7 @@ begin
 	inherited ValidatePre(ParCre,ParIsSec);
 	if iNode <>nil then begin
 		vlType := iNode.GetOrgType;
+		if not iNode.Can([Can_Read]) then TNDCreator(ParCre).AddNodeError(iNode,Err_Cant_read_from_expr,'');
 		if vlType <> nil then begin
 			if not (vlType is TPtrType) then begin
 				TNDCreator(ParCre).AddNodeDefError(iNode,Err_Not_A_Pointer_Type,iNode.GetType);

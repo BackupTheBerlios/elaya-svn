@@ -12,9 +12,10 @@ function find_program()
 		elif(test -a /usr/local/bin/$p_program); then l_path=/usr/local/bin;fi
 		if(test $l_path); then conf_path=$l_path$p_program;fi
 	else
-		conf_path=$p_path$p_program
+		l_path = p_path
 	fi
-	echo "conf_${p_label}_path='$conf_path'" >>$vlConfFile
+	echo "conf_${p_label}_dir='$l_path'" >>$vlConfFile
+	echo "conf_${p_label}_program='$p_program'" >>$vlConfFile
 
 }
 
@@ -22,7 +23,7 @@ function find_program()
 vlHost="linux"
 vlTarget=$1
 vlConfFile="../../config/config_conf.linux.$vlTarget"
-source ../config/param.$vlHost.$vlTarget
+source ../config/param.linux.$vlTarget
 echo "#build configure file ">$vlConfFile
 find_program "$as_path" "$as_program" "as"
 find_program "$ld_path" "$ld_program" "ld"

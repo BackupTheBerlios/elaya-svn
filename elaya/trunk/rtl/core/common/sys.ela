@@ -727,8 +727,8 @@ begin
    vlTextFileSelf.vrOpenRoutine  := @ft_OpenFile;
    vlTextFileSelf.vrReadRoutine  := nil;
    vlTextFileSelf.vrWriteRoutine := nil;
-   vlNormalFileSelf.vrWaitForReadRoutine := nil;
-   vlNormalFileSelf.vrSetBlockingRoutine := nil;
+   vlTextFileSelf.vrWaitForReadRoutine := nil;
+   vlTextFileSelf.vrSetBlockingRoutine := nil;
    
    TextFile := @vlTextFileSelf;
    SetSegFaultHandler(@SegFaultHandler);

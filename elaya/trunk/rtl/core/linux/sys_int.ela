@@ -306,7 +306,7 @@ begin
 	if ParMode = OM_Read       then vlMode := O_RDONLY else
 	if ParMode = OM_Write      then vlMode := O_WRONLY else
 	if ParMode = OM_Read_Write then vlMode := O_RDWR else
-	if ParMode = OM_Create     then vlMode := O_RDWR or O_Creat;
+	if ParMode = OM_Create     then vlMode := O_RDWR or O_Creat or O_Trunc;
 	vlName := ParFileName;
 	ResetErrors;
 	ParHandle := linux_open(@vlName,vlMode,S_IRUSR or S_IWUSR);
