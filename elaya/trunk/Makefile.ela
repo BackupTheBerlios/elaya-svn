@@ -29,6 +29,6 @@ clean: clean_main $(zothclean)
 
 dep:$(dep_file) 
 $(dep_file): $(all_ela_sources) $(inc_path)/include/alp.$(rtl_target)
-	$(eladep) -a $(inc_path)/include/alp.$(rtl_target) $(all_ela_sources) -c "$(ELA_CPL)" -u $(Base_Dir)/ -s .ela -e .emd >$(dep_file)
+	$(eladep) -a $(inc_path)/include/alp.$(rtl_target) $(all_ela_sources) -c "ELA_CPL" -u $(Base_Dir)/ -s .ela -e .emd >$(dep_file)
 
 include $(dep_file)

@@ -19,6 +19,7 @@
 
 
 include ../../Values.tpl
+include ../../Makefile.inc
 
 .PHONY : all clean
 
@@ -27,8 +28,8 @@ outfile=$(Dir_Program)/$(name)$(exe_ext)
 all: $(outfile)
 
 
-$(outfile) :$(name).pas
-		$(Fpc) eladep $(Opt_Fpc) -FE$(Dir_Program) -Fu$(Dir_Cpl_Lib)
+$(outfile) :eladep.pas
+		$(EXE_FPC) eladep $(Opt_Fpc) -FE"$(Dir_Program)" -Fu"$(Fpc_Unit_Path)"
 
 clean : 
 	$(cmd_rm) $(outfile)

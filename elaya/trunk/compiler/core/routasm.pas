@@ -94,7 +94,7 @@ end;
 
 procedure TRoutineAsm.PrintPReFrame(ParDis:TAsmDisplay);
 var vlRemark : char;
- 	vlName   : string;
+  	 vlName   : string;
 begin
 	vlRemark := GetAssemblerInfo.GetRemarkChar;
 	ParDis.Write(vlRemark);

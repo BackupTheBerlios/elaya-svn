@@ -119,7 +119,6 @@ type
 			voLocalFrame         : TFrame;
 			voParameterFrame     : TFrame;
 			voPhysicalAddress    : TRoutine;
-			voInitializeAddress  : TRoutine;
 			voRoutineModes       : TRoutineModes;
 			voParent             : TRoutine;
 			voMeta               : TRoutineMeta;
@@ -132,11 +131,11 @@ type
 			procedure  InitStorageList;virtual;
 			function   CheckAccessLevel(ParParent : TRoutine):boolean;
 			function   CreateRoutineAsm : TRoutineAsm;
+			procedure  SeperateInitAndMain(ParCre : TNDCreator;var ParNewCB : TRoutine);
 
 		protected
 			property  iParent	           : TRoutine              read voParent             write voParent;
 			property  iPhysicalAddress   : TRoutine              read voPhysicalAddress    write voPhysicalAddress;
-			property  iInitializeAddress : TRoutine              read voInitializeAddress  write voInitializeAddress;
 			property  iParameterFrame    : TFrame		           read voParameterFrame     write voParameterFrame;
 			property  iLocalFrame	     : TFrame	              read voLocalFrame         write voLocalFrame;
 			property  iRoutineModes      : TRoutineModes         read voRoutineModes       write voRoutineModes;
@@ -158,7 +157,6 @@ type
 			property   fLocalFrame	       : TFrame	 	    read voLocalFrame;
 			property   fParent	           : TRoutine       read voParent;
 			property   fPhysicalAddress    : TRoutine        read voPhysicalAddress;
-			property   fInitilizeAddress   : TRoutine        read voInitializeAddress write voInitializeAddress;
 			property   fRoutinePoc         : TRoutinePoc     read voRoutinePoc        write voRoutinePoc;
 			property   fCollectionNo       : cardinal        read voCollectionNo	     write voCollectionNo;
 			property   fStorageList        : TTLVStorageList read voStorageList;
@@ -203,7 +201,6 @@ type
 			function   IsPropertyProcComp(ParWrite : boolean;ParTYpe : TType) :boolean;
 
 			{seperation}
-			procedure  SeperateInitAndMain(ParCre : TNDCreator;var ParNewCB : TRoutine);
 			procedure  PostMangledName(var ParName:string);override;
 			function   SaveItem(ParStream:TObjectStream):boolean;override;
 			function   LoadItem(ParStream:TObjectStream):boolean;override;
@@ -301,7 +298,6 @@ type
 			procedure ValidateSelf(ParCre : TNDCreator);virtual;
 			{Addresses}
 			
-			function GetInheritedAddress : TRoutine;virtual;
 			function GetRelativeLevel : cardinal;override;
 			
 			{Parent relation}
@@ -428,15 +424,6 @@ type
 	begin
 	end;
 	
-	
-	function TRoutine.GetInheritedAddress : TRoutine;
-	var
-		vlCB : TRoutine;
-	begin
-		vlCB := fInitilizeAddress;
-		if vlCB = nil then vlCb := fPhysicalAddress;
-		exit(vlCb);
-	end;
 	
 	function TRoutine.GetParent : TDefinition;
 	begin
@@ -1044,7 +1031,6 @@ type
 	var
 		 vlProc     : TRoutineNode;
     begin
-		iInitializeAddress := self;
 		if(iStatements = nil) then begin
 			vlProc   := TRoutineNode.Create(self);
 			iStatements := vlProc;
@@ -1098,10 +1084,8 @@ type
 		vlPrn      : TRoutineNode;
 		vlCall     : TCallNode;
 		vlPhysical : TRoutine;
-		vlInit     : TRoutine;
 		vlName     :string;
 	begin
-		vlInit     := nil;
 		vlPhysical := nil;
 		ParNewCB   := nil;
 		vlProc   := TRoutineNode.Create(self);
@@ -1114,9 +1098,7 @@ type
 		ParNewCB.SetRoutineStates([RTS_HasNeverStackFrame,RTS_IsDefined],true);
 		ParNewCb.fStatements := vlPrn;
 		vlPhysical := ParNewCB;
-		vlInit     := self;
 		iPhysicalAddress   := vlPhysical;
-		iInitializeAddress := vlInit;
 		CreatePreCode(ParCre);
 		CreateVarCBInits(TNDCreator(ParCre),vlProc,self);
 		if iParameterMapping <> nil then iParameterMapping.CreateCBInit(vlProc,ParCre,self);
@@ -1168,22 +1150,18 @@ type
 	
 	function TRoutine.CreateMentionAddress(ParCre:TCreator;ParContext : TDefinition) : TNodeIdent;
 	var vlAddressNode  : TNodeIdent;
-		vlName	 : string;
-		vlCb	 	 : TRoutine;
-		vlType         : TType;
+		vlName	       : string;
+		vlType          : TType;
 	begin
-		GetMangledName(vlName);
 		if iVmtItem <> nil then begin
 			vlAddressNode := iVmtItem.CreateReadNode(ParCre,ParContext);
 		end else begin
-			if iInitializeAddress <> nil then vlCb := iInitializeAddress
-			else vlCb := iPhysicalAddress;
 			vlType := TNDCreator(ParCre).GetDefaultIdent(dt_pointer,size_dontcare,false);
 			if vlType = nil then begin
 				GetTextStr(vlName);
 				TNDCreator(ParCre).ErrorText(Err_Cant_Find_ptr_Type,'void pointer for proc '+vlname);
 			end;
-			vlAddressNode := TLabelNode.Create(vlCb,vlType);
+			vlAddressNode := TLabelNode.Create(self,vlType);
 		end;
 		exit(vlAddressNode);
 	end;
@@ -1387,7 +1365,6 @@ type
 		SaveItem := true;
 		if inherited SaveItem(ParStream)              then exit;
 		if ParStream.WritePi(iPhysicalAddress)        then exit;
-		if ParStream.WritePi(iInitializeAddress)      then exit;
 		if ParStream.WriteLong(cardinal(fRoutineModes)) then exit;
 		if ParStream.WriteLong(cardinal(fRoutineStates)) then exit;
 		if ParStream.WritePi(iParent)                 then exit;
@@ -1416,7 +1393,6 @@ type
 		LoadItem := true;
 		if inherited LoadItem(ParStream)              then exit;
 		if ParStream.ReadPi(voPhysicalAddress)        then exit;
-		if parStream.ReadPi(voInitializeAddress)      then exit;
 		if ParStream.ReadLong(cardinal(vlCBFlags)) then exit;
 		if ParStream.ReadLong(cardinal(vlRoutineStates)) then exit;
 		if ParStream.ReadPi(voParent)                 then exit;

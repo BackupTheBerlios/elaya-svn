@@ -792,7 +792,7 @@ begin
 	write(':');
 	voUnitList.PrintDep;
 	write(chr(9));PrintElaName;writeln;
-	if length(vlCommand) > 0 then begin write(chr(9),vlCommand,' ');printElaName;writeln;end;
+	if length(vlCommand) > 0 then begin write(chr(9),'$(',vlCommand,') ');printElaName;writeln;end;
 	writeln;
 end;
 
@@ -992,7 +992,7 @@ begin
 			'p':vlIsPascal := true;
 			'e':if NextParam(vlUnitExt) then exit(true);
 			's':if NextParam(vlSourceExt) then exit(true);
-         'c':if NextParam(vlCommand) then exit(true);
+		         'c':if NextParam(vlCommand) then exit(true);
 			'm':if NextParam(vlStart) then exit(true);
 			'i':begin
 					if NextParam(vlStr) then exit(true);
@@ -1009,7 +1009,7 @@ end;
 begin
 	if ParamCount=0 then begin
 		writeln('Syntax error :');
-		writeln('   eladep <filename> [-p] [-e <unit extention>] [-u <unit directory>] [-s <source ext>');
+		writeln('   eladep <filename> [-a <autoload>] [-c <compile command>] [-m <start>] [-p] [-e <unit extention>] [-u <unit directory>] [-s <source ext>');
 		halt(1);
 	end;
 	vlList := TProgramList.create;

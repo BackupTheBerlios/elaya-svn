@@ -1573,7 +1573,7 @@ begin
       vlName : string;
       vlVal  : TValue;
       vlMode : TMappingOption;
-      
+
       begin
             if (GetSym in [1 , 118]) then begin
                    

@@ -210,27 +210,33 @@ end;
 procedure GetCpuCycles(var ParLo,ParHi:cardinal);
 assembler;
 asm
-cpuid
-xor %eax,%eax
-xor %edx,%edx
-rdtsc
-mov ParLo,%edi
-mov %eax,(%edi)
-mov ParHi,%edi
-mov %edx,(%edi)
+	push %esi
+	push %edi
+	mov ParLo,%edi
+	mov ParHi,%esi
+	cpuid
+	xor %eax,%eax
+	xor %edx,%edx
+	rdtsc
+	movl %eax,(%edi)
+	movl %edx,(%esi)
+	pop %edi
+	pop %esi
 end;
 
 
 procedure GetCpuCycles64(var ParTime : int64);
 assembler;
 asm
+	push %edi
+	movl ParTime,%edi
 	cpuid
 	xor %eax,%eax
 	xor %edx,%edx
 	rdtsc
-	movl ParTime,%edi
 	movl %eax,(%edi)
 	movl %edx,4(%edi)
+	pop %edi
 end;
 
 function IntToStr(ParInt:Longint):String;

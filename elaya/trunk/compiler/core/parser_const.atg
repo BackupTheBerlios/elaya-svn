@@ -45,6 +45,21 @@ RNumber<vlNumber,ParValid>
 
 
 (* End basic *)
+(*
+
+RStructDirectExpr<ParValue : TStructValue;ParType : TType>
+(.
+	var
+		vlValue : TValue;
+		vlName  : string;
+.)
+=
+"{" (("." RIdent<vlName> '=')|( (. EmptyString(vlName);.)))
+(( RStructDirectExpr {"," ["." RIdent<xx> '='] RStructDirectExpr} "}")
+|( RDirectExpr<vlValue> {"," ["." RIdent<xx> '='] RDirectExpr<vlValue>} "}"))
+.
+*)
+
 RDirectNumber<var ParNum:TNumber>
 (.
 	var
@@ -377,7 +392,8 @@ RConstantDecl
  {"," RIdent<vlIdent>		(. vlNameList.AddName(vlIdent);.)
  }
  "="
-  RDirectExpr<vlVal>
+  RDirectExpr<vlVal>(* |RStructDirectExpr *)
+
 (.
 	if vlVal.fType = VT_String then begin
 		vlVal.GetString(vlStr);

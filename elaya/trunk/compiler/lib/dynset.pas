@@ -41,6 +41,7 @@ protected
 	procedure   commonsetup;override;
 
 public
+	property    fMax : cardinal read voMax;
 	property    fBufferSize:cardinal read voBufferSize;
 	constructor Create(ParMax : cardinal);
 	procedure   DoSet(ParNo:cardinal);

@@ -24,6 +24,8 @@ ifeq ($(Cpl_Target),win32)
 	a=$(shell rename *.ELA *.ela)
 endif
 
+Fpc_Unit_Path=$(Fpc_Opt_Unit_Path);$(Dir_Cpl_Lib)
+
 LIB_ELA=$(ELA) -c lib.cfg $(Opt_Ela)
-LIB_FPC=$(Fpc) -Fu$(Dir_Cpl_Lib) -FU$(Dir_Cpl_Lib) $(Opt_Fpc) 
-EXE_FPC=$(Fpc) -Fu$(Dir_Cpl_Lib) -Fu$(Dir_Dirt) -FU$(Dir_Dirt) -FE$(Dir_Program) $(Opt_Fpc)
+LIB_FPC=$(Fpc) -Fu"$(Fpc_Unit_Path)" -FU$(Dir_Cpl_Lib) $(Opt_Fpc) 
+EXE_FPC=$(Fpc) -Fu"$(Fpc_Unit_Path);$(Dir_Dirt)" -FU$(Dir_Dirt) -FE$(Dir_Program) $(Opt_Fpc) 

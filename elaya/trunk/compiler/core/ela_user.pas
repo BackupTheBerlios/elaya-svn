@@ -401,7 +401,6 @@ begin
 		if vlRoutine.fPhysicalAddress = nil then begin
 			SemError(Err_Rtn_Has_No_Main);
 		end else begin
-		{	vlRoutine.fPhysicalAddress.GetTextStr(vlName);}
 			vlItem := TIdentDigiItem.Create(vlRoutine.fPhysicalAddress,vlRoutine);
 			SetDigiPos(vlItem);
 			ParDigi := TIdentHookDigiItem.Create(vlItem);

@@ -216,7 +216,6 @@ procedure TNDCreator.DoInheritedOfProc(ParMention : TMN_Type;ParLevel : cardinal
 var
 	vlCode  : TRoutine;
 	vlOwner : TDefinition;
-	vlCb    : TRoutine;
 	vlType  : TType;
 	vlOwner2     : TDefinition;
 	vlOrgRoutine : TRoutine;
@@ -246,10 +245,9 @@ begin
 			ErrorText(Err_unkown_ident,ParName);
 		end else if ParNode is TCallNode then begin
 			if vlCOde.HasAbstracts  then  ErrorText(Err_Abstract_Routine,ParName);
-			vlCB := vlCode.GetInheritedAddress;
 			vlType := GetCheckDefaultType(dt_pointer,size_dontcare,false,'pointer');
 			TCallNode(ParNode).SetRoutineItem(self,vlCode,vlOwner2);
-			TCallNode(ParNode).SetCallAddress(self,TLabelNode.Create(vlCb,vlType));
+			TCallNode(ParNode).SetCallAddress(self,TLabelNode.Create(vlCode,vlType));
 		end;
 	end;
 end;

@@ -187,8 +187,6 @@ type
 	protected
 		procedure Commonsetup;override;
 	public
-		function MustSeperateInitAndMain : boolean;override;
-		function GetInheritedAddress : TRoutine;override;
 		procedure CreatePostCode(ParCre : TNDCreator);override;
 		
 	end;
@@ -1309,16 +1307,6 @@ procedure TDestructor.Commonsetup;
 begin
 	inherited Commonsetup;
 	iIdentCode := IC_Destructor;
-end;
-
-function TDestructor.MustSeperateInitAndMain : boolean;
-begin
-	exit(false);
-end;
-
-function TDestructor.GetInheritedAddress : TRoutine;
-begin
-	exit(fPhysicalAddress);
 end;
 
 procedure TDestructor.CreatePostCode(ParCre : TNDCreator);

@@ -17,37 +17,18 @@
 
 
 
-USEPATH:=$(subst \,/,$(PATH))
-USEPATH:=$(subst ;, ,$(USEPATH)) $(subst :, ,$(USEPATH))
-USESHELL:=$(wildcard $(addsuffix /BASH.EXE, $(USEPATH)))
-HOSTOS:=win32
-ifeq ($(USESHELL),)
-USESHELL:=$(wildcard $(addsuffix /base.exe,$(USEPATH)))
-endif
-ifeq ($(USESHELL),)
-USESHELL:=$(wildcard $(addsuffix /bash,$(USEPATH)))
-HOSTOS=linux
-endif
-ifeq ($(USESHELL),)
-HOSTOS=linux
-endif
-
-ifeq ($(HOSTOS),linux)
-USESHELL:=
-endif
 
 .PHONY:all clean rtl tools cfg compiler
 
+include Values.tpl
 
 all :setup eladep compiler tools cfg rtl 
 
 setup : Values.tpl
 
-configure:configure.template
-	cp configure.template  configure
 
-Values.tpl: configure param.$(HOSTOS)
-	./configure $(HOSTOS)
+Values.tpl: configure param.*
+	./configure $(Os_Host)
 
 compiler: eladep
 	$(MAKE) all -C compiler

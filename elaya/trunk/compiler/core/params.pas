@@ -323,7 +323,7 @@ type
 		function   CheckParameterNames(ParLIst :TProcParList;var ParDifText:string):boolean;
 
 	end;
-	
+
 	
 	TParameterMappingItem=class(TListItem)
 	private
