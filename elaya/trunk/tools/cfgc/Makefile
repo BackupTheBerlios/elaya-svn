@@ -29,7 +29,7 @@ all: bin/cfgc
 
 
 bin/cfgc :cfgc.pas
-		$(Fpc) cfgc $(Opt_Fpc) -FEbin -Fu$(Dir_Cpl_Lib)
+		$(Fpc) cfgc $(Opt_Fpc) -FEbin -Fu$(root_path)/compiler/bin
 
 install:
 	cp bin/cfgc$(exe_ext)  $(Dir_Program)

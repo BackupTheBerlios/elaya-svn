@@ -26,8 +26,10 @@ function help()
 	echo "-L <ld name> set name of the gnu 'ld' program (default ld)"
 	echo "-a <as path> path to as assembler (including name of as)"
 	echo "-A <as name> set name of the gnu 'as' program (default as)"
+	echo "-c <cfg path> Set path wehre config files are placed"
 	echo "-R <path>   set root path of elaya"
 	echo "-z          don't use pervious configuration"
+	echo "-i <dir>    install directory"
 	echo "-h          this help info"
 	exit
 }
@@ -46,7 +48,7 @@ esac
 vlTarget=$vlHost
 
 
-while getopts ":hp:r:a:l:zL:A:" vlOption
+while getopts ":hp:r:a:l:zL:A:i:c:" vlOption
 do
 	case $vlOption in
 	p ) vlHost=$OPTARG;;
@@ -57,15 +59,15 @@ do
 esac
 done
 
+vlParamFile="build_files/config/param.$vlHost.$vlTarget";
+if test -e $vlParamFile;then
+	source  $vlParamFile
+else
+	echo "Combination of platform  $vlHost and target $vlTarget is not possible";
+ 	exit
+fi
 
-source build_files/config/param.$vlHost.$vlTarget
-
-Dir_Program=$HOME/bin/elaya/bin
-Dir_Cpl_Lib=$HOME/bin/lib
-Dir_Ela_Rtl=$HOME/bin/elaya/lib
-
-
-if(test $vlHost = ""); then
+if(test -z $vlHost); then
 	echo "Host platform unkown, use -p option to set host platform";
 fi
 
@@ -74,13 +76,15 @@ vlAsPathDir=""
 vlLdPathDir=""
 vlAsPathProg=""
 vlLdPathProg=""
+vlInstallDir=""
+vlConfigDir=""
 
 cd build_files/programs
 sh conf.$vlHost $vlTarget
 cd ../..
 
 source config/config_conf.$vlHost.$vlTarget
-echo $pp_unit_ext
+
 #
 # read previous config
 #
@@ -100,7 +104,7 @@ fi
 
 OPTIND=1
 
-while getopts ":hp:r:a:l:zL:A:" vlOption
+while getopts ":hp:r:a:l:zL:A:c:" vlOption
 do
 	case $vlOption in
 	p ) ;;
@@ -110,6 +114,8 @@ do
 	A ) vlAsPathProg=$OPTARG;;
 	l ) vlLdPathDir="$OPTARG";;
 	L ) vlAsPathProg="$OPTARG";;
+	i ) vlInstallDir="$OPTARG";;
+	c ) vlConfigDir="$OPTARG";;
 	* ) echo " Unsupported option:$OPTARG";exit;;
 esac
 done
@@ -118,14 +124,22 @@ done
 # If parameter not set use automatic values
 #
 
-
+vlInstallExtra=$install_extra
+vlLinkExeTo=$link_exe_to
 if(test -z "$vlAsPathDir");then vlAsPathDir=$conf_as_dir;fi;
 if(test -z "$vlLdPathDir");then vlLdPathDir=$conf_ld_dir;fi;
 if(test -z "$vlAsPathProg");then vlAsPathProg=$conf_as_program;fi;
 if(test -z "$vlLdPathProg");then vlLdPathProg=$conf_ld_program;fi;
+if(test -z $vlInstallDir);then vlInstallDir=$install_dir;fi;
+if(test -z $vlConfigDir);then vlConfigDir=$install_cfg;fi;
+
 
 vlAsPath="$vlAsPathDir$vlAsPathProg"
 vlLdPath="$vlLdPathDir$vlLdPathProg"
+
+Dir_Program=$vlInstallDir/elaya/bin/
+Dir_Cpl_Lib=$vlInstallDir/elaya/extra/lib/
+Dir_Ela_Rtl=$vlInstallDir/elaya/lib/
 
 
 #
@@ -138,13 +152,17 @@ echo "# previous session  config,automaticly genenrated.Don't change"   >$vlPrev
 echo "#"  >>$vlPrevConfig
 echo "vlAsPathDir='$vlAsPathDir'" >>$vlPrevConfig
 echo "vlLdPathDir='$vlLdPathDir'" >>$vlPrevConfig
-#echo "vlAsPathProg='$vlAsPathProg'" >>$vlPrevConfig
-#echo "vlLdPathProg='$vlLdPathProg'" >>$vlPrevConfig
+echo "vlAsPathProg='$vlAsPathProg'" >>$vlPrevConfig
+echo "vlLdPathProg='$vlLdPathProg'" >>$vlPrevConfig
+echo "vlInstallDir='$vlInstallDir'" >>$vlPrevConfig
+echo "vlConfigDir='$vlConfigDir'" >>$vlPrevConfig
 
 echo "Host platform = $vlHost"
 echo "Rtl target    = $vlTarget"
 echo "Assembler path= $vlAsPath"
 echo "Linker path   = $vlLdPath"
+echo "Install dir   = $vlInstallDir"
+echo "Config dir    = $vlConfigDir"
 
 
 
@@ -197,14 +215,10 @@ echo auto_load=$_auto_load>>$build_conf
 echo pp_unit_ext=$pp_unit_ext>>$build_conf
 echo eladep=$eladep>>$build_conf
 echo exe_ext=$exe_ext>>$build_conf
+echo link_exe_to=$vlLinkExeTo >>$build_conf
+echo install_extra=$vlInstallExtra >>$build_conf
+echo Dir_Cfg=$vlConfigDir >>$build_conf
 
-
-mkdir -p $Dir_Program
-mkdir -p $Dir_Cpl_Lib
-mkdir -p $Dir_Ela_Rtl
-mkdir -p $Dir_Ela_Rtl/$vlTarget
-mkdir -p $build_target/$vlTarget
-mkdir -p dirt
 
 sh build_files/programs/mkelamake.sh <build_files/config/eladirs.db >>config.log
 
@@ -213,7 +227,7 @@ echo
 echo FEEDBACK FEEDBACK FEEDBACK
 echo 
 echo For problems, bugs and comments please visit www.elaya.org.
-echo or mailing list at : Elaya-public@lists.Sourceforge.net
+echo or mailing list at : Elaya-public@lists.berlios.de
 echo 
 echo Thank you
 echo 

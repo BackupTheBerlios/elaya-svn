@@ -4203,7 +4203,7 @@ begin
                   SynError(158);
             end;
             ; 
-            	if not(ParValid) then SemError(Err_int_Invalid_Number);
+            	if not(ParValid) then SemError(Err_Invalid_Number);
             ;
       end;
       

@@ -95,7 +95,7 @@ RNumber:"number"<var ParNum : TNumber;var ParValid : boolean>
 	|RHex_Number<ParNum,ParValid>)
 	)
 	(.
-		if not(ParValid) then SemError(Err_int_Invalid_Number);
+		if not(ParValid) then SemError(Err_Invalid_Number);
 	.)
 .
 

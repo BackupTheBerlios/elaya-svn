@@ -45,10 +45,10 @@ install:
 	$(MAKE) install -C compiler
 	$(MAKE) install -C rtl
 	$(MAKE) install -C tools/eladep
+	$(MAKE) install -C cfg
         
 clean  : 
-	  $(MAKE) clean -C compiler
-	  $(MAKE) clean -C rtl
-	  $(MAKE) clean -C cfg
-	  $(MAKE) clean -C tools
-
+	$(MAKE) clean -C compiler
+	$(MAKE) clean -C rtl
+	$(MAKE) clean -C cfg
+	$(MAKE) clean -C tools

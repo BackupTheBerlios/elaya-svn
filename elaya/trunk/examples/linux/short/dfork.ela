@@ -1,7 +1,7 @@
 uses edol;
 
 begin
-       EFork with 
+       EFork where
           child:begin
             repeat
                 writeln('Child ...');

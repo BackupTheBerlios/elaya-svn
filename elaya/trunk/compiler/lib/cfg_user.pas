@@ -24,7 +24,10 @@ uses largenum,display,progutil,stdobj,config,cmp_type,cfg_error,cmp_base,confdef
 type  TCFG_User=class(TCOmpiler_Base)
 	private
 		voConfig : TConfig;
-		property iConfig: TConfig read voConfig write voConfig;
+		voFilePath : TString;{TODO move TCMPBase}
+
+		property iFilePath : TString read voFilePath write voFilePath;
+		property iConfig   : TConfig read voConfig   write voConfig;
 
 	protected
 		property fConfig: TConfig read voConfig;
@@ -37,9 +40,9 @@ type  TCFG_User=class(TCOmpiler_Base)
 		function  CreateStringConstantNode(const ParVal :string) : TConstantConfigNode;
 		function  CreateIntConstantNode(const ParVal :string) : TConstantConfigNode;
 		procedure   AddDualNode(var ParPrvCode : TOperatorCode;var ParNode : TSubListNode;ParCode : TOperatorCode;ParParam : TMathConfigNode);
-		procedure   Commonsetup;override;
+		procedure clear;override;
 	public
-		constructor Create(const ParName : string;ParCfg : TConfig);
+		constructor Create(const ParPath,ParName : string;ParCfg : TConfig);
 		procedure   ErrorMessage(ParItem : TErrorItem);override;
 		procedure   GetOwnError(ParCode : TErrorType;var ParText:string);
 		procedure   GetErrorDescr(ParCode :TErrorType;var ParText:string);
@@ -56,6 +59,12 @@ type  TCFG_User=class(TCOmpiler_Base)
 implementation
 
 {---( TConfig_User )---------------------------------------------------}
+
+procedure TCfg_user.clear;
+begin
+	inherited Clear;
+	if iFilePath <> nil then iFilePath.Destroy;
+end;
 
 procedure  TCfg_User.OpenFileFailed(ParError : TErrorType);
 begin
@@ -77,7 +86,7 @@ end;
 
 procedure  TCfg_User.GetSourcePath(var ParPath : string);
 begin
-	ParPatH := GetProgramDir;
+	iFilePath.GetString(ParPath);
 end;
 
 procedure TCfg_User.SetNodePos(ParNode : TConfigNode);
@@ -191,19 +200,14 @@ begin
 end;
 
 
-constructor TCfg_User.Create(const ParName : string;ParCfg : TConfig);
+constructor TCfg_User.Create(const ParPath,ParName : string;ParCfg : TConfig);
 begin
 	inherited Create;
 	iFileName := TString.Create(ParName);
+	iFilePath := TString.Create(ParPath);
 	iConfig   := ParCfg;
 end;
 
-
-procedure TCfg_User.Commonsetup;
-begin
-	inherited Commonsetup;
-	iConfig   := nil;
-end;
 
 procedure TCfg_User.ErrorMessage(ParItem : TErrorItem);
 var

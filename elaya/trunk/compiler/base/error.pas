@@ -197,6 +197,8 @@ const
 	Err_Vir_ch_Par_has_zu_Size    =1183;
 	Err_Array_Expected            =1184;
 	Err_Write_Rtn_Only_In_V_Class = 1185;
+	Err_Invalid_Number	  	 	   = 1186;
+
 
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
@@ -217,7 +219,6 @@ const
 	Err_Int_Cant_Change_VMT_Item  = 2016;
 	Err_Int_Cant_Make_new_Sub     = 2017;
 	Err_Int_Abstract_Call	  	  = 2018;
-	Err_Int_Invalid_Number	  	  = 2019;
 	Err_Int_Too_Many_Nodes        = 2020;
 	Err_Int_Routine_SHouldnt_vir  = 2021;
 	Err_Int_Value_ret_Unk_Err     = 2022;
@@ -661,6 +662,8 @@ begin
 		Err_Write_Some_Without_Read  : vlMsg := 'Previous value is sometimes not used';
 		Err_Variable_Not_Used        : vlMsg := 'Variabel is not used';
 		Err_Write_Rtn_Only_In_V_Class: vlmsg := 'Write routine can only be used in value classes';
+		Err_Invalid_Number           : vlMsg := 'Conversion string => number returned Invalid number';
+
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';
 		Err_int_Wrong_Enum_List      : vlMsg := 'Internal error : Wrong enumiration list';
@@ -680,9 +683,8 @@ begin
 		Err_Int_Cant_Change_VMT_Item : vlMsg := 'Internal error : Can''t change VMT item';
 		Err_Int_Cant_Make_new_Sub    : vlMsg := 'Internal error : Can''t make short new routine';
 		Err_Int_Abstract_Call		 : vlMsg := 'Internal error : abstract call';
-		Err_Int_Invalid_Number       : vlMsg := 'Internal error : Conversion string => number returned Invalid number';
 		Err_Int_Too_Many_Nodes       : vlMsg := 'Internal error : Too many nodes added to node-sub list';
-		Err_Int_Routine_SHouldnt_vir : vlMsg := 'Internal error : Routine should be virtual';
+		Err_Int_Routine_SHouldnt_vir : vlMsg := 'Internal error : Routine should not be virtual';
 		Err_Int_Value_ret_Unk_Err    : vlMsg := 'Internal error : TValue operation returns unkown status';
 		Err_Int_Add_Non_Glob_To_Globl: vlMsg := 'Internal error : Add non global to global list';
 		Err_Int_Cur_Ident_No_EC		 : vlMsg := 'Internal error : Current ident is not a EnumCollection';

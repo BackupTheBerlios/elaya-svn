@@ -35,7 +35,11 @@ vpath %.emd $(Base_Dir)
 
 all:dep  all_main $(zothall)
 
+
+
+
 install: $(zothinstall)
+	mkdir -p $(Dir_Rtl)
 	cp -f -r  $(addsuffix .*, $(addprefix $(Base_Dir),$(basename $(all_ela_sources))))   $(Dir_Rtl) -v
 
 

@@ -25,7 +25,7 @@ type
 	
 	
 	
-	TElaConfig=Class(TCOnfig)
+	TElaConfig=Class(TConfig)
 	private
 		voAlign                : TSize;
 		voAssemblerPath        : TString;

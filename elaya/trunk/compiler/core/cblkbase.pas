@@ -622,12 +622,7 @@ type
 			exit;
 		end;
 		if (RTS_Has_Sr_Lock in fRoutineStates) then begin
-			if not(RTM_extended in fRoutineModes) or (RTM_ShortDCode in TRoutine(ParIn).fRoutineModes) then begin
-				if [RTM_Virtual,RTM_Override,RTM_Final] * TRoutine(ParIn).fRoutineModes <> [] then begin
-					TNDCreator(ParCre).ErrorDef( Err_Int_Routine_Shouldnt_vir,ParIn);
-				end;
-			end else begin
-
+			if (RTM_extended in fRoutineModes) and not(RTM_ShortDCode in TRoutine(ParIn).fRoutineModes) then begin
 				TNDCreator(ParCre).ErrorDef(Err_Def_Not_In_Forward,ParIn);
 				SetRoutineModes([RTM_CHange_After_Lock],true);
 				{Should be set when item is added to sub list, this is a weak link between this

@@ -473,8 +473,6 @@ begin
 	until vlCnt > paramcount;
 	if (not GetOptionValues.IsInputfileSet) and (vlCnt <> 0) then exit(true);
 	if GetOptionValues.fConfigFIle    = nil then begin
-		GetOptionValues.GetTargetOsStr(vlTarget);
-		if length(vlTarget) = 0 then vlTarget:=DEF_Operating_System;
 		GetOptionValues.SetConfigFIle(CNF_Default_Config_File,cl_Options);
 	end;
 end;

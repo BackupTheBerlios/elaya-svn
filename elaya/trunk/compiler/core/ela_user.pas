@@ -1000,14 +1000,21 @@ var vlCOnfigFile:string;
 	vlCfgParser : TCfg_Parser;
 	vlError     : TErrorType;
 	vlName      : string;
+	vlPath : string;
 begin
 	vlError := ERR_No_Error;
 	iOwnConfig := (GetConfig = nil);
+	vlPath := GetProgramDir;
+	if length(CNF_Cfg_Default_Location) > 0 then begin
+		if length(vlPath) > 0 then vlPath := vlPath + ';';
+		vlPath := vlPath + Cnf_Cfg_Default_Location;
+	end;
+
 	if iOwnConfig  then begin
 		InitStreams;
 		GetConfigFileName(vlConfigFile);
 		vlCfg       := TElaConfig.Create;
-		vlCfgParser := TCfg_Parser.Create(vlConfigFile,vlCfg);
+		vlCfgParser := TCfg_Parser.Create(vlPath,vlConfigFile,vlCfg);
 		if vlError =ERR_No_Error then begin
 			vlCfgParser.Compile;
 			if not vlCfgParser.successful  then vlError := Err_Reading_Config_Failed;

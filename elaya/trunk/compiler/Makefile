@@ -5,6 +5,8 @@ root_path=../
 include $(root_path)Makefile.inc
 
 
+
+
 dep_files=lib/*.pas lib/$(Cpl_Target)/*.pas base/*.pas config/*.pas core/*.pas
 
 all: dep all_lib
@@ -18,9 +20,15 @@ dep_info:  $(dep_files)
 clean:
 	rm -f bin/*
 
-install:
+install:copyfiles $(if $link_exe_to,link_exe_to)
+copyfiles:
+	mkdir -p $(Dir_Program)
+	mkdir -p $(Dir_Cpl_Lib)
 	cp $(addprefix bin/,$(addsuffix .*,$(notdir $(basename $(wildcard lib/*.pas lib/*.PAS)))))  $(Dir_Cpl_Lib)
 	cp $(wildcard bin/ela) $(wildcard bin/ela.exe) $(Dir_Program)
 
+link_exe_to:
+	rm -f $(link_exe_to)
+	ln -s  $(Dir_Program)ela$(exe_ext) $(link_exe_to) 
 include dep_info
 

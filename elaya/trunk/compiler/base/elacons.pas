@@ -700,11 +700,13 @@ MN_None = '';
 
 DEF_Operating_system    = 'win32';
 CNF_Exe_Ext		= '.exe';
+CNF_Cfg_Default_location = '';
 {$endif}
 
 {$ifdef linux}
 DEF_Operating_system    = 'linux';
 CNF_Exe_Ext		= '';
+CNF_Cfg_Default_Location = '/etc';
 {$endif}
 var
 Min_LOngint :TNumber;
