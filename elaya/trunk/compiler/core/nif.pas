@@ -41,7 +41,7 @@ type
 		procedure GetSubPoc(var ParThen,ParElse : TNodeIdent);
 	end;
 
-	TThenElseNode=class(TNodeIdent)
+	TThenElseNode=class(TSubListStatementNode)
 	private
 		voThenElse:boolean;
 		property iThenElse : boolean read voThenElse write voThenElse;
@@ -60,7 +60,7 @@ implementation
 
 function  TThenElseNode.CreateSec(ParCre:TSecCreator):boolean;{TODO Can be removed}
 begin
-	CreateSec := CreatePartsSec(ParCre);
+	CreateSec := iParts.CreateSec(ParCre);
 end;
 
 procedure TTHenElseNode.Print(ParDis:TDisplay);

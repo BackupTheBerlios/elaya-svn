@@ -22,7 +22,7 @@ unit nconvert;
 interface
 uses useitem,stdobj,node,elacons,formbase,macobj,pocobj,compbase,error,display;
 
-type   TConvertnode=class(TFormulaNode)
+type   TConvertnode=class(TSublistFormulaNode)
 	end;
 	
 	TLoadConvert=class(TConvertNode)
@@ -54,7 +54,7 @@ end;
 function  TLoadConvert.Can(ParCan : TCan_Types):boolean;
 var vlNode : TFormulaNode;
 begin
-	vlNode := TFormulaNode(GetPartByNum(1));
+	vlNode := TFormulaNode(iParts.fStart);
 	if vlNode <> nil then begin
 		exit(vlNode.Can(ParCan));
 	end else begin
@@ -65,7 +65,7 @@ end;
 function  TLoadConvert.GetValue : TValue;
 var vlNode : TFOrmulaNode;
 begin
-	vlNode := TFormulaNode(GetPartByNum(1));
+	vlNode := TFormulaNode(iParts.fStart);
 	if vlNode <> nil then exit(vlNode.GetValue)
 	else exit(nil);
 end;
@@ -87,7 +87,7 @@ begin
 	MCO_Result: begin
 		vlMac := TResultMac.Create(iType.fSize,iType.GetSign);
       ParCre.AddObject(vlMac);
-		vlPoc := PArCre.MakeLoadPoc(vlMac,GetPartByNum(1).CreateMac(MCO_Result,ParCre));
+		vlPoc := PArCre.MakeLoadPoc(vlMac,TNodeIdent(fParts.fStart).CreateMac(MCO_Result,ParCre));
 		ParCre.AddSec(vlPoc);
 		exit(vlMac);
 	end;
@@ -111,7 +111,7 @@ var vlNode:TNodeIdent;
 begin
 	ParDis.Writenl('Convert');
 	ParDis.SetLeftMArgin(3);
-	vlNode := GetPartByNum(1);
+	vlNode := TNodeIdent(iParts.fStart);
 	vlNode.Print(ParDis);
 	ParDis.SetLeftMargin(-3);
 	ParDIs.Nl;

@@ -38,7 +38,6 @@ type
 	public
 		property  fDoneHashing   : boolean      read voDoneHashing;
 		property  fHashingObject : THashing     read voHashing;
-		property  fDefaultList   : TDefaultLIst read voDefaultList;
 		property  fGlobal  	     : boolean      read voGlobal    write voGLobal;
 		procedure Print(ParDis:TDisplay);
 		procedure SetHashingObject(ParHash:THashing);
@@ -130,6 +129,7 @@ end;
 
 procedure TIdentList.AddToDefaultList(ParDef:TDefinition);
 begin
+	if iDefaultList = nil then InitDefaultList;
 	iDefaultList.AddDefault(ParDef);
 end;
 
@@ -137,7 +137,7 @@ end;
 procedure TIdentList.commonsetup;
 begin
 	inherited commonsetup;
-	initDefaultList;
+	iDefaultList := nil;
 	iHashing := nil;
 	iGlobal  := false;
 end;
@@ -208,6 +208,7 @@ end;
 
 function TIdentList.GetDefaultIdent(ParDefault:TDefaultTypeCode;ParSize : TSize;ParSign:boolean):TDefinition;
 begin
+	if iDefaultList  = nil then exit(nil);
 	GetDefaultIdent :=iDefaultList.GetDefaultBySize(ParDefault,ParSize,ParSign);
 	if ParDefault = DT_Nothing then begin
 		GetDefaultIdent := nil;

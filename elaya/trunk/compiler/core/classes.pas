@@ -1009,7 +1009,6 @@ var
 	vlName       : string;
 	vlType       : TType;
 	vlVmtType    : TTYpe;
-	vlMfType     : TType;
 begin
 	GetTextStr(vlName);
 	fObject.SetText(vlName+'_representor');
@@ -1094,7 +1093,7 @@ function TClassType.CreateReadNode(parCre:TCreator;ParContext : TDefinition):TFo
 var
 	vlNode : TFormulaNode;
 begin
-	vlNode := TClassTypeNode.Create(self);
+	vlNode := TClassTypeNode.Create(self,nil);
 	vlNode.fContext := ParContext;
 	exit(vlNode);
 end;
@@ -1374,8 +1373,7 @@ begin
 		ParCre.ErrorText(err_Cant_Find_parameter,Name_Self);
 		exit;
 	end;
-	vlCast := TTypeNode.Create(ParCre.GetCheckDefaultType(DT_Pointer,0,false,'pointer'));{TODO}
-	vlCast.AddNode(vlVar.CreateReadNode(ParCre,self));
+	vlCast := TTypeNode.Create(ParCre.GetCheckDefaultType(DT_Pointer,0,false,'pointer'),vlVar.CreateReadNode(ParCre,self));{TODO}
 	vlExit := TExitNode(CreateExitNode(ParCre,vlCast));
 	fStatements.AddNode(vlExit);
 end;

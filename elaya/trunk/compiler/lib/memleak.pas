@@ -39,10 +39,16 @@ type TMemleak=class(TSMListItem)
 		procedure IncInits;
 		procedure IncDones;
 		procedure Print;
+		class function NewInstance : tobject;override;
+		procedure FreeInstance;override;
+
 		constructor Create(const ParName : string);
 	end;
 	
 	TMemList=class(TSMList)
+		class function NewInstance : tobject;override;
+		procedure FreeInstance;override;
+
 		function GetClassByName(const ParName : string):TMemLeak;
 	end;
 	
@@ -50,7 +56,45 @@ implementation
 
 var
 	vgList :TMemList;
-	
+
+
+
+class function TMemleak.NewInstance : tobject;
+var
+	vlPtr : pointer;
+begin
+	getmem(vlPtr,InstanceSize);
+	if vlPtr <> nil then initInstance(vlPtr);
+	exit(TObject(vlPtr));
+end;
+
+procedure TMemLeak.FreeInstance;
+var
+	vlPtr : pointer;
+begin
+	vlPtr := pointer(self);
+	CleanupInstance;
+	freemem(vlPtr,InstanceSize);
+end;
+
+class function TMemList.NewInstance : tobject;
+var
+	vlPtr : pointer;
+begin
+	getmem(vlPtr,InstanceSize);
+	if vlPtr <> nil then initInstance(vlPtr);
+	exit(TObject(vlPtr));
+end;
+
+procedure TMemList.FreeInstance;
+var
+	vlPtr : pointer;
+begin
+	vlPtr := pointer(self);
+	CleanupInstance;
+	freemem(vlPtr,InstanceSize);
+end;
+
 	
 	
 constructor TMemleak.Create(const ParName : string);

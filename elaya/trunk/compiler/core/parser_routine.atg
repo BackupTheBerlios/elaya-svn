@@ -511,9 +511,10 @@ RProperty|RVarBlock|RTypeBlock|RRoutine}
 ";"
 (.
 
+	vlMainCb.fStatements.FinishNode(fNDCreator,true);
 	if vlRoutine <> nil then begin
 		 vlRoutine.SetIsDefined;
-		if vlRoutine.fStatements <> nil then vlRoutine.fStatements.ValidateAfter(fNDCreator);
+		if (vlRoutine.fStatements <> nil) and (vlMainCb <> vlRoutine) then vlRoutine.fStatements.FinishNode(fNDCreator,true);
 	end;
 	fNDCreator.fCurrentDefAccess := vlPrvDefAccess;
 	fNDCreator.EndIdentNum(vlLevel);

@@ -59,7 +59,6 @@ public
 	function   SetEnumBegin:TType;
 	procedure  EndEnum;
 	procedure  Addident(Parident:TDefinition);
-	function   AddNodeToNode(ParNode1 : TNodeIdent;var ParNode2:TNodeIdent):boolean;
 	procedure  AddVar(ParName:TNameList;ParType:TType);
 	procedure  Bind;
 	procedure  ProcessParsed;override;
@@ -89,7 +88,7 @@ public
 	function GetModule : TUnit;
 	procedure  ProcessDualOperator(
 	var   ParNewPar  : TNodeIdent;
-	var   ParPrvPar  : TNodeIdent;
+	var   ParPrvPar  : TSublistOperatorNode;
 	const ParOprStr  : String;
 	ParOperObj : TRefNodeIdent);
 	
@@ -102,7 +101,7 @@ public
 	ParNewPar    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
 	const ParOprStr    : String;
-	ParOperObj   : TRefNodeIdent);
+	ParOperObj   : TSingelOperatorNodeClass);
 	procedure ProcessCompOperator(
 	ParNewPar    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
@@ -142,14 +141,14 @@ public
 	function HandleDeReference(ParDigi : TDigiItem) : TIdentHookDigiItem;
 	function HandleDotOperator(ParDigi : TDigiItem;const ParIdent : string) : TDotOperDigiItem;
 	procedure DoPropertyDefinition(ParName : string;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
-	procedure HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,Parowner : TDefinition;ParNode : TNodeIdent);
+	procedure HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,Parowner : TDefinition;ParNode : TSubListStatementNode);
 
 end;
 
 implementation
 
 
-procedure TEla_User.HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,ParOwner : TDefinition;ParNode : TNodeIdent);
+procedure TEla_User.HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,ParOwner : TDefinition;ParNode : TSubListStatementNode);
 var
 	vlNode    : TCallNode;
 begin
@@ -587,11 +586,11 @@ begin
 	    if GetConfigValues.fGenerateDebug  then begin
     		vlLineInfo := TLineNumberNode.create;
     		vlLineInfo.fLine := ParNode.fLine;
-    		AddNodeToNode(vlPrn,vlLineInfo);
+			vlPrn.AddNode(vlLineInfo);
     	end;
-		AddNodeToNode(vlPrn,vlExit);
-		vlPrn.FinishNode(fNDCreator,true);
+		vlPrn.AddNode(vlExit);
 	end;
+	vlPrn.FinishNode(fNDCreator,true);
 end;
 
 function TEla_User.ProcessShortSubCB(ParRoutine : TRoutine) : TRoutineNode;
@@ -1104,11 +1103,6 @@ begin
 	end;
 end;
 
-function TELa_User.AddNodeToNode(ParNode1 : TNodeIdent;var ParNode2 : TNodeIdent): boolean;
-begin
-	exit(fNDCreator.AddNodeToNode(ParNode1,ParNode2));
-end;
-
 procedure TEla_User.CreateExternalInterfaceObject(ParCDecl:boolean;ParRoutine :TRoutine;
 ParExt : TExternalInterface;var ParName : TString);
 var vlInter : TExternalObject;
@@ -1171,13 +1165,11 @@ var
    vlDef        : TRoutine;
 	vlOwner      : TDefinition;
 	vlError      : TErrorTYpe;
-	vlIsOperator : boolean;
 begin
 	for vlCnt := 0 to high(ParParameters) do begin
 		if ParParameters[vlCnt] <> nil then TNodeIdent(ParParameters[vlCnt]).Proces(fNDCreator);
 	end;
 	fNDCreator.GetPtrByArray(ParOperStr,ParParameters,vlOwner,vlDef);
-	vlIsOperator := false;
 	vlError := Err_No_Error;
 	vlResult := Opr_Not_Found;
 	if vlDef = nil then begin
@@ -1208,11 +1200,11 @@ end;
 
 procedure  TEla_User.ProcessDualOperator(
 		var   ParNewPar  : TNodeIdent;
-		var   ParPrvPar  : TNodeIdent;
+		var   ParPrvPar  : TSublistOperatorNode;
 		const ParOprStr  : String;
-		ParOperObj : TRefNodeIdent);
+		ParOperObj : TRefNodeIdent); {TODO Make TNodeIdentClass}
 var
-	vlNode     : TNodeIdent;
+	vlNode     : TSubListOperatorNode;
 begin
 	if ParPrvPar = nil then begin
 		if ParNewPar <> nil then begin
@@ -1225,7 +1217,7 @@ begin
 		Opr_Ok:begin end;
 		Opr_Not_Found : begin{fatal error when paroperobj=nil ?}
 				if (ParOperObj <> nil) and (ParPrvPar.ClassType  <> ParOperObj) then begin
-					vlNode := ParOperObj.Create;
+					vlNode := TSubListOperatorNode(ParOperObj.Create);
 					fNDCreator.SetNodePos(vlNOde);
 					vlNode.AddNode(ParPrvPar);
 					ParPrvPar := vlNode;
@@ -1249,14 +1241,13 @@ procedure TELa_User.ProcessSingleOperator(
 	ParNewPar    : TNodeIdent;
 	var   ParPrvPar    : TNodeIdent;
 	const ParOprStr    : String;
-	ParOperObj   : TRefNodeIdent);
+	ParOperObj   : TSingelOperatorNodeClass);
 var
 	vlNode     : TNodeIdent;
 begin
 {TODO: better handling of return value procesopertor}
 	if ProcessOperator([ParNewPar],ParPrvPar,ParOprStr,false) = Opr_Ok then exit;
-	vlNode := ParOperObj.Create;
-	vlNode.AddNode(ParNewPar);
+	vlNode := ParOperObj.Create(TFormulaNode(ParNewPar));{TDO}
 	SetNodePos(vlNode);
 	ParPrvPar := vlNode;
 end;
@@ -1267,7 +1258,7 @@ procedure TEla_User.ProcessBetweenOperator(
 	var ParPrvPar      : TNodeIdent;
 	const ParOprStr    : String);
 var
-	vlNode     : TNodeIdent;
+	vlNode     : TSubListOperatorNode;
 	vlType     : TType;
 begin
 	{TODO: better handling of return value procesopertor}
@@ -1277,7 +1268,9 @@ begin
 	
 	if vlType = nil then ErrorText(Err_Cant_Find_Type,'boolean');
 	vlNode := TBetweenNode.Create(vlType);
-	vlNode.AddNodes([ParO1,ParO2,ParO3]);
+	vlNode.AddNode(ParO1);
+	vlNode.AddNOde(ParO2);
+	vlNode.AddNode(ParO3);
 	SetNodePos(vlNode);
 	ParPrvPar := vlNode;
 end;
@@ -1288,14 +1281,15 @@ var ParPrvPar   : TNodeIdent;
 const ParOprStr : String;
 ParCode	        : TIdentCode);
 var
-	vlNode     : TNodeIdent;
+	vlNode     : TSubListOperatorNode;
 	vlType     : TType;
 begin
 	if ProcessOperator([ParPrvPar,ParNewPar],ParPrvPar,ParOprStr,false)=OPR_Ok then exit;
 	vlType := fNDCreator.GetDefaultIdent(DT_Boolean,SIZE_DontCare,false);
 	if vlType = nil then ErrorText(Err_Cant_Find_Type,'boolean');
 	vlNode := TCompNode.Create(ParCode,vlType);
-	vlNode.AddNodes([PArPrvPar,ParNewPar]);
+	vlNode.AddNode(ParPrvPar);
+	vlNode.AddNode(ParNewPar);
 	SetNodePos(vlNode);
 	ParPrvPar := vlNode;
 end;

@@ -25,7 +25,6 @@ uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj
 type
 
 
-
 	TExitNode=class(TNodeIdent)
 	private
 		voReturnType          : TType;
@@ -38,15 +37,14 @@ type
 		function    CreateSec(ParCre : TSecCreator):boolean;override;
 		procedure   PrintNode(ParDis : TDisplay);override;
 		procedure   ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
-		procedure  proces(ParCre:TCreator);override;
+		procedure   proces(ParCre:TCreator);override;
 		procedure   ValidateAfter(parCre : TCreator);override;
 		procedure   Optimize(ParCre:TCreator);override;
 		procedure   clear;override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
-
+		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 	end;
 
-	TLoopCBNode=class(TNodeIdent)
+	TLoopCBNode=class(TSublistStatementNode)
 	private
 		voBreakLabel    : TLabelPoc;
 		voContinueLabel : TLabelPoc;
@@ -162,13 +160,13 @@ type
 	end;
 
 
-	TLoadNode=class(TOperatorNode)
+	TLoadNode=class(TSubListOperatorNode)
 	protected
 		procedure Commonsetup;override;
 
 	public
 		procedure GetOperStr(var ParOper:string);override;
-			function  CreateSec(ParCre:TSecCreator):boolean;override;
+		function  CreateSec(ParCre:TSecCreator):boolean;override;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
 		function CheckConvertTest(ParType1,ParType2 : TType) : boolean;override;
@@ -242,7 +240,12 @@ type
 implementation
 
 
+
+
 {---( TExitNode )-------------------------------------------------}
+
+
+
 
 procedure TExitNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
@@ -392,7 +395,7 @@ var vlLabFalse,vlLabTrue:TLabelPoc;
 begin
 	vlLabFalse  := ParCre.AddLabel;
 	vlLabTrue   := GetBreakLabel;
-	CreatePartsSec(ParCre);
+	iParts.CreateSec(ParCre);
 	vlPrvFalse := ParCre.SetLabelFalse(vlLabFalse);
 	vlPrvTrue  := ParCre.SetLabelTrue(vlLabTrue);
 	ParCre.AddSec(GetContinueLabel);
@@ -428,7 +431,7 @@ begin
 	vlJump1        := TJumpPoc.create(GetContinueLabel);
 	ParCre.AddSec(vlJump1);
 	vlLab1         := ParCre.AddLabel;
-	CreatePartsSec(ParCre);
+	iParts.CreateSec(ParCre);
 	vlLab2         := GetBreakLabel;
 	ParCre.AddSec(vlJump1.fLabel);
 	vlPrvtrue      := ParCre.SetLabelTrue(vlLab1);
@@ -870,13 +873,20 @@ end;
 
 
 procedure TLoadNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
-var vlFirst     : TFormulaNode;
-	vlSecond    : TFormulaNode;
-	vlType      : TType;
-	vlName1     : string;
-	vlName2     :string;
 begin
 	inherited ValidatePre(ParCre,ParIsSec);
+
+end;
+
+procedure TLOadNode.ValidateAfter(ParCre : TCreator);
+var vlFirst  : TFormulaNode;
+	vlSecond : TFormulaNode;
+	vlType   : TType;
+	vlName1     : string;
+	vlName2     :string;
+
+begin
+	inherited ValidateAfter(ParCre);
 	vlFirst  := TFormulaNode(GetPartByNUm(1));
 	vlSecond := TFormulaNode(GetPartByNum(2));
 	vlType := GetType;
@@ -896,14 +906,6 @@ begin
 			end;
 		end;
 	end;
-end;
-
-procedure TLOadNode.ValidateAfter(ParCre : TCreator);
-var vlFirst  : TFormulaNode;
-	vlSecond : TFormulaNode;
-	vlType   : TType;
-begin
-	inherited ValidateAfter(ParCre);
 	vlFirst  := TFormulaNode(fParts.fStart);
 	if vlFirst <> nil then begin
 		vlSecond := TFormulaNode(vlFirst.fNxt);

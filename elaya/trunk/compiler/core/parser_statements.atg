@@ -1,14 +1,14 @@
 PRODUCTIONS
 
-RBreak<var ParNode : TNodeIdent>=
+RBreak<var ParNode : TSubListStatementNode>=
 IBreak				(. AddBreakNode(ParNode);.)
 .
 
-RContinue<var ParNode : TNodeIdent>=
+RContinue<var ParNode : TSubListStatementNode>=
 IContinue			(. AddContinueNode(ParNode);.)
 .
 
-RWrite:"write statement"<ParNode:TNodeIdent>
+RWrite:"write statement"<ParNode:TSubListStatementNode>
 (.
 var
 	vlWritelnFlag:boolean;
@@ -46,7 +46,7 @@ var
   if vlWritelnFlag then begin
 	if fNDCreator.GetWriteProc(true,vlNl,vlOwner) then begin
 		vlNode := TCallNode(vlNl.createExecuteNode(fNDCreator,vlOwner));
-		AddNodeToNode(ParNode,vlNode);
+		ParNode.AddNode(vlNode);
 	end;
   end;
 .)
@@ -55,7 +55,7 @@ var
 
 
 
-RIncDec:"increment/decrement statement"<var ParNode : TNodeIdent>
+RIncDec:"increment/decrement statement"<var ParNode : TSubListStatementNode>
 (.
 var
 	vlNode 		: TIncDecNode;
@@ -75,13 +75,13 @@ var
   ( (IWith  RFormula<vlValueNode>)
   | (. vlValueNode := TFormulaNode(fNDCreator.CreateIntNodeLong(1)); .))
  ))
-  (.ParNode := TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode);.)
+  (.ParNode.AddNode( TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode));.)
 .
 
 (*			Program Flow					*)
 
 
-RExit<var ParNode:TNodeIdent>
+RExit<var ParNode:TSubListStatementNode>
 (.
    var
 		vlExp : TFormulaNode;
@@ -91,12 +91,12 @@ RExit<var ParNode:TNodeIdent>
 
 IExit ["(" RFormula<vlExp> ")"]
 (.
-	ParNode := CreateExitNode(vlExp);
+	ParNode :=TSubListStatementnode( CreateExitNode(vlExp));(* TODO Change exit type? *)
 .)
 .
 
 
-RWhile<var ParNode:TNodeIdent>
+RWhile<var ParNode:TSubListStatementNode>
 (.
  var
     vlCond : TFormulaNode;
@@ -113,7 +113,7 @@ IDo RCode<ParNode>
 .
 
 
-RCount:"count statement"<var ParNode:TNodeIdent>
+RCount:"count statement"<var ParNode:TSubListStatementNode>
 
 (.
  var
@@ -142,8 +142,7 @@ RFormula<vlN3>				(.  vlNode.SetEnd(vlN3); .)]
 	vlNode.SetStep(vlN4);
 .)
 ))
-[IUntil RExpr<vlEndCondition> (.	vlNode.SetEndCondition(vlEndCondition);.)
-]
+[IUntil RExpr<vlEndCondition> (.	vlNode.SetEndCondition(vlEndCondition);.)]
 ((.
 	fNDCreator.AddCurrentNode(vlNode);
 .)
@@ -157,7 +156,7 @@ RFormula<vlN3>				(.  vlNode.SetEnd(vlN3); .)]
 
 
 
-RFor<var ParNode :TNodeIdent>
+RFor<var ParNode :TSubListStatementnode>
 (.
 	var
 		vlExpr : TFormulaNode;
@@ -180,7 +179,7 @@ IUntil RFormula<vlExpr>
 
 
 
-RIf<var ParNode:TNodeIdent>
+RIf<var ParNode:TSubListStatementNode>
 (.
 	var
 		vlCond : TFormulaNode;
@@ -205,7 +204,7 @@ RCode<vlThen>
 .
 
 
-RRepeat<var ParNode:TNodeIdent>
+RRepeat<var ParNode:TSubListStatementNode>
 				(. var vlCond:TFormulaNode; .)
 =
 IRepeat        			(. ParNode := TRepeatNode.Create;
@@ -255,15 +254,17 @@ ILeave  (. if ParNode <> nil then ParNode :=TLeaveNode.Create; .)
 .
 
 
-RCode:"code item"<ParNode:TNodeIdent>
+RCode:"code item"<ParNode:TSubListStatementNode>
 (.
  var
-	vlNode     : TNodeIdent;
+	vlNode     : TSubListStatementNode;(* TODO Solve this*)
+	vlForm     : TFormulanode;
 	vlLineInfo : TNodeident;
 .)
 =
 (.
     vlNode := nil;
+	 vlForm := nil;
     if (GetConfigValues.fGenerateDebug) and (ParNode <> nil)  then begin
     	vlLineInfo := TLineNumberNode.create;
     	vlLineInfo.fLine := nextLine;
@@ -271,7 +272,7 @@ RCode:"code item"<ParNode:TNodeIdent>
     end;
 .)
 
-(RLoad<TFormulaNode(vlNode)>
+(RLoad<TFormulaNode(vlForm)>
 |RAsmBlock<vlNode>
 |RBreak<vlNode>
 |RContinue<vlNode>
@@ -281,20 +282,21 @@ RCode:"code item"<ParNode:TNodeIdent>
 |RIf<vlNode>
 |RRepeat<vlNode>
 |RExit<vlNode>
-|RIncDec<vlNode>
+|RIncDec<ParNode>
 |RLeave<vlNode>
 |RCodes<vlNode>
 |RWrite<ParNode>)
 
 (.
-	if vlNode <> nil then AddNodeToNode(ParNode,vlNode);
+	if vlNode <> nil then ParNode.AddNode(vlNode);
+   if vlForm <> nil then ParNode.AddNode(vlForm);
 .)
 .
 
 
 
 
-RCodes<var ParNode:TNodeIdent>
+RCodes<var ParNode:TSubListStatementNode>
 =
 	(. ParNode := TBlockNode.Create;.)
 IBegin
@@ -302,16 +304,15 @@ IBegin
 IEnd
 .
 
-RBlockOfCode<ParNode : TNodeIdent>
+RBlockOfCode<ParNode : TSubListStatementNode>
 (.
 	var
-		vlNode : TNodeIdent;
+		vlNode : TSubListStatementNode;
 .)
 =
 RCodes<vlNode>
 (.
-	AddNodeToNode(ParNode,vlNode);
-	if ParNode <> nil then ParNode.FinishNode(fNDCreator,true);
+	ParNode.AddNode(vlNode);
 .)
 .
 

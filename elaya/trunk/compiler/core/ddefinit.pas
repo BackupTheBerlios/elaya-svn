@@ -563,7 +563,6 @@ end;
 
 function  TDefinition.CreateExecuteNode(ParCre:TCreator;ParParent : TDefinition):TNodeIdent;
 begin
-	exit(nil);
 	fatal(	FAT_Cant_Create_Nodes_here,'');
 end;
 

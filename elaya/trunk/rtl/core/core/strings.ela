@@ -57,10 +57,24 @@ public
 	operator (const ParA:str255) <  (const ParB:str255) : boolean;overload;
 	operator (const ParA:str255) <> (const ParB:str255) : boolean;overload;
 	function AsciizLength(const ParAsc : Asc):long;
-
+	operator (const ParHaystack : string) contains (const ParNeedle:string) : boolean;
+	operator (const ParString   : string) starts_with (const ParStarter : string):boolean;
 end public
 
 {---( String commands )------------------------------------------------------------}
+
+operator (const ParHaystack : string) contains (const ParNeedle:string) : boolean;
+begin
+	exit(Pos(ParNeedle,ParHayStack) > 0);
+end;
+
+operator (const ParString   : string) starts_with (const ParStarter : string):boolean;
+begin
+	if(ParStarter.length > 0) then begin
+		exit(copy(ParString,1,ParStarter.length)=ParStarter);
+	end;
+	exit(false);
+end;
 
 procedure MoveAsciizString(const ParSource:str255;var ParDest:Asc255);
 var vlP1,vlP2:PByte;

@@ -485,7 +485,10 @@ var
 )
 ":"
 (
-RBlockOfCode<vlPrn>|
+(RBlockOfCode<vlPrn>
+(.vlPrn.FinishNode(fNDCreator,true);.)
+)
+|
 (
  RFormula<vlNode>
 (.

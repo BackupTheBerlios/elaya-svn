@@ -294,7 +294,7 @@ IEnd IPublic
 "."
 (.
  						   vlRoutine.fStatements := vlPrn;
-						   if vlPrn <> nil then vlPrn.ValidateAfter(fNDCreator);
+							vlPrn.FinishNode(fNDCreator,true);
 						   fNDCreator.EndIdent;
 						   WriteResFile;
 

@@ -39,24 +39,24 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RLogic ( var ParDigi :TDigiItem);
       Procedure _RCompare ( var ParExp:TDigiItem);
       Procedure _RIdentOper ( var ParExp : TDigiItem);
-      Procedure _RCodes ( var ParNode:TNodeIdent);
+      Procedure _RCodes ( var ParNode:TSubListStatementNode);
       Procedure _RLeave ( var ParNode : TNodeIdent);
       Procedure _RExprDigi ( var ParExpr : TDigiItem);
       Procedure _RLoad ( var Parexp:TFormulaNode);
-      Procedure _RRepeat ( var ParNode:TNodeIdent);
-      Procedure _RIf ( var ParNode:TNodeIdent);
-      Procedure _RFor ( var ParNode :TNodeIdent);
+      Procedure _RRepeat ( var ParNode:TSubListStatementNode);
+      Procedure _RIf ( var ParNode:TSubListStatementNode);
+      Procedure _RFor ( var ParNode :TSubListStatementnode);
       Procedure _RExpr ( var ParExpr : TFormulaNode);
-      Procedure _RCount ( var ParNode:TNodeIdent);
-      Procedure _RCode ( ParNode:TNodeIdent);
-      Procedure _RWhile ( var ParNode:TNodeIdent);
-      Procedure _RExit ( var ParNode:TNodeIdent);
+      Procedure _RCount ( var ParNode:TSubListStatementNode);
+      Procedure _RCode ( ParNode:TSubListStatementNode);
+      Procedure _RWhile ( var ParNode:TSubListStatementNode);
+      Procedure _RExit ( var ParNode:TSubListStatementNode);
       Procedure _RFormula ( var ParExp:TFormulaNode);
-      Procedure _RIncDec ( var ParNode : TNodeIdent);
+      Procedure _RIncDec ( var ParNode : TSubListStatementNode);
       Procedure _RParam ( var ParExpr : TFormulaNode;var ParName : string);
-      Procedure _RWrite ( ParNode:TNodeIdent);
-      Procedure _RContinue ( var ParNode : TNodeIdent);
-      Procedure _RBreak ( var ParNode : TNodeIdent);
+      Procedure _RWrite ( ParNode:TSubListStatementNode);
+      Procedure _RContinue ( var ParNode : TSubListStatementNode);
+      Procedure _RBreak ( var ParNode : TSubListStatementNode);
       Procedure _RRoutineHeader ( var ParRoutine:TRoutine;ParForward:boolean;var ParLevel : cardinal);
       Procedure _RParameterMapping ( var ParRoutine :TRoutine);
       Procedure _RParameterMappingItem ( ParRoutine :TRoutine);
@@ -193,7 +193,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _IAnd;
       Procedure _IAll;
       Procedure _IAbstract;
-      Procedure _RBlockOfCode ( ParNode : TNodeIdent);
+      Procedure _RBlockOfCode ( ParNode : TSubListStatementNode);
       Procedure _RRoutine;
       Procedure _IEnd;
       Procedure _RRoutineForward;
@@ -313,6 +313,7 @@ begin
             Expect(10);
             if (GetSym = 20) then begin
                   _RBlockOfCode( vlPrn);
+                   vlPrn.FinishNode(fNDCreator,true);;
             end
              else if vgDynSet[1].isSet(GetSym) then begin
                   _RFormula( vlNode);
@@ -912,7 +913,7 @@ begin
               ParExp := vlDigiL ;
       end;
       
-      Procedure TELA_Parser._RCodes ( var ParNode:TNodeIdent);
+      Procedure TELA_Parser._RCodes ( var ParNode:TSubListStatementNode);
       begin
               ParNode := TBlockNode.Create;;
             _IBegin;
@@ -991,7 +992,7 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RRepeat ( var ParNode:TNodeIdent);
+      Procedure TELA_Parser._RRepeat ( var ParNode:TSubListStatementNode);
         var vlCond:TFormulaNode; 
       begin
             _IRepeat;
@@ -1009,7 +1010,7 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RIf ( var ParNode:TNodeIdent);
+      Procedure TELA_Parser._RIf ( var ParNode:TSubListStatementNode);
        
       var
       	vlCond : TFormulaNode;
@@ -1036,7 +1037,7 @@ begin
             end;
       end;
       
-      Procedure TELA_Parser._RFor ( var ParNode :TNodeIdent);
+      Procedure TELA_Parser._RFor ( var ParNode :TSubListStatementnode);
        
       var
       	vlExpr : TFormulaNode;
@@ -1079,7 +1080,7 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RCount ( var ParNode:TNodeIdent);
+      Procedure TELA_Parser._RCount ( var ParNode:TSubListStatementNode);
        
       var
       vlN1,vln2,vlN3,vlN4:TFormulaNode;
@@ -1149,15 +1150,17 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RCode ( ParNode:TNodeIdent);
+      Procedure TELA_Parser._RCode ( ParNode:TSubListStatementNode);
        
       var
-      vlNode     : TNodeIdent;
+      vlNode     : TSubListStatementNode;(* TODO Solve this*)
+      vlForm     : TFormulanode;
       vlLineInfo : TNodeident;
       
       begin
              
              vlNode := nil;
+             vlForm := nil;
              if (GetConfigValues.fGenerateDebug) and (ParNode <> nil)  then begin
              	vlLineInfo := TLineNumberNode.create;
              	vlLineInfo.fLine := nextLine;
@@ -1166,7 +1169,7 @@ begin
             ;
             case GetSym of
                   1..6, 52, 58, 60, 67, 83, 103, 105..106, 118 : begin
-                        _RLoad( TFormulaNode(vlNode));
+                        _RLoad( TFormulaNode(vlForm));
                   end;
                   17 : begin
                         _RAsmBlock( vlNode);
@@ -1196,7 +1199,7 @@ begin
                         _RExit( vlNode);
                   end;
                   31, 50 : begin
-                        _RIncDec( vlNode);
+                        _RIncDec( ParNode);
                   end;
                   43 : begin
                         _RLeave( vlNode);
@@ -1212,11 +1215,12 @@ begin
                   end;
             end;
              
-            if vlNode <> nil then AddNodeToNode(ParNode,vlNode);
+            if vlNode <> nil then ParNode.AddNode(vlNode);
+            if vlForm <> nil then ParNode.AddNode(vlForm);
             ;
       end;
       
-      Procedure TELA_Parser._RWhile ( var ParNode:TNodeIdent);
+      Procedure TELA_Parser._RWhile ( var ParNode:TSubListStatementNode);
        
       var
        vlCond : TFormulaNode;
@@ -1234,7 +1238,7 @@ begin
               fNDCreator.EndNode; ;
       end;
       
-      Procedure TELA_Parser._RExit ( var ParNode:TNodeIdent);
+      Procedure TELA_Parser._RExit ( var ParNode:TSubListStatementNode);
        
       var
       	vlExp : TFormulaNode;
@@ -1248,7 +1252,7 @@ begin
                   Expect(104);
             end;
              
-            ParNode := CreateExitNode(vlExp);
+            ParNode :=TSubListStatementnode( CreateExitNode(vlExp));(* TODO Change exit type? *)
             ;
       end;
       
@@ -1257,7 +1261,7 @@ begin
             _RExpr( ParExp);
       end;
       
-      Procedure TELA_Parser._RIncDec ( var ParNode : TNodeIdent);
+      Procedure TELA_Parser._RIncDec ( var ParNode : TSubListStatementNode);
        
       var
       vlNode 		: TIncDecNode;
@@ -1291,7 +1295,7 @@ begin
             else begin
                   SynError(130);
             end;
-            ; ParNode := TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode);;
+            ; ParNode.AddNode( TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode));;
       end;
       
       Procedure TELA_Parser._RParam ( var ParExpr : TFormulaNode;var ParName : string);
@@ -1304,7 +1308,7 @@ begin
             end;
       end;
       
-      Procedure TELA_Parser._RWrite ( ParNode:TNodeIdent);
+      Procedure TELA_Parser._RWrite ( ParNode:TSubListStatementNode);
        
       var
       vlWritelnFlag:boolean;
@@ -1348,19 +1352,19 @@ begin
             if vlWritelnFlag then begin
             if fNDCreator.GetWriteProc(true,vlNl,vlOwner) then begin
             	vlNode := TCallNode(vlNl.createExecuteNode(fNDCreator,vlOwner));
-            	AddNodeToNode(ParNode,vlNode);
+            	ParNode.AddNode(vlNode);
             end;
             end;
             ;
       end;
       
-      Procedure TELA_Parser._RContinue ( var ParNode : TNodeIdent);
+      Procedure TELA_Parser._RContinue ( var ParNode : TSubListStatementNode);
       begin
             _IContinue;
               AddContinueNode(ParNode);;
       end;
       
-      Procedure TELA_Parser._RBreak ( var ParNode : TNodeIdent);
+      Procedure TELA_Parser._RBreak ( var ParNode : TSubListStatementNode);
       begin
             _IBreak;
               AddBreakNode(ParNode);;
@@ -1573,7 +1577,7 @@ begin
       vlName : string;
       vlVal  : TValue;
       vlMode : TMappingOption;
-
+      
       begin
             if (GetSym in [1 , 118]) then begin
                    
@@ -3627,16 +3631,15 @@ begin
             Expect(11);
       end;
       
-      Procedure TELA_Parser._RBlockOfCode ( ParNode : TNodeIdent);
+      Procedure TELA_Parser._RBlockOfCode ( ParNode : TSubListStatementNode);
        
       var
-      	vlNode : TNodeIdent;
+      	vlNode : TSubListStatementNode;
       
       begin
             _RCodes( vlNode);
              
-            AddNodeToNode(ParNode,vlNode);
-            if ParNode <> nil then ParNode.FinishNode(fNDCreator,true);
+            ParNode.AddNode(vlNode);
             ;
       end;
       
@@ -3709,9 +3712,10 @@ begin
             ;Expect(8);
              
             
+            vlMainCb.fStatements.FinishNode(fNDCreator,true);
             if vlRoutine <> nil then begin
             	 vlRoutine.SetIsDefined;
-            	if vlRoutine.fStatements <> nil then vlRoutine.fStatements.ValidateAfter(fNDCreator);
+            	if (vlRoutine.fStatements <> nil) and (vlMainCb <> vlRoutine) then vlRoutine.fStatements.FinishNode(fNDCreator,true);
             end;
             fNDCreator.fCurrentDefAccess := vlPrvDefAccess;
             fNDCreator.EndIdentNum(vlLevel);
@@ -3980,7 +3984,7 @@ begin
             ;Expect(7);
              
             					   vlRoutine.fStatements := vlPrn;
-            					   if vlPrn <> nil then vlPrn.ValidateAfter(fNDCreator);
+            						vlPrn.FinishNode(fNDCreator,true);
             					   fNDCreator.EndIdent;
             					   WriteResFile;
             

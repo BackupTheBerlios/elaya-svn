@@ -28,7 +28,7 @@ type
 		
 
 		
-		TCallNode=class(TFormulaNode)
+		TCallNode=class(TSubListFormulaNode)
 		private
 			voParCnt      : cardinal;
 			voTLVarNode	  : TTlVarNode;
@@ -73,7 +73,7 @@ type
 			function    CreateCallSec(ParCre:TSecCreator):TCallPoc;
 			function    GetType:TType;override;
 			function    AddNode(ParNode:TNodeIdent):boolean;override;
-			function    AddNodeAndName(ParNode:TNodeIdent;const ParName : string):boolean;
+			function    AddNodeAndName(ParNode:TFormulaNode;const ParName : string):boolean;
 			function    DoCreateSec(ParCre:TSecCreator):boolean;override;
 			function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 			procedure   PrintNode(ParDis:TDisplay);override;
@@ -92,7 +92,7 @@ type
         	procedure	proces(ParCre : TCreator);override;   {TODO IsSubSec?}
 		end;
 		
-		TRoutineNode=class(TNodeIdent)
+		TRoutineNode=class(TSubListStatementNode)
 		private
 			voProcedure      : TRoutine;
 			property  iRoutine : TRoutine read voProcedure write voProcedure;
@@ -236,7 +236,7 @@ type
 			procedure  SetRoutineStates(ParStates : TRoutineStates;ParOn : boolean);
 			procedure  SetRoutineModes(Parmode : TRoutineModes;ParOn : boolean);
 			{Init}
-			procedure CreateVarCBInits(ParCre : TNDCreator;ParNode : TNodeIdent;ParContext : TDefinition);
+			procedure CreateVarCBInits(ParCre : TNDCreator;ParNode : TSubListStatementNode;ParContext : TDefinition);
 			procedure InitVariables(ParFrame : TFrame;ParContext : TDefinition);
 			procedure DoneVariables(ParFrame : TFrame);
 			procedure InitAllVariables;
@@ -318,7 +318,7 @@ type
 			procedure   DoneVariable(ParOwner : TDefinition;ParFrame : TFrame);override;
 			procedure   InitVariable(ParOwner ,ParContext: TDefinition;PArFrame : TFrame);override;
 			constructor Create(const ParName : String;ParFrame:TFrame;ParOffset : TOffset;ParMeta : TMeta;ParType:TType);
-			procedure   CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);override;
+			procedure   CreateCBInit(ParCre : TNDCreator;ParAt : TSubListStatementNode;ParContext : TDefinition);override;
 			function    SaveItem(ParStream:TObjectStream):boolean;override;
 			function    LoadItem(ParStream:TObjectStream):boolean;override;
 		end;
@@ -352,7 +352,7 @@ type
 		iIdentCode := IC_LOcalFrameVar;
 	end;
 	
-	procedure TLocalMetaVar.CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+	procedure TLocalMetaVar.CreateCBInit(ParCre : TNDCreator;ParAt : TSubListStatementNode;ParContext : TDefinition);
 	var
 		vlByPtr : TFormulaNode;
 	begin
@@ -681,7 +681,7 @@ type
 		exit(vlOwn);
 	end;
 	
-	procedure TRoutine.CreateVarCBInits(ParCre : TNDCreator;ParNode : TNodeIdent;ParContext : TDefinition);
+	procedure TRoutine.CreateVarCBInits(ParCre : TNDCreator;ParNode : TSubListStatementNode;ParContext : TDefinition);
 	begin
 		if iParent <> nil then iParent.CreateVarCbInits(ParCre,ParNode,ParContext);
 		GetParList.CreateCBInits(ParCre,ParNode,ParContext);
@@ -1479,9 +1479,9 @@ type
 
 	function  TRoutine.CreatePropertyWriteNode(ParCre : TCreator;ParOwner : TDefinition;ParValue :TFormulaNode):TFormulaNode;
 	var
-		vlNode : TFormulaNode;
+		vlNode : TCallNode;
 	begin
-		vlNode := TFormulaNode(CreateExecuteNode(ParCre,ParOwner));
+		vlNode := TCallNode(CreateExecuteNode(ParCre,ParOwner));
 		vlNode.AddNode(ParValue);
 		exit(vlNode);
 	end;
@@ -1836,7 +1836,7 @@ type
 		ParCre.SetPoc(vlRoutinePoc);
 		iRoutine.fRoutinePoc := vlRoutinePoc;
 		fRoutine.CreateInitProc(ParCre);
-		vlResult := CreatePartsSec(ParCre);
+		vlResult := iParts.CreateSec(ParCre);
 		ParCre.fObjectList := nil;
 		exit(vlResult);
 	end;
@@ -1908,7 +1908,7 @@ type
 						vlDef := nil;
 						exit;
 					end;
-					if (GetPartByNum(1) <> nil) then begin
+					if (iParts.fStart <> nil) then begin
 						TNDCreator(ParCre).AddNodeError(self,Err_Invalid_Parameters,'');
 					end else begin
 						vlDef := TRoutine(vlCur.fParts.fStart);
@@ -1970,7 +1970,7 @@ begin
 		end;
 
 		iRoutineItem.BeforeCall(TNDCreator(ParCre));
-		if (GetPartByNum(1) <> nil) and (not iRoutineItem.IsSameTypeByNode(self)) then	begin
+		if (iParts.fStart <> nil) and (not iRoutineItem.IsSameTypeByNode(self)) then	begin
 			GetRoutineNameStr(vlName);
 			TNDCreator(ParCre).AddNodeError(self,Err_invalid_parameters,vlName);
 		end;
@@ -2241,7 +2241,7 @@ var
 	vlUsed : boolean;
 	vlLi   : TLargeNumber;
 begin
-	if not iIsProcessed then begin writeln(iRoutineItem.GetErrorName); runerror(3);  end;
+	if not iIsProcessed then begin writeln(fLine,'-',iRoutineItem.GetErrorName); runerror(3);  end;
 
 	DoInitDotFrame(ParCre);
 	vlUSed := false;
@@ -2281,7 +2281,7 @@ begin
 	vlCallGroup1.fGroupEnd := vlCallGroup2;
 	vlcallGroup2.fGroupBegin := vlCallGroup1;
 	ParCre.AddSec(vlCallGroup1);
-	CreatePartsSec(Parcre);
+	iParts.CreateSec(Parcre);
    vlMac := iCallAddress.CreateMac(MCO_Result,ParCre);
 	if iCallAddress is TFormulaNode then begin
 		vlType := TFormulaNode(iCallAddress).GetType;
@@ -2299,8 +2299,9 @@ end;
 
 
 
-function  TCallNode.AddNodeAndName(ParNode:TNodeIdent;const ParName : string):boolean;
-var vlPnd:TParamNode;
+function  TCallNode.AddNodeAndName(ParNode:TFormulaNode;const ParName : string):boolean;
+var
+	vlPnd:TParamNode;
 begin
 	iParCnt := iParCnt + 1;
 	AddNodeAndName := false;
@@ -2308,14 +2309,14 @@ begin
 	vlPnd.SetPosToNode(ParNode);
 	if length(ParName) > 0 then vlPnd.SetName(ParName);
 	if Inherited AddNode(vlPnd) then AddNodeAndName := true;
-	if vlPnd.AddNode(ParNode)  then AddNodeAndName := true;
+	vlPnd.SetExpression(ParNode);
 end;
 
 
 
 function  TCallNode.AddNode(ParNode:TNodeIdent):boolean;
 begin
-	exit(AddNodeAndName(ParNode,''));
+	exit(AddNodeAndName(TFormulaNode(ParNode),''));
 end;
 
 

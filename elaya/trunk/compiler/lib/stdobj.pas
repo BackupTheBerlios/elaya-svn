@@ -44,10 +44,6 @@ public
 end;
 
 TRoot=class(TBRoot)
-	{$ifdef MEMLEAK}
-	constructor create;
-	destructor Destroy;override;
-	{$endif}
 	{$ifdef malloc}
 	class function NewInstance : tobject;override;
 	procedure FreeInstance;override;
@@ -233,20 +229,6 @@ uses memleak;
 
 {---( TRoot )---------------------------------------------------}
 
-{$ifdef MEMLEAK}
-constructor TRoot.Create;
-begin
-	inherited create;
-	IncInits(className);
-end;
-
-destructor TRoot.Destroy;
-begin
-	inherited Destroy;
-	IncDones(ClassName);
-end;
-{$endif}
-
 {$ifdef malloc}
 function CMalloc(ParSize : longint):pointer;cdecl;external 'libc.so' name 'malloc';
 function CFree(ParPtr: pointer):longint;cdecl;external 'libc.so' name 'free';
@@ -295,6 +277,9 @@ function TRoot.NewInstance : tobject;
 var
 	vlPtr : pointer;
 begin
+	{$ifdef memleak}
+	IncInits(className);
+	{$endif}
 	vlPtr := int_Malloc(InstanceSize);
 	if(vlPtr <> nil) then InitInstance(vlPtr);
 	exit(TObject(vlPtr));
@@ -302,6 +287,9 @@ end;
 
 procedure TRoot.FreeInstance;
 begin
+	{$ifdef memleak}
+	IncDones(classname);
+	{$endif}
 	CleanupInstance;
 	int_free(pointer(self),InstanceSize);
 end;

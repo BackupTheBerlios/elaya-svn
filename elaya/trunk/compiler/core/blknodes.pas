@@ -3,7 +3,7 @@ interface
 uses display,node,pocObj,useitem;
 type
 
-TBlockNode=class(TNodeIdent)
+TBlockNode=class(TSubListStatementNode)
 	public
 		procedure Print(ParDis : TDisplay);override;
 		function CreateSec(ParCre : TSecCreator):boolean;override;

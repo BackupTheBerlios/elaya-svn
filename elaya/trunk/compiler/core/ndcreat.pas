@@ -163,7 +163,6 @@ type
 		procedure ProcessCompOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParCode	     : TIdentCode);
 		procedure ProcessSingleOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParOperObj   : TRefNodeIdent);
 		procedure ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : string;ParNode : TRefNodeIdent);
-		function  AddNodeTONode(ParNode1 : TNodeIDent;var ParNode2:TNodeIdent):boolean;
 		function  CreateIntNode(ParNum : TNumber) : TNodeIdent;{TODO CreateNumberNode}
 		function  CreateIntNodeLong(ParNUm : cardinal) : TNodeIdent;
 		procedure SetNodePos(ParNode : TNodeIdent);
@@ -303,12 +302,12 @@ end;
 
 procedure TNDCreator.ProcessSingleOperator(ParNewPar : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParOperObj   : TRefNodeIdent);
 begin
-	TEla_user(fCompiler).ProcessSingleOperator(ParNewPar,ParPrvPar,ParOprStr,ParOperObj);
+	TEla_user(fCompiler).ProcessSingleOperator(ParNewPar,ParPrvPar,ParOprStr,TSingelOperatorNodeClass(ParOperObj));
 end;
 
 procedure TNDCreator.ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : string;ParNode : TRefNodeIdent);
 begin
-	TEla_User(fCompiler).ProcessDualOperator(ParSource,ParOut,ParOperStr,ParNode);
+	TEla_User(fCompiler).ProcessDualOperator(ParSource,TSubListOperatorNode(ParOut),ParOperStr,ParNode);
 end;
 
 function TNDCreator.MakeLoadNode(ParSource,ParDest : TFormulaNode) : TFormulaNode;
@@ -350,22 +349,6 @@ procedure TNDCreator.SetNodePos(ParNode : TNodeIdent);
 begin
 	if ParNode <> nil then  ParNode.SetPos(fCompiler.line,fCompiler.col,fCompiler.pos);
 end;
-
-function  TNDCreator.AddNodeTONode(ParNode1 : TNodeIDent;var ParNode2:TNodeIdent):boolean;
-begin
-	AddNodeToNode := false;
-	if ParNode2 <> nil then begin
-		if ParNode1 <> nil then begin
-			AddNodeToNode := ParNode1.AddNode(ParNode2);
-			SetNodePos(ParNode2);
-		end else begin
-			ParNode2.Destroy;
-			ParNode2 := nil;
-		end;
-	end;
-end;
-
-
 
 function  TNDCreator.FindRoutineByDef(ParRoutine:TDefinition;var ParOwner,ParCB:TDefinition): TCFoundResult;
 var vlDef   : TDefinition;

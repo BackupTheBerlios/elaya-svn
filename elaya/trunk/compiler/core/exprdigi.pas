@@ -382,8 +382,7 @@ var
 begin
 	vlResult := nil;
 	if ParNode <> nil then begin
-		vlResult := TTypeNode.Create(TType(iCastIdent));
-		vlResult.AddNode(ParNode);
+		vlResult := TTypeNode.Create(TType(iCastIdent),ParNode);
 		SetNodePos(vlResult);
 	end;
 	exit(vlResult);
@@ -462,7 +461,10 @@ var
 	vlNode : TFormulaNode;
 begin
 	vlNode := nil;
-	if iExprL <> nil then vlNode := iExprL.CreateObjectPointerOfNode(ParCre); {TODO : CreateValuePointer of(hernoem classe)}
+	if iExprL <> nil then begin
+		vlNode := iExprL.CreateObjectPointerOfNode(ParCre); {TODO : CreateValuePointer of(hernoem classe)}
+		setnodepos(vlNode);
+	end;
 	exit(vlNode);
 end;
 
@@ -522,8 +524,7 @@ begin
 	vlNode := nil;
 	if iExprL <> nil then begin
 		vlExpr := iExprL.CreateReadNode(ParCre);
-		vlNode := TSizeOfNode.Create;
-		vlNode.AddNode(vlExpr);
+		vlNode := TSizeOfNode.Create(vlExpr);
 		SetNodePos(vlNode);
 	end;
 	exit(vlNode);
@@ -543,7 +544,7 @@ begin
 	iExprL := ParExprL;
 end;
 
-{---( TArrayDigiList )---------------------------------------------------------}
+{---( jTArrayDigiList )---------------------------------------------------------}
 
 procedure TArrayDigiList.AddItem(ParNode : TFormulaNode);
 begin
@@ -592,11 +593,10 @@ var
 begin
 	vlNode := nil;
 	if iExprL <> nil then begin
-		vlNode := TArrayIndexNode.Create;
-		SetNodePos(vlNode);
 		vlBase := iExprL.CreateReadNode(ParCre);
-		vlNode.SetBase(ParCre,vlBase);
+		vlNode := TArrayIndexNode.Create(vlBase);
 		iList.AddIndexExprToNode(ParCre,vlNode);
+		SetNodePos(vlNode);
 	end;
 	exit(vlNode);
 end;
@@ -623,8 +623,7 @@ begin                              {TODO what to fold in CreateExecuteNode?}
 					TCallNode(vlNode2).SetCallAddress(PARCRE,vlNode);
 					TCallNode(vlNode2).fFrame := TRoutineType(vlType).fPushedFrame;
 				end else begin
-					vlNode2 := TByPtrNode.Create;
-					vlNode2.AddNode(vlNode);
+					vlNode2 := TByPtrNode.Create(vlNode);
 				end;
 				SetNodePos(vlNode2);
 			end else begin
@@ -815,6 +814,7 @@ end;
 function TIdentDIgiItem.CreateDotWriteNode(ParCre : TNDCreator;ParLeft : TFormulaNode;ParFrom : TDigiItem):TFormulaNode;
 var
 	vlNode : TFormulaNode;
+	vlFailed : TFailedNode;
 begin                    {TODO: SetPos wrong position is set after loadnode}
 	PreCreate(ParCre);
 	vlNode := nil;
@@ -823,8 +823,9 @@ begin                    {TODO: SetPos wrong position is set after loadnode}
 			vlNode := TFormulaNode(iItem.CreateWriteDotNode(ParCre,ParLeft,ParFrom.CreateReadNode(ParCre),iOwner));
 		end;
 	end else begin
-		vlNode := TFailedNode.Create;
-		vlNode.AddNode(ParLeft);
+		vlFailed := TFailedNode.Create;
+		vlFailed.AddNode(ParLeft);
+		vlNode := vlFailed;
 	end;
 	SetNodePos(vlNode);
 	exit(vlNode);
@@ -1019,6 +1020,7 @@ begin
 	vlNode := CreateReadNode(ParCre); {TODO : CreateValuePointer of(hernoem classe)}
 	vlExpr := nil;
 	if vlNode <> nil then begin
+
 		vlExpr := vlNode.CreateObjectPointerOfNode(ParCre);
 		if(vlExpr = nil) then begin
 			vlNode.Destroy;
@@ -1244,15 +1246,15 @@ begin
 		if(vlByName) then begin
 			if not(vlCurrent.HasName) then ParCre.AddNodeError(vlNode,Err_Must_Pass_By_name,'Parameter '+IntToStr(vlParCnt));
 			if not vlIsCallNode then begin
-				 ParCre.AddNodeError(vlNode,Err_Symbol_Not_Expected,'>>');
-             ParNode.AddNode(vlNode);
+				ParCre.AddNodeError(vlNode,Err_Symbol_Not_Expected,'>>');
+				vlNode.Destroy;
 			end else begin
 				vlCurrent.GetName(vlName);
 				TCallNode(ParNode).AddNodeAndName(vlNode,vlName);
 			end;
 		end else begin
  			if vlCurrent.HasName  then ParCre.AddNodeError(vlNode,Err_Must_Not_Pass_By_Name,'Parameter '+IntToStr(vlParCnt));
-			ParNode.AddNode(vlNode);
+			TCallNode(ParNode).AddNode(vlNode);
 		end;
 		vlCurrent := THookDigiItem(vlCurrent.fNxt);
 	end;

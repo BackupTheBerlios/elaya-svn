@@ -32,7 +32,7 @@ type
 	public
 		function  GetAccessSize:TSize;virtual;
 		function  CreateDB(ParCre:TCreator):boolean; override;
-		procedure CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);virtual;
+		procedure CreateCBInit(ParCre : TNDCreator;ParAt : TSubListStatementNode;ParContext : TDefinition);virtual;
 	end;
 	TLocalVar=class(TProcVar)
 	protected
@@ -104,7 +104,7 @@ type
 		procedure  InitParameter(ParOwner : TDefinition);virtual;
    	procedure  SetOffset(ParOffset :TOffset);
 		function   GetVar2Type : TTYpe;
-		procedure  ProduceMappingCbInit(ParAt : TNodeIdent;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
+		procedure  ProduceMappingCbInit(ParAt : TSubListStatementNode;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
 
 	end;
 	
@@ -197,15 +197,19 @@ type
 	private
 		voName  : TString;
 		voParam : TParameterVar;
+		voNode  : TFormulaNode;
 	protected
 		property iParam : TParameterVar read voParam write voParam;
 		property iName  : TString   read voName  write voName;
+		property iNode  : TFormulaNode read voNode write voNode;
 		procedure   COmmonsetup;override;
-
+		procedure   clear;override;
 	public
 		property    fParam :TParameterVar read voParam write voParam;
 		
 		function    GetOffset : TOffset;
+
+		procedure   SetExpression(ParNode : TFormulaNode);
 		procedure   GetNameStr(var ParName : string);
 		function    GetPosition : cardinal;
 		function    IsSameName(const ParParam : TParameterVar):boolean;
@@ -221,9 +225,9 @@ type
 		procedure   ValidatePre(ParCre:TCreator;ParIsSec : boolean);override;
 		function    IsPushByRef:boolean;
 		procedure   SoftEmptyParameter;
-		destructor  Destroy;override;
 		function    GetParameterVarType:TType;
 		function    IsCallByName : boolean;
+      procedure   Proces(ParCre : TCreator);override;
 		procedure   ValidateAfter(ParCre : TCreator);override;
 		function    IsCompWithType(ParType :TType):boolean;override;
 		function	 CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
@@ -276,7 +280,7 @@ type
 
 		{ Code Generation}
 		
-		procedure CreateCBInits(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+		procedure CreateCBInits(ParCre : TNDCreator;ParAt : TSubListStatementNode;ParContext : TDefinition);
 		
 		{Parameter comparing}
 	   function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
@@ -343,7 +347,7 @@ type
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
 		procedure   SetIsInherited;virtual;
 		procedure   ConnectToParent(ParCre : TCreator;ParParam : TParameterVar);virtual;
-		procedure   CreateCBInit(ParAt : TNodeIdent;PArCre : TNDCreator;ParContext : TDefinition);virtual;
+		procedure   CreateCBInit(ParAt : TSubListStatementNode;PArCre : TNDCreator;ParContext : TDefinition);virtual;
 		procedure   Print(ParDis : TDisplay);
 		function    IsAutomatic : boolean; virtual;
 		procedure   GetMappingText(var ParText : string);virtual;
@@ -360,7 +364,7 @@ type
 		property iMacOption    : TMappingOption read voMacOption write voMacOption;
 	public
 		constructor Create(ParDef : TVarBase;ParContextLevel : cardinal;ParOrgOwner : TDefinition;ParOption:TMappingOption);
-		procedure   CreateCBInit(ParAt : TNodeIdent;PArCre : TNDCreator;ParContext : TDefinition);override;
+		procedure   CreateCBInit(ParAt : TSubListStatementNode;PArCre : TNDCreator;ParContext : TDefinition);override;
 		procedure   ConnectToParent(ParCre : TCreator;ParParam : TParameterVar);override;
 		function    SaveItem(parWrite:TObjectStream):boolean;override;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
@@ -409,7 +413,7 @@ type
 		function  IsSameKind(ParList : TProcParList) : boolean;
 		procedure ConnectToParent(ParCre : TCreator;ParParams : TProcParList;ParParent : TParameterMappingList);
 		procedure CheckParametersAddress(ParCre : TCreator);
-		procedure CreateCBinit(ParAt : TNodeIdent;ParCre : TNDCreator;ParDestContext : TDefinition);
+		procedure CreateCBinit(ParAt : TSubListStatementNode;ParCre : TNDCreator;ParDestContext : TDefinition);
 		function  IsSameMapping(ParMapping : TParameterMappingList) : boolean;
 		procedure Print(ParDis : TDIsplay);
 		constructor Create(ParOwner : TDefinition);
@@ -462,7 +466,7 @@ begin
 	exit((vlCurrent1 = nil) and (vlCurrent2 = nil));
 end;
 
-procedure TParameterMappingList.CreateCBinit(ParAt : TNodeIdent;ParCre : TNDCreator;ParDestContext : TDefinition);
+procedure TParameterMappingList.CreateCBinit(ParAt : TSubListStatementNode;ParCre : TNDCreator;ParDestContext : TDefinition);
 var vlCurrent : TParameterMappingItem;
 begin
 	if iParent <> nil then iParent.CreateCBInit(ParAt,ParCre,ParDestContext);
@@ -639,13 +643,12 @@ end;
 
 
 
-procedure TDefinitionParameterMappingItem.CreateCBInit(ParAt : TNodeIdent ; PArCre : TNDCreator;ParContext : TDefinition);
+procedure TDefinitionParameterMappingItem.CreateCBInit(ParAt : TSubListStatementNode ; PArCre : TNDCreator;ParContext : TDefinition);
 var
 	vlCOntext : TDefinition;
 	vlBase    : TRoutine;
 	vlLevel   : cardinal;
 	vlSource  : TFormulaNode;
-   vlTemp    : TFormulaNode;
 begin
 	if (iParentParam <> nil) and (iDefinition <> nil)  then begin
 		vlBase := TRoutine(ParContext);
@@ -661,11 +664,7 @@ begin
 			vlSource := TFormulaNode(iDefinition.CreateReadNode(ParCre,vlContext));
 			case iMacOption of
 				MO_ObjectPointer:	vlSource := vlSource.CreateObjectPointerOfNode(ParCre);
-			   MO_ByPointer:begin
-					vlTemp := vlSource ;
-					vlSource := TByPtrNode.Create;
-		         vlSource.AddNode(vlTemp);
-				end;
+			   MO_ByPointer:vlSource := TByPtrNode.Create(vlSource);
 			end;
 			iParentParam.ProduceMappingCBInit(ParAt,ParCre,ParContext,vlSource)
 	end;
@@ -786,7 +785,7 @@ begin
 	exit((ParMapping <> nil) and (ClassType = ParMapping.ClassType));
 end;
 
-procedure TParametermappingItem.CreateCBInit(ParAt : TNodeIdent;ParCre : TNDCreator;ParContext : TDefinition);
+procedure TParametermappingItem.CreateCBInit(ParAt : TSubListStatementNode ;ParCre : TNDCreator;ParContext : TDefinition);
 begin
 end;
 
@@ -1089,7 +1088,7 @@ begin
 end;
 
 
-procedure TProcParList.CreateCBInits(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+procedure TProcParList.CreateCBInits(ParCre : TNDCreator;ParAt : TSubListStatementNode ;ParContext : TDefinition);
 var vlCurrent : TProcVar;
 begin
 	vlCurrent :=  TProcVar(fStart);
@@ -1798,7 +1797,7 @@ begin
 	vlVar  := TTLVarNode.Create(fType);
 	ParTTL := vlVar;
 	vlVar.fContext := ParContext;
-	vlNode.AddNode(vlVar);
+	vlNode.SetExpression(vlVar);
 	exit(vlNode);
 end;
 
@@ -1818,20 +1817,24 @@ end;
 
 procedure TParamNode.ConvertNode(ParCre : TCreator);
 var
-	vlNode : TFormulaNode;
 	vlNew  : TFormulaNode;
 begin
-	vlNode := TFormulaNode(iParts.fStart);
-	if (vlNode <> nil) and (fParam <>nil) then begin
-		if vlNode.ConvertNodeType(fParam.fType,ParCre,vlNew) then begin
+	if (iNode <> nil) and (fParam <>nil) then begin
+		if iNode.ConvertNodeType(fParam.fType,ParCre,vlNew) then begin
 			if (vlNew <> nil) then begin
-				iParts.DeleteLink(vlNode);
-				iParts.InsertAtTop(vlNew);
+				iNode.Destroy;
+				iNode := vlNew;
 			end;
 		end;
 	end;
 end;
 
+
+procedure TParamNode.Proces(ParCre : TCreator);
+begin
+	inherited Proces(ParCre);
+	if iNode <> nil then iNode.Proces(ParCre);
+end;
 
 procedure  TParamNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 var
@@ -1841,29 +1844,23 @@ begin
 	if(fParam <> nil) then begin
 		vlMode := AM_Read;
 		if fParam.fTranType =PV_Var then vlMode := AM_Silent_Read_Write;
-		iParts.ValidateDefinitionUse(ParCre,vlMode,ParUseList);
+		if iNode <>nil then iNode.ValidateDefinitionUse(ParCre,vlMode,ParUseList);
 	end;
 end;
 
 function  TParamNode.IsCompWithType(ParType :TType):boolean;
-var
-	vlPart : TFormulaNode;
 begin
-	vlPart := TFormulaNode(iParts.fStart);
-	if vlPart <> nil then begin
-		exit(vlPart.IsCompWithType(ParType));
+	if iNode <> nil then begin
+		exit(iNode.IsCompWithType(ParType));
 	end;
 	exit(false);
 end;
 
 
 function TParamNode.CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;
-var
-	vlPart :TFormulaNode;
 begin
-	vlPart := TFormulaNode(iParts.fStart);
-	if vlPart <> nil then begin
-		exit(vlPart.CanWriteTo(ParExact,ParType));
+	if iNode <> nil then begin
+		exit(iNode.CanWriteTo(ParExact,ParType));
 	end;
 	exit(false);
 end;
@@ -1888,9 +1885,8 @@ begin
 	inherited ValidateAfter(ParCre);
 	if fParam <> nil then begin
 		vlType := fParam.fType;
-		vlNode := TFormulaNode(iParts.fStart);
-		if (vlType <> nil) and (vlNode <> nil)  then begin
-			if vlNode.fNxt = nil then vlNode.ValidateConstant(ParCre,@vlType.ValidateConstant);
+		if (vlType <> nil) and (iNode <> nil)  then begin
+			iNode.ValidateConstant(ParCre,@vlType.ValidateConstant);
 		end;
 	end;
 end;
@@ -1917,19 +1913,26 @@ begin
 	exit(iName.IsEqualStr(ParName));
 end;
 
-destructor TParamNode.Destroy;
-begin
-	inherited Destroy;
-	if iName <> nil then iName.Destroy;
-end;
-
 procedure  TParamNode.COmmonsetup;
 begin
 	inherited Commonsetup;
 	iIdentCode := (IC_ParamNode);
 	iName      := nil;
 	iComplexity := CPX_Variable;
+	iNode := nil;
 	if IsPushByRef then iComplexity := CPX_Pointer;
+end;
+
+procedure TParamNode.Clear;
+begin
+	inherited Clear;
+	if iNode <> nil then iNode.Destroy;
+end;
+
+procedure  TParamNode.SetExpression(ParNode : TFormulaNode);
+begin
+	if iNode <> nil then runerror(1);{TODO make fatal error}
+	iNode := ParNode;
 end;
 
 function  TParamNode.IsSameName(const ParParam : TParameterVar):boolean;
@@ -1991,7 +1994,7 @@ begin
 	end;
 	if vlMac = nil then begin
 		if fParam.fRefMainVar then vlMode := MCO_ValuePointer;
-		if iParts.fStart <> nil then vlMac := TFormulaNode(iParts.fStart).CreateMac(vlMode,ParCre);
+		if iNode <> nil then vlMac := iNode.CreateMac(vlMode,ParCre);
 	end;
 	vlPush := TSetParPoc.create(vlMac);
 	ParCre.AddSec(vlPush);
@@ -2006,8 +2009,8 @@ end;
 
 function TParamNode.GetType:TType;
 begin
-	if iParts.fStart <> nil then begin
-		exit( TFormulaNode(iParts.fStart).GetType);
+	if iNode <> nil then begin
+		exit( iNode.GetType);
 	end else begin
 		exit(nil);
 	end;
@@ -2015,7 +2018,8 @@ end;
 
 procedure   TParamNode.SoftEmptyParameter;
 begin
-	iParts.SoftEmptyList;
+	iNode.Destroy;
+	iNode := nil;
 end;
 
 
@@ -2029,6 +2033,7 @@ var
 	vlName2     : string;
 begin
 	inherited ValidatePre(ParCre,ParIsSec);
+	if iNode <> nil then iNode.ValidatePre(ParCre,ParIsSec);
 	vlType := GeTParameterVarType;
 	if fParam = nil       then exit;
 	if fParam.IsAutomatic then exit;
@@ -2036,7 +2041,7 @@ begin
 		vlOtherType := GetType;
 		if vlOtherType = nil then exit;
 		vlPass      := IsPushByRef;
-		if (GetTranType = pv_var) and not(TFormulaList(iParts).Can([CAN_Write])) then begin
+		if (GetTranType = pv_var) and not(iNode.Can([CAN_Write])) then begin
 			TNDCreator(ParCre).AddNodeError(self,Err_Cant_Write_To_Item,'Expression at parameter :'+fParam.GetErrorName);
 		end;
 		if not(fParam.IsCOmpWithParamExprType(vlPass,vlOtherType)) then begin
@@ -2044,8 +2049,10 @@ begin
 				vlName2 := vlType.GetErrorName;
 				TNDCreator(ParCre).AddNodeError(self,Err_Wrong_Type,'Expression of type '+vlName+' at parameter :'+fParam.GetErrorName+', wich has type '+vlName2);
 		end;
-		if not(TFormulaList(iParts).Can([CAN_Read])) then begin
-			TNDCreator(ParCre).AddNodeError(self,Err_Cant_Read_From_Expr,'Expression at parameter :'+fParam.GetErrorName);
+		if iNode<> nil then begin
+			if not(iNode.Can([CAN_Read])) then begin
+				TNDCreator(ParCre).AddNodeError(self,Err_Cant_Read_From_Expr,'Expression at parameter :'+fParam.GetErrorName);
+			end;
 		end;
 	end;
 end;
@@ -2061,20 +2068,25 @@ end;
 
 procedure TParamNode.PrintNode(ParDis:TDisplay);
 begin
-	ParDis.write('Param ');
+	ParDis.write('<Param>');
+	ParDis.Write('<postition>');
 	ParDis.Write(GetPosition);
-	if IsCallByName then ParDis.Write(iName);
-	ParDis.SetLeftmargin(3);
-	iParts.Print(ParDis);
-	ParDis.SetLeftMargin(-3);
-	ParDis.nl;
-	ParDis.Write('End param');
+	ParDis.Write('</position>');
+	if IsCallByName then begin
+		ParDis.Write('<name>');
+		ParDis.Write(iName);
+		ParDis.Write('</name>');
+	end;
+	ParDis.Write('<expression>');
+	printIdent(ParDis,iNode);
+   ParDis.Write('</expression>');
+	ParDis.WriteNl('</param>');
 end;
 
 {---( TProcVar )----------------------------------------------------}
 
 
-procedure TProcVar.CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+procedure TProcVar.CreateCBInit(ParCre : TNDCreator;ParAt : TSubListStatementNode ;ParContext : TDefinition);
 begin
 end;
 
@@ -2140,15 +2152,14 @@ end;
 {------( TParameterVar )-----------------------------------------------}
 
 
-procedure TParameterVar.ProduceMappingCbInit(ParAt : TNodeIdent;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
+procedure TParameterVar.ProduceMappingCbInit(ParAt : TSubListStatementNode;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
 var
 	vlNode   : TNodeIdent;
 	vlSource : TFormulaNode;
 begin
 	if iSecondVar <> nil then begin
          if iRefVar2 then begin
-				vlSource := TValuePointerNode.Create;
-            vlSource.AddNode(ParSource);
+				vlSource := TValuePointerNode.Create(ParSource);
 			end else begin
 				vlSource := ParSource;
 			end;

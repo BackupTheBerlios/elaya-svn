@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elaya language;
+	{    Elaya, the compiler for the elaya language;
 Copyright (C) 1999-2003  J.v.Iddekinge.
 web : www.elaya.org
 
@@ -143,7 +143,6 @@ type
 		function    GetOrgType:TType;virtual;
 		function    GetSize:TSize;
 		function    IsDominant(ParForm:TFormulaNode):TDomType;virtual;
-		procedure   InitParts;override;
 		function    GetTypeDefault:TDefaultTypeCode;
 		function    IsConstant : boolean;virtual;
 		function    GetValue : TValue;virtual;
@@ -157,8 +156,8 @@ type
 		function    CanCastTo(ParType : TType):boolean;
 		function    ConvertNodeType(ParType : TType;ParCre : TCreator;var Parnode : TFormulaNode):boolean;virtual;
 		function    IsLikeType(const ParTypeClass : TTypeClass) : boolean;
-		procedure   DetermenComplexity;
-		procedure   OptimizeCpx;
+		procedure   DetermenComplexity;virtual;
+		procedure   OptimizeCpx;virtual;
 		procedure  Optimize(ParCre : TCreator);override;
 		function   Optimize1(ParCre : TCreator):boolean;virtual;
 		function   OptimizeForm(ParCre :TCreator;var ParRepl : TFormulaNode):boolean;
@@ -169,7 +168,6 @@ type
 		procedure ValidateAfter(ParCre : TCreator);override;
 		function   IsMinimum(ParValue : TValue):boolean;
 		function   IsMaximum(ParValue : TValue):boolean;
-		function   GetFirstSubNode : TFormulaNode;
 		function   RecordReadCheck : boolean;
 		procedure Proces(ParCre :TCreator);override;
     	function CanSec:boolean;virtual;
@@ -180,11 +178,36 @@ type
 		function  GetDefinition : TDefinition;virtual;
 end;
 
+
+	TSubListFormulaNode=class(TFormulaNode)
+	private
+		voParts	 :  TFormulaList;
+	protected
+		property iParts : TFormulaList read voParts write voParts;
+		procedure InitParts;virtual;
+      procedure clear;override;
+		procedure commonsetup;override;
+	public
+		property fParts     : TFormulaList read voParts;
+
+		procedure Proces(ParCre : TCreator);override;
+		procedure Optimize(ParCre :TCreator);override;
+		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
+		procedure ValidateAfter(ParCre : TCreator);override;
+		function   AddNode(ParPart:TNodeIdent):boolean;virtual;
+		procedure OptimizeCpx; override;
+		function  AddNodes(const ParNodes : array of TNodeIdent):boolean;
+		function  Optimize1(ParCre:TCreator):boolean;override;
+		procedure   DetermenComplexity;override;
+   end;
+
+
+
 	TErrorFormulaNode=class(TFormulaNode)
 		function    CAN(ParCan:TCan_Types):boolean;override;
 	end;
 
-	TFailedNode=class(TFormulaNode);
+	TFailedNode=class(TSubListFormulaNode);
 	TValueNode=class(TFormulaNode);
 		
 		
@@ -193,6 +216,101 @@ end;
 	
 	
 	uses ndcreat,execobj;
+
+{----( TSubListFormuleNode )----------------------------------------------------------------------}
+
+
+procedure TSubListFormulaNode.DetermenComplexity;
+var
+	vlCpx  : cardinal;
+begin
+	vlCpx := iParts.DetermenComplexity;
+	if vlCpx > iComplexity then iComplexity := vlCpx;
+end;
+
+function  TSublistFormulaNode.AddNodes(const ParNodes : array of TNodeIdent):boolean;
+var vlError : boolean;
+	vlCnt   : cardinal;
+begin
+	vlError := false;
+	vlCnt   := 0;
+	while vlCnt <= high(ParNodes) do begin
+		if (ParNodes[vlCnt] <> nil) then begin
+			if  AddNode(ParNodes[vlCnt]) then vlError := true;
+		end;
+		inc(vlCnt);
+	end;
+	exit(vlError);
+end;
+
+
+
+procedure TSublistFormulaNode.Commonsetup;
+begin
+	InitParts;
+	inherited Commonsetup;
+end;
+
+procedure TSublistFormulaNode.Clear;
+begin
+	inherited Clear;
+	if iParts <> nil then iParts.Destroy;
+end;
+
+procedure TSublistFormulaNode.InitParts;
+begin
+	iParts := TFormulaList.Create;
+end;
+
+procedure TSublistFormulaNode.Proces(ParCre : TCreator);
+begin
+	fParts.Proces(ParCre);
+	inherited Proces(ParCre);
+end;
+
+procedure TSublistFormulaNode.Optimize(ParCre :TCreator);
+begin
+	iParts.Optimize(ParCre);
+	inherited Optimize(ParCre);
+	iParts.Proces(ParCre);
+end;
+
+procedure TSublistFormulaNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
+begin
+	iParts.ValidatePre(ParCre,IsSubNodesSec);
+end;
+
+procedure TSublistFormulaNode.ValidateAfter(ParCre : TCreator);
+begin
+	iParts.ValidateAfter(ParCre);
+end;
+
+function TSublistFormulaNode.AddNode(ParPart:TNodeIdent):boolean;
+begin
+	if ParPart <> nil then begin
+		exit(iParts.AddNode(ParPart));
+	end else begin
+		exit(true);
+	end;
+end;
+
+	
+	procedure TSubListFormulaNode.OptimizeCpx;
+	begin
+		DetermenComplexity;
+		if om_complexity in TFormulaList(iParts).fOptimizeMethods then TFormulaList(iParts).OptimizeCpx;
+	end;
+
+
+	function TSublistFormulaNode.Optimize1(ParCre : TCreator):boolean;
+	var vlOpt : boolean;
+	begin
+		vlOpt := false;
+		while iParts.Optimize1(ParCre) do vlOpt := true;
+		exit(vlOpt);
+	end;
+
+
 
 	{----(TErrorFormulaNode )---}
 
@@ -248,8 +366,7 @@ end;
 	var
 		vlByPtr : TFormulaNode;
 	begin
-		vlByPtr := TValuePointerNode.Create;
-		vlByPtr.AddNode(CreateReadNode(ParCre,ParParent));
+		vlByPtr := TValuePointerNode.Create(CreateReadNode(ParCre,ParParent));
 		exit(vlByPtr);
 	end;
 	
@@ -315,10 +432,6 @@ end;
 		exit(false);
 	end;
 
-	function TFormulaNode.GetFirstSubNode : TFormulaNode;
-	begin
-		exit(TFormulaNode(fParts.fStart));
-	end;
 
 	function TFormulaNode.IsMinimum(ParValue : TValue):boolean;{TODO return ERROR when type =nil}
 	var
@@ -344,7 +457,6 @@ end;
 
 	function  TFormulaNode.CreateObjectPointerOfNode(ParCre : TCreator) : TFormulaNode;
 	begin
-		if not  Can([CAN_Pointer]) then TNDCreator(ParCre).AddNodeError(self,Err_Cant_Get_Expr_Pointer,'');
 		exit(TObjectPointerNode.Create(self,nil));
 	end;
 	
@@ -375,15 +487,11 @@ end;
 	procedure TFormulaNode.OptimizeCpx;
 	begin
 		DetermenComplexity;
-		if om_complexity in TFormulaList(iParts).fOptimizeMethods then TFormulaList(iParts).OptimizeCpx;
 	end;
 	
 	function TFormulaNode.Optimize1(ParCre : TCreator):boolean;
-	var vlOpt : boolean;
 	begin
-		vlOpt := false;
-		while TFormulaList(iParts).Optimize1(ParCre) do vlOpt := true;
-		exit(vlOpt);
+		exit(false);
 	end;
 	
 	procedure  TFormulaNode.Optimize(ParCre : TCreator);
@@ -559,14 +667,8 @@ end;
 
 function    TFormulaNode.IsCompByIdentCode(ParCode : TIdentCode):boolean;
 begin
-	IsCompByIdentcode := false;
-	if GetType <> nil then 	IsCompByIdentCode := GetType.IsCompByIdentCode(ParCode);
-end;
-
-
-procedure TFormulaNode.InitParts;
-begin
-	iParts := TFormulaList.Create;
+	if GetType = nil then exit(false);
+	exit(GetType.IsCompByIdentCode(ParCode));
 end;
 
 
@@ -664,15 +766,11 @@ begin
 end;
 
 procedure TFormulaNode.DetermenComplexity;
-var vlCpx  : cardinal;
 begin
-	vlCpx := TFormulaList(iParts).DetermenComplexity;
-	if vlCpx > iComplexity then iComplexity := vlCpx;
 end;
 
 procedure TFormulaNode.ValidateAfter(ParCre : TCreator);
 begin
-	TFormulaList(iParts).ValidateAll(ParCre,GetType);
 end;
 
 {----( TType )---------------------------------------------------}
@@ -785,7 +883,7 @@ end;
 
 function TType.IsCompByIdentCode(ParCode : TIdentCode):boolean;
 begin
-	IsCompByIdentCode:= fIdentCode = ParCode;
+	exit(fIdentCode = ParCode);
 end;
 
 
@@ -793,7 +891,7 @@ function    TType.CreateReadNode(parCre:TCreator;ParContext : TDefinition):TForm
 var
 	vlNode : TFormulaNode;
 begin
-	vlNode := TTypeNode.Create(self);
+	vlNode := TTypeNode.Create(self,nil);
 	vlNode.fContext := ParContext;
 	exit(vlNode);
 end;
@@ -886,8 +984,8 @@ end;
 function TType.SaveItem(ParWrite:TObjectStream):boolean;
 begin
 	SaveITem := true;
-	if inherited SaveItem(ParWrite)      then exit;
-	if ParWrite.WriteLong(fSize)	     then exit;
+	if inherited SaveItem(ParWrite)             then exit;
+	if ParWrite.WriteLong(fSize)	              then exit;
 	if ParWrite.Writelong(cardinal(fDefault))   then exit;
 	SaveItem := false;
 end;

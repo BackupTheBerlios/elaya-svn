@@ -50,18 +50,15 @@ end;
 
 TNodeident=class(TIdentBase)
 private
-	voParts : TNodeList;
 	voLine  : cardinal;
 	voCol   : cardinal;
 	voPos   : cardinal;
 	voCanDelete : boolean;
 	voIdentCOde : TNodeIdentCode;
 protected
-	property iParts : TNodeList read voParts write voParts;
 	procedure CommonSetup;override;
 	property  iIdentCode : TNodeIdentCode read voIdentCode write voIdentCode;
 public
-	property fParts     : TNodeList read voParts;
 	property fCanDelete : boolean   read voCanDelete;
 	property fLine	      : cardinal  read voLine write voLine;
 	property fCol         : cardinal  read voCol;
@@ -69,15 +66,10 @@ public
 	
 	procedure SetCanDelete(ParDelete:boolean);
 	function  GetReplace(ParCre:TCreator):TNodeIdent;virtual;
-	function  GetPartByNum(ParNum:cardinal):TNodeIdent;
 	procedure GetPos(var ParLine,ParCol,ParPos:longint);
 	procedure SetPos(ParLine,ParCol,ParPos:longint);
 	procedure SetPosToNode(ParNode : TNodeIDent);
-	procedure InitParts;virtual;
-	function  CreatePartsSec(ParCre:TSecCreator):boolean;
 	function  CreateSec(ParCre:TSecCreator):boolean;virtual;
-	function  AddNode(ParPart:TNodeIdent):boolean;virtual;
-	function  AddNodes(const ParNodes : array of TNodeIdent):boolean;
 	procedure Print(ParDis:TDisplay);override;
 	procedure PrintNode(ParDis:TDisplay);virtual;
 	function  CreateMac(ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;virtual;
@@ -89,12 +81,27 @@ public
 	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);virtual;
 	procedure Proces(ParCre : TCreator);virtual;
 	procedure FinishNode(ParCre : TCreator;ParIsSec : boolean);
-
-	destructor Destroy;override;
    function  IsSubNodesSec:boolean;virtual;
 end;
 
 TRefNodeIdent =class of  TNodeIdent;
+	TSubListStatementNode=class(TNodeIdent)
+	private
+		voParts	 :  TNodeList;
+	protected
+		property iParts : TNodeList read voParts write voParts;
+		procedure InitParts;virtual;
+      procedure clear;override;
+		procedure commonsetup;override;
+	public
+		property fParts     : TNodeList read voParts;
+
+		procedure Proces(ParCre : TCreator);override;
+		procedure Optimize(ParCre :TCreator); override;
+		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
+		procedure ValidateAfter(ParCre : TCreator);override;
+		function  AddNode(ParPart:TNodeIdent):boolean;
+   end;
 
 
 TSecCreator=class(TCreator)
@@ -169,6 +176,7 @@ end;
 implementation
 
 uses asminfo;
+
 {------( TErrorNode )-------------------------------------------}
 
 
@@ -594,6 +602,9 @@ begin
 end;
 
 
+
+
+
 function TNodeList.AddNode(ParNode:TNodeIdent):boolean;
 begin
 	AddNodeAt(TNodeIDent(fTop),ParNode);
@@ -642,10 +653,6 @@ begin
 	ValidateAfter(ParCre);
 end;
 
-procedure TNodeIdent.Proces(ParCre : TCreator);
-begin
-	fParts.Proces(ParCre);
-end;
 
 procedure TNodeIdent.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList  : TUseList);
 begin
@@ -678,24 +685,25 @@ begin
 end;
 
 
-procedure TNodeIdent.Optimize(ParCre :TCreator);
-begin
-	iParts.Optimize(ParCre);
-	iParts.Proces(ParCre);
-end;
 
 procedure TNodeIdent.ValidateConstant(ParCre : TCreator;ParProc : TConstantValidationProc);
 begin
 end;
 
+procedure TNodeIdent.Proces(ParCre : TCreator);
+begin
+end;
+
+procedure TNodeIdent.Optimize(ParCre :TCreator);
+begin
+end;
+
 procedure TNodeIdent.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 begin
-	iParts.ValidatePre(ParCre,IsSubNodesSec);
 end;
 
 procedure TNodeIdent.ValidateAfter(ParCre : TCreator);
 begin
-	iParts.ValidateAfter(ParCre);
 end;
 
 procedure TNodeIdent.SetCanDelete(ParDelete:boolean);
@@ -706,11 +714,6 @@ end;
 function TNodeIdent.GetReplace(ParCre:TCreator):TNodeIdent;
 begin
 	GetReplace := nil;
-end;
-
-function TNodeIDent.GetPartByNum(ParNum:cardinal):TNodeIdent;
-begin
-	exit(TNodeIdent(iParts.GetItemByNum(ParNum)));
 end;
 
 function  TNodeIDent.CreateSec(ParCre:TSecCreator):boolean;
@@ -724,15 +727,6 @@ begin
 	fatal(fat_abstract_routine,['option=',cardinal(ParOption)]);
 end;
 
-procedure TNodeident.InitParts;
-begin
-	iParts := TNodeList.create;
-end;
-
-function  TNodeIdent.CreatePartsSec(ParCre:TSecCreator):boolean;
-begin
-	CreatePartsSec := iParts.CreateSec(ParCre);
-end;
 
 procedure TNodeIDent.GetPos(Var ParLine,ParCol,parPos:Longint);
 begin
@@ -756,10 +750,8 @@ end;
 procedure TNodeident.CommonSetup;
 begin
 	Inherited CommonSetup;
-	voParts := nil;
 	iIdentCode := IC_UnkownNode;
 	SetPos(0,0,0);
-	InitParts;
 	SetCanDelete(false);
 end;
 
@@ -774,36 +766,56 @@ begin
 	ParDis.Write('<abstract>');
 end;
 
+{-----( TSubListStatementNode )-----------------------------------------------------}
 
-function  TNodeIdent.AddNodes(const ParNodes : array of TNodeIdent):boolean;
-var vlError : boolean;
-	vlCnt   : cardinal;
+
+
+
+procedure TSubListStatementNode.Commonsetup;
 begin
-	vlError := false;
-	vlCnt   := 0;
-	while vlCnt <= high(ParNodes) do begin
-		if (ParNodes[vlCnt] <> nil) then begin
-			if  AddNode(ParNodes[vlCnt]) then vlError := true;
-		end;
-		inc(vlCnt);
-	end;
-	exit(vlError);
+	InitParts;
+	inherited Commonsetup;
 end;
 
-function TNodeident.AddNode(ParPart:TNodeIdent):boolean;
+procedure TSubListStatementNode.Clear;
+begin
+	inherited Clear;
+	if iParts <> nil then iParts.Destroy;
+end;
+
+procedure TSubListStatementNode.InitParts;
+begin
+	iParts := TNodeList.Create;
+end;
+
+procedure TSubListStatementNode.Proces(ParCre : TCreator);
+begin
+	fParts.Proces(ParCre);
+end;
+
+procedure TSubListStatementNode.Optimize(ParCre :TCreator);
+begin
+	iParts.Optimize(ParCre);
+	iParts.Proces(ParCre);
+end;
+
+procedure TSubListStatementNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
+begin
+	iParts.ValidatePre(ParCre,IsSubNodesSec);
+end;
+
+procedure TSubListStatementNode.ValidateAfter(ParCre : TCreator);
+begin
+	iParts.ValidateAfter(ParCre);
+end;
+
+function TSubListStatementNode.AddNode(ParPart:TNodeIdent):boolean;
 begin
 	if ParPart <> nil then begin
 		exit(iParts.AddNode(ParPart));
 	end else begin
 		exit(true);
 	end;
-end;
-
-
-destructor TNodeident.Destroy;
-begin
-	inherited Destroy;
-	if iParts <> nil then iParts.Destroy;
 end;
 
 
