@@ -1,0 +1,356 @@
+{   Mysql unit for the  Elaya, the compiler for the elaya language
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    email : iddekingej@lycos.com
+    web   : www.elaya.org
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+
+uses dlib,mysql,emysql;
+public
+type
+         TErrorPos=enum
+            ep_none;
+            ep_SelectDB;
+            ep_Connect;
+            ep_Query;
+            ep_Store_Result;
+            ep_Retrieving;
+         end;
+                  procedure MySqlScanResult(virtual ParDB : PMySql);
+                    inherit EBase;
+                     has
+                       protected
+                        procedure SetRecBuf(ParBuf : PMySql_Res);
+                        function  GetRecBuf:PMySql_Res;
+                        function  GetNumOfFields:long;
+                        function  EoQ:boolean;
+                        function  GetField(ParNo : long):Pasc;
+                        function  GetFieldName(ParNO : long):string;
+                        procedure Error(ParWhen : TErrorPos);virtual;
+                        function InitResult:boolean;virtual;
+                        function FetchRowNext:PPAsc;
+                        function GetLastErrorText:PAsc;
+                        function GetLAstErrorTextStr : string;
+                        procedure Close;
+                        function Item : boolean;virtual;
+                        function PreScan : boolean;virtual;
+                        function Scan:boolean;virtual;
+                        main;
+                     end;
+                     
+                  procedure MySqlSelectStr(virtual ParDB : PMySql;virtual const ParQuery :string);
+                    inherit MySqlScanResult(ParDB);
+                    has
+                     protected
+                      function InitResult : boolean;override;
+                     end;
+
+                  procedure MySqlScanTables(virtual ParDB : PMySql;virtual const ParWild : string);
+                    inherit MySqlScanResult(ParDB);
+                    has
+                     protected
+                      function InitResult : boolean;override;
+                     end;
+
+                  procedure MySqlScanFields(virtual ParDB : PMySql;virtual const ParTable,ParWild:string);
+                    inherit MySqlScanResult(ParDB);
+                    has
+                     protected
+                      function InitResult : boolean;override;
+                     end;
+
+                  function MySqlTransaction:boolean;
+                    inherit EBase;
+                    has
+                        function Connect:boolean;
+                        function Close:boolean;
+                      protected
+                       var vlMySql : PMySql;
+                        procedure GetLoginInfo(var ParHost,ParUser,ParPassword,ParDB : string);virtual;
+                        procedure Error(ParError :TErrorPos);virtual;
+                        function  Action:boolean;virtual;
+                        function GetLAstErrorTextStr : string;
+                        function GetLastErrorText:PAsc;
+                        procedure MySqlSelectStr(virtual const ParQuery : string);
+                          inherit MySqlSelectStr(vlMySql,ParQuery);
+                          virtual;
+                        procedure MySqlScanTables(virtual const ParWild : string);
+                          inherit MySqlScanTables(vlMySql,ParWild);
+                          virtual;
+                          has
+                           protected
+                             procedure Error(ParWhen : TErrorPos);final;
+                          end;
+                        main;
+                    end;
+
+
+
+end public
+
+{--( MySqlScanResult )--------------------------------------------------------------------}
+
+         procedure MySqlScanResult(virtual ParDB :PMySql);
+         inherit EBase;
+         var
+            vlRecBuf       : PMySql_Res;
+            vlCurrentRow   : PPAsc;
+            vlFieldTmp     : asciiz size=2;
+            vlStatus       : boolean;
+         protected
+         
+            procedure SetRecBuf(ParBuf : PMySql_Res);
+            begin
+                 vlRecBuf := ParBuf;
+            end;
+
+            function GetRecBuf:PMySql_Res;
+            begin
+                 exit(vlRecBuf);
+            end;
+            
+            function GetNumOfFields:long;
+            begin
+                 if vlRecBuf = nil then begin
+                    exit(0);
+                 end else begin
+                     exit(MySql_Num_Fields(vlRecBuf));
+                 end;
+            end;
+
+            function EoQ:boolean;
+            begin
+                 exit(vlCurrentRow=nil);
+            end;
+
+            function  GetField(ParNo : long):Pasc;
+            begin
+                 if (vlCurrentRow =nil) or (ParNo >= GetNumOfFields) then exit(@vlFieldTmp);
+                 exit((vlCurrentROw + ParNo)^);
+            end;
+
+            function  GetFieldName(ParNO : long):string;
+            var
+               vlName : string;
+            begin
+                 if(vlCurrentRow =nil) or (ParNo >=GetNumOfFields) then exit('');
+                 vlName := MySql_fetch_Field_Direct(vlRecBuf,ParNo).Col_Name^;
+                 exit(vlName);
+            end;
+
+            procedure Error(ParWhen : TErrorPos);virtual;
+            begin
+            end;
+
+            function InitResult:boolean;virtual;
+            begin
+                 Error(ep_query);
+                 exit(true);
+            end;
+
+            function FetchRowNext:PPAsc;
+            var vlRow : PPAsc;
+            begin
+                 if(vlRecBuf = nil) then exit(nil);
+                 vlCurrentRow := MySql_Fetch_Row(vlRecBuf);
+                 exit(vlCurrentRow);
+            end;
+
+            function GetLAstErrorTextStr : string;
+            var vlStr : string;
+            begin
+                 vlStr := GetLastErrorText^;
+                 exit(vLStr);
+            end;
+
+            function GetLastErrorText:PAsc;
+            begin
+                 exit(mysql_error(ParDB));
+            end;
+                 
+            procedure Close;
+            begin
+                 if vlRecBuf <> nil then MySql_Free_Result(vlRecBuf);
+                 vlRecBuf := nil;
+            end;
+
+            function Item : boolean;virtual;
+            begin
+                 exit(false);
+            end;
+
+            function PreScan : boolean;virtual;
+            begin
+                 exit(false);
+            end;
+
+            function Scan:boolean;virtual;
+            begin
+                 if PreScan then exit(true);
+                 while FetchRowNext <> nil do begin
+                       if Item then exit(true);
+                 end;
+                 exit(false);
+            end;
+
+
+       begin
+            vlStatus      := false;
+            vlRecBuf      := nil;
+            vlFieldTmp[1] := 0 as char;
+            vlCurrentRow  := nil;
+            if not(InitResult) then begin
+               if Scan then begin
+                  Error(Ep_Retrieving);
+                  vlStatus := true;
+               end;
+            end else begin
+                vlStatus := true;
+            end;
+            close;
+       end;
+
+{---( MySqlScanFields )----------------------------------------------------------}
+
+         
+            function MySqlScanFields has protected InitResult : boolean;override;
+            var vlRes : PMySql_Res;
+            begin
+                 if EMySql_List_Fields(ParDb,ParTable,ParWild,vlRes) then begin
+                    Error(EP_Query);
+                    exit(true);
+                 end;
+                 SetRecBuf(vlRes);
+                 exit(false);
+            end;
+         
+            function mysqlscantables has protected InitResult : boolean;override;
+            var vlRes : PMySql_Res;
+            begin
+                 if EMySql_List_Tables(ParDb,ParWild,vlRes) then begin
+                    Error(EP_Query);
+                    exit(true);
+                 end;
+                 SetRecBuf(vlRes);
+                 exit(false);
+            end;
+
+
+            function  MySqlSelectStr has protected InitResult:boolean;override;
+            begin
+                 SetRecBuf(nil);
+
+                 if EMysql_query(ParDb,ParQuery) then begin
+                    Error(ep_Query);
+                    exit(true);
+                 end;
+                 SetRecBuf(MySql_Store_Result(ParDB));
+                 if GetRecBuf = nil then begin
+                    Error(Ep_Store_Result);
+                    exit(true);
+                 end;
+                 exit(false);
+           end;
+
+
+{---( MySqlTransaction )-------------------------------------------------------------------}
+
+      function MySqlTransaction:boolean;
+       inherit EBase;
+       var
+          vlCon : TMySql;
+          vlError : boolean;
+      begin
+           vlMySql := @vlCon;
+           if Connect then exit(true);
+           vlError := Action;
+           Close;
+           exit(vlError);
+      end;
+
+
+      function MySqlTransaction has protected GetLAstErrorTextStr : string;
+      var vlStr : string;
+      begin
+           if GetLastErrorText =nil then begin
+                vlStr := 'No Error';
+           end else begin
+                      vlStr := GetLastErrorText^;
+           end;
+           exit(vLStr);
+      end;
+
+      function MySqlTransaction has protected GetLastErrorText:PAsc;
+      begin
+           exit(mysql_error(@vlCon));
+      end;
+
+
+      procedure MySqlTransaction has protected GetLoginInfo(var ParHost,ParUser,ParPassword,ParDB : string);virtual;
+      begin
+              ParHost.Length := 0;
+              ParUser.Length := 0;
+              ParPassword.Length :=0;
+              ParDB.Length := 0;
+      end;
+
+      procedure MySqlTransaction has protected Error(ParError :TErrorPos);virtual;
+      begin
+               writeln('Error :',ParError as long,'/',GetLastErrorTextStr);
+      end;
+
+      function MySqlTransaction has private Connect:boolean;
+         var vlHost : string;
+             vlUser : string;
+             vlPassword : string;
+             vlDB   : string;
+      begin
+              GetLoginInfo(vlHost,vlUser,vlPassword,vlDB);
+              if EMySql_Connect(@vlCon,vlHost,vlUser,vlPassword) then begin
+                 Error(ep_Connect);
+                 exit(true);
+              end;
+              if EMySql_Select_DB(@vlCOn,vlDb) then begin
+                 Error(ep_SelectDB);
+                 exit(true);
+              end;
+              exit(false);
+      end;
+
+      function MySqlTransaction has protected Action:boolean;virtual;
+      begin
+           exit(false);
+      end;
+      
+      function MySqlTransaction has private Close:boolean;
+      begin
+           exit(mysql_close(@vlCon)<0);
+      end;
+
+      procedure MySqlTransaction has protected MySqlSelectStr(virtual const ParQuery : string);
+        inherit MySqlSelectStr(vlMySql,ParQuery);
+        virtual;
+      end;
+
+      procedure MySqlTransaction has MySqlScanTables has protected Error(ParWhen : TErrorPos);final;
+      begin
+          owner owner Error(ParWhen);
+      end;
+
+
+end.

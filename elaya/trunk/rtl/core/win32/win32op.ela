@@ -1,0 +1,1331 @@
+unit;
+uses core,win32types,win32procs;
+public
+
+external dll 'AdvApi32.dll'
+
+    function RegCloseKey(hKey:HKEY):LONG;  name 'RegCloseKey';
+
+    function RegSetKeySecurity(hKey:HKEY; SecurityInformation:SECURITY_INFORMATION; pSecurityDescriptor:PSECURITY_DESCRIPTOR):LONG;  name 'RegSetKeySecurity';
+
+    function RegFlushKey(hKey:HKEY):LONG;  name 'RegFlushKey';
+
+    function RegGetKeySecurity(hKey:HKEY; SecurityInformation:SECURITY_INFORMATION; pSecurityDescriptor:PSECURITY_DESCRIPTOR; lpcbSecurityDescriptor:LPDWORD):LONG;  name 'RegGetKeySecurity';
+
+    function RegNotifyChangeKeyValue(hKey:HKEY; bWatchSubtree:WINBOOL; dwNotifyFilter:DWORD; hEvent:HANDLE; fAsynchronus:WINBOOL):LONG;  name 'RegNotifyChangeKeyValue';
+
+
+
+    function CloseServiceHandle(hSCObject:SC_HANDLE):WINBOOL;  name 'CloseServiceHandle';
+
+    function ControlService(hService:SC_HANDLE; dwControl:DWORD; lpServiceStatus:LPSERVICE_STATUS):WINBOOL;  name 'ControlService';
+
+    function DeleteService(hService:SC_HANDLE):WINBOOL;  name 'DeleteService';
+
+    function LockServiceDatabase(hSCManager:SC_HANDLE):SC_LOCK;  name 'LockServiceDatabase';
+
+    function NotifyBootConfigStatus(BootAcceptable:WINBOOL):WINBOOL;  name 'NotifyBootConfigStatus';
+
+    function QueryServiceObjectSecurity(hService:SC_HANDLE; dwSecurityInformation:SECURITY_INFORMATION; lpSecurityDescriptor:PSECURITY_DESCRIPTOR; cbBufSize:DWORD; pcbBytesNeeded:LPDWORD):WINBOOL;
+                name 'QueryServiceObjectSecurity';
+
+    function QueryServiceStatus(hService:SC_HANDLE; lpServiceStatus:LPSERVICE_STATUS):WINBOOL;  name 'QueryServiceStatus';
+
+    function SetServiceObjectSecurity(hService:SC_HANDLE; dwSecurityInformation:SECURITY_INFORMATION; lpSecurityDescriptor:PSECURITY_DESCRIPTOR):WINBOOL;
+                name 'SetServiceObjectSecurity';
+
+    function SetServiceStatus(hServiceStatus:SERVICE_STATUS_HANDLE; lpServiceStatus:LPSERVICE_STATUS):WINBOOL;  name 'SetServiceStatus';
+
+    function UnlockServiceDatabase(ScLock:SC_LOCK):WINBOOL;  name 'UnlockServiceDatabase';
+  function IsTextUnicode(lpBuffer:LPVOID; cb:longint; lpi:LPINT):WINBOOL;  name 'IsTextUnicode';
+
+  function CloseEventLog(hEventLog:HANDLE):WINBOOL;  name 'CloseEventLog';
+
+
+  function DeregisterEventSource(hEventLog:HANDLE):WINBOOL;  name 'DeregisterEventSource';
+
+  function NotifyChangeEventLog(hEventLog:HANDLE; hEvent:HANDLE):WINBOOL;  name 'NotifyChangeEventLog';
+
+  function GetNumberOfEventLogRecords(hEventLog:HANDLE; NumberOfRecords:PDWORD):WINBOOL;  name 'GetNumberOfEventLogRecords';
+
+  function GetOldestEventLogRecord(hEventLog:HANDLE; OldestRecord:PDWORD):WINBOOL;  name 'GetOldestEventLogRecord';
+
+  function DuplicateToken(ExistingTokenHandle:HANDLE; ImpersonationLevel:SECURITY_IMPERSONATION_LEVEL; DuplicateTokenHandle:PHANDLE):WINBOOL;  name 'DuplicateToken';
+
+  function GetKernelObjectSecurity(Handle:HANDLE; RequestedInformation:SECURITY_INFORMATION; pSecurityDescriptor:PSECURITY_DESCRIPTOR; nLength:DWORD; lpnLengthNeeded:LPDWORD):WINBOOL;  name 'GetKernelObjectSecurity';
+
+  function ImpersonateNamedPipeClient(hNamedPipe:HANDLE):WINBOOL;  name 'ImpersonateNamedPipeClient';
+
+  function ImpersonateLoggedOnUser(hToken:HANDLE):WINBOOL;  name 'ImpersonateLoggedOnUser';
+
+  function ImpersonateSelf(ImpersonationLevel:SECURITY_IMPERSONATION_LEVEL):WINBOOL;  name 'ImpersonateSelf';
+
+  function RevertToSelf:WINBOOL;  name 'RevertToSelf';
+
+  function SetThreadToken(Thread:PHANDLE; Token:HANDLE):WINBOOL;  name 'SetThreadToken';
+
+{  function AccessCheck(pSecurityDescriptor:PSECURITY_DESCRIPTOR; ClientToken:HANDLE; DesiredAccess:DWORD; GenericMapping:PGENERIC_MAPPING; PrivilegeSet:PPRIVILEGE_SET;
+             PrivilegeSetLength:LPDWORD; GrantedAccess:LPDWORD; AccessStatus:LPBOOL):WINBOOL;  name 'AccessCheck';
+             }
+
+  function OpenProcessToken(ProcessHandle:HANDLE; DesiredAccess:DWORD; TokenHandle:PHANDLE):WINBOOL;  name 'OpenProcessToken';
+
+  function OpenThreadToken(ThreadHandle:HANDLE; DesiredAccess:DWORD; OpenAsSelf:WINBOOL; TokenHandle:PHANDLE):WINBOOL;  name 'OpenThreadToken';
+
+  function GetTokenInformation(TokenHandle:HANDLE; TokenInformationClass:TOKEN_INFORMATION_CLASS; TokenInformation:LPVOID; TokenInformationLength:DWORD; ReturnLength:PDWORD):WINBOOL;  name 'GetTokenInformation';
+
+  function SetTokenInformation(TokenHandle:HANDLE; TokenInformationClass:TOKEN_INFORMATION_CLASS; TokenInformation:LPVOID; TokenInformationLength:DWORD):WINBOOL;  name 'SetTokenInformation';
+
+  function AdjustTokenPrivileges(TokenHandle:HANDLE; DisableAllPrivileges:WINBOOL; NewState:PTOKEN_PRIVILEGES; BufferLength:DWORD; PreviousState:PTOKEN_PRIVILEGES;
+             ReturnLength:PDWORD):WINBOOL;  name 'AdjustTokenPrivileges';
+
+  function AdjustTokenGroups(TokenHandle:HANDLE; ResetToDefault:WINBOOL; NewState:PTOKEN_GROUPS; BufferLength:DWORD; PreviousState:PTOKEN_GROUPS;
+             ReturnLength:PDWORD):WINBOOL;  name 'AdjustTokenGroups';
+
+  function PrivilegeCheck(ClientToken:HANDLE; RequiredPrivileges:PPRIVILEGE_SET; pfResult:LPBOOL):WINBOOL;  name 'PrivilegeCheck';
+
+  function IsValidSid(pSid:PSID):WINBOOL;  name 'IsValidSid';
+
+  function EqualSid(pSid1:PSID; pSid2:PSID):WINBOOL;  name 'EqualSid';
+
+  function EqualPrefixSid(pSid1:PSID; pSid2:PSID):WINBOOL;  name 'EqualPrefixSid';
+
+  function GetSidLengthRequired(nSubAuthorityCount:UCHAR):DWORD;  name 'GetSidLengthRequired';
+
+  function AllocateAndInitializeSid(pIdentifierAuthority:PSID_IDENTIFIER_AUTHORITY; nSubAuthorityCount:BYTE; nSubAuthority0:DWORD; nSubAuthority1:DWORD; nSubAuthority2:DWORD;
+             nSubAuthority3:DWORD; nSubAuthority4:DWORD; nSubAuthority5:DWORD; nSubAuthority6:DWORD; nSubAuthority7:DWORD;
+             var pSid:PSID):WINBOOL;  name 'AllocateAndInitializeSid';
+
+  function FreeSid(pSid:PSID):PVOID;  name 'FreeSid';
+
+  function InitializeSid(Sid:PSID; pIdentifierAuthority:PSID_IDENTIFIER_AUTHORITY; nSubAuthorityCount:BYTE):WINBOOL;  name 'InitializeSid';
+
+  function GetSidIdentifierAuthority(pSid:PSID):PSID_IDENTIFIER_AUTHORITY;  name 'GetSidIdentifierAuthority';
+
+  function GetSidSubAuthority(pSid:PSID; nSubAuthority:DWORD):PDWORD;  name 'GetSidSubAuthority';
+
+  function GetSidSubAuthorityCount(pSid:PSID):PUCHAR;  name 'GetSidSubAuthorityCount';
+
+  function GetLengthSid(pSid:PSID):DWORD;  name 'GetLengthSid';
+
+  function CopySid(nDestinationSidLength:DWORD; pDestinationSid:PSID; pSourceSid:PSID):WINBOOL;  name 'CopySid';
+
+  function AreAllAccessesGranted(GrantedAccess:DWORD; DesiredAccess:DWORD):WINBOOL;  name 'AreAllAccessesGranted';
+
+  function AreAnyAccessesGranted(GrantedAccess:DWORD; DesiredAccess:DWORD):WINBOOL;  name 'AreAnyAccessesGranted';
+
+  procedure MapGenericMask(AccessMask:PDWORD; GenericMapping:PGENERIC_MAPPING);  name 'MapGenericMask';
+
+  function IsValidAcl(pAcl:PACL):WINBOOL;  name 'IsValidAcl';
+
+  function InitializeAcl(pAcl:PACL; nAclLength:DWORD; dwAclRevision:DWORD):WINBOOL;  name 'InitializeAcl';
+
+  function GetAclInformation(pAcl:PACL; pAclInformation:LPVOID; nAclInformationLength:DWORD; dwAclInformationClass:ACL_INFORMATION_CLASS):WINBOOL;  name 'GetAclInformation';
+
+  function SetAclInformation(pAcl:PACL; pAclInformation:LPVOID; nAclInformationLength:DWORD; dwAclInformationClass:ACL_INFORMATION_CLASS):WINBOOL;  name 'SetAclInformation';
+
+  function AddAce(pAcl:PACL; dwAceRevision:DWORD; dwStartingAceIndex:DWORD; pAceList:LPVOID; nAceListLength:DWORD):WINBOOL;  name 'AddAce';
+
+  function DeleteAce(pAcl:PACL; dwAceIndex:DWORD):WINBOOL;  name 'DeleteAce';
+
+  function GetAce(pAcl:PACL; dwAceIndex:DWORD; var pAce:LPVOID):WINBOOL;  name 'GetAce';
+
+  function AddAccessAllowedAce(pAcl:PACL; dwAceRevision:DWORD; AccessMask:DWORD; pSid:PSID):WINBOOL;  name 'AddAccessAllowedAce';
+
+  function AddAccessDeniedAce(pAcl:PACL; dwAceRevision:DWORD; AccessMask:DWORD; pSid:PSID):WINBOOL;  name 'AddAccessDeniedAce';
+
+  function AddAuditAccessAce(pAcl:PACL; dwAceRevision:DWORD; dwAccessMask:DWORD; pSid:PSID; bAuditSuccess:WINBOOL;
+             bAuditFailure:WINBOOL):WINBOOL;  name 'AddAuditAccessAce';
+
+  function FindFirstFreeAce(pAcl:PACL; var pAce:LPVOID):WINBOOL;  name 'FindFirstFreeAce';
+
+  function InitializeSecurityDescriptor(pSecurityDescriptor:PSECURITY_DESCRIPTOR; dwRevision:DWORD):WINBOOL;  name 'InitializeSecurityDescriptor';
+
+  function IsValidSecurityDescriptor(pSecurityDescriptor:PSECURITY_DESCRIPTOR):WINBOOL;  name 'IsValidSecurityDescriptor';
+
+  function GetSecurityDescriptorLength(pSecurityDescriptor:PSECURITY_DESCRIPTOR):DWORD;  name 'GetSecurityDescriptorLength';
+
+  function GetSecurityDescriptorControl(pSecurityDescriptor:PSECURITY_DESCRIPTOR; pControl:PSECURITY_DESCRIPTOR_CONTROL; lpdwRevision:LPDWORD):WINBOOL;  name 'GetSecurityDescriptorControl';
+
+  function SetSecurityDescriptorDacl(pSecurityDescriptor:PSECURITY_DESCRIPTOR; bDaclPresent:WINBOOL; pDacl:PACL; bDaclDefaulted:WINBOOL):WINBOOL;  name 'SetSecurityDescriptorDacl';
+
+  function GetSecurityDescriptorDacl(pSecurityDescriptor:PSECURITY_DESCRIPTOR; lpbDaclPresent:LPBOOL; var pDacl:PACL; lpbDaclDefaulted:LPBOOL):WINBOOL;  name 'GetSecurityDescriptorDacl';
+
+  function SetSecurityDescriptorSacl(pSecurityDescriptor:PSECURITY_DESCRIPTOR; bSaclPresent:WINBOOL; pSacl:PACL; bSaclDefaulted:WINBOOL):WINBOOL;  name 'SetSecurityDescriptorSacl';
+
+  function GetSecurityDescriptorSacl(pSecurityDescriptor:PSECURITY_DESCRIPTOR; lpbSaclPresent:LPBOOL; var pSacl:PACL; lpbSaclDefaulted:LPBOOL):WINBOOL;  name 'GetSecurityDescriptorSacl';
+
+  function SetSecurityDescriptorOwner(pSecurityDescriptor:PSECURITY_DESCRIPTOR; pOwner:PSID; bOwnerDefaulted:WINBOOL):WINBOOL;  name 'SetSecurityDescriptorOwner';
+
+  function GetSecurityDescriptorOwner(pSecurityDescriptor:PSECURITY_DESCRIPTOR; var pOwner:PSID; lpbOwnerDefaulted:LPBOOL):WINBOOL;  name 'GetSecurityDescriptorOwner';
+
+  function SetSecurityDescriptorGroup(pSecurityDescriptor:PSECURITY_DESCRIPTOR; pGroup:PSID; bGroupDefaulted:WINBOOL):WINBOOL;  name 'SetSecurityDescriptorGroup';
+
+  function GetSecurityDescriptorGroup(pSecurityDescriptor:PSECURITY_DESCRIPTOR; var pGroup:PSID; lpbGroupDefaulted:LPBOOL):WINBOOL;  name 'GetSecurityDescriptorGroup';
+
+  function CreatePrivateObjectSecurity(ParentDescriptor:PSECURITY_DESCRIPTOR; CreatorDescriptor:PSECURITY_DESCRIPTOR; var NewDescriptor:PSECURITY_DESCRIPTOR; IsDirectoryObject:WINBOOL; Token:HANDLE;
+             GenericMapping:PGENERIC_MAPPING):WINBOOL;  name 'CreatePrivateObjectSecurity';
+
+  function SetPrivateObjectSecurity(SecurityInformation:SECURITY_INFORMATION; ModificationDescriptor:PSECURITY_DESCRIPTOR; var ObjectsSecurityDescriptor:PSECURITY_DESCRIPTOR; GenericMapping:PGENERIC_MAPPING; Token:HANDLE):WINBOOL;
+              name 'SetPrivateObjectSecurity';
+
+  function GetPrivateObjectSecurity(ObjectDescriptor:PSECURITY_DESCRIPTOR; SecurityInformation:SECURITY_INFORMATION; ResultantDescriptor:PSECURITY_DESCRIPTOR; DescriptorLength:DWORD; ReturnLength:PDWORD):WINBOOL;
+              name 'GetPrivateObjectSecurity';
+
+  function DestroyPrivateObjectSecurity(var ObjectDescriptor:PSECURITY_DESCRIPTOR):WINBOOL;  name 'DestroyPrivateObjectSecurity';
+
+  function MakeSelfRelativeSD(pAbsoluteSecurityDescriptor:PSECURITY_DESCRIPTOR; pSelfRelativeSecurityDescriptor:PSECURITY_DESCRIPTOR; lpdwBufferLength:LPDWORD):WINBOOL;  name 'MakeSelfRelativeSD';
+
+  function MakeAbsoluteSD(pSelfRelativeSecurityDescriptor:PSECURITY_DESCRIPTOR; pAbsoluteSecurityDescriptor:PSECURITY_DESCRIPTOR; lpdwAbsoluteSecurityDescriptorSize:LPDWORD; pDacl:PACL; lpdwDaclSize:LPDWORD;
+             pSacl:PACL; lpdwSaclSize:LPDWORD; pOwner:PSID; lpdwOwnerSize:LPDWORD; pPrimaryGroup:PSID;
+             lpdwPrimaryGroupSize:LPDWORD):WINBOOL;  name 'MakeAbsoluteSD';
+
+  function SetKernelObjectSecurity(Handle:HANDLE; SecurityInformation:SECURITY_INFORMATION; SecurityDescriptor:PSECURITY_DESCRIPTOR):WINBOOL;  name 'SetKernelObjectSecurity';
+
+
+  function AllocateLocallyUniqueId(Luid:PLUID):WINBOOL;  name 'AllocateLocallyUniqueId';
+
+
+  function AccessCheck(pSecurityDescriptor:PSECURITY_DESCRIPTOR; ClientToken:HANDLE; DesiredAccess:DWORD; GenericMapping:PGENERIC_MAPPING; PrivilegeSet:PPRIVILEGE_SET;
+             PrivilegeSetLength:LPDWORD; GrantedAccess:LPDWORD; AccessStatus:LPBOOL):WINBOOL; name 'AccessCheck';
+
+  function RegConnectRegistry(lpMachineName:LPSTR; hKey:HKEY; phkResult:PHKEY):LONG;  name 'RegConnectRegistryA';
+
+  function RegCreateKey(hKey:HKEY; lpSubKey:LPCSTR; phkResult:PHKEY):LONG;  name 'RegCreateKeyA';
+
+  function RegCreateKeyEx(hKey:HKEY; lpSubKey:LPCSTR; Reserved:DWORD; lpClass:LPSTR; dwOptions:DWORD;
+             samDesired:REGSAM; lpSecurityAttributes:LPSECURITY_ATTRIBUTES; phkResult:PHKEY; lpdwDisposition:LPDWORD):LONG;  name 'RegCreateKeyExA';
+
+  function RegDeleteKey(hKey:HKEY; lpSubKey:LPCSTR):LONG;  name 'RegDeleteKeyA';
+
+  function RegDeleteValue(hKey:HKEY; lpValueName:LPCSTR):LONG;  name 'RegDeleteValueA';
+
+  function RegEnumKey(hKey:HKEY; dwIndex:DWORD; lpName:LPSTR; cbName:DWORD):LONG;  name 'RegEnumKeyA';
+
+  function RegEnumKeyEx(hKey:HKEY; dwIndex:DWORD; lpName:LPSTR; lpcbName:LPDWORD; lpReserved:LPDWORD;
+             lpClass:LPSTR; lpcbClass:LPDWORD; lpftLastWriteTime:PFILETIME):LONG;  name 'RegEnumKeyExA';
+
+  function RegEnumValue(hKey:HKEY; dwIndex:DWORD; lpValueName:LPSTR; lpcbValueName:LPDWORD; lpReserved:LPDWORD;
+             lpType:LPDWORD; lpData:LPBYTE; lpcbData:LPDWORD):LONG;  name 'RegEnumValueA';
+
+  function RegLoadKey(hKey:HKEY; lpSubKey:LPCSTR; lpFile:LPCSTR):LONG;  name 'RegLoadKeyA';
+
+  function RegOpenKey(hKey:HKEY; lpSubKey:LPCSTR; phkResult:PHKEY):LONG;  name 'RegOpenKeyA';
+
+  function RegOpenKeyEx(hKey:HKEY; lpSubKey:LPCSTR; ulOptions:DWORD; samDesired:REGSAM; phkResult:PHKEY):LONG;  name 'RegOpenKeyExA';
+
+  function RegQueryInfoKey(hKey:HKEY; lpClass:LPSTR; lpcbClass:LPDWORD; lpReserved:LPDWORD; lpcSubKeys:LPDWORD;
+             lpcbMaxSubKeyLen:LPDWORD; lpcbMaxClassLen:LPDWORD; lpcValues:LPDWORD; lpcbMaxValueNameLen:LPDWORD; lpcbMaxValueLen:LPDWORD;
+             lpcbSecurityDescriptor:LPDWORD; lpftLastWriteTime:PFILETIME):LONG;  name 'RegQueryInfoKeyA';
+
+  function RegQueryValue(hKey:HKEY; lpSubKey:LPCSTR; lpValue:LPSTR; lpcbValue:PLONG):LONG;  name 'RegQueryValueA';
+
+  function RegQueryMultipleValues(hKey:HKEY; val_list:PVALENT; num_vals:DWORD; lpValueBuf:LPSTR; ldwTotsize:LPDWORD):LONG;  name 'RegQueryMultipleValuesA';
+
+  function RegQueryValueEx(hKey:HKEY; lpValueName:LPCSTR; lpReserved:LPDWORD; lpType:LPDWORD; lpData:LPBYTE;
+             lpcbData:LPDWORD):LONG;  name 'RegQueryValueExA';
+
+  function RegReplaceKey(hKey:HKEY; lpSubKey:LPCSTR; lpNewFile:LPCSTR; lpOldFile:LPCSTR):LONG;  name 'RegReplaceKeyA';
+
+  function RegRestoreKey(hKey:HKEY; lpFile:LPCSTR; dwFlags:DWORD):LONG;  name 'RegRestoreKeyA';
+
+  function RegSaveKey(hKey:HKEY; lpFile:LPCSTR; lpSecurityAttributes:LPSECURITY_ATTRIBUTES):LONG;  name 'RegSaveKeyA';
+
+  function RegSetValue(hKey:HKEY; lpSubKey:LPCSTR; dwType:DWORD; lpData:LPCSTR; cbData:DWORD):LONG;  name 'RegSetValueA';
+
+  function RegSetValueEx(hKey:HKEY; lpValueName:LPCSTR; Reserved:DWORD; dwType:DWORD; var lpData:BYTE;
+             cbData:DWORD):LONG;  name 'RegSetValueExA';
+
+  function ChangeServiceConfig(hService:SC_HANDLE; dwServiceType:DWORD; dwStartType:DWORD; dwErrorControl:DWORD; lpBinaryPathName:LPCSTR;
+             lpLoadOrderGroup:LPCSTR; lpdwTagId:LPDWORD; lpDependencies:LPCSTR; lpServiceStartName:LPCSTR; lpPassword:LPCSTR;
+             lpDisplayName:LPCSTR):WINBOOL;  name 'ChangeServiceConfigA';
+
+  function CreateService(hSCManager:SC_HANDLE; lpServiceName:LPCSTR; lpDisplayName:LPCSTR; dwDesiredAccess:DWORD; dwServiceType:DWORD;
+             dwStartType:DWORD; dwErrorControl:DWORD; lpBinaryPathName:LPCSTR; lpLoadOrderGroup:LPCSTR; lpdwTagId:LPDWORD;
+             lpDependencies:LPCSTR; lpServiceStartName:LPCSTR; lpPassword:LPCSTR):SC_HANDLE;  name 'CreateServiceA';
+
+  function EnumDependentServices(hService:SC_HANDLE; dwServiceState:DWORD; lpServices:LPENUM_SERVICE_STATUS; cbBufSize:DWORD; pcbBytesNeeded:LPDWORD;
+             lpServicesReturned:LPDWORD):WINBOOL;  name 'EnumDependentServicesA';
+
+  function EnumServicesStatus(hSCManager:SC_HANDLE; dwServiceType:DWORD; dwServiceState:DWORD; lpServices:LPENUM_SERVICE_STATUS; cbBufSize:DWORD;
+             pcbBytesNeeded:LPDWORD; lpServicesReturned:LPDWORD; lpResumeHandle:LPDWORD):WINBOOL;  name 'EnumServicesStatusA';
+
+  function GetServiceKeyName(hSCManager:SC_HANDLE; lpDisplayName:LPCSTR; lpServiceName:LPSTR; lpcchBuffer:LPDWORD):WINBOOL;  name 'GetServiceKeyNameA';
+
+  function GetServiceDisplayName(hSCManager:SC_HANDLE; lpServiceName:LPCSTR; lpDisplayName:LPSTR; lpcchBuffer:LPDWORD):WINBOOL;  name 'GetServiceDisplayNameA';
+
+  function OpenSCManager(lpMachineName:LPCSTR; lpDatabaseName:LPCSTR; dwDesiredAccess:DWORD):SC_HANDLE;  name 'OpenSCManagerA';
+
+  function OpenService(hSCManager:SC_HANDLE; lpServiceName:LPCSTR; dwDesiredAccess:DWORD):SC_HANDLE;  name 'OpenServiceA';
+
+  function QueryServiceConfig(hService:SC_HANDLE; lpServiceConfig:LPQUERY_SERVICE_CONFIG; cbBufSize:DWORD; pcbBytesNeeded:LPDWORD):WINBOOL;  name 'QueryServiceConfigA';
+
+  function QueryServiceLockStatus(hSCManager:SC_HANDLE; lpLockStatus:LPQUERY_SERVICE_LOCK_STATUS; cbBufSize:DWORD; pcbBytesNeeded:LPDWORD):WINBOOL;  name 'QueryServiceLockStatusA';
+
+  function RegisterServiceCtrlHandler(lpServiceName:LPCSTR; lpHandlerProc:LPHANDLER_FUNCTION):SERVICE_STATUS_HANDLE;  name 'RegisterServiceCtrlHandlerA';
+
+{  function StartServiceCtrlDispatcher(lpServiceStartTable:LPSERVICE_TABLE_ENTRY):WINBOOL;  name 'StartServiceCtrlDispatcherA';
+ }
+  function StartService(hService:SC_HANDLE; dwNumServiceArgs:DWORD; var lpServiceArgVectors:LPCSTR):WINBOOL;  name 'StartServiceA';
+
+  function RegUnLoadKey(hKey:HKEY; lpSubKey:LPCSTR):LONG;  name 'RegUnLoadKeyA';
+
+  function InitiateSystemShutdown(lpMachineName:LPSTR; lpMessage:LPSTR; dwTimeout:DWORD; bForceAppsClosed:WINBOOL; bRebootAfterShutdown:WINBOOL):WINBOOL;  name 'InitiateSystemShutdownA';
+
+  function AbortSystemShutdown(lpMachineName:LPSTR):WINBOOL;  name 'AbortSystemShutdownA';
+
+  function LogonUser(_para1:LPSTR; _para2:LPSTR; _para3:LPSTR; _para4:DWORD; _para5:DWORD;
+             var _para6:HANDLE):WINBOOL;  name 'LogonUserA';
+
+  function CreateProcessAsUser(_para1:HANDLE; _para2:LPCTSTR; _para3:LPTSTR; var _para4:SECURITY_ATTRIBUTES; var _para5:SECURITY_ATTRIBUTES;
+             _para6:WINBOOL; _para7:DWORD; _para8:LPVOID; _para9:LPCTSTR; var _para10:STARTUPINFO;
+             var _para11:PROCESS_INFORMATION):WINBOOL;  name 'CreateProcessAsUserA';
+
+
+
+  function ClearEventLog(hEventLog:HANDLE; lpBackupFileName:LPCSTR):WINBOOL; name 'ClearEventLogA';
+
+  function BackupEventLog(hEventLog:HANDLE; lpBackupFileName:LPCSTR):WINBOOL;name 'BackupEventLogA';
+
+  function OpenEventLog(lpUNCServerName:LPCSTR; lpSourceName:LPCSTR):HANDLE; name 'OpenEventLogA';
+
+  function RegisterEventSource(lpUNCServerName:LPCSTR; lpSourceName:LPCSTR):HANDLE; name 'RegisterEventSourceA';
+
+  function OpenBackupEventLog(lpUNCServerName:LPCSTR; lpFileName:LPCSTR):HANDLE; name 'OpenBackupEventLogA';
+
+  function ReadEventLog(hEventLog:HANDLE; dwReadFlags:DWORD; dwRecordOffset:DWORD; lpBuffer:LPVOID; nNumberOfBytesToRead:DWORD;
+             var pnBytesRead:DWORD; var pnMinNumberOfBytesNeeded:DWORD):WINBOOL; name 'ReadEventLogA';
+
+  function ReportEvent(hEventLog:HANDLE; wType:WORD; wCategory:WORD; dwEventID:DWORD; lpUserSid:PSID;
+             wNumStrings:WORD; dwDataSize:DWORD; var lpStrings:LPCSTR; lpRawData:LPVOID):WINBOOL; name 'ReportEventA';
+
+  function AccessCheckAndAuditAlarm(SubsystemName:LPCSTR; HandleId:LPVOID; ObjectTypeName:LPSTR; ObjectName:LPSTR; SecurityDescriptor:PSECURITY_DESCRIPTOR;
+             DesiredAccess:DWORD; GenericMapping:PGENERIC_MAPPING; ObjectCreation:WINBOOL; GrantedAccess:LPDWORD; AccessStatus:LPBOOL;
+             pfGenerateOnClose:LPBOOL):WINBOOL; name 'AccessCheckAndAuditAlarmA';
+
+  function ObjectOpenAuditAlarm(SubsystemName:LPCSTR; HandleId:LPVOID; ObjectTypeName:LPSTR; ObjectName:LPSTR; pSecurityDescriptor:PSECURITY_DESCRIPTOR;
+             ClientToken:HANDLE; DesiredAccess:DWORD; GrantedAccess:DWORD; Privileges:PPRIVILEGE_SET; ObjectCreation:WINBOOL;
+             AccessGranted:WINBOOL; GenerateOnClose:LPBOOL):WINBOOL; name 'ObjectOpenAuditAlarmA';
+
+  function ObjectPrivilegeAuditAlarm(SubsystemName:LPCSTR; HandleId:LPVOID; ClientToken:HANDLE; DesiredAccess:DWORD; Privileges:PPRIVILEGE_SET;
+             AccessGranted:WINBOOL):WINBOOL; name 'ObjectPrivilegeAuditAlarmA';
+
+  function ObjectCloseAuditAlarm(SubsystemName:LPCSTR; HandleId:LPVOID; GenerateOnClose:WINBOOL):WINBOOL; name 'ObjectCloseAuditAlarmA';
+
+  function PrivilegedServiceAuditAlarm(SubsystemName:LPCSTR; ServiceName:LPCSTR; ClientToken:HANDLE; Privileges:PPRIVILEGE_SET; AccessGranted:WINBOOL):WINBOOL; name 'PrivilegedServiceAuditAlarmA';
+
+  function SetFileSecurity(lpFileName:LPCSTR; SecurityInformation:SECURITY_INFORMATION; pSecurityDescriptor:PSECURITY_DESCRIPTOR):WINBOOL; name 'SetFileSecurityA';
+
+  function GetFileSecurity(lpFileName:LPCSTR; RequestedInformation:SECURITY_INFORMATION; pSecurityDescriptor:PSECURITY_DESCRIPTOR; nLength:DWORD; lpnLengthNeeded:LPDWORD):WINBOOL; name 'GetFileSecurityA';
+
+
+  function LookupAccountSid(lpSystemName:LPCSTR; Sid:PSID; ParName:LPSTR; cbName:LPDWORD; ReferencedDomainName:LPSTR;
+             cbReferencedDomainName:LPDWORD; peUse:PSID_NAME_USE):WINBOOL; name 'LookupAccountSidA';
+
+  function LookupAccountName(lpSystemName:LPCSTR; lpAccountName:LPCSTR; Sid:PSID; cbSid:LPDWORD; ReferencedDomainName:LPSTR;
+             cbReferencedDomainName:LPDWORD; peUse:PSID_NAME_USE):WINBOOL;  name 'LookupAccountNameA';
+
+  function LookupPrivilegeValue(lpSystemName:LPCSTR; lpName:LPCSTR; lpLuid:PLUID):WINBOOL; name 'LookupPrivilegeValueA';
+
+  function LookupPrivilegeName(lpSystemName:LPCSTR; lpLuid:PLUID; lpName:LPSTR; cbName:LPDWORD):WINBOOL; name 'LookupPrivilegeNameA';
+
+  function LookupPrivilegeDisplayName(lpSystemName:LPCSTR; lpName:LPCSTR; lpDisplayName:LPSTR; cbDisplayName:LPDWORD; lpLanguageId:LPDWORD):WINBOOL; name 'LookupPrivilegeDisplayNameA';
+
+end;
+
+
+
+{external dll 'netapi32.dll'
+    function NetUserEnum(_para1:LPWSTR; _para2:DWORD; _para3:DWORD; var _para4:LPBYTE; _para5:DWORD;
+               _para6:LPDWORD; _para7:LPDWORD; _para8:LPDWORD):DWORD;  name 'NetUserEnum';
+
+    function NetApiBufferFree(_para1:LPVOID):DWORD;  name 'NetApiBufferFree';
+
+    function NetUserGetInfo(_para1:LPWSTR; _para2:LPWSTR; _para3:DWORD; _para4:LPBYTE):DWORD;  name 'NetUserGetInfo';
+
+    function NetGetDCName(_para1:LPWSTR; _para2:LPWSTR; var _para3:LPBYTE):DWORD;  name 'NetGetDCName';
+
+    function NetGroupEnum(_para1:LPWSTR; _para2:DWORD; var _para3:LPBYTE; _para4:DWORD; _para5:LPDWORD;
+               _para6:LPDWORD; _para7:LPDWORD):DWORD;  name 'NetGroupEnum';
+
+    function NetLocalGroupEnum(_para1:LPWSTR; _para2:DWORD; var _para3:LPBYTE; _para4:DWORD; _para5:LPDWORD;
+               _para6:LPDWORD; _para7:LPDWORD):DWORD;  name 'NetLocalGroupEnum';
+end;
+}{not in win98}
+
+external dll 'USER32.dll'
+
+{    function DdeConnect(_para1:DWORD; _para2:HSZ; _para3:HSZ; var _para4:CONVCONTEXT):HCONV; name 'DdeConnect';}
+
+    function DdeDisconnect(_para1:HCONV):WINBOOL; name 'DdeDisconnect';
+
+    function DdeFreeDataHandle(_para1:HDDEDATA):WINBOOL; name 'DdeFreeDataHandle';
+
+    function DdeGetData(_para1:HDDEDATA; var _para2:BYTE; _para3:DWORD; _para4:DWORD):DWORD;  name 'DdeGetData';
+
+    function DdeGetLastError(_para1:DWORD):UINT;  name 'DdeGetLastError';
+
+    function DdeNameService(_para1:DWORD; _para2:HSZ; _para3:HSZ; _para4:UINT):HDDEDATA;  name 'DdeNameService';
+
+    function DdePostAdvise(_para1:DWORD; _para2:HSZ; _para3:HSZ):WINBOOL;  name 'DdePostAdvise';
+
+    function DdeReconnect(_para1:HCONV):HCONV;  name 'DdeReconnect';
+
+    function DdeUninitialize(_para1:DWORD):WINBOOL;  name 'DdeUninitialize';
+
+    function DdeCmpStringHandles(_para1:HSZ; _para2:HSZ):longint;  name 'DdeCmpStringHandles';
+
+    function DdeCreateDataHandle(_para1:DWORD; _para2:LPBYTE; _para3:DWORD; _para4:DWORD; _para5:HSZ;
+               _para6:UINT; _para7:UINT):HDDEDATA;  name 'DdeCreateDataHandle';
+
+
+  function ActivateKeyboardLayout(hkl:HKL; Flags:UINT):WINBOOL; name 'ActivateKeyboardLayout';
+
+  function UnloadKeyboardLayout(hkl:HKL):WINBOOL;  name 'UnloadKeyboardLayout';
+
+  function GetKeyboardLayoutList(nBuff:longint; var lpList:HKL):longint;  name 'GetKeyboardLayoutList';
+
+  function GetKeyboardLayout(dwLayout:DWORD):HKL;  name 'GetKeyboardLayout';
+
+  function OpenInputDesktop(dwFlags:DWORD; fInherit:WINBOOL; dwDesiredAccess:DWORD):HDESK;  name 'OpenInputDesktop';
+
+  function EnumDesktopWindows(hDesktop:HDESK; lpfn:ENUMWINDOWSPROC; lParam:LPARAM):WINBOOL;  name 'EnumDesktopWindows';
+
+  function SwitchDesktop(hDesktop:HDESK):WINBOOL;  name 'SwitchDesktop';
+
+  function SetThreadDesktop(hDesktop:HDESK):WINBOOL;  name 'SetThreadDesktop';
+
+  function CloseDesktop(hDesktop:HDESK):WINBOOL;  name 'CloseDesktop';
+
+  function GetThreadDesktop(dwThreadId:DWORD):HDESK;  name 'GetThreadDesktop';
+
+  function CloseWindowStation(hWinSta:HWINSTA):WINBOOL;  name 'CloseWindowStation';
+
+  function SetProcessWindowStation(hWinSta:HWINSTA):WINBOOL;  name 'SetProcessWindowStation';
+
+  function GetProcessWindowStation:HWINSTA;  name 'GetProcessWindowStation';
+
+  function SetUserObjectSecurity(hObj:HANDLE; pSIRequested:PSECURITY_INFORMATION; pSID:PSECURITY_DESCRIPTOR):WINBOOL;  name 'SetUserObjectSecurity';
+
+  function GetUserObjectSecurity(hObj:HANDLE; pSIRequested:PSECURITY_INFORMATION; pSID:PSECURITY_DESCRIPTOR; nLength:DWORD; lpnLengthNeeded:LPDWORD):WINBOOL;  name 'GetUserObjectSecurity';
+
+  function TranslateMessage(var lpMsg:MSG):WINBOOL;  name 'TranslateMessage';
+
+  function SetMessageQueue(cMessagesMax:longint):WINBOOL;  name 'SetMessageQueue';
+
+  function RegisterHotKey(ParParhWnd:HWND; anID:longint; fsModifiers:UINT; vk:UINT):WINBOOL;  name 'RegisterHotKey';
+
+  function UnregisterHotKey(ParParhWnd:HWND; anID:longint):WINBOOL;  name 'UnregisterHotKey';
+
+  function ExitWindowsEx(uFlags:UINT; dwReserved:DWORD):WINBOOL;  name 'ExitWindowsEx';
+
+  function SwapMouseButton(fSwap:WINBOOL):WINBOOL;  name 'SwapMouseButton';
+
+  function GetMessagePos:DWORD;  name 'GetMessagePos';
+
+  function GetMessageTime:LONG;  name 'GetMessageTime';
+
+  function GetMessageExtraInfo:LONG;  name 'GetMessageExtraInfo';
+
+  function SetMessageExtraInfo(ParlParam:LPARAM):LPARAM;  name 'SetMessageExtraInfo';
+
+  function BroadcastSystemMessage(_para1:DWORD; _para2:LPDWORD; _para3:UINT; _para4:WPARAM; _para5:LPARAM):longint;  name 'BroadcastSystemMessage';
+
+  function AttachThreadInput(idAttach:DWORD; idAttachTo:DWORD; fAttach:WINBOOL):WINBOOL;  name 'AttachThreadInput';
+
+  function ReplyMessage(lResult:LRESULT):WINBOOL;  name 'ReplyMessage';
+
+  function WaitMessage:WINBOOL;  name 'WaitMessage';
+
+  function WaitForInputIdle(hProcess:HANDLE; dwMilliseconds:DWORD):DWORD;  name 'WaitForInputIdle';
+
+  procedure PostQuitMessage(nExitCode:longint);  name 'PostQuitMessage';
+
+  function InSendMessage:WINBOOL;  name 'InSendMessage';
+
+  function GetDoubleClickTime:UINT;  name 'GetDoubleClickTime';
+
+  function SetDoubleClickTime(_para1:UINT):WINBOOL;  name 'SetDoubleClickTime';
+
+  function IsWindow(ParParhWnd:HWND):WINBOOL;  name 'IsWindow';
+
+  function IsMenu(ParhMenu:HMENU):WINBOOL;  name 'IsMenu';
+
+  function IsChild(ParhWndParent:HWND; ParParhWnd:HWND):WINBOOL;  name 'IsChild';
+
+  function DestroyWindow(ParParhWnd:HWND):WINBOOL;  name 'DestroyWindow';
+
+  function ShowWindow(ParParhWnd:HWND; nCmdShow:longint):WINBOOL;  name 'ShowWindow';
+
+  function ShowWindowAsync(ParParhWnd:HWND; nCmdShow:longint):WINBOOL;  name 'ShowWindowAsync';
+
+  function FlashWindow(ParParhWnd:HWND; bInvert:WINBOOL):WINBOOL;  name 'FlashWindow';
+
+  function ShowOwnedPopups(ParParhWnd:HWND; fShow:WINBOOL):WINBOOL;  name 'ShowOwnedPopups';
+
+  function OpenIcon(ParParhWnd:HWND):WINBOOL;  name 'OpenIcon';
+
+  function CloseWindow(ParParhWnd:HWND):WINBOOL;  name 'CloseWindow';
+
+  function MoveWindow(ParParhWnd:HWND; X:longint; Y:longint; nWidth:longint; nHeight:longint;
+             bRepaint:WINBOOL):WINBOOL;  name 'MoveWindow';
+
+  function SetWindowPos(ParhWnd:HWND; ParhWndInsertAfter:HWND; X:longint; Y:longint; cx:longint;
+             cy:longint; uFlags:UINT):WINBOOL;  name 'SetWindowPos';
+
+  function GetWindowPlacement(ParhWnd:HWND; var lpwndpl:WINDOWPLACEMENT):WINBOOL;  name 'GetWindowPlacement';
+
+  function SetWindowPlacement(ParhWnd:HWND; var lpwndpl:WINDOWPLACEMENT):WINBOOL;  name 'SetWindowPlacement';
+
+  function BeginDeferWindowPos(nNumWindows:longint):HDWP;  name 'BeginDeferWindowPos';
+
+  function DeferWindowPos(hWinPosInfo:HDWP; ParhWnd:HWND; ParhWndInsertAfter:HWND; x:longint; y:longint;
+             cx:longint; cy:longint; uFlags:UINT):HDWP;  name 'DeferWindowPos';
+
+  function EndDeferWindowPos(hWinPosInfo:HDWP):WINBOOL;  name 'EndDeferWindowPos';
+
+  function IsWindowVisible(ParhWnd:HWND):WINBOOL;  name 'IsWindowVisible';
+
+  function IsIconic(ParhWnd:HWND):WINBOOL;  name 'IsIconic';
+
+  function AnyPopup:WINBOOL;  name 'AnyPopup';
+
+  function BringWindowToTop(ParhWnd:HWND):WINBOOL;  name 'BringWindowToTop';
+
+  function IsZoomed(ParhWnd:HWND):WINBOOL;  name 'IsZoomed';
+
+  function EndDialog(hDlg:HWND; nResult:longint):WINBOOL;  name 'EndDialog';
+
+  function GetDlgItem(hDlg:HWND; nIDDlgItem:longint):HWND;  name 'GetDlgItem';
+
+  function SetDlgItemInt(hDlg:HWND; nIDDlgItem:longint; uValue:UINT; bSigned:WINBOOL):WINBOOL;  name 'SetDlgItemInt';
+
+  function GetDlgItemInt(hDlg:HWND; nIDDlgItem:longint; var lpTranslated:WINBOOL; bSigned:WINBOOL):UINT;  name 'GetDlgItemInt';
+
+  function CheckDlgButton(hDlg:HWND; nIDButton:longint; uCheck:UINT):WINBOOL;  name 'CheckDlgButton';
+
+  function CheckRadioButton(hDlg:HWND; nIDFirstButton:longint; nIDLastButton:longint; nIDCheckButton:longint):WINBOOL;  name 'CheckRadioButton';
+
+  function IsDlgButtonChecked(hDlg:HWND; nIDButton:longint):UINT;  name 'IsDlgButtonChecked';
+
+  function GetNextDlgGroupItem(hDlg:HWND; hCtl:HWND; bPrevious:WINBOOL):HWND;  name 'GetNextDlgGroupItem';
+
+  function GetNextDlgTabItem(hDlg:HWND; hCtl:HWND; bPrevious:WINBOOL):HWND;  name 'GetNextDlgTabItem';
+
+  function GetDlgCtrlID(ParhWnd:HWND):longint;  name 'GetDlgCtrlID';
+
+  function GetDialogBaseUnits:longint;  name 'GetDialogBaseUnits';
+
+  function OpenClipboard(ParhWndNewOwner:HWND):WINBOOL;  name 'OpenClipboard';
+
+  function CloseClipboard:WINBOOL;  name 'CloseClipboard';
+
+  function GetClipboardOwner:HWND;  name 'GetClipboardOwner';
+
+  function SetClipboardViewer(ParhWndNewViewer:HWND):HWND;  name 'SetClipboardViewer';
+
+  function GetClipboardViewer:HWND;  name 'GetClipboardViewer';
+
+  function ChangeClipboardChain(ParhWndRemove:HWND; ParhWndNewNext:HWND):WINBOOL;  name 'ChangeClipboardChain';
+
+  function SetClipboardData(uFormat:UINT; hMem:HANDLE):HANDLE;  name 'SetClipboardData';
+
+  function GetClipboardData(uFormat:UINT):HANDLE;  name 'GetClipboardData';
+
+  function CountClipboardFormats:longint;  name 'CountClipboardFormats';
+
+  function EnumClipboardFormats(format:UINT):UINT;  name 'EnumClipboardFormats';
+
+  function EmptyClipboard:WINBOOL;  name 'EmptyClipboard';
+
+  function IsClipboardFormatAvailable(format:UINT):WINBOOL;  name 'IsClipboardFormatAvailable';
+
+  function GetPriorityClipboardFormat(var paFormatPriorityList:UINT; cFormats:longint):longint;  name 'GetPriorityClipboardFormat';
+
+  function GetOpenClipboardWindow:HWND;  name 'GetOpenClipboardWindow';
+
+  function CharNextExA(CodePage:WORD; lpCurrentChar:LPCSTR; dwFlags:DWORD):LPSTR;  name 'CharNextExA';
+
+  function CharPrevExA(CodePage:WORD; lpStart:LPCSTR; lpCurrentChar:LPCSTR; dwFlags:DWORD):LPSTR;  name 'CharPrevExA';
+
+  function SetFocus(ParhWnd:HWND):HWND;  name 'SetFocus';
+
+  function GetActiveWindow:HWND;  name 'GetActiveWindow';
+
+  function GetFocus:HWND;  name 'GetFocus';
+
+  function GetKBCodePage:UINT;  name 'GetKBCodePage';
+
+  function GetKeyState(nVirtKey:longint):SHORT;  name 'GetKeyState';
+
+  function GetAsyncKeyState(vKey:longint):SHORT;  name 'GetAsyncKeyState';
+
+  function GetKeyboardState(lpKeyState:PBYTE):WINBOOL;  name 'GetKeyboardState';
+
+  function SetKeyboardState(lpKeyState:LPBYTE):WINBOOL;  name 'SetKeyboardState';
+
+  function GetKeyboardType(nTypeFlag:longint):longint;  name 'GetKeyboardType';
+
+  function ToAscii(uVirtKey:UINT; uScanCode:UINT; lpKeyState:PBYTE; lpChar:LPWORD; uFlags:UINT):longint;  name 'ToAscii';
+
+  function ToAsciiEx(uVirtKey:UINT; uScanCode:UINT; lpKeyState:PBYTE; lpChar:LPWORD; uFlags:UINT;
+             dwhkl:HKL):longint;  name 'ToAsciiEx';
+
+  function ToUnicode(wVirtKey:UINT; wScanCode:UINT; lpKeyState:PBYTE; pwszBuff:LPWSTR; cchBuff:longint;
+             wFlags:UINT):longint;  name 'ToUnicode';
+
+  function OemKeyScan(wOemChar:WORD):DWORD;  name 'OemKeyScan';
+
+  procedure keybd_event(bVk:BYTE; bScan:BYTE; dwFlags:DWORD; dwExtraInfo:DWORD);  name 'keybd_event';
+
+  procedure mouse_event(dwFlags:DWORD; dx:DWORD; dy:DWORD; cButtons:DWORD; dwExtraInfo:DWORD);  name 'mouse_event';
+
+  function GetInputState:WINBOOL;  name 'GetInputState';
+
+  function GetQueueStatus(flags:UINT):DWORD;  name 'GetQueueStatus';
+
+  function GetCapture:HWND;  name 'GetCapture';
+
+  function SetCapture(ParhWnd:HWND):HWND;  name 'SetCapture';
+
+  function ReleaseCapture:WINBOOL;  name 'ReleaseCapture';
+
+  function MsgWaitForMultipleObjects(nCount:DWORD; pHandles:LPHANDLE; fWaitAll:WINBOOL; dwMilliseconds:DWORD; dwWakeMask:DWORD):DWORD;  name 'MsgWaitForMultipleObjects';
+
+  function SetTimer(ParhWnd:HWND; nIDEvent:UINT; uElapse:UINT; lpTimerFunc:TIMERPROC):UINT;  name 'SetTimer';
+
+  function KillTimer(ParhWnd:HWND; uIDEvent:UINT):WINBOOL;  name 'KillTimer';
+
+  function IsWindowUnicode(ParhWnd:HWND):WINBOOL;  name 'IsWindowUnicode';
+
+  function EnableWindow(ParhWnd:HWND; bEnable:WINBOOL):WINBOOL;  name 'EnableWindow';
+
+  function IsWindowEnabled(ParhWnd:HWND):WINBOOL;  name 'IsWindowEnabled';
+
+  function DestroyAcceleratorTable(hAccel:HACCEL):WINBOOL;  name 'DestroyAcceleratorTable';
+
+  function GetSystemMetrics(nIndex:longint):longint;  name 'GetSystemMetrics';
+
+  function GetMenu(ParhWnd:HWND):HMENU;  name 'GetMenu';
+
+  function SetMenu(ParhWnd:HWND; ParhMenu:HMENU):WINBOOL;  name 'SetMenu';
+
+  function HiliteMenuItem(ParhWnd:HWND; ParhMenu:HMENU; uIDHiliteItem:UINT; uHilite:UINT):WINBOOL;  name 'HiliteMenuItem';
+
+  function GetMenuState(ParhMenu:HMENU; uId:UINT; uFlags:UINT):UINT;  name 'GetMenuState';
+
+  function DrawMenuBar(ParhWnd:HWND):WINBOOL;  name 'DrawMenuBar';
+
+  function GetSystemMenu(ParhWnd:HWND; bRevert:WINBOOL):HMENU;  name 'GetSystemMenu';
+
+  function CreateMenu:HMENU;  name 'CreateMenu';
+
+  function CreatePopupMenu:HMENU;  name 'CreatePopupMenu';
+
+  function DestroyMenu(ParhMenu:HMENU):WINBOOL;  name 'DestroyMenu';
+
+  function CheckMenuItem(ParhMenu:HMENU; uIDCheckItem:UINT; uCheck:UINT):DWORD;  name 'CheckMenuItem';
+
+  function EnableMenuItem(ParhMenu:HMENU; uIDEnableItem:UINT; uEnable:UINT):WINBOOL;  name 'EnableMenuItem';
+
+  function GetSubMenu(ParhMenu:HMENU; nPos:longint):HMENU;  name 'GetSubMenu';
+
+  function GetMenuItemID(ParhMenu:HMENU; nPos:longint):UINT;  name 'GetMenuItemID';
+
+  function GetMenuItemCount(ParhMenu:HMENU):longint;  name 'GetMenuItemCount';
+
+  function RemoveMenu(ParhMenu:HMENU; uPosition:UINT; uFlags:UINT):WINBOOL;  name 'RemoveMenu';
+
+  function DeleteMenu(ParhMenu:HMENU; uPosition:UINT; uFlags:UINT):WINBOOL;  name 'DeleteMenu';
+
+  function SetMenuItemBitmaps(ParhMenu:HMENU; uPosition:UINT; uFlags:UINT; hBitmapUnchecked:HBITMAP; hBitmapChecked:HBITMAP):WINBOOL;  name 'SetMenuItemBitmaps';
+
+  function GetMenuCheckMarkDimensions:LONG;  name 'GetMenuCheckMarkDimensions';
+
+  function TrackPopupMenu(ParhMenu:HMENU; uFlags:UINT; x:longint; y:longint; nReserved:longint;
+             ParhWnd:HWND; var prcRect:RECT):WINBOOL;  name 'TrackPopupMenu';
+
+  function GetMenuDefaultItem(ParhMenu:HMENU; fByPos:UINT; gmdiFlags:UINT):UINT;  name 'GetMenuDefaultItem';
+
+  function SetMenuDefaultItem(ParhMenu:HMENU; uItem:UINT; fByPos:UINT):WINBOOL;  name 'SetMenuDefaultItem';
+
+  function GetMenuItemRect(ParhWnd:HWND; ParhMenu:HMENU; uItem:UINT; lprcItem:LPRECT):WINBOOL;  name 'GetMenuItemRect';
+
+  function MenuItemFromPoint(ParhWnd:HWND; ParhMenu:HMENU; ptScreen:POINT):longint;  name 'MenuItemFromPoint';
+
+  function DragObject(_para1:HWND; _para2:HWND; _para3:UINT; _para4:DWORD; _para5:HCURSOR):DWORD;  name 'DragObject';
+
+  function DragDetect(hwnd:HWND; pt:POINT):WINBOOL;  name 'DragDetect';
+
+  function DrawIcon(hDC:HDC; X:longint; Y:longint; hIcon:HICON):WINBOOL;  name 'DrawIcon';
+
+  function UpdateWindow(ParhWnd:HWND):WINBOOL;  name 'UpdateWindow';
+
+  function SetActiveWindow(ParhWnd:HWND):HWND;  name 'SetActiveWindow';
+
+  function GetForegroundWindow:HWND;  name 'GetForegroundWindow';
+
+  function PaintDesktop(hdc:HDC):WINBOOL;  name 'PaintDesktop';
+
+  function SetForegroundWindow(ParhWnd:HWND):WINBOOL;  name 'SetForegroundWindow';
+
+  function WindowFromDC(hDC:HDC):HWND;  name 'WindowFromDC';
+
+  function GetDC(ParhWnd:HWND):HDC;  name 'GetDC';
+
+  function GetDCEx(ParhWnd:HWND; hrgnClip:HRGN; flags:DWORD):HDC;  name 'GetDCEx';
+
+  function GetWindowDC(ParhWnd:HWND):HDC;  name 'GetWindowDC';
+
+  function ReleaseDC(ParhWnd:HWND; hDC:HDC):longint;  name 'ReleaseDC';
+
+
+  function BeginPaint(ParhWnd:HWND;var lPaint:PAINTSTRUCT):HDC;  name 'BeginPaint';
+
+  function EndPaint(ParhWnd:HWND; var lpPaint:PAINTSTRUCT):WINBOOL;  name 'EndPaint';
+
+  function GetUpdateRect(ParhWnd:HWND; lpRect:LPRECT; bErase:WINBOOL):WINBOOL;  name 'GetUpdateRect';
+
+  function GetUpdateRgn(ParhWnd:HWND; hRgn:HRGN; bErase:WINBOOL):longint;  name 'GetUpdateRgn';
+
+  function SetWindowRgn(ParhWnd:HWND; hRgn:HRGN; bRedraw:WINBOOL):longint;  name 'SetWindowRgn';
+
+  function GetWindowRgn(ParhWnd:HWND; hRgn:HRGN):longint;  name 'GetWindowRgn';
+
+  function ExcludeUpdateRgn(hDC:HDC; ParhWnd:HWND):longint;  name 'ExcludeUpdateRgn';
+
+  function InvalidateRect(ParhWnd:HWND; var lpRect:RECT; bErase:WINBOOL):WINBOOL;  name 'InvalidateRect';
+
+  function ValidateRect(ParhWnd:HWND; var lpRect:RECT):WINBOOL;  name 'ValidateRect';
+
+  function InvalidateRgn(ParhWnd:HWND; hRgn:HRGN; bErase:WINBOOL):WINBOOL;  name 'InvalidateRgn';
+
+  function ValidateRgn(ParhWnd:HWND; hRgn:HRGN):WINBOOL;  name 'ValidateRgn';
+
+  function RedrawWindow(ParhWnd:HWND; var lprcUpdate:RECT; hrgnUpdate:HRGN; flags:UINT):WINBOOL;  name 'RedrawWindow';
+
+  function LockWindowUpdate(ParhWndLock:HWND):WINBOOL;  name 'LockWindowUpdate';
+
+  function ScrollWindow(ParhWnd:HWND; XAmount:longint; YAmount:longint; var lpRect:RECT; var lpClipRect:RECT):WINBOOL;  name 'ScrollWindow';
+
+  function ScrollDC(hDC:HDC; dx:longint; dy:longint; var lprcScroll:RECT; var lprcClip:RECT;
+             hrgnUpdate:HRGN; lprcUpdate:LPRECT):WINBOOL;  name 'ScrollDC';
+
+  function ScrollWindowEx(ParhWnd:HWND; dx:longint; dy:longint; var prcScroll:RECT; var prcClip:RECT;
+             hrgnUpdate:HRGN; prcUpdate:LPRECT; flags:UINT):longint;  name 'ScrollWindowEx';
+
+  function SetScrollPos(ParhWnd:HWND; nBar:longint; nPos:longint; bRedraw:WINBOOL):longint;  name 'SetScrollPos';
+
+  function GetScrollPos(ParhWnd:HWND; nBar:longint):longint;  name 'GetScrollPos';
+
+  function SetScrollRange(ParhWnd:HWND; nBar:longint; nMinPos:longint; nMaxPos:longint; bRedraw:WINBOOL):WINBOOL;  name 'SetScrollRange';
+
+  function GetScrollRange(ParhWnd:HWND; nBar:longint; lpMinPos:LPINT; lpMaxPos:LPINT):WINBOOL;  name 'GetScrollRange';
+
+  function ShowScrollBar(ParhWnd:HWND; wBar:longint; bShow:WINBOOL):WINBOOL;  name 'ShowScrollBar';
+
+  function EnableScrollBar(ParhWnd:HWND; wSBflags:UINT; wArrows:UINT):WINBOOL;  name 'EnableScrollBar';
+
+  function GetClientRect(ParhWnd:HWND; lpRect:LPRECT):WINBOOL;  name 'GetClientRect';
+
+  function GetWindowRect(ParhWnd:HWND; lpRect:LPRECT):WINBOOL;  name 'GetWindowRect';
+
+  function AdjustWindowRect(lpRect:LPRECT; dwStyle:DWORD; bMenu:WINBOOL):WINBOOL;  name 'AdjustWindowRect';
+
+  function AdjustWindowRectEx(lpRect:LPRECT; dwStyle:DWORD; bMenu:WINBOOL; dwExStyle:DWORD):WINBOOL;  name 'AdjustWindowRectEx';
+
+  function SetWindowContextHelpId(_para1:HWND; _para2:DWORD):WINBOOL;  name 'SetWindowContextHelpId';
+
+  function GetWindowContextHelpId(_para1:HWND):DWORD;  name 'GetWindowContextHelpId';
+
+  function SetMenuContextHelpId(_para1:HMENU; _para2:DWORD):WINBOOL;  name 'SetMenuContextHelpId';
+
+  function GetMenuContextHelpId(_para1:HMENU):DWORD;  name 'GetMenuContextHelpId';
+
+  function MessageBeep(uType:UINT):WINBOOL;  name 'MessageBeep';
+
+  function ShowCursor(bShow:WINBOOL):longint;  name 'ShowCursor';
+
+  function SetCursorPos(X:longint; Y:longint):WINBOOL;  name 'SetCursorPos';
+
+  function SetCursor(ParhCursor:HCURSOR):HCURSOR;  name 'SetCursor';
+
+  function GetCursorPos(lpPoint:LPPOINT):WINBOOL;  name 'GetCursorPos';
+
+  function ClipCursor(var lpRect:RECT):WINBOOL;  name 'ClipCursor';
+
+  function GetClipCursor(lpRect:LPRECT):WINBOOL;  name 'GetClipCursor';
+
+  function GetCursor:HCURSOR;  name 'GetCursor';
+
+  function CreateCaret(ParhWnd:HWND; hBitmap:HBITMAP; nWidth:longint; nHeight:longint):WINBOOL;  name 'CreateCaret';
+
+  function GetCaretBlinkTime:UINT;  name 'GetCaretBlinkTime';
+
+  function SetCaretBlinkTime(uMSeconds:UINT):WINBOOL;  name 'SetCaretBlinkTime';
+
+  function DestroyCaret:WINBOOL;  name 'DestroyCaret';
+
+  function HideCaret(ParhWnd:HWND):WINBOOL;  name 'HideCaret';
+
+  function ShowCaret(ParhWnd:HWND):WINBOOL;  name 'ShowCaret';
+
+  function SetCaretPos(X:longint; Y:longint):WINBOOL;  name 'SetCaretPos';
+
+  function GetCaretPos(lpPoint:LPPOINT):WINBOOL;  name 'GetCaretPos';
+
+  function ClientToScreen(ParhWnd:HWND; lpPoint:LPPOINT):WINBOOL;  name 'ClientToScreen';
+
+  function ScreenToClient(ParhWnd:HWND; lpPoint:LPPOINT):WINBOOL;  name 'ScreenToClient';
+
+  function MapWindowPoints(ParhWndFrom:HWND; ParhWndTo:HWND; lpPoints:LPPOINT; cPoints:UINT):longint;  name 'MapWindowPoints';
+
+  function WindowFromPoint(Point:POINT):HWND;  name 'WindowFromPoint';
+
+  function ChildWindowFromPoint(ParhWndParent:HWND; Point:POINT):HWND;  name 'ChildWindowFromPoint';
+
+  function GetSysColor(nIndex:longint):DWORD;  name 'GetSysColor';
+
+  function GetSysColorBrush(nIndex:longint):HBRUSH;  name 'GetSysColorBrush';
+
+  function SetSysColors(cElements:longint; var lpaElements:INT; var lpaRgbValues:COLORREF):WINBOOL;  name 'SetSysColors';
+
+  function DrawFocusRect(hDC:HDC; var lprc:RECT):WINBOOL;  name 'DrawFocusRect';
+
+  function FillRect(hDC:HDC; var lprc:RECT; hbr:HBRUSH):longint;  name 'FillRect';
+
+  function FrameRect(hDC:HDC; var lprc:RECT; hbr:HBRUSH):longint;  name 'FrameRect';
+
+  function InvertRect(hDC:HDC; var lprc:RECT):WINBOOL;  name 'InvertRect';
+
+  function SetRect(lprc:LPRECT; xLeft:longint; yTop:longint; xRight:longint; yBottom:longint):WINBOOL;  name 'SetRect';
+
+  function SetRectEmpty(lprc:LPRECT):WINBOOL;  name 'SetRectEmpty';
+
+  function CopyRect(lprcDst:LPRECT; var lprcSrc:RECT):WINBOOL;  name 'CopyRect';
+
+  function InflateRect(lprc:LPRECT; dx:longint; dy:longint):WINBOOL;  name 'InflateRect';
+
+  function IntersectRect(lprcDst:LPRECT; var lprcSrc1:RECT; var lprcSrc2:RECT):WINBOOL;  name 'IntersectRect';
+
+  function UnionRect(lprcDst:LPRECT; var lprcSrc1:RECT; var lprcSrc2:RECT):WINBOOL;  name 'UnionRect';
+
+  function SubtractRect(lprcDst:LPRECT; var lprcSrc1:RECT; var lprcSrc2:RECT):WINBOOL;  name 'SubtractRect';
+
+  function OffsetRect(lprc:LPRECT; dx:longint; dy:longint):WINBOOL;  name 'OffsetRect';
+
+  function IsRectEmpty(var lprc:RECT):WINBOOL;  name 'IsRectEmpty';
+
+  function EqualRect(var lprc1:RECT; var lprc2:RECT):WINBOOL;  name 'EqualRect';
+
+  function PtInRect(var lprc:RECT; pt:POINT):WINBOOL;  name 'PtInRect';
+
+  function GetWindowWord(ParhWnd:HWND; nIndex:longint):WORD;  name 'GetWindowWord';
+
+  function SetWindowWord(ParhWnd:HWND; nIndex:longint; wNewWord:WORD):WORD;  name 'SetWindowWord';
+
+  function GetClassWord(ParhWnd:HWND; nIndex:longint):WORD;  name 'GetClassWord';
+
+  function SetClassWord(ParhWnd:HWND; nIndex:longint; wNewWord:WORD):WORD;  name 'SetClassWord';
+
+  function GetDesktopWindow:HWND;  name 'GetDesktopWindow';
+
+  function GetParent(ParhWnd:HWND):HWND;  name 'GetParent';
+
+  function SetParent(ParhWndChild:HWND; ParhWndNewParent:HWND):HWND;  name 'SetParent';
+
+  function EnumChildWindows(ParhWndParent:HWND; lpEnumFunc:ENUMWINDOWSPROC; lParam:LPARAM):WINBOOL;  name 'EnumChildWindows';
+
+  function EnumWindows(lpEnumFunc:ENUMWINDOWSPROC; lParam:LPARAM):WINBOOL;  name 'EnumWindows';
+
+  function EnumThreadWindows(dwThreadId:DWORD; lpfn:ENUMWINDOWSPROC; lParam:LPARAM):WINBOOL;  name 'EnumThreadWindows';
+
+  function GetTopWindow(ParhWnd:HWND):HWND;  name 'GetTopWindow';
+
+  function GetWindowThreadProcessId(ParhWnd:HWND; lpdwProcessId:LPDWORD):DWORD;  name 'GetWindowThreadProcessId';
+
+  function GetLastActivePopup(ParhWnd:HWND):HWND;  name 'GetLastActivePopup';
+
+  function GetWindow(ParhWnd:HWND; uCmd:UINT):HWND;  name 'GetWindow';
+
+  function UnhookWindowsHook(nCode:longint; pfnFilterProc:HOOKPROC):WINBOOL;  name 'UnhookWindowsHook';
+
+  function UnhookWindowsHookEx(hhk:HHOOK):WINBOOL;  name 'UnhookWindowsHookEx';
+
+  function CallNextHookEx(hhk:HHOOK; nCode:longint; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'CallNextHookEx';
+
+  function CheckMenuRadioItem(_para1:HMENU; _para2:UINT; _para3:UINT; _para4:UINT; _para5:UINT):WINBOOL;  name 'CheckMenuRadioItem';
+
+  function CreateCursor(hInst:HINST; xHotSpot:longint; yHotSpot:longint; nWidth:longint; nHeight:longint;
+             pvANDPlane:pvoid; pvXORPlane:pvoid):HCURSOR;  name 'CreateCursor';
+
+  function DestroyCursor(hCursor:HCURSOR):WINBOOL;  name 'DestroyCursor';
+
+  function SetSystemCursor(hcur:HCURSOR; anID:DWORD):WINBOOL;  name 'SetSystemCursor';
+
+  function CreateIcon(hInstance:HINST; nWidth:longint; nHeight:longint; cPlanes:BYTE; cBitsPixel:BYTE;
+             var lpbANDbits:BYTE; var lpbXORbits:BYTE):HICON;  name 'CreateIcon';
+
+  function DestroyIcon(hIcon:HICON):WINBOOL;  name 'DestroyIcon';
+
+  function LookupIconIdFromDirectory(presbits:PBYTE; fIcon:WINBOOL):longint;  name 'LookupIconIdFromDirectory';
+
+  function LookupIconIdFromDirectoryEx(presbits:PBYTE; fIcon:WINBOOL; cxDesired:longint; cyDesired:longint; Flags:UINT):longint;  name 'LookupIconIdFromDirectoryEx';
+
+  function CreateIconFromResource(presbits:PBYTE; dwResSize:DWORD; fIcon:WINBOOL; dwVer:DWORD):HICON;  name 'CreateIconFromResource';
+
+  function CreateIconFromResourceEx(presbits:PBYTE; dwResSize:DWORD; fIcon:WINBOOL; dwVer:DWORD; cxDesired:longint;
+             cyDesired:longint; Flags:UINT):HICON;  name 'CreateIconFromResourceEx';
+
+  function CopyImage(_para1:HANDLE; _para2:UINT; _para3:longint; _para4:longint; _para5:UINT):HICON;  name 'CopyImage';
+
+  function CreateIconIndirect(piconinfo:PICONINFO):HICON;  name 'CreateIconIndirect';
+
+  function CopyIcon(ParhIcon:HICON):HICON;  name 'CopyIcon';
+
+  function GetIconInfo(ParhIcon:HICON; piconinfo:PICONINFO):WINBOOL;  name 'GetIconInfo';
+
+  function MapDialogRect(hDlg:HWND; lpRect:LPRECT):WINBOOL;  name 'MapDialogRect';
+
+  function SetScrollInfo(_para1:HWND; _para2:longint; _para3:LPCSCROLLINFO; _para4:WINBOOL):longint;  name 'SetScrollInfo';
+
+  function GetScrollInfo(_para1:HWND; _para2:longint; _para3:LPSCROLLINFO):WINBOOL;  name 'GetScrollInfo';
+
+  function TranslateMDISysAccel(ParhWndClient:HWND; lpMsg:LPMSG):WINBOOL;  name 'TranslateMDISysAccel';
+
+  function ArrangeIconicWindows(ParhWnd:HWND):UINT;  name 'ArrangeIconicWindows';
+
+  function TileWindows(hwndParent:HWND; wHow:UINT; var lpRect:RECT; cKids:UINT; var lpKids:HWND):WORD;  name 'TileWindows';
+
+  function CascadeWindows(hwndParent:HWND; wHow:UINT; var lpRect:RECT; cKids:UINT; var lpKids:HWND):WORD;  name 'CascadeWindows';
+
+  procedure SetLastErrorEx(dwErrCode:DWORD; dwType:DWORD);  name 'SetLastErrorEx';
+
+  procedure SetDebugErrorLevel(dwLevel:DWORD);  name 'SetDebugErrorLevel';
+
+  function DrawEdge(hdc:HDC; qrc:LPRECT; edge:UINT; grfFlags:UINT):WINBOOL;  name 'DrawEdge';
+
+  function DrawFrameControl(_para1:HDC; _para2:LPRECT; _para3:UINT; _para4:UINT):WINBOOL;  name 'DrawFrameControl';
+
+  function DrawCaption(_para1:HWND; _para2:HDC; var _para3:RECT; _para4:UINT):WINBOOL;  name 'DrawCaption';
+
+  function DrawAnimatedRects(hwnd:HWND; idAni:longint; var lprcFrom:RECT; var lprcTo:RECT):WINBOOL;  name 'DrawAnimatedRects';
+
+  function TrackPopupMenuEx(_para1:HMENU; _para2:UINT; _para3:longint; _para4:longint; _para5:HWND;
+             _para6:LPTPMPARAMS):WINBOOL;  name 'TrackPopupMenuEx';
+
+  function ChildWindowFromPointEx(_para1:HWND; _para2:POINT; _para3:UINT):HWND;  name 'ChildWindowFromPointEx';
+
+  function DrawIconEx(hdc:HDC; xLeft:longint; yTop:longint; hIcon:HICON; cxWidth:longint;
+             cyWidth:longint; istepIfAniCur:UINT; hbrFlickerFreeDraw:HBRUSH; diFlags:UINT):WINBOOL;  name 'DrawIconEx';
+
+
+  function DdeCreateStringHandle(_para1:DWORD; var _para2:char; _para3:longint):HSZ;  name 'DdeCreateStringHandleA';
+
+  function DdeInitialize(var _para1:DWORD; _para2:CALLB; _para3:DWORD; _para4:DWORD):UINT;  name 'DdeInitializeA';
+
+  function DdeQueryString(_para1:DWORD; _para2:HSZ; var _para3:char; _para4:DWORD; _para5:longint):DWORD;  name 'DdeQueryStringA';
+
+
+{  function wvsprintf(_para1:LPSTR; _para2:LPCSTR; arglist:va_list):longint;  name 'wvsprintfA';}
+
+  function LoadKeyboardLayout(pwszKLID:LPCSTR; Flags:UINT):HKL;  name 'LoadKeyboardLayoutA';
+
+  function GetKeyboardLayoutName(pwszKLID:LPSTR):WINBOOL;  name 'GetKeyboardLayoutNameA';
+
+  function CreateDesktop(lpszDesktop:LPSTR; lpszDevice:LPSTR; pDevmode:LPDEVMODE; dwFlags:DWORD; dwDesiredAccess:DWORD;
+             lpsa:LPSECURITY_ATTRIBUTES):HDESK;  name 'CreateDesktopA';
+
+  function OpenDesktop(lpszDesktop:LPSTR; dwFlags:DWORD; fInherit:WINBOOL; dwDesiredAccess:DWORD):HDESK;  name 'OpenDesktopA';
+
+  function EnumDesktops(hwinsta:HWINSTA; lpEnumFunc:DESKTOPENUMPROC; lParam:LPARAM):WINBOOL;  name 'EnumDesktopsA';
+
+  function CreateWindowStation(lpwinsta:LPSTR; dwReserved:DWORD; dwDesiredAccess:DWORD; lpsa:LPSECURITY_ATTRIBUTES):HWINSTA;  name 'CreateWindowStationA';
+
+  function OpenWindowStation(lpszWinSta:LPSTR; fInherit:WINBOOL; dwDesiredAccess:DWORD):HWINSTA;  name 'OpenWindowStationA';
+
+  function EnumWindowStations(lpEnumFunc:ENUMWINDOWSTATIONPROC; lParam:LPARAM):WINBOOL;  name 'EnumWindowStationsA';
+
+  function GetUserObjectInformation(hObj:HANDLE; nIndex:longint; pvInfo:PVOID; nLength:DWORD; lpnLengthNeeded:LPDWORD):WINBOOL;  name 'GetUserObjectInformationA';
+
+  function SetUserObjectInformation(hObj:HANDLE; nIndex:longint; pvInfo:PVOID; nLength:DWORD):WINBOOL;  name 'SetUserObjectInformationA';
+
+  function RegisterWindowMessage(lpString:LPCSTR):UINT;  name 'RegisterWindowMessageA';
+
+  function GetMessage(lpMsg:LPMSG; ParhWnd:HWND; wMsgFilterMin:UINT; wMsgFilterMax:UINT):WINBOOL;  name 'GetMessageA';
+
+  function DispatchMessage(var lpMsg:MSG):LONG;  name 'DispatchMessageA';
+
+  function PeekMessage(lpMsg:LPMSG; ParhWnd:HWND; wMsgFilterMin:UINT; wMsgFilterMax:UINT; wRemoveMsg:UINT):WINBOOL;  name 'PeekMessageA';
+
+  function SendMessage(ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'SendMessageA';
+
+  function SendMessageTimeout(ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM; fuFlags:UINT;
+             uTimeout:UINT; lpdwResult:LPDWORD):LRESULT;  name 'SendMessageTimeoutA';
+
+  function SendNotifyMessage(ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM):WINBOOL;  name 'SendNotifyMessageA';
+
+  function SendMessageCallback(ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM; lpResultCallBack:SENDASYNCPROC;
+             dwData:DWORD):WINBOOL;  name 'SendMessageCallbackA';
+
+  function PostMessage(ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM):WINBOOL;  name 'PostMessageA';
+
+  function PostThreadMessage(idThread:DWORD; Msg:UINT; wParam:WPARAM; lParam:LPARAM):WINBOOL;  name 'PostThreadMessageA';
+
+  function DefWindowProc(ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'DefWindowProcA';
+
+  function CallWindowProc(lpPrevWndFunc:WNDPROC; ParhWnd:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'CallWindowProcA';
+
+  function RegisterClass(var lpWndClass:WNDCLASS):ATOM;  name 'RegisterClassA';
+
+  function UnregisterClass(lpClassName:LPCSTR; hInstance:HINST):WINBOOL;  name 'UnregisterClassA';
+
+  function GetClassInfo(hInstance:HINST; lpClassName:LPCSTR; lpWndClass:LPWNDCLASS):WINBOOL;  name 'GetClassInfoA';
+
+  function RegisterClassEx(var _para1:WNDCLASSEX):ATOM;  name 'RegisterClassExA';
+
+  function GetClassInfoEx(_para1:HINST; _para2:LPCSTR; _para3:LPWNDCLASSEX):WINBOOL;  name 'GetClassInfoExA';
+
+  function CreateWindowEx(dwExStyle:DWORD; lpClassName:LPCSTR; lpWindowName:LPCSTR; dwStyle:DWORD; X:longint;
+             Y:longint; nWidth:longint; nHeight:longint; ParhWndParent:HWND; ParhMenu:HMENU;
+             hInstance:HINST; lpParam:LPVOID):HWND;  name 'CreateWindowExA';
+
+  function CreateDialogParam(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC; dwInitParam:LPARAM):HWND;  name 'CreateDialogParamA';
+
+  function CreateDialogIndirectParam(hInstance:HINST; lpTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC; dwInitParam:LPARAM):HWND;  name 'CreateDialogIndirectParamA';
+
+  function DialogBoxParam(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC; dwInitParam:LPARAM):longint;  name 'DialogBoxParamA';
+
+  function DialogBoxIndirectParam(hInstance:HINST; hDialogTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC; dwInitParam:LPARAM):longint;  name 'DialogBoxIndirectParamA';
+
+  function SetDlgItemText(hDlg:HWND; nIDDlgItem:longint; lpString:LPCSTR):WINBOOL;  name 'SetDlgItemTextA';
+
+  function GetDlgItemText(hDlg:HWND; nIDDlgItem:longint; lpString:LPSTR; nMaxCount:longint):UINT;  name 'GetDlgItemTextA';
+
+  function SendDlgItemMessage(hDlg:HWND; nIDDlgItem:longint; Msg:UINT; wParam:WPARAM; lParam:LPARAM):LONG;  name 'SendDlgItemMessageA';
+
+  function DefDlgProc(hDlg:HWND; Msg:UINT; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'DefDlgProcA';
+
+  function CallMsgFilter(lpMsg:LPMSG; nCode:longint):WINBOOL;  name 'CallMsgFilterA';
+
+  function RegisterClipboardFormat(lpszFormat:LPCSTR):UINT;  name 'RegisterClipboardFormatA';
+
+  function GetClipboardFormatName(format:UINT; lpszFormatName:LPSTR; cchMaxCount:longint):longint;  name 'GetClipboardFormatNameA';
+
+  function CharToOem(lpszSrc:LPCSTR; lpszDst:LPSTR):WINBOOL;  name 'CharToOemA';
+
+  function OemToChar(lpszSrc:LPCSTR; lpszDst:LPSTR):WINBOOL;  name 'OemToCharA';
+
+  function CharToOemBuff(lpszSrc:LPCSTR; lpszDst:LPSTR; cchDstLength:DWORD):WINBOOL;  name 'CharToOemBuffA';
+
+  function OemToCharBuff(lpszSrc:LPCSTR; lpszDst:LPSTR; cchDstLength:DWORD):WINBOOL;  name 'OemToCharBuffA';
+
+  function CharUpper(lpsz:LPSTR):LPSTR;  name 'CharUpperA';
+
+  function CharUpperBuff(lpsz:LPSTR; cchLength:DWORD):DWORD;  name 'CharUpperBuffA';
+
+  function CharLower(lpsz:LPSTR):LPSTR;  name 'CharLowerA';
+
+  function CharLowerBuff(lpsz:LPSTR; cchLength:DWORD):DWORD;  name 'CharLowerBuffA';
+
+  function CharNext(lpsz:LPCSTR):LPSTR;  name 'CharNextA';
+
+  function CharPrev(lpszStart:LPCSTR; lpszCurrent:LPCSTR):LPSTR;  name 'CharPrevA';
+
+  function IsCharAlpha(ch:CHAR):WINBOOL;  name 'IsCharAlphaA';
+
+  function IsCharAlphaNumeric(ch:CHAR):WINBOOL;  name 'IsCharAlphaNumericA';
+
+  function IsCharUpper(ch:CHAR):WINBOOL;  name 'IsCharUpperA';
+
+  function IsCharLower(ch:CHAR):WINBOOL;  name 'IsCharLowerA';
+
+  function GetKeyNameText(lParam:LONG; lpString:LPSTR; nSize:longint):longint;  name 'GetKeyNameTextA';
+
+  function VkKeyScan(ch:CHAR):SHORT;  name 'VkKeyScanA';
+
+  function VkKeyScanEx(ch:CHAR; dwhkl:HKL):SHORT;  name 'VkKeyScanExA';
+
+  function MapVirtualKey(uCode:UINT; uMapType:UINT):UINT;  name 'MapVirtualKeyA';
+
+  function MapVirtualKeyEx(uCode:UINT; uMapType:UINT; dwhkl:HKL):UINT;  name 'MapVirtualKeyExA';
+
+  function LoadAccelerators(hInstance:HINST; lpTableName:LPCSTR):HACCEL;  name 'LoadAcceleratorsA';
+
+  function CreateAcceleratorTable(_para1:LPACCEL; _para2:longint):HACCEL;  name 'CreateAcceleratorTableA';
+
+  function CopyAcceleratorTable(hAccelSrc:HACCEL; lpAccelDst:LPACCEL; cAccelEntries:longint):longint;  name 'CopyAcceleratorTableA';
+
+  function TranslateAccelerator(ParhWnd:HWND; hAccTable:HACCEL; lpMsg:LPMSG):longint;  name 'TranslateAcceleratorA';
+
+  function LoadMenu(hInstance:HINST; lpMenuName:LPCSTR):HMENU;  name 'LoadMenuA';
+
+  function LoadMenuIndirect(var lpMenuTemplate:MENUTEMPLATE):HMENU;  name 'LoadMenuIndirectA';
+
+  function ChangeMenu(ParhMenu:HMENU; cmd:UINT; lpszNewItem:LPCSTR; cmdInsert:UINT; flags:UINT):WINBOOL;  name 'ChangeMenuA';
+
+  function GetMenuString(ParhMenu:HMENU; uIDItem:UINT; lpString:LPSTR; nMaxCount:longint; uFlag:UINT):longint;  name 'GetMenuStringA';
+
+  function InsertMenu(ParhMenu:HMENU; uPosition:UINT; uFlags:UINT; uIDNewItem:UINT; lpNewItem:LPCSTR):WINBOOL;  name 'InsertMenuA';
+
+  function AppendMenu(ParhMenu:HMENU; uFlags:UINT; uIDNewItem:UINT; lpNewItem:LPCSTR):WINBOOL;  name 'AppendMenuA';
+
+  function ModifyMenu(hMnu:HMENU; uPosition:UINT; uFlags:UINT; uIDNewItem:UINT; lpNewItem:LPCSTR):WINBOOL;  name 'ModifyMenuA';
+
+  function InsertMenuItem(_para1:HMENU; _para2:UINT; _para3:WINBOOL; _para4:LPCMENUITEMINFO):WINBOOL;  name 'InsertMenuItemA';
+
+  function GetMenuItemInfo(_para1:HMENU; _para2:UINT; _para3:WINBOOL; _para4:LPMENUITEMINFO):WINBOOL;  name 'GetMenuItemInfoA';
+
+  function SetMenuItemInfo(_para1:HMENU; _para2:UINT; _para3:WINBOOL; _para4:LPCMENUITEMINFO):WINBOOL;  name 'SetMenuItemInfoA';
+
+  function DrawText(hDC:HDC; lpString:LPCSTR; nCount:longint; lpRect:LPRECT; uFormat:UINT):longint;  name 'DrawTextA';
+
+  function DrawTextEx(_para1:HDC; _para2:LPSTR; _para3:longint; _para4:LPRECT; _para5:UINT;
+             _para6:LPDRAWTEXTPARAMS):longint;  name 'DrawTextExA';
+
+  function GrayString(hDC:HDC; hBrush:HBRUSH; lpOutputFunc:GRAYSTRINGPROC; lpData:LPARAM; nCount:longint;
+             X:longint; Y:longint; nWidth:longint; nHeight:longint):WINBOOL;  name 'GrayStringA';
+
+  function DrawState(_para1:HDC; _para2:HBRUSH; _para3:DRAWSTATEPROC; _para4:LPARAM; _para5:WPARAM;
+             _para6:longint; _para7:longint; _para8:longint; _para9:longint; _para10:UINT):WINBOOL;  name 'DrawStateA';
+
+  function TabbedTextOut(hDC:HDC; X:longint; Y:longint; lpString:LPCSTR; nCount:longint;
+             nTabPositions:longint; lpnTabStopPositions:LPINT; nTabOrigin:longint):LONG;  name 'TabbedTextOutA';
+
+  function GetTabbedTextExtent(hDC:HDC; lpString:LPCSTR; nCount:longint; nTabPositions:longint; lpnTabStopPositions:LPINT):DWORD;  name 'GetTabbedTextExtentA';
+
+  function SetProp(ParhWnd:HWND; lpString:LPCSTR; hData:HANDLE):WINBOOL;  name 'SetPropA';
+
+  function GetProp(ParhWnd:HWND; lpString:LPCSTR):HANDLE;  name 'GetPropA';
+
+  function RemoveProp(ParhWnd:HWND; lpString:LPCSTR):HANDLE;  name 'RemovePropA';
+
+  function EnumPropsEx(ParhWnd:HWND; lpEnumFunc:PROPENUMPROCEX; lParam:LPARAM):longint;  name 'EnumPropsExA';
+
+  function EnumProps(ParhWnd:HWND; lpEnumFunc:PROPENUMPROC):longint;  name 'EnumPropsA';
+
+  function SetWindowText(ParhWnd:HWND; lpString:LPCSTR):WINBOOL;  name 'SetWindowTextA';
+
+  function GetWindowText(ParhWnd:HWND; lpString:LPSTR; nMaxCount:longint):longint;  name 'GetWindowTextA';
+
+  function GetWindowTextLength(ParhWnd:HWND):longint;  name 'GetWindowTextLengthA';
+
+  function MessageBox(ParhWnd:HWND; lpText:LPCSTR; lpCaption:LPCSTR; uType:UINT):longint;  name 'MessageBoxA';
+
+  function MessageBoxEx(ParhWnd:HWND; lpText:LPCSTR; lpCaption:LPCSTR; uType:UINT; wLanguageId:WORD):longint;  name 'MessageBoxExA';
+
+{  function MessageBoxIndirect(_para1:LPMSGBOXPARAMS):longint;  name 'MessageBoxIndirectA';}
+
+  function GetWindowLong(ParhWnd:HWND; nIndex:longint):LONG;  name 'GetWindowLongA';
+
+  function SetWindowLong(ParhWnd:HWND; nIndex:longint; dwNewLong:LONG):LONG;  name 'SetWindowLongA';
+
+  function GetClassLong(ParhWnd:HWND; nIndex:longint):DWORD;  name 'GetClassLongA';
+
+  function SetClassLong(ParhWnd:HWND; nIndex:longint; dwNewLong:LONG):DWORD;  name 'SetClassLongA';
+
+  function FindWindow(lpClassName:LPCSTR; lpWindowName:LPCSTR):HWND;  name 'FindWindowA';
+
+  function FindWindowEx(_para1:HWND; _para2:HWND; _para3:LPCSTR; _para4:LPCSTR):HWND;  name 'FindWindowExA';
+
+  function GetClassName(ParhWnd:HWND; lpClassName:LPSTR; nMaxCount:longint):longint;  name 'GetClassNameA';
+
+  function SetWindowsHookEx(idHook:longint; lpfn:HOOKPROC; hmod:HINST; dwThreadId:DWORD):HHOOK;  name 'SetWindowsHookExA';
+
+  function LoadBitmap(hInstance:HINST; lpBitmapName:LPCSTR):HBITMAP;  name 'LoadBitmapA';
+
+  function LoadCursor(hInstance:HINST; lpCursorName:LPCSTR):HCURSOR;  name 'LoadCursorA';
+
+  function LoadCursorFromFile(lpFileName:LPCSTR):HCURSOR;  name 'LoadCursorFromFileA';
+
+  function LoadIcon(hInstance:HINST; lpIconName:LPCSTR):HICON;  name 'LoadIconA';
+
+  function LoadImage(_para1:HINST; _para2:LPCSTR; _para3:UINT; _para4:longint; _para5:longint;
+             _para6:UINT):HANDLE;  name 'LoadImageA';
+
+  function LoadString(hInstance:HINST; uID:UINT; lpBuffer:LPSTR; nBufferMax:longint):longint;  name 'LoadStringA';
+
+  function IsDialogMessage(hDlg:HWND; lpMsg:LPMSG):WINBOOL;  name 'IsDialogMessageA';
+
+  function DlgDirList(hDlg:HWND; lpPathSpec:LPSTR; nIDListBox:longint; nIDStaticPath:longint; uFileType:UINT):longint;  name 'DlgDirListA';
+
+  function DlgDirSelectEx(hDlg:HWND; lpString:LPSTR; nCount:longint; nIDListBox:longint):WINBOOL;  name 'DlgDirSelectExA';
+
+  function DlgDirListComboBox(hDlg:HWND; lpPathSpec:LPSTR; nIDComboBox:longint; nIDStaticPath:longint; uFiletype:UINT):longint;  name 'DlgDirListComboBoxA';
+
+  function DlgDirSelectComboBoxEx(hDlg:HWND; lpString:LPSTR; nCount:longint; nIDComboBox:longint):WINBOOL;  name 'DlgDirSelectComboBoxExA';
+
+  function DefFrameProc(ParParhWnd:HWND; ParhWndMDIClient:HWND; uMsg:UINT; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'DefFrameProcA';
+
+  function DefMDIChildProc(ParhWnd:HWND; uMsg:UINT; wParam:WPARAM; lParam:LPARAM):LRESULT;  name 'DefMDIChildProcA';
+
+  function CreateMDIWindow(lpClassName:LPSTR; lpWindowName:LPSTR; dwStyle:DWORD; X:longint; Y:longint;
+             nWidth:longint; nHeight:longint; ParhWndParent:HWND; hInstance:HINST; lParam:LPARAM):HWND;  name 'CreateMDIWindowA';
+
+  function WinHelp(ParhWndMain:HWND; lpszHelp:LPCSTR; uCommand:UINT; dwData:DWORD):WINBOOL;  name 'WinHelpA';
+
+  function ChangeDisplaySettings(lpDevMode:LPDEVMODE; dwFlags:DWORD):LONG;  name 'ChangeDisplaySettingsA';
+
+  function EnumDisplaySettings(lpszDeviceName:LPCSTR; iModeNum:DWORD; lpDevMode:LPDEVMODE):WINBOOL;  name 'EnumDisplaySettingsA';
+
+  function SystemParametersInfo(uiAction:UINT; uiParam:UINT; pvParam:PVOID; fWinIni:UINT):WINBOOL;  name 'SystemParametersInfoA';
+
+end;
+
+
+
+
+
+
+external dll 'version'
+  function VerInstallFile(uFlags:DWORD; szSrcFileName:LPSTR; szDestFileName:LPSTR; szSrcDir:LPSTR; szDestDir:LPSTR;
+             szCurDir:LPSTR; szTmpFile:LPSTR; lpuTmpFileLen:PUINT):DWORD;  name 'VerInstallFileA';
+
+  function GetFileVersionInfoSize(lptstrFilename:LPSTR; lpdwHandle:LPDWORD):DWORD;  name 'GetFileVersionInfoSizeA';
+
+  function GetFileVersionInfo(lptstrFilename:LPSTR; dwHandle:DWORD; dwLen:DWORD; lpData:LPVOID):WINBOOL;  name 'GetFileVersionInfoA';
+
+
+
+  function VerQueryValue(pBlock:LPVOID; lpSubBlock:LPSTR; var lplpBuffer:LPVOID; puLen:PUINT):WINBOOL;  name 'VerQueryValueA';
+
+  function VerFindFile(uFlags:DWORD; szFileName:LPSTR; szWinDir:LPSTR; szAppDir:LPSTR; szCurDir:LPSTR;
+             lpuCurDirLen:PUINT; szDestDir:LPSTR; lpuDestDirLen:PUINT):DWORD;  name 'VerFindFileA';
+end;
+
+
+
+external dll 'mpr.dll'
+
+  function WNetAddConnection(lpRemoteName:LPCSTR; lpPassword:LPCSTR; lpLocalName:LPCSTR):DWORD;  name 'WNetAddConnectionA';
+
+    function WNetConnectionDialog(hwnd:HWND; dwType:DWORD):DWORD; name 'WNetConnectionDialog';
+
+    function WNetDisconnectDialog(hwnd:HWND; dwType:DWORD):DWORD; name 'WNetDisconnectDialog';
+
+    function WNetCloseEnum(hEnum:HANDLE):DWORD; name 'WNetCloseEnum';
+
+
+  function WNetAddConnection2(lpNetResource:LPNETRESOURCE; lpPassword:LPCSTR; lpUserName:LPCSTR; dwFlags:DWORD):DWORD;  name 'WNetAddConnection2A';
+
+  function WNetAddConnection3(hwndOwner:HWND; lpNetResource:LPNETRESOURCE; lpPassword:LPCSTR; lpUserName:LPCSTR; dwFlags:DWORD):DWORD;  name 'WNetAddConnection3A';
+
+  function WNetCancelConnection(lpName:LPCSTR; fForce:WINBOOL):DWORD;  name 'WNetCancelConnectionA';
+
+  function WNetCancelConnection2(lpName:LPCSTR; dwFlags:DWORD; fForce:WINBOOL):DWORD;  name 'WNetCancelConnection2A';
+
+  function WNetGetConnection(lpLocalName:LPCSTR; lpRemoteName:LPSTR; lpnLength:LPDWORD):DWORD;  name 'WNetGetConnectionA';
+
+  function WNetUseConnection(hwndOwner:HWND; lpNetResource:LPNETRESOURCE; lpUserID:LPCSTR; lpPassword:LPCSTR; dwFlags:DWORD;
+             lpAccessName:LPSTR; lpBufferSize:LPDWORD; lpResult:LPDWORD):DWORD;  name 'WNetUseConnectionA';
+
+  function WNetSetConnection(lpName:LPCSTR; dwProperties:DWORD; pvValues:LPVOID):DWORD;  name 'WNetSetConnectionA';
+
+  function WNetConnectionDialog1(lpConnDlgStruct:LPCONNECTDLGSTRUCT):DWORD;  name 'WNetConnectionDialog1A';
+
+  function WNetDisconnectDialog1(lpConnDlgStruct:LPDISCDLGSTRUCT):DWORD;  name 'WNetDisconnectDialog1A';
+
+  function WNetOpenEnum(dwScope:DWORD; dwType:DWORD; dwUsage:DWORD; lpNetResource:LPNETRESOURCE; lphEnum:LPHANDLE):DWORD;  name 'WNetOpenEnumA';
+
+  function WNetEnumResource(hEnum:HANDLE; lpcCount:LPDWORD; lpBuffer:LPVOID; lpBufferSize:LPDWORD):DWORD;  name 'WNetEnumResourceA';
+
+  function WNetGetUniversalName(lpLocalPath:LPCSTR; dwInfoLevel:DWORD; lpBuffer:LPVOID; lpBufferSize:LPDWORD):DWORD;  name 'WNetGetUniversalNameA';
+
+  function WNetGetUser(lpName:LPCSTR; lpUserName:LPSTR; lpnLength:LPDWORD):DWORD;  name 'WNetGetUserA';
+
+  function WNetGetProviderName(dwNetType:DWORD; lpProviderName:LPSTR; lpBufferSize:LPDWORD):DWORD;  name 'WNetGetProviderNameA';
+
+  function WNetGetNetworkInformation(lpProvider:LPCSTR; lpNetInfoStruct:LPNETINFOSTRUCT):DWORD;  name 'WNetGetNetworkInformationA';
+
+  function WNetGetLastError(lpError:LPDWORD; lpErrorBuf:LPSTR; nErrorBufSize:DWORD; lpNameBuf:LPSTR; nNameBufSize:DWORD):DWORD;  name 'WNetGetLastErrorA';
+
+  function MultinetGetConnectionPerformance(lpNetResource:LPNETRESOURCE; lpNetConnectInfoStruct:LPNETCONNECTINFOSTRUCT):DWORD;  name 'MultinetGetConnectionPerformanceA';
+end;
+
+external dll 'shell32.dll'
+
+    procedure SHAddToRecentDocs(_para1:UINT; _para2:LPCVOID);  name 'SHAddToRecentDocs';
+
+{    function SHBrowseForFolder(_para1:LPBROWSEINFO):LPITEMIDLIST;  name 'SHBrowseForFolder';}
+
+    procedure SHChangeNotify(_para1:LONG; _para2:UINT; _para3:LPCVOID; _para4:LPCVOID);  name 'SHChangeNotify';
+
+    function SHFileOperation(_para1:LPSHFILEOPSTRUCT):longint;  name 'SHFileOperation';
+
+    procedure SHFreeNameMappings(_para1:HANDLE);  name 'SHFreeNameMappings';
+
+    function SHGetFileInfo(_para1:LPCTSTR; _para2:DWORD; var _para3:SHFILEINFO; _para4:UINT; _para5:UINT):DWORD;  name 'SHGetFileInfo';
+
+    function SHGetPathFromIDList(_para1:LPCITEMIDLIST; _para2:LPTSTR):WINBOOL;  name 'SHGetPathFromIDList';
+
+    function SHGetSpecialFolderLocation(_para1:HWND; _para2:longint; var _para3:LPITEMIDLIST):HRESULT;  name 'SHGetSpecialFolderLocation';
+
+    function DragQueryPoint(_para1:HDROP; _para2:LPPOINT):WINBOOL; name 'DragQueryPoint';
+
+    procedure DragFinish(_para1:HDROP); name 'DragFinish';
+
+    procedure DragAcceptFiles(_para1:HWND; _para2:WINBOOL); name 'DragAcceptFiles';
+
+    function DuplicateIcon(_para1:HINST; _para2:HICON):HICON;name 'DuplicateIcon';
+
+  function DragQueryFile(_para1:HDROP; _para2:long; var _para3:char; _para4:long):long; name 'DragQueryFileA';
+
+  function ExtractAssociatedIcon(_para1:HINST; var _para2:char; var _para3:WORD):HICON; name 'ExtractAssociatedIconA';
+
+  function ExtractIcon(_para1:HINST; var _para2:char; _para3:long):HICON; name 'ExtractIconA';
+
+  function FindExecutable(var _para1:char; var _para2:char; var _para3:char):HINST; name 'FindExecutableA';
+
+  function ShellAbout(_para1:HWND; var _para2:char; var _para3:char; _para4:HICON):longint;  name 'ShellAboutA';
+
+  function ShellExecute(_para1:HWND; var _para2:char; var _para3:char; var _para4:char; var _para5:char;
+             _para6:longint):HINST; name 'ShellExecuteA';
+
+end;
+
+ { function ImageList_AddIcon(himl:HIMAGELIST; hicon:HICON):longint;
+  function CreateWindow(lpClassName:LPCSTR; lpWindowName:LPCSTR; dwStyle:DWORD; X:longint;
+             Y:longint; nWidth:longint; nHeight:longint; ParhWndParent:HWND; ParhMenu:HMENU;
+             hInstance:HINST; lpParam:LPVOID):HWND;
+  function CreateDialogIndirect(hInstance:HINST; lpTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):HWND;
+  function DialogBox(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+  function DialogBoxIndirect(hInstance:HINST; hDialogTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+}
+end public
+
+  {function ImageList_AddIcon(himl:HIMAGELIST; hicon:HICON):longint;
+    begin
+       exit(ImageList_ReplaceIcon(himl,-(1),hicon));
+    end;
+
+}
+
+  function CreateWindow(lpClassName:LPCSTR; lpWindowName:LPCSTR; dwStyle:DWORD; X:longint;
+             Y:longint; nWidth:longint; nHeight:longint; ParhWndParent:HWND; ParhMenu:HMENU;
+             hInstance:HINST; lpParam:LPVOID):HWND;
+    begin
+       exit(CreateWindowEx(0,lpClassName,lpWindowName,dwStyle,x,y,nWidth,nHeight,ParhWndParent,ParhMenu,hInstance,lpParam));
+    end;
+
+  function CreateDialog(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC):HWND;
+    begin
+       exit(CreateDialogParam(hInstance,lpTemplateName,ParhWndParent,lpDialogFunc,0));
+    end;
+{
+  function CreateDialogIndirect(hInstance:HINST; lpTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):HWND;
+    begin
+       exit(CreateDialogIndirectParam(hInstance,lpTemplate,ParhWndParent,lpDialogFunc,0));
+    end;
+
+  function DialogBox(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+    begin
+       exit(DialogBoxParam(hInstance,lpTemplateName,ParhWndParent,lpDialogFunc,0));
+    end;
+
+  function DialogBoxIndirect(hInstance:HINST; hDialogTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+    begin
+       exit(DialogBoxIndirectParam(hInstance,hDialogTemplate,ParhWndParent,lpDialogFunc,0));
+    end;
+}
+end.
+

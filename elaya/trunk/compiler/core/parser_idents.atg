@@ -1,0 +1,116 @@
+(*
+	Elaya, the compiler for the elaya language
+    Copyright (C) 1999-2002 J.v.Iddekinge.
+    Email : iddekingej@lycos.com
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*)
+
+
+PRODUCTIONS
+
+IAbstract    = "abstract".
+IAlign	     = "align".
+IAnd	     = "and".
+IArray	     = "array".
+IAs          = "as".
+IAsm	     = "asm".
+IAsciiz	     = "asciiz".
+IAt          = "at".
+IBegin	     = "begin".
+IBooleanType = "booleantype".
+IBetween     = "between".
+IBreak	     = "break".
+ICDecl       = "cdecl".
+ICharType    = "chartype".
+IClass	     = "class".
+IConst	     = "const".
+IConstructor = "constructor".
+IContinue    = "continue".
+ICount       = "count".
+IDec         = "dec".
+IDefault     = "default".
+IDestructor  = "destructor".
+IDiv         = "div".
+IDo          = "do".
+IDownTo	     = "downto".
+IElse	     = "else".
+IEnd	     = "end".
+IEnum	     = "enum".
+IExact	     = "exact".
+IExit	     = "exit".
+IExternal    = "external".
+ILeave       = "leave".
+IFinal	     = "final".
+IFor	     = "for".
+IFrom	     = "from".
+IFunction    = "function".
+IHas	     = "has".
+IIf          = "if".
+IInc         = "inc".
+IInherit     = "inherit".
+IInherited   = "inherited".
+IIsolate     = "isolate".
+IMain	     = "main".
+IMetaType    = "metatype".
+IMod	     = "mod".
+IName	     = "name".
+INil	     = "nil".
+INumber	     = "number".
+INot:'"Not"' = "not".
+IObject      = "object".
+IOf          = "of".
+IOperator    = "operator".
+IOr	         = "or".
+IOverload    = "overload".
+IOverride    = "override".
+IOwner       = "owner".
+IProcedure   = "procedure".
+IProgram     = "program".
+IProperty    = "property".
+IProtected   = "protected".
+IPrivate     = "private".
+IPublic	     = "public".
+IPtr         = "ptr".
+IRead		 = "read".
+IRecord	     = "record".
+IRepeat	     = "repeat".
+IRoot	     = "root".
+IShr	     = "shr".
+IShl	     = "shl".
+ISize	     = "size".
+ISigned	     = "signed".
+ISizeOf	     = "sizeof".
+IString      = "string".
+IStep	     = "step".
+ITo          = "to".
+IThen	     = "then".
+IType        = "type".
+IUntil	     = "until".
+IUnion	     = "union".
+IUnit	     = "unit".
+IUses	     = "uses".
+IVar	     = "var".
+IVirtual     = "virtual".
+IWhere       = "where".
+IWrite	     = "write".
+IWriteln     = "Writeln".
+IVoidType    = "voidtype".
+IWhile	     = "while".
+IWith	     = "with".
+IXor	     = "xor".
+
+END.

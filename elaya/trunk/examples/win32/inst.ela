@@ -1,0 +1,5 @@
+uses win32procs;
+begin
+	writeln(GetInstance);
+	writeln(GetPrvInstance);
+end.

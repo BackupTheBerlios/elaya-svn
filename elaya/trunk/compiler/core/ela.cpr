@@ -1,0 +1,68 @@
+COMPILER ELA
+USES confval,cmp_cons,error,module,linklist,types,stdobj,asminfo,
+     vars,display,elacons,formbase,macobj,cblkbase,
+     compbase,procs,elaTypes,node,extern,ddefinit,doperfun,
+     varbase,params,elacfg,progutil,classes,
+     nif,nlinenum,naddsub,execobj,exprdigi,
+     cmp_type,largenum;
+
+
+
+(*
+	Elaya, the compiler for the elaya language
+    Copyright (C) 1999-2002 J.v.Iddekinge.
+    Email : iddekingej@lycos.com
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*)
+
+
+CHARACTERS
+
+    CLetter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".
+    CHex    = "ABCDEF".
+    CDigit  = "0123456789".
+    CESym   = "#$".
+    CSin_Qt = CHR(39).
+    CEol    = CHR(13).
+    CLf     = CHR(10).
+    CTab    = CHR(9).
+    CEOF    = CHR(0).
+    CNo_Sin_Qout =  ANY - CSin_Qt-CEol - CLf - CEOF.
+    CBinary = "01".
+TOKENS
+    TIdent   :"identifier"         = CLetter {CLetter|CDigit}.
+    TString  :"string"             = CSin_Qt {CNo_Sin_Qout} CSin_Qt.
+    TInt_Num :"integer number"     =  CDigit {CDigit} [["." CDigit{CDigit}]["E" ["-"|"+"] CDigit {CDigit}]].
+    THex     :"hexidecimal number" = ('$')(CDigit|CHex){CDigit|CHex}.
+    TBin     :"binary number "     = '%'('B'|'b'){CBinary}.
+
+PRAGMAS
+
+COMMENTS FROM "{"  TO "}"
+IGNORE CASE
+IGNORE CEol + CLf + CTab
+
+FILES
+	"parser_main.atg"
+	"parser_idents.atg"
+	"parser_const.atg"
+	"parser_types.atg"
+	"parser_routine.atg"
+	"parser_statements.atg"
+	"parser_formulas.atg"
+	"parser_external.atg"
+END.

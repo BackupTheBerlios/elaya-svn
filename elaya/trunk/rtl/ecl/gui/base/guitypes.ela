@@ -1,0 +1,120 @@
+{
+    Elaya, the compiler for the ;elaya language
+    Copyright (C) 1999-2003  J.v.Iddekinge.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+
+public
+type
+TWidgetType=enum
+			WT_Unkown := 0;
+			WT_WIndow := 1;
+			WT_Button := 2;
+			WT_Label  := 3;
+			WT_LineEdit := 4;
+			WT_Memo := 5;
+		end;
+
+		TEventKind=enum
+			EK_MouseButtonPressed :=1;
+			EK_MouseButtonReleased:=2;
+			EK_WidgetDestroy      := 3;
+			EK_ExitProgram        := 4;
+			EK_Enter				    := 5;
+			EK_Leave					 := 6;
+			EK_Expose			    := 7;
+			EK_AllocationChanged  := 8;
+		end;
+
+		TTextAdjust=enum
+			ta_left   := 1;
+			ta_right  := 2;
+			ta_center := 3;
+		end;
+
+		TEventBase=record
+			vrType 	: TEventKind;
+			vrHandle	: pointer;
+		end;
+
+		TButtonPressEvent=record
+			vrType   : TEventKind;
+			vrHandle : pointer;
+		end;
+
+		TWidgetDestroyEvent=record
+			vrType   : TEventKind;
+			vrHandle : pointer;
+		end;
+
+		TExitProgramEvent=record
+			vrType : TEventKind;
+			vrHandle: Pointer;
+		end;
+
+
+		TCrossingEvent=record
+			vrType : TEventKind;
+			vrHandle : pointer;
+			vrX	 : long;
+			vrY	 : long;
+		end;
+		TLeavingEvent=record
+			vrType : TEventKind;
+			vrHandle : pointer;
+			vrX	 : long;
+			vrY	 : long;
+		end;
+
+		TExposeEvent=record
+			vrType  : TEventKind;
+			vrHandle: pointer;
+		end;
+
+
+		TColor=record
+			red  : long;
+			green : long;
+			blue  : long;
+		end;
+
+		TAllocationChangedEvent=record
+			vrType : TEventKind;
+			vrHandle : pointer;
+      	x,y : longint;
+			w,h  : long;
+		end;
+
+		TEvent=union
+			Base : TEventbase;
+         ButtonPress : TButtonPressEvent;
+         WidgetDestroy : TWidgetDestroyEvent;
+			ExitProgram : TExitProgramEvent;
+			Crossing : TCrossingEvent;
+         Leaving : TLeavingEvent;
+			Expose : TExposeEvent;
+			AllocationChanged : TAllocationChangedEvent;
+		end;
+
+
+TProgramEventHandlerMethod=object procedure(var ParEvent : TEvent);
+TWidgetRegisterMethod=object procedure( ParWidget : pointer);
+end public
+
+end.
+

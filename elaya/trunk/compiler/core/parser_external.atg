@@ -1,0 +1,84 @@
+PRODUCTIONS
+(*  			External Def					*)
+
+RExternal:"external definition"
+(.var
+	vlIdent   : Tstring;
+	vlExt     : TExternalInterface;
+	vlType    : TExternalType;
+	vlRoutine : TRoutine;
+	vlCDecl   : boolean;
+	vlAt      : cardinal;
+	vlHasAt   : boolean;
+	vlHasses  : cardinal;
+	vlExType : TString;
+	vlName    : TString;
+	vlCDeclTxt: TString;
+	vlStr     : string;
+.)
+=
+(.
+   vlHasAt := false;
+   vlAt    := 0;
+   vlType  := ET_Error;
+   vlCDecl := false;
+   vlCDeclTxt := nil;
+.)
+IExternal  RConstantStringExpr<vlExType>
+		(.
+			vlType := ET_Error;
+			if vlExType <> nil then begin
+				vlExType.ToUpper;
+				if vlExType.IsEqualStr(Ext_Linked) then vlType := ET_Linked;
+				if vlExType.IsEqualStr(Ext_Dll) then vlType := ET_Dll;
+			end;
+			if vlType = ET_Error then begin
+				vlType := ET_Linked;
+				EmptyString(vlStr);
+				if (vlExType <> nil) then vlExType.GetString(vlStr);
+				ErrorText(Err_Wrong_External_Type,vlStr);
+			end;
+			if(vlExType <> nil) then vlExType.Destroy;
+		.)
+
+           [IAt RDirectCardinal<vlAt> (. vlHasAt := true; .)]
+           RConstantStringExpr<vlName>
+			(.
+				vlExt := CreateExternalInterface(vlName,vlType,vlHasAt,vlAt);
+ 			.)
+
+        [(ICDecl			      (. vlCDecl := true;.))
+        |(RConstantStringExpr<vlCDeclTxt>
+				(.
+					if vlCDeclTxt <> nil then begin
+						vlCDeclTxt.ToUpper;
+						if vlCDeclTxt.IsEqualStr(Ext_Normal) then begin
+							vlCDecl := false
+						end else if vlCDeclTxt.IsEqualStr(Ext_CDecl) then begin
+							vlCDecl := true;
+						end else begin
+							vlCDeclTxt.GetString(vlStr);
+							ErrorText(Err_Wrong_Calling_Type,vlStr);
+						end;
+						vlCDeclTxt.Destroy;
+					end;
+				.)
+	)
+	]
+	{(((RProcedureHead<vlRoutine,vlHasses>)
+	|(RFunctionHead<vlRoutine,vlHasses>) )
+           IName
+           RConstantStringExpr<vlIdent> ";"
+		(.
+            if vlRoutine <>  nil then begin
+				fNDCreator.EndIdentNum(vlHasses);
+				vlRoutine.PreProcessParameterList(nil,nil,fNDcreator);
+				CreateExternalInterfaceObject(vlCDecl,vlRoutine,vlExt,vlIdent);
+			end;
+		.)
+         )
+	}
+ IEnd	";"				(. if vlExt <> nil then Endident; .)
+.
+
+END.

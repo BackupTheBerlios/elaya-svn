@@ -1,0 +1,498 @@
+PRODUCTIONS
+
+RH_Type<var ParType:TType>
+(.
+	var
+		vlDef : TDefinition;
+.)
+=
+
+RDefIdentObj<vlDef,true>
+(.
+ParType := nil;
+if vlDef <> nil then begin
+	if not(vlDef is TType) then begin
+		ErrorDef(Err_Not_A_Type,vlDef);
+	end else begin
+		ParType := TType(vlDef);
+	end;
+end;
+.)
+.
+
+
+RArrayRangeDef<var ParLo,ParHi:TArrayIndex>
+=
+RDirectNumber<ParLo>
+ITo
+RDirectNumber<ParHi >		(. if LargeCompare(ParLo , ParHi)=LC_Bigger  then SemError(Err_Inverse_Range); .)
+.
+
+RArrayTypeDef<var ParArray:TType>
+(.
+var
+	vlLo   : TArrayIndex;
+	vlHi   : TArrayIndex;
+    vlAr   : TArrayType;
+	vlType : TType;
+.)
+= IArray
+  "["
+  RArrayRangeDef<vlLo,vlHi>     (.vlAr := TArrayType.Create(vlLo,vlHi);.)
+  { "," RArrayRangeDef<vlLo,vlHi> (. vlAr.AddType(TArrayType.Create(vlLO,vlHi)); .)}
+	  "]"
+   IOf
+  RRoutineType<vltype>
+(.
+	vlAr.SetTopType(vlType);
+	ParArray := vlAr;
+	if vlAr.CalculateSize then SemError(Err_Array_Too_Big);
+.)
+.
+REnumident<var ParVal:TNumber>
+	(.
+		var
+				vlIdent : string;
+				vlVal : TValue;
+	.)
+=
+   RIdent<vlIdent>
+   [ ":="
+    RDirectNumber<ParVal>
+   ]
+(.
+	vlVal := TLongint.Create(ParVal);
+	fNDCreator.AddIdent(TEnumCons.Create(vlIdent,vlVal));
+	LargeAddLong(ParVal,1);
+.)
+.
+
+
+
+
+
+REnum<var ParType:TType>
+(.
+	var
+		vlVal :TNumber;
+		vlCollection :TENumCollection;
+		vlName : string;
+.)
+=
+  IEnum
+(.
+	Partype := SetEnumBegin;
+	vlCollection := TEnumCollection.Create;
+	GetNewAnonName(vlName);
+	vlCollection.SetText(vlName);
+	LoadLong(vlVal, 0);
+	AddIdent(vlCollection);
+    fNDCreator.AddCurrentDefinition(vlCollection);
+.)
+  {REnumident<vlVal> ";"}
+  IEnd
+(. EndEnum; .)
+.
+
+RBooleanType<var ParType : TType>
+(.
+	var
+		vlName : string;
+        vlSize : cardinal;
+		vlVal :TValue;
+.)
+=
+	IBooleanType ISize "=" RDirectCardinal<vlSize>
+	(.
+		ParType := CreateBooleanType(vlSIze);
+	.)
+
+		 "(" RIdent<vlName> (.
+								 vlVal := TBoolean.Create(true);
+								fNDCreator.AddConstant(vlName,vlVal,ParType);
+                                vlVal.Destroy;
+							.)
+		"," RIdent<vlName> (.
+								vlVal := TBoolean.Create(false);
+								fNDCreator.AddConstant(vlName,vlVal,ParType);
+                            	vlVal.Destroy;
+							.)
+
+		")"
+.
+
+RUnion<var ParType :TType>
+
+=IUnion						(. ParType:= fNDCreator.AddUnion; .)
+ {RVarDecl}
+ IEnd						(. EndIdent; .)
+.
+
+
+RRecord<var PArType:TType>
+= IRecord 					(. ParType := fNDCreator.CreateRecord; .)
+  {RVarDecl}
+  IEnd						(. Endident; .)
+.
+
+
+
+
+RAsciizDecl<var ParType:TType>
+(.
+	var
+		vlSize : TSize;
+		vlType : TType;
+.)
+=IAsciiz ISize "=" RDirectCardinal<vlSize>
+(.
+	vlType := fNDCreator.GetDefaultChar;
+    if vlSize < 0 then SemError(err_Illegal_type_Size);
+	ParType := TAsciizType.Create(vlType,vlSize);
+ .)
+.
+
+RStringTypeDecl<var ParType:TStringType>
+(.
+	var
+		vlSize       : TSize;
+		vlType       : TType;
+		vlHasSize    : boolean;
+		vlHasDefaultSize : boolean;
+		vlLengthVarName  : string;
+		vlLengthVarType  : TTYpe;
+.)
+
+=
+(.
+	vlSize    := 255;
+	vlType    := nil;
+	vlHasSize := false;
+	vlHasDefaultSize := false;
+	vlLengthVarType := nil;
+	EmptyString(vlLengthVarName);
+.)
+
+IString
+[IOf RH_Type<vlType>]
+[IVar RIdent<vlLengthVarName> ':' RH_Type<vlLengthVarType>]
+[IDefault			      (. vlHasDefaultSize := true .) ]
+[ISize '=' RDirectCardinal<vlSize> (. vlHasSize := true .) ]
+(. ParType :=CreateStringType(vlType,vlLengthVarName,vlLengthVarType,vlHasDefaultSize,vlSize,vlHasSize); .)
+.
+
+
+
+
+ROrdDecl<var ParType:TType>
+(.
+	var
+		vlSign:boolean;
+		vlSize:TSize;
+.)
+=
+(.vlSign := false; .)
+INumber
+[ISigned					(. vlSign := true; .)
+]
+ISize '=' RDirectCardinal<vlSize>
+(.
+	if not (vlSIze in [1,2,4]) then SemError(Err_Illegal_Type_Size);
+	ParType := TNumberType.Create(vlSIze,vlSign);
+.)
+.
+
+
+RRoutineTypeDecl:"type definition"<var ParType:TType>
+(.
+	var
+		vlRoutine : TRoutine;
+		vlType    : TType;
+		vlOfObject: boolean;
+.)
+=
+(.
+	vlRoutine  := nil;
+	vlOfObject := false;
+.)
+[ IObject (. vlOfObject := true; .)]
+((IProcedure					(. vlRoutine := TProcedureObj.Create(''); .)
+  [RParamDef<vlRoutine>])
+|(IFunction					(. vlRoutine := TFunction.Create(''); .)
+[RParamDef<vlRoutine>] ":" RRoutineType<vlType> (. TFunction(vlRoutine).SetFunType(fNDCreator,vlType); .)
+))
+  ";"
+[ ICDecl (. vlRoutine.SetRoutineModes([RTM_Cdecl],true);.)";"]
+
+
+
+(.
+
+	Partype := TRoutineType.Create(true,vlRoutine,vlOfObject);
+	if (vlRoutine <> nil) and (vlOfObject) then begin
+		vlType   := fNDCreator.GetDefaultIdent(DT_Ptr_Meta,Size_DontCare,false);
+		vlRoutine.AddParam(TFixedFrameParameter.Create(name_self,ParType,TRoutineType(ParType).fParamFrame,TRoutineType(ParType).fPushedFrame,ParType,false));
+		vlRoutine.PreProcessParameterList(nil,nil,FNDCreator);
+	end;
+
+.)
+.
+
+
+RVoidTypeDecl<var Partype:TType>
+=
+IVoidType				      (. ParType := TVoidType.Create; .)
+.
+
+
+RCharDecl<var ParType:TType>
+(.
+var
+	vlSize : TSize;
+.)
+=
+ICharType ISize "=" RDirectCardinal<vlSize>
+(.
+	if not (vlSIze in [1,2,4]) then SemError(Err_Illegal_Type_Size);
+	ParType := TCharType.Create(vlSize);
+.)
+.
+
+
+
+RPtrTypeDecl<var ParType:TType;ParCanForward : boolean>
+(.
+var
+	vlName : string;
+	vlConstFlag : boolean;
+	vlType : TType;
+.)
+=
+			(. vlConstFlag := false ; .)
+IPtr
+[ IConst	(. vlConstFlag := true; .)]
+((RAnonymousType<vlType> (. ParType := CreatePointerType(vlType,vlConstFlag); .))
+|(RIdent<vlName>     (. ParType := CreatePointerType(vlName,ParCanForward,vlCOnstFlag);.)))
+.
+
+RTypeAs<var ParType : TType>
+(.
+	var
+		vlType2   : TType;
+		vlHasSize : boolean;
+		vlSize    : TSize;
+.)
+=
+ (.
+	vlHasSize := false;
+	ParType   := nil;
+.)
+ RH_Type<vlType2>
+ [ISize  '=' RDirectCardinal<vlSize>
+			(.
+				if vlType2 <> nil then begin
+					ParType    := vlType2.CreateBasedOn(fNDCreator,vlSize);
+				end;
+				vlHasSize := true;
+			.)
+ ]
+
+(. if not vlHasSize then ParType    := TTypeAs.Create('',vlType2); .)
+.
+
+
+RTypeDecl:"type declaration"
+(.var
+	vlIdent    : string;
+	vlType     : TType;
+	vlDefType  : TDefaultTypeCode;
+	vlAdded    : boolean;
+.)
+=
+RIdent<vlIdent>
+(.
+	vlType     := nil;
+	vLDefType  := DT_Nothing;
+	vlAdded    := false;
+.)
+
+'=' [(IDefault				      (. vlDefType := DT_Default; .))
+	 [(IMetaType 	 		      (. vlDefType := DT_Meta; .) )]
+	]
+
+
+(((( ROrdDecl<vlType> 			      (. HandleDefaultType(vlDefType,DT_Number,[DT_Number,DT_Boolean]) .)
+|( RTypeAs<vlType>					  (. HandleDefaultType(vlDefType,DT_Default,[]); .))
+|( RVoidTypeDecl<vlType>	      (. HandleDefaultType(vlDefType,DT_Void,[DT_Void]); .))
+|( RCharDecl<vlType>			      (. HandleDefaultType(vlDefType,DT_Char,[DT_Char]); .))
+|( REnum<vlType>                    (. HandleDefaultType(vlDefType,DT_Default,[DT_Boolean]); .))
+|( RPtrTypeDecl<vlType,true >		      (.
+                                                 if vlDefType = DT_Meta then vlDefType := DT_Ptr_Meta;
+												 HandleDefaultType(vlDefType,DT_Pointer,[DT_Asciiz,DT_Ptr_Meta,DT_Pointer]);
+					      				 .))
+|( RStringTypeDecl<TStringType(vlType)>	      (. HandleDefaultType(vlDefType,DT_String,[DT_String]); .))
+|( RAsciizDecl<vlType>			      (. HandleDefaultType(vlDefType,DT_Asciiz,[DT_Asciiz]); .))
+|( RUnion<vltype>                             (. HandleDefaultType(vlDefType,DT_Default,[]); .))
+|( RClassType<vlIdent,vlType>			  (.
+                                                 vlAdded :=true;
+												 HandleDefaultType(vlDefType,DT_Default,[]);
+                                              .))
+|( RRecord<vlType>)                           (. HandleDefaultType(vlDefType,DT_Default,[DT_Meta]);.))
+|( RBooleanType<vlType>					  (. HandleDefaultType(vlDefType,DT_Boolean,[DT_Boolean]); .) )
+|( RArrayTypeDef<vlType>                      (. HandleDefaultType(vlDefType,DT_Default,[]); .))
+) ";")
+|( RRoutineTypeDecl<vlType>	              (. HandleDefaultType(vlDefType,DT_Default,[]); .) )
+)
+
+(.
+  if not vlAdded then fNDCreator.AddType(vlIdent,vlType);
+  if vlType <> nil then begin
+	vlType.AfterDef(fNDCreator);
+    if (vlDefType <> DT_Nothing) then begin
+		vlType.SetDefault(vlDefType);
+		fNDCreator.AddToDefault(vlType);
+	end;
+  end;
+.)
+.
+
+
+RAnonymousType<var ParTYpe : TType>
+=
+(. ParType := nil;.)
+ ( RArrayTypeDef<ParType>
+ | ROrdDecl<ParType>
+ | RAsciizDecl<ParType>
+ | RStringTypeDecl<TStringType(ParType)>
+ | RPtrTypeDecl<ParType,false >
+ | RRecord<ParType>
+ | RUnion<ParType>
+ )
+ (. AddAnonItem(ParType); .)
+.
+
+
+
+RTypeBlock:"type declaration"=
+IType ((RTypeDecl|RAlign)  {RTypeDecl|RAlign  })
+					(. fNDCreator.BindForward; .)
+.
+
+
+RUsableType:"type definition"<var ParType : TType>
+=
+(.
+	ParType := nil;
+.)
+(((RH_Type<ParType>
+|RAnonymousType<ParType>) ";" )
+|(RRoutineTypeDecl<ParType> (. AddAnonItem(ParType); .)) )
+.
+
+RRoutineType:"type"<var ParType : TType>
+=
+(. ParType := nil;.)
+(RH_Type<ParType>
+|
+((
+  RAsciizDecl<ParType>
+| ROrdDecl<ParType>
+| RPtrTypeDecl<ParType,false >
+| RStringTypeDecl<TStringType(ParType)>
+)  (. AddAnonItem(ParType); .)
+)
+)
+.
+
+
+(*                      Class						*)
+
+
+RProperty:"property definition"
+(.
+	var
+		vlName         : string;
+		vlProperty     : TProperty;
+		vlAcc          : TDefAccess;
+		vlPropertyType : TPropertyType;
+		vlType         : TType;
+.)
+=
+	IProperty
+	RIdent<vlName> ':' RUsableType<vlType>
+		(.
+			vlProperty := TProperty.Create(vlName,vlType);
+			AddIdent(vlProperty);
+		.)
+	IBegin
+		{
+        (. vlAcc := AF_Public .)
+        [
+		   (IPublic  (. vlAcc := AF_Public; .))
+		  |(IPrivate (. vlAcc := AF_private; .))
+		  |(IProtected (. vlAcc := AF_Protected; .))
+		]
+			((IRead  (. vlPropertyType := PT_Read; .))
+			|(IWrite	 (. vlPropertyType := PT_Write; .))) RIdent<vlName> ";"
+
+
+			(.
+            	DoPropertyDefinition(vlName,vlAcc,vlPropertyType,vlProperty);
+			.)
+
+		}
+	IEnd ";"
+.
+
+
+RClassType:"class definition"<const ParName : string;var ParType : TType>
+(.
+	var
+		vlParent     : string;
+		vlPrvAccess  : TDefAccess;
+		vlVirtual    : TVirtualMode;
+		vlIsolate    : boolean;
+.)
+=
+(.
+	EmptyString(vlParent);
+	vlVirtual := VIR_None;
+	vlIsolate := false;
+.)
+[IIsolate                 (. vlIsolate := true;.)]
+[(IVirtual                (. vlVirtual := VIR_Virtual; .))
+|(IOverride				  (. vlVirtual := VIR_Override; .))]
+IClass
+((
+		[IInherit RIdent<vlParent>]
+                         (.
+                            ParType := CreateClassType(ParName,vlParent,vlVirtual,false,vlIsolate);
+                            vlPrvAccess := fNDCreator.fCurrentDefAccess;
+                            fNDCreator.fCurrentDefAccess := AF_Private;
+                         .)
+{
+ (IPrivate              (. fNDCreator.fCurrentDefAccess := AF_Private; .))
+|(IProtected            (. fNDCreator.fCurrentDefAccess := AF_Protected; .))
+|(IPublic               (. fNDCreator.fCurrentDefAccess := AF_Public; .))
+|(RProperty)
+|(RTypeBlock)
+|(RVarBlock)
+|(RConstant)
+|(RRoutineForward)
+}
+IEnd
+(.
+	TClassType(ParType).FinishClass;
+	fNDCreator.EndIdent;
+	fNDCreator.fCurrentDefAccess := vlPrvAccess;
+.)
+)
+|
+((.
+	ParType := CreateClassType(ParName,vlParent,vlVirtual,true,vlIsolate);
+.))
+)
+.
+
+
+END.

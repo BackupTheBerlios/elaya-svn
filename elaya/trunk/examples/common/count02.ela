@@ -1,0 +1,11 @@
+var
+	vlCnt:word;
+	vlAr:array[0 to 10] of word;
+begin
+	count vlCnt from 0 to 10 do vlAr[vlCnt] := 0;
+	vlCnt := 0;
+	count vlAr[vlCnt] from 0 to 10 do begin
+		inc(vlCnt);
+		if vlCnt = 10 then vlCnt := 0;
+	end;
+end.

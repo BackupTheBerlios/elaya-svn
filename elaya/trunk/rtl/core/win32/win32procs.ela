@@ -1,0 +1,859 @@
+{    Elaya Rtl  for the elaya compiler
+    Copyright (C) 1999,2000  J.v.Iddekinge.
+
+    based on fpc rtl
+    (C) Florian Kleampl
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+
+uses core,win32types;
+public
+External linked 'interw32.obj' cdecl
+	function GetInstance : handle;name 'inter_getinstance';
+	function GetPrvInstance : handle;name 'inter_getprvinstance';
+end;
+
+External &Kernel_Lib_Type &Kernel_Lib_Name &Kernel_Lib_CallType
+  function InterlockedIncrement(lpAddend:LPLONG):LONG;  name 'InterlockedIncrement';
+
+  function InterlockedDecrement(lpAddend:LPLONG):LONG;  name 'InterlockedDecrement';
+
+  function InterlockedExchange(Target:LPLONG; Value:LONG):LONG;  name 'InterlockedExchange';
+
+  function FreeResource(hResData:HGLOBAL):WINBOOL;  name 'FreeResource';
+
+  function LockResource(hResData:HGLOBAL):LPVOID;  name 'LockResource';
+
+
+
+  function FreeLibrary(hLibModule:HINST):WINBOOL;  name 'FreeLibrary';
+
+  procedure FreeLibraryAndExitThread(hLibModule:HMODULE; dwExitCode:DWORD);  name 'FreeLibraryAndExitThread';
+
+  function DisableThreadLibraryCalls(hLibModule:HMODULE):WINBOOL;  name 'DisableThreadLibraryCalls';
+
+  function GetProcAddress(hModule:HINST; lpProcName:LPCSTR):FARPROC;  name 'GetProcAddress';
+
+  function GetVersion:DWORD;  name 'GetVersion';
+  function FlushInstructionCache(hProcess:HANDLE; lpBaseAddress:LPCVOID; dwSize:DWORD):WINBOOL;  name 'FlushInstructionCache';
+
+
+  function GlobalAlloc(uFlags:UINT; dwBytes:DWORD):HGLOBAL;  name 'GlobalAlloc';
+  function GlobalReAlloc(hMem:HGLOBAL; dwBytes:DWORD; uFlags:UINT):HGLOBAL;  name 'GlobalReAlloc';
+  function GlobalSize(hMem:HGLOBAL):DWORD;  name 'GlobalSize';
+  function GlobalFlags(hMem:HGLOBAL):UINT;  name 'GlobalFlags';
+  function GlobalLock(hMem:HGLOBAL):LPVOID;  name 'GlobalLock';
+  function GlobalHandle(pMem:LPCVOID):HGLOBAL;  name 'GlobalHandle';
+  function GlobalUnlock(hMem:HGLOBAL):WINBOOL;  name 'GlobalUnlock';
+  function GlobalFree(hMem:HGLOBAL):HGLOBAL;  name 'GlobalFree';
+  function GlobalCompact(dwMinFree:DWORD):UINT;  name 'GlobalCompact';
+  procedure GlobalFix(hMem:HGLOBAL);  name 'GlobalFix';
+  procedure GlobalUnfix(hMem:HGLOBAL);  name 'GlobalUnfix';
+  function GlobalWire(hMem:HGLOBAL):LPVOID;  name 'GlobalWire';
+  function GlobalUnWire(hMem:HGLOBAL):WINBOOL;  name 'GlobalUnWire';
+  procedure GlobalMemoryStatus(lpBuffer:LPMEMORYSTATUS);  name 'GlobalMemoryStatus';
+  function LocalAlloc(uFlags:UINT; uBytes:UINT):HLOCAL;  name 'LocalAlloc';
+  function LocalReAlloc(hMem:HLOCAL; uBytes:UINT; uFlags:UINT):HLOCAL;  name 'LocalReAlloc';
+  function LocalLock(hMem:HLOCAL):LPVOID;  name 'LocalLock';
+  function LocalHandle(pMem:LPCVOID):HLOCAL;  name 'LocalHandle';
+  function LocalUnlock(hMem:HLOCAL):WINBOOL;  name 'LocalUnlock';
+  function LocalSize(hMem:HLOCAL):UINT;  name 'LocalSize';
+  function LocalFlags(hMem:HLOCAL):UINT;  name 'LocalFlags';
+  function LocalFree(hMem:HLOCAL):HLOCAL;  name 'LocalFree';
+  function LocalShrink(hMem:HLOCAL; cbNewSize:UINT):UINT;  name 'LocalShrink';
+  function LocalCompact(uMinFree:UINT):UINT;  name 'LocalCompact';
+
+
+
+  function VirtualAlloc(lpAddress:LPVOID; dwSize:DWORD; flAllocationType:DWORD; flProtect:DWORD):LPVOID;  name 'VirtualAlloc';
+  function VirtualFree(lpAddress:LPVOID; dwSize:DWORD; dwFreeType:DWORD):WINBOOL;  name 'VirtualFree';
+  function VirtualProtect(lpAddress:LPVOID; dwSize:DWORD; flNewProtect:DWORD; lpflOldProtect:PDWORD):WINBOOL;  name 'VirtualProtect';
+  function VirtualQuery(lpAddress:LPCVOID; lpBuffer:PMEMORY_BASIC_INFORMATION; dwLength:DWORD):DWORD;  name 'VirtualQuery';
+
+  function VirtualProtectEx(hProcess:HANDLE; lpAddress:LPVOID; dwSize:DWORD; flNewProtect:DWORD; lpflOldProtect:PDWORD):WINBOOL;  name 'VirtualProtectEx';
+  function VirtualQueryEx(hProcess:HANDLE; lpAddress:LPCVOID; lpBuffer:PMEMORY_BASIC_INFORMATION; dwLength:DWORD):DWORD;  name 'VirtualQueryEx';
+
+  function HeapCreate(flOptions:DWORD; dwInitialSize:DWORD; dwMaximumSize:DWORD):HANDLE;  name 'HeapCreate';
+  function HeapDestroy(hHeap:HANDLE):WINBOOL;  name 'HeapDestroy';
+  function HeapAlloc(hHeap:HANDLE; dwFlags:DWORD; dwBytes:DWORD):LPVOID;  name 'HeapAlloc';
+
+  function HeapReAlloc(hHeap:HANDLE; dwFlags:DWORD; lpMem:LPVOID; dwBytes:DWORD):LPVOID;  name 'HeapReAlloc';
+  function HeapFree(hHeap:HANDLE; dwFlags:DWORD; lpMem:LPVOID):WINBOOL;  name 'HeapFree';
+  function HeapSize(hHeap:HANDLE; dwFlags:DWORD; lpMem:LPCVOID):DWORD;  name 'HeapSize';
+  function HeapValidate(hHeap:HANDLE; dwFlags:DWORD; lpMem:LPCVOID):WINBOOL;  name 'HeapValidate';
+  function HeapCompact(hHeap:HANDLE; dwFlags:DWORD):UINT;  name 'HeapCompact';
+
+  function GetProcessHeap:HANDLE;  name 'GetProcessHeap';
+  function GetProcessHeaps(NumberOfHeaps:DWORD; ProcessHeaps:PHANDLE):DWORD;  name 'GetProcessHeaps';
+
+  function HeapLock(hHeap:HANDLE):WINBOOL;  name 'HeapLock';
+  function HeapUnlock(hHeap:HANDLE):WINBOOL;  name 'HeapUnlock';
+
+  function HeapWalk(hHeap:HANDLE; lpEntry:LPPROCESS_HEAP_ENTRY):WINBOOL;  name 'HeapWalk';
+
+  function GetProcessAffinityMask(hProcess:HANDLE; lpProcessAffinityMask:LPDWORD; lpSystemAffinityMask:LPDWORD):WINBOOL;  name 'GetProcessAffinityMask';
+
+  function GetProcessTimes(hProcess:HANDLE; lpCreationTime:LPFILETIME; lpExitTime:LPFILETIME; lpKernelTime:LPFILETIME; lpUserTime:LPFILETIME):WINBOOL;  name 'GetProcessTimes';
+
+  function GetProcessWorkingSetSize(hProcess:HANDLE; lpMinimumWorkingSetSize:LPDWORD; lpMaximumWorkingSetSize:LPDWORD):WINBOOL;  name 'GetProcessWorkingSetSize';
+
+  function SetProcessWorkingSetSize(hProcess:HANDLE; dwMinimumWorkingSetSize:DWORD; dwMaximumWorkingSetSize:DWORD):WINBOOL;  name 'SetProcessWorkingSetSize';
+
+  function OpenProcess(dwDesiredAccess:DWORD; bInheritHandle:WINBOOL; dwProcessId:DWORD):HANDLE;  name 'OpenProcess';
+
+  function GetCurrentProcess:HANDLE;  name 'GetCurrentProcess';
+
+  function GetCurrentProcessId:DWORD;  name 'GetCurrentProcessId';
+
+  procedure ExitProcess(uExitCode:UINT); name 'ExitProcess';
+
+  function TerminateProcess(hProcess:HANDLE; uExitCode:UINT):WINBOOL;  name 'TerminateProcess';
+
+  function GetExitCodeProcess(hProcess:HANDLE; lpExitCode:LPDWORD):WINBOOL;  name 'GetExitCodeProcess';
+
+  procedure FatalExit(ExitCode:longint);  name 'FatalExit';
+
+  procedure RaiseException(dwExceptionCode:DWORD; dwExceptionFlags:DWORD; nNumberOfArguments:DWORD; var lpArguments:DWORD);  name 'RaiseException';
+
+  function UnhandledExceptionFilter(var ExceptionInfo:emptyrecord):LONG;  name 'UnhandledExceptionFilter';
+
+  procedure SetUnhandledExceptionFilter(ParProc : LPTOP_LEVEL_EXCEPTION_HANDLER); name 'SetUnhandledExceptionFilter';
+
+  function CreateThread(lpThreadAttributes:LPSECURITY_ATTRIBUTES; dwStackSize:DWORD; lpStartAddress:LPTHREAD_START_ROUTINE; lpParameter:LPVOID; dwCreationFlags:DWORD;
+             var lpThreadId:DWORD):HANDLE;  name 'CreateThread';
+
+  function CreateRemoteThread(hProcess:HANDLE; lpThreadAttributes:LPSECURITY_ATTRIBUTES; dwStackSize:DWORD; lpStartAddress:LPTHREAD_START_ROUTINE; lpParameter:LPVOID;
+             dwCreationFlags:DWORD; lpThreadId:LPDWORD):HANDLE;  name 'CreateRemoteThread';
+
+  function GetCurrentThread:HANDLE;  name 'GetCurrentThread';
+
+  function GetCurrentThreadId:DWORD;  name 'GetCurrentThreadId';
+
+  function SetThreadAffinityMask(hThread:HANDLE; dwThreadAffinityMask:DWORD):DWORD;  name 'SetThreadAffinityMask';
+
+  function SetThreadPriority(hThread:HANDLE; nPriority:longint):WINBOOL;  name 'SetThreadPriority';
+
+  function GetThreadPriority(hThread:HANDLE):longint;  name 'GetThreadPriority';
+
+  function GetThreadTimes(hThread:HANDLE; lpCreationTime:LPFILETIME; lpExitTime:LPFILETIME; lpKernelTime:LPFILETIME; lpUserTime:LPFILETIME):WINBOOL;  name 'GetThreadTimes';
+
+  procedure ExitThread(dwExitCode:DWORD);  name 'ExitThread';
+
+  function TerminateThread(hThread:HANDLE; dwExitCode:DWORD):WINBOOL;  name 'TerminateThread';
+
+  function GetExitCodeThread(hThread:HANDLE; lpExitCode:LPDWORD):WINBOOL;  name 'GetExitCodeThread';
+
+  function GetThreadSelectorEntry(hThread:HANDLE; dwSelector:DWORD; lpSelectorEntry:LPLDT_ENTRY):WINBOOL;  name 'GetThreadSelectorEntry';
+
+  function  GetLastWinError:DWord; name 'GetLastError';
+
+  procedure SetLastError(dwErrCode:DWORD);  name 'SetLastError';
+	
+  function GetOverlappedResult(hFile:HANDLE; const lpOverlapped:TOVERLAPPED; var lpNumberOfBytesTransferred:DWORD; bWait:WINBOOL):WINBOOL;  name 'GetOverlappedResult';
+
+  function CreateIoCompletionPort(FileHandle:HANDLE; ExistingCompletionPort:HANDLE; CompletionKey:DWORD; NumberOfConcurrentThreads:DWORD):HANDLE;  name 'CreateIoCompletionPort';
+
+  function GetQueuedCompletionStatus(CompletionPort:HANDLE; lpNumberOfBytesTransferred:LPDWORD; lpCompletionKey:LPDWORD; var lpOverlapped:LPOVERLAPPED; dwMilliseconds:DWORD):WINBOOL;  name 'GetQueuedCompletionStatus';
+
+  function SetErrorMode(uMode:UINT):UINT;  name 'SetErrorMode';
+
+  function ReadProcessMemory(hProcess:HANDLE; lpBaseAddress:LPCVOID; lpBuffer:LPVOID; nSize:DWORD; lpNumberOfBytesRead:LPDWORD):WINBOOL;  name 'ReadProcessMemory';
+
+  function WriteProcessMemory(hProcess:HANDLE; lpBaseAddress:LPVOID; lpBuffer:LPVOID; nSize:DWORD; lpNumberOfBytesWritten:LPDWORD):WINBOOL;  name 'WriteProcessMemory';
+
+  function GetThreadContext(hThread:HANDLE; lpContext:LPCONTEXT):WINBOOL;  name 'GetThreadContext';
+
+  function SetThreadContext(hThread:HANDLE; var lpContext:CONTEXT):WINBOOL;  name 'SetThreadContext';
+
+  function SuspendThread(hThread:HANDLE):DWORD;  name 'SuspendThread';
+
+  function ResumeThread(hThread:HANDLE):DWORD;  name 'ResumeThread';
+
+  procedure DebugBreak;  name 'DebugBreak';
+
+  function WaitForDebugEvent(lpDebugEvent:LPDEBUG_EVENT; dwMilliseconds:DWORD):WINBOOL;  name 'WaitForDebugEvent';
+
+  function ContinueDebugEvent(dwProcessId:DWORD; dwThreadId:DWORD; dwContinueStatus:DWORD):WINBOOL;  name 'ContinueDebugEvent';
+
+  function DebugActiveProcess(dwProcessId:DWORD):WINBOOL;  name 'DebugActiveProcess';
+
+  procedure InitializeCriticalSection(lpCriticalSection:LPCRITICAL_SECTION);  name 'InitializeCriticalSection';
+
+  procedure EnterCriticalSection(lpCriticalSection:LPCRITICAL_SECTION);  name 'EnterCriticalSection';
+
+  procedure LeaveCriticalSection(lpCriticalSection:LPCRITICAL_SECTION);  name 'LeaveCriticalSection';
+
+  procedure DeleteCriticalSection(lpCriticalSection:LPCRITICAL_SECTION);  name 'DeleteCriticalSection';
+
+  function SetEvent(hEvent:HANDLE):WINBOOL;  name 'SetEvent';
+
+  function ResetEvent(hEvent:HANDLE):WINBOOL;  name 'ResetEvent';
+
+  function PulseEvent(hEvent:HANDLE):WINBOOL;  name 'PulseEvent';
+
+  function ReleaseSemaphore(hSemaphore:HANDLE; lReleaseCount:LONG; lpPreviousCount:LPLONG):WINBOOL;  name 'ReleaseSemaphore';
+
+  function ReleaseMutex(hMutex:HANDLE):WINBOOL;  name 'ReleaseMutex';
+
+  function WaitForSingleObject(hHandle:HANDLE; dwMilliseconds:DWORD):DWORD;  name 'WaitForSingleObject';
+
+  function WaitForMultipleObjects(nCount:DWORD; var lpHandles:HANDLE; bWaitAll:WINBOOL; dwMilliseconds:DWORD):DWORD;  name 'WaitForMultipleObjects';
+
+  procedure Sleep(dwMilliseconds:DWORD);  name 'Sleep';
+
+  function LoadResource(hModule:HINST; hResInfo:HRSRC):HGLOBAL;  name 'LoadResource';
+
+  function SizeofResource(hModule:HINST; hResInfo:HRSRC):DWORD;  name 'SizeofResource';
+
+  function GlobalDeleteAtom(nAtom:ATOM):ATOM;  name 'GlobalDeleteAtom';
+
+  function InitAtomTable(nSize:DWORD):WINBOOL;  name 'InitAtomTable';
+
+  function DeleteAtom(nAtom:ATOM):ATOM;  name 'DeleteAtom';
+
+  function SetHandleCount(uNumber:UINT):UINT;  name 'SetHandleCount';
+
+  function GetLogicalDrives:DWORD;  name 'GetLogicalDrives';
+
+  function LockFile(hFile:HANDLE; dwFileOffsetLow:DWORD; dwFileOffsetHigh:DWORD; nNumberOfBytesToLockLow:DWORD; nNumberOfBytesToLockHigh:DWORD):WINBOOL;  name 'LockFile';
+
+  function UnlockFile(hFile:HANDLE; dwFileOffsetLow:DWORD; dwFileOffsetHigh:DWORD; nNumberOfBytesToUnlockLow:DWORD; nNumberOfBytesToUnlockHigh:DWORD):WINBOOL;  name 'UnlockFile';
+
+  function LockFileEx(hFile:HANDLE; dwFlags:DWORD; dwReserved:DWORD; nNumberOfBytesToLockLow:DWORD; nNumberOfBytesToLockHigh:DWORD;
+             lpOverlapped:LPOVERLAPPED):WINBOOL;  name 'LockFileEx';
+
+  function UnlockFileEx(hFile:HANDLE; dwReserved:DWORD; nNumberOfBytesToUnlockLow:DWORD; nNumberOfBytesToUnlockHigh:DWORD; lpOverlapped:LPOVERLAPPED):WINBOOL;  name 'UnlockFileEx';
+
+  function GetFileInformationByHandle(hFile:HANDLE; lpFileInformation:LPBY_HANDLE_FILE_INFORMATION):WINBOOL;  name 'GetFileInformationByHandle';
+
+  function GetFileType(hFile:HANDLE):DWORD;  name 'GetFileType';
+
+  function GetFileSize(hFile:HANDLE; lpFileSizeHigh:LPDWORD):DWORD;  name 'GetFileSize';
+
+
+
+
+  function FlushFileBuffers(hFile:HANDLE):WINBOOL;  name 'FlushFileBuffers';
+
+  function DeviceIoControl(hDevice:HANDLE; dwIoControlCode:DWORD; lpInBuffer:LPVOID; nInBufferSize:DWORD; lpOutBuffer:LPVOID;
+             nOutBufferSize:DWORD; lpBytesReturned:LPDWORD; lpOverlapped:LPOVERLAPPED):WINBOOL;  name 'DeviceIoControl';
+
+  function SetEndOfFile(hFile:HANDLE):WINBOOL;  name 'SetEndOfFile';
+
+  function SetFilePointer(hFile:HANDLE; lDistanceToMove:LONG; lpDistanceToMoveHigh:PLONG; dwMoveMethod:DWORD):DWORD;  name 'SetFilePointer';
+
+  function FindClose(hFindFile:HANDLE):WINBOOL;  name 'FindClose';
+
+  function GetFileTime(hFile:HANDLE; lpCreationTime:LPFILETIME; lpLastAccessTime:LPFILETIME; lpLastWriteTime:LPFILETIME):WINBOOL;  name 'GetFileTime';
+
+  function SetFileTime(hFile:HANDLE; var lpCreationTime:FILETIME; var lpLastAccessTime:FILETIME; var lpLastWriteTime:FILETIME):WINBOOL;  name 'SetFileTime';
+
+
+
+  function CloseHandle(hObject:HANDLE):WINBOOL;  name 'CloseHandle';
+
+  function DuplicateHandle(hSourceProcessHandle:HANDLE; hSourceHandle:HANDLE; hTargetProcessHandle:HANDLE; lpTargetHandle:LPHANDLE; dwDesiredAccess:DWORD;
+             bInheritHandle:WINBOOL; dwOptions:DWORD):WINBOOL;  name 'DuplicateHandle';
+
+  function GetHandleInformation(hObject:HANDLE; lpdwFlags:LPDWORD):WINBOOL;  name 'GetHandleInformation';
+
+  function SetHandleInformation(hObject:HANDLE; dwMask:DWORD; dwFlags:DWORD):WINBOOL;  name 'SetHandleInformation';
+
+  function LoadModule(lpModuleName:LPCSTR; lpParameterBlock:LPVOID):DWORD;  name 'LoadModule';
+
+  function WinExec(lpCmdLine:LPCSTR; uCmdShow:UINT):UINT;  name 'WinExec';
+
+  function ClearCommBreak(hFile:HANDLE):WINBOOL;  name 'ClearCommBreak';
+
+  function ClearCommError(hFile:HANDLE; lpErrors:LPDWORD; lpStat:LPCOMSTAT):WINBOOL;  name 'ClearCommError';
+
+  function SetupComm(hFile:HANDLE; dwInQueue:DWORD; dwOutQueue:DWORD):WINBOOL;  name 'SetupComm';
+
+
+  function EscapeCommFunction(hFile:HANDLE; dwFunc:DWORD):WINBOOL;  name 'EscapeCommFunction';
+
+  function GetCommConfig(hCommDev:HANDLE; lpCC:LPCOMMCONFIG; lpdwSize:LPDWORD):WINBOOL;  name 'GetCommConfig';
+
+  function GetCommMask(hFile:HANDLE; var lpEvtMask:DWORD):WINBOOL;  name 'GetCommMask';
+
+  function GetCommProperties(hFile:HANDLE; var lpCommProp:TCOMMPROP):WINBOOL;  name 'GetCommProperties';
+
+  function GetCommModemStatus(hFile:HANDLE; var lpModemStat:DWORD):WINBOOL;  name 'GetCommModemStatus';
+
+  function GetCommState(hFile:HANDLE; var lpDCB:TDCB):WINBOOL;  name 'GetCommState';
+
+  function GetCommTimeouts(hFile:HANDLE; var lpCommTimeouts:TCOMMTIMEOUTS):WINBOOL;  name 'GetCommTimeouts';
+
+  function PurgeComm(hFile:HANDLE; dwFlags:DWORD):WINBOOL;  name 'PurgeComm';
+
+  function SetCommBreak(hFile:HANDLE):WINBOOL;  name 'SetCommBreak';
+
+  function SetCommConfig(hCommDev:HANDLE; lpCC:LPCOMMCONFIG; dwSize:DWORD):WINBOOL;  name 'SetCommConfig';
+
+
+  function SetCommMask(hFile:HANDLE; dwEvtMask:DWORD):WINBOOL;  name 'SetCommMask';
+
+  function SetCommState(hFile:HANDLE; var lpDCB:TDCB):WINBOOL;  name 'SetCommState';
+
+  function SetCommTimeouts(hFile:HANDLE; var lpCommTimeouts:TCOMMTIMEOUTS):WINBOOL;  name 'SetCommTimeouts';
+
+  function TransmitCommChar(hFile:HANDLE; cChar:char):WINBOOL;  name 'TransmitCommChar';
+
+  function WaitCommEvent(hFile:HANDLE; var lpEvtMask:DWORD; lpOverlapped:LPOVERLAPPED):WINBOOL;  name 'WaitCommEvent';
+
+  function SetTapePosition(hDevice:HANDLE; dwPositionMethod:DWORD; dwPartition:DWORD; dwOffsetLow:DWORD; dwOffsetHigh:DWORD;
+             bImmediate:WINBOOL):DWORD;  name 'SetTapePosition';
+
+  function GetTapePosition(hDevice:HANDLE; dwPositionType:DWORD; lpdwPartition:LPDWORD; lpdwOffsetLow:LPDWORD; lpdwOffsetHigh:LPDWORD):DWORD;  name 'GetTapePosition';
+
+  function PrepareTape(hDevice:HANDLE; dwOperation:DWORD; bImmediate:WINBOOL):DWORD;  name 'PrepareTape';
+
+  function EraseTape(hDevice:HANDLE; dwEraseType:DWORD; bImmediate:WINBOOL):DWORD;  name 'EraseTape';
+
+  function CreateTapePartition(hDevice:HANDLE; dwPartitionMethod:DWORD; dwCount:DWORD; dwSize:DWORD):DWORD;  name 'CreateTapePartition';
+
+  function WriteTapemark(hDevice:HANDLE; dwTapemarkType:DWORD; dwTapemarkCount:DWORD; bImmediate:WINBOOL):DWORD;  name 'WriteTapemark';
+
+  function GetTapeStatus(hDevice:HANDLE):DWORD;  name 'GetTapeStatus';
+
+  function GetTapeParameters(hDevice:HANDLE; dwOperation:DWORD; lpdwSize:LPDWORD; lpTapeInformation:LPVOID):DWORD;  name 'GetTapeParameters';
+
+  function SetTapeParameters(hDevice:HANDLE; dwOperation:DWORD; lpTapeInformation:LPVOID):DWORD;  name 'SetTapeParameters';
+
+  function Beep(dwFreq:DWORD; dwDuration:DWORD):WINBOOL;  name 'Beep';
+
+  function MulDiv(nNumber:longint; nNumerator:longint; nDenominator:longint):longint;   name 'MulDiv';
+
+  function GetStdHandle(ParHandle:Dword):Handle;name 'GetStdHandle';
+
+  procedure GetSystemTime(lpSystemTime:LPSYSTEMTIME);   name 'GetSystemTime';
+
+  function SetSystemTime(var lpSystemTime:SYSTEMTIME):WINBOOL;   name 'SetSystemTime';
+
+  procedure GetLocalTime(lpSystemTime:LPSYSTEMTIME);   name 'GetLocalTime';
+
+  function SetLocalTime(var lpSystemTime:SYSTEMTIME):WINBOOL;   name 'SetLocalTime';
+
+  procedure GetSystemInfo(lpSystemInfo:LPSYSTEM_INFO);   name 'GetSystemInfo';
+
+  function SystemTimeToTzSpecificLocalTime(lpTimeZoneInformation:LPTIME_ZONE_INFORMATION; lpUniversalTime:LPSYSTEMTIME; lpLocalTime:LPSYSTEMTIME):WINBOOL;   name 'SystemTimeToTzSpecificLocalTime';
+
+  function GetTimeZoneInformation(lpTimeZoneInformation:LPTIME_ZONE_INFORMATION):DWORD;   name 'GetTimeZoneInformation';
+
+  function SetTimeZoneInformation(var lpTimeZoneInformation:TIME_ZONE_INFORMATION):WINBOOL;   name 'SetTimeZoneInformation';
+
+  function SystemTimeToFileTime(var lpSystemTime:SYSTEMTIME; lpFileTime:LPFILETIME):WINBOOL;   name 'SystemTimeToFileTime';
+
+  function FileTimeToLocalFileTime(var ParlpFileTime:FILETIME; lpLocalFileTime:LPFILETIME):WINBOOL;   name 'FileTimeToLocalFileTime';
+
+  function LocalFileTimeToFileTime(var lpLocalFileTime:FILETIME; lpFileTime:LPFILETIME):WINBOOL;   name 'LocalFileTimeToFileTime';
+
+  function FileTimeToSystemTime(var lpFileTime:FILETIME; lpSystemTime:LPSYSTEMTIME):WINBOOL;   name 'FileTimeToSystemTime';
+
+  function CompareFileTime(var lpFileTime1:FILETIME; var lpFileTime2:FILETIME):LONG;   name 'CompareFileTime';
+
+  function FileTimeToDosDateTime(var lpFileTime:FILETIME; lpFatDate:LPWORD; lpFatTime:LPWORD):WINBOOL;   name 'FileTimeToDosDateTime';
+
+  function DosDateTimeToFileTime(wFatDate:WORD; wFatTime:WORD; lpFileTime:LPFILETIME):WINBOOL;   name 'DosDateTimeToFileTime';
+
+  function GetTickCount:DWORD;   name 'GetTickCount';
+
+  function SetSystemTimeAdjustment(dwTimeAdjustment:DWORD; bTimeAdjustmentDisabled:WINBOOL):WINBOOL;   name 'SetSystemTimeAdjustment';
+
+  function GetSystemTimeAdjustment(lpTimeAdjustment:PDWORD; lpTimeIncrement:PDWORD; lpTimeAdjustmentDisabled:PWINBOOL):WINBOOL;   name 'GetSystemTimeAdjustment';
+
+  function CreatePipe(hReadPipe:PHANDLE; hWritePipe:PHANDLE; lpPipeAttributes:LPSECURITY_ATTRIBUTES; nSize:DWORD):WINBOOL;   name 'CreatePipe';
+
+  function ConnectNamedPipe(hNamedPipe:HANDLE; lpOverlapped:LPOVERLAPPED):WINBOOL;   name 'ConnectNamedPipe';
+
+  function DisconnectNamedPipe(hNamedPipe:HANDLE):WINBOOL;   name 'DisconnectNamedPipe';
+
+  function SetNamedPipeHandleState(hNamedPipe:HANDLE; lpMode:LPDWORD; lpMaxCollectionCount:LPDWORD; lpCollectDataTimeout:LPDWORD):WINBOOL;   name 'SetNamedPipeHandleState';
+
+  function GetNamedPipeInfo(hNamedPipe:HANDLE; lpFlags:LPDWORD; lpOutBufferSize:LPDWORD; lpInBufferSize:LPDWORD; lpMaxInstances:LPDWORD):WINBOOL;   name 'GetNamedPipeInfo';
+
+  function PeekNamedPipe(hNamedPipe:HANDLE; lpBuffer:LPVOID; nBufferSize:DWORD; lpBytesRead:LPDWORD; lpTotalBytesAvail:LPDWORD;
+             lpBytesLeftThisMessage:LPDWORD):WINBOOL;   name 'PeekNamedPipe';
+
+  function TransactNamedPipe(hNamedPipe:HANDLE; lpInBuffer:LPVOID; nInBufferSize:DWORD; lpOutBuffer:LPVOID; nOutBufferSize:DWORD;
+             lpBytesRead:LPDWORD; lpOverlapped:LPOVERLAPPED):WINBOOL;   name 'TransactNamedPipe';
+
+  function GetMailslotInfo(hMailslot:HANDLE; lpMaxMessageSize:LPDWORD; lpNextSize:LPDWORD; lpMessageCount:LPDWORD; lpReadTimeout:LPDWORD):WINBOOL;   name 'GetMailslotInfo';
+
+  function SetMailslotInfo(hMailslot:HANDLE; lReadTimeout:DWORD):WINBOOL;   name 'SetMailslotInfo';
+
+  function MapViewOfFile(hFileMappingObject:HANDLE; dwDesiredAccess:DWORD; dwFileOffsetHigh:DWORD; dwFileOffsetLow:DWORD; dwNumberOfBytesToMap:DWORD):LPVOID;   name 'MapViewOfFile';
+
+  function FlushViewOfFile(lpBaseAddress:LPCVOID; dwNumberOfBytesToFlush:DWORD):WINBOOL;   name 'FlushViewOfFile';
+
+  function UnmapViewOfFile(lpBaseAddress:LPVOID):WINBOOL;   name 'UnmapViewOfFile';
+
+  function OpenFile(lpFileName:LPCSTR; lpReOpenBuff:LPOFSTRUCT; uStyle:UINT):HFILE;   name 'OpenFile';
+
+  function _lopen(lpPathName:LPCSTR; iReadWrite:longint):HFILE;   name '_lopen';
+
+  function _lcreat(lpPathName:LPCSTR; iAttribute:longint):HFILE;   name '_lcreat';
+
+  function _lread(ParhFile:HFILE; lpBuffer:LPVOID; uBytes:UINT):UINT;   name '_lread';
+
+  function _lwrite(ParhFile:HFILE; lpBuffer:LPCSTR; uBytes:UINT):UINT;   name '_lwrite';
+
+  function _hread(ParhFile:HFILE; lpBuffer:LPVOID; lBytes:longint):longint;   name '_hread';
+
+  function _hwrite(ParhFile:HFILE; lpBuffer:LPCSTR; lBytes:longint):longint;   name '_hwrite';
+
+  function _lclose(ParhFile:HFILE):HFILE;   name '_lclose';
+
+  function _llseek(ParhFile:HFILE; lOffset:LONG; iOrigin:longint):LONG;   name '_llseek';
+
+
+
+  function TlsAlloc:DWORD;   name 'TlsAlloc';
+
+  function TlsGetValue(dwTlsIndex:DWORD):LPVOID;   name 'TlsGetValue';
+
+  function TlsSetValue(dwTlsIndex:DWORD; lpTlsValue:LPVOID):WINBOOL;   name 'TlsSetValue';
+
+  function TlsFree(dwTlsIndex:DWORD):WINBOOL;   name 'TlsFree';
+
+  function SleepEx(dwMilliseconds:DWORD; bAlertable:WINBOOL):DWORD;   name 'SleepEx';
+
+  function WaitForSingleObjectEx(hHandle:HANDLE; dwMilliseconds:DWORD; bAlertable:WINBOOL):DWORD;   name 'WaitForSingleObjectEx';
+
+  function WaitForMultipleObjectsEx(nCount:DWORD; var lpHandles:HANDLE; bWaitAll:WINBOOL; dwMilliseconds:DWORD; bAlertable:WINBOOL):DWORD;   name 'WaitForMultipleObjectsEx';
+
+  function ReadFileEx(ParhFile:HANDLE; lpBuffer:LPVOID; nNumberOfBytesToRead:DWORD; lpOverlapped:LPOVERLAPPED; lpCompletionRoutine:LPOVERLAPPED_COMPLETION_ROUTINE):WINBOOL;   name 'ReadFileEx';
+
+  function WriteFileEx(ParhFile:HANDLE; lpBuffer:LPCVOID; nNumberOfBytesToWrite:DWORD; lpOverlapped:LPOVERLAPPED; lpCompletionRoutine:LPOVERLAPPED_COMPLETION_ROUTINE):WINBOOL;   name 'WriteFileEx';
+
+  function BackupRead(ParhFile:HANDLE; lpBuffer:LPBYTE; nNumberOfBytesToRead:DWORD; lpNumberOfBytesRead:LPDWORD; bAbort:WINBOOL;
+             bProcessSecurity:WINBOOL; var lpContext:LPVOID):WINBOOL;   name 'BackupRead';
+
+  function BackupSeek(ParhFile:HANDLE; dwLowBytesToSeek:DWORD; dwHighBytesToSeek:DWORD; lpdwLowByteSeeked:LPDWORD; lpdwHighByteSeeked:LPDWORD;
+             var lpContext:LPVOID):WINBOOL;   name 'BackupSeek';
+
+  function BackupWrite(ParhFile:HANDLE; lpBuffer:LPBYTE; nNumberOfBytesToWrite:DWORD; lpNumberOfBytesWritten:LPDWORD; bAbort:WINBOOL;
+             bProcessSecurity:WINBOOL; var lpContext:LPVOID):WINBOOL;   name 'BackupWrite';
+
+  function SetProcessShutdownParameters(dwLevel:DWORD; dwFlags:DWORD):WINBOOL;   name 'SetProcessShutdownParameters';
+
+  function GetProcessShutdownParameters(lpdwLevel:LPDWORD; lpdwFlags:LPDWORD):WINBOOL;   name 'GetProcessShutdownParameters';
+
+  procedure SetFileApisToOEM;   name 'SetFileApisToOEM';
+
+  procedure SetFileApisToANSI;   name 'SetFileApisToANSI';
+
+  function AreFileApisANSI:WINBOOL;   name 'AreFileApisANSI';
+  function FindNextChangeNotification(hChangeHandle:HANDLE):WINBOOL;   name 'FindNextChangeNotification';
+
+  function FindCloseChangeNotification(hChangeHandle:HANDLE):WINBOOL;   name 'FindCloseChangeNotification';
+
+  function VirtualLock(lpAddress:LPVOID; dwSize:DWORD):WINBOOL;   name 'VirtualLock';
+
+  function VirtualUnlock(lpAddress:LPVOID; dwSize:DWORD):WINBOOL;   name 'VirtualUnlock';
+
+  function MapViewOfFileEx(hFileMappingObject:HANDLE; dwDesiredAccess:DWORD; dwFileOffsetHigh:DWORD; dwFileOffsetLow:DWORD; dwNumberOfBytesToMap:DWORD;
+             lpBaseAddress:LPVOID):LPVOID;   name 'MapViewOfFileEx';
+
+  function SetPriorityClass(hProcess:HANDLE; dwPriorityClass:DWORD):WINBOOL;   name 'SetPriorityClass';
+
+  function GetPriorityClass(hProcess:HANDLE):DWORD;   name 'GetPriorityClass';
+
+  function IsBadReadPtr(lp:PVoid; ucb:UINT):WINBOOL;   name 'IsBadReadPtr';
+
+  function IsBadWritePtr(lp:LPVOID; ucb:UINT):WINBOOL;   name 'IsBadWritePtr';
+
+  function IsBadHugeReadPtr(lp:PVoid; ucb:UINT):WINBOOL;   name 'IsBadHugeReadPtr';
+
+  function IsBadHugeWritePtr(lp:LPVOID; ucb:UINT):WINBOOL;   name 'IsBadHugeWritePtr';
+
+  function IsBadCodePtr(lpfn:FARPROC):WINBOOL;   name 'IsBadCodePtr';
+
+  function QueryPerformanceCounter(var lpPerformanceCount:LARGE_INTEGER):WINBOOL;   name 'QueryPerformanceCounter';
+
+  function QueryPerformanceFrequency(var lpFrequency:LARGE_INTEGER):WINBOOL;   name 'QueryPerformanceFrequency';
+
+    function IsValidCodePage(CodePage:UINT):WINBOOL;   name 'IsValidCodePage';
+
+    function GetACP:UINT;   name 'GetACP';
+
+    function GetOEMCP:UINT;   name 'GetOEMCP';
+
+    function GetCPInfo(_para1:UINT; _para2:LPCPINFO):WINBOOL;   name 'GetCPInfo';
+
+    function IsDBCSLeadByte(TestChar:BYTE):WINBOOL;   name 'IsDBCSLeadByte';
+
+    function IsDBCSLeadByteEx(CodePage:UINT; TestChar:BYTE):WINBOOL;   name 'IsDBCSLeadByteEx';
+
+    function MultiByteToWideChar(CodePage:UINT; dwFlags:DWORD; lpMultiByteStr:LPCSTR; cchMultiByte:longint; lpWideCharStr:LPWSTR;
+               cchWideChar:longint):longint;   name 'MultiByteToWideChar';
+
+    function WideCharToMultiByte(CodePage:UINT; dwFlags:DWORD; lpWideCharStr:LPCWSTR; cchWideChar:longint; lpMultiByteStr:LPSTR;
+               cchMultiByte:longint; lpDefaultChar:LPCSTR; lpUsedDefaultChar:LPBOOL):longint;   name 'WideCharToMultiByte';
+
+    function IsValidLocale(Locale:LCID; dwFlags:DWORD):WINBOOL;   name 'IsValidLocale';
+
+    function ConvertDefaultLocale(Locale:LCID):LCID;   name 'ConvertDefaultLocale';
+
+    function GetThreadLocale:LCID;   name 'GetThreadLocale';
+
+    function SetThreadLocale(Locale:LCID):WINBOOL;   name 'SetThreadLocale';
+
+    function GetSystemDefaultLangID:LANGID;   name 'GetSystemDefaultLangID';
+
+    function GetUserDefaultLangID:LANGID;   name 'GetUserDefaultLangID';
+
+    function GetSystemDefaultLCID:LCID;   name 'GetSystemDefaultLCID';
+
+    function GetUserDefaultLCID:LCID;   name 'GetUserDefaultLCID';
+
+    function ReadConsoleOutputAttribute(hConsoleOutput:HANDLE; lpAttribute:LPWORD; nLength:DWORD; dwReadCoord:COORD; lpNumberOfAttrsRead:LPDWORD):WINBOOL;   name 'ReadConsoleOutputAttribute';
+
+    function WriteConsoleOutputAttribute(hConsoleOutput:HANDLE; var lpAttribute:WORD; nLength:DWORD; dwWriteCoord:COORD; lpNumberOfAttrsWritten:LPDWORD):WINBOOL;   name 'WriteConsoleOutputAttribute';
+
+    function FillConsoleOutputAttribute(hConsoleOutput:HANDLE; wAttribute:WORD; nLength:DWORD; dwWriteCoord:COORD; lpNumberOfAttrsWritten:LPDWORD):WINBOOL;   name 'FillConsoleOutputAttribute';
+
+    function GetConsoleMode(hConsoleHandle:HANDLE; lpMode:LPDWORD):WINBOOL;   name 'GetConsoleMode';
+
+    function GetNumberOfConsoleInputEvents(hConsoleInput:HANDLE; var lpNumberOfEvents:DWORD):WINBOOL;   name 'GetNumberOfConsoleInputEvents';
+
+    function GetConsoleScreenBufferInfo(hConsoleOutput:HANDLE; lpConsoleScreenBufferInfo:PCONSOLE_SCREEN_BUFFER_INFO):WINBOOL;   name 'GetConsoleScreenBufferInfo';
+    function GetConsoleScreenBufferInfo2(hConsoleOutput:HANDLE; var lpConsoleScreenBufferInfo: CONSOLE_SCREEN_BUFFER_INFO):WINBOOL;   name 'GetConsoleScreenBufferInfo';
+
+    function GetLargestConsoleWindowSize(hConsoleOutput:HANDLE):COORD;   name 'GetLargestConsoleWindowSize';
+
+    function GetConsoleCursorInfo(hConsoleOutput:HANDLE; lpConsoleCursorInfo:PCONSOLE_CURSOR_INFO):WINBOOL;   name 'GetConsoleCursorInfo';
+    function GetConsoleCursorInfo2(hConsoleOutput:HANDLE; var lpConsoleCursorInfo:CONSOLE_CURSOR_INFO):WINBOOL;   name 'GetConsoleCursorInfo';
+
+    function GetNumberOfConsoleMouseButtons(lpNumberOfMouseButtons:LPDWORD):WINBOOL;   name 'GetNumberOfConsoleMouseButtons';
+
+    function SetConsoleMode(hConsoleHandle:HANDLE; dwMode:DWORD):WINBOOL;   name 'SetConsoleMode';
+
+    function SetConsoleActiveScreenBuffer(hConsoleOutput:HANDLE):WINBOOL;   name 'SetConsoleActiveScreenBuffer';
+
+    function FlushConsoleInputBuffer(hConsoleInput:HANDLE):WINBOOL;   name 'FlushConsoleInputBuffer';
+
+    function SetConsoleScreenBufferSize(hConsoleOutput:HANDLE; dwSize:COORD):WINBOOL;   name 'SetConsoleScreenBufferSize';
+
+    function SetConsoleCursorPosition(hConsoleOutput:HANDLE; dwCursorPosition:COORD):WINBOOL;   name 'SetConsoleCursorPosition';
+
+    function SetConsoleCursorInfo(hConsoleOutput:HANDLE; var lpConsoleCursorInfo:CONSOLE_CURSOR_INFO):WINBOOL;   name 'SetConsoleCursorInfo';
+
+    function SetConsoleWindowInfo(hConsoleOutput:HANDLE; bAbsolute:WINBOOL; var lpConsoleWindow:SMALL_RECT):WINBOOL;   name 'SetConsoleWindowInfo';
+
+    function SetConsoleTextAttribute(hConsoleOutput:HANDLE; wAttributes:WORD):WINBOOL;   name 'SetConsoleTextAttribute';
+
+    function SetConsoleCtrlHandler(HandlerRoutine:PHANDLER_ROUTINE; Add:WINBOOL):WINBOOL;   name 'SetConsoleCtrlHandler';
+
+    function GenerateConsoleCtrlEvent(dwCtrlEvent:DWORD; dwProcessGroupId:DWORD):WINBOOL;   name 'GenerateConsoleCtrlEvent';
+
+    function AllocConsole:WINBOOL;   name 'AllocConsole';
+
+    function FreeConsole:WINBOOL;   name 'FreeConsole';
+
+    function CreateConsoleScreenBuffer(dwDesiredAccess:DWORD; dwShareMode:DWORD; var lpSecurityAttributes:SECURITY_ATTRIBUTES; dwFlags:DWORD; lpScreenBufferData:LPVOID):HANDLE;   name 'CreateConsoleScreenBuffer';
+
+    function GetConsoleCP:UINT;   name 'GetConsoleCP';
+
+    function SetConsoleCP(wCodePageID:UINT):WINBOOL;   name 'SetConsoleCP';
+
+    function GetConsoleOutputCP:UINT;   name 'GetConsoleOutputCP';
+
+    function SetConsoleOutputCP(wCodePageID:UINT):WINBOOL;  name 'SetConsoleOutputCP';
+
+
+
+
+  function CompareString(Locale:LCID; dwCmpFlags:DWORD; lpString1:LPCSTR; cchCount1:longint; lpString2:LPCSTR;
+             cchCount2:longint):longint;  name 'CompareStringA';
+
+  function LCMapString(Locale:LCID; dwMapFlags:DWORD; lpSrcStr:LPCSTR; cchSrc:longint; lpDestStr:LPSTR;
+             cchDest:longint):longint;  name 'LCMapStringA';
+
+  function GetLocaleInfo(Locale:LCID; LCType:LCTYPE; lpLCData:LPSTR; cchData:longint):longint;  name 'GetLocaleInfoA';
+
+  function SetLocaleInfo(Locale:LCID; LCType:LCTYPE; lpLCData:LPCSTR):WINBOOL;  name 'SetLocaleInfoA';
+
+  function GetTimeFormat(Locale:LCID; dwFlags:DWORD; var lpTime:SYSTEMTIME; lpFormat:LPCSTR; lpTimeStr:LPSTR;
+             cchTime:longint):longint;  name 'GetTimeFormatA';
+
+  function GetDateFormat(Locale:LCID; dwFlags:DWORD; var lpDate:SYSTEMTIME; lpFormat:LPCSTR; lpDateStr:LPSTR;
+             cchDate:longint):longint;  name 'GetDateFormatA';
+
+  function GetNumberFormat(Locale:LCID; dwFlags:DWORD; lpValue:LPCSTR; var lpFormat:NUMBERFMT; lpNumberStr:LPSTR;
+             cchNumber:longint):longint;  name 'GetNumberFormatA';
+
+  function GetCurrencyFormat(Locale:LCID; dwFlags:DWORD; lpValue:LPCSTR; var lpFormat:CURRENCYFMT; lpCurrencyStr:LPSTR;
+             cchCurrency:longint):longint;  name 'GetCurrencyFormatA';
+
+  function EnumCalendarInfo(lpCalInfoEnumProc:CALINFO_ENUMPROC; Locale:LCID; Calendar:CALID; CalType:CALTYPE):WINBOOL;  name 'EnumCalendarInfoA';
+
+  function EnumTimeFormats(lpTimeFmtEnumProc:TIMEFMT_ENUMPROC; Locale:LCID; dwFlags:DWORD):WINBOOL;  name 'EnumTimeFormatsA';
+
+  function EnumDateFormats(lpDateFmtEnumProc:DATEFMT_ENUMPROC; Locale:LCID; dwFlags:DWORD):WINBOOL;  name 'EnumDateFormatsA';
+
+  function GetStringTypeEx(Locale:LCID; dwInfoType:DWORD; lpSrcStr:LPCSTR; cchSrc:longint; lpCharType:LPWORD):WINBOOL;  name 'GetStringTypeExA';
+
+  function GetStringType(Locale:LCID; dwInfoType:DWORD; lpSrcStr:LPCSTR; cchSrc:longint; lpCharType:LPWORD):WINBOOL;  name 'GetStringTypeA';
+
+  function FoldString(dwMapFlags:DWORD; lpSrcStr:LPCSTR; cchSrc:longint; lpDestStr:LPSTR; cchDest:longint):longint;  name 'FoldStringA';
+
+  function EnumSystemLocales(lpLocaleEnumProc:LOCALE_ENUMPROC; dwFlags:DWORD):WINBOOL;  name 'EnumSystemLocalesA';
+
+  function EnumSystemCodePages(lpCodePageEnumProc:CODEPAGE_ENUMPROC; dwFlags:DWORD):WINBOOL;  name 'EnumSystemCodePagesA';
+
+  function PeekConsoleInput(hConsoleInput:HANDLE; var lpBuffer:TINPUTRECORD; nLength:DWORD; var lpNumberOfEventsRead:DWORD):WINBOOL;  name 'PeekConsoleInputA';
+
+  function ReadConsoleInput(hConsoleInput:HANDLE; var lpBuffer:TINPUTRECORD; nLength:DWORD; var lpNumberOfEventsRead:DWORD):WINBOOL;  name 'ReadConsoleInputA';
+
+  function WriteConsoleInput(hConsoleInput:HANDLE; var lpBuffer:TINPUTRECORD; nLength:DWORD; var lpNumberOfEventsWritten:DWORD):WINBOOL;  name 'WriteConsoleInputA';
+
+  function ReadConsoleOutput(hConsoleOutput:HANDLE; lpBuffer:PCHAR_INFO; dwBufferSize:COORD; dwBufferCoord:COORD; lpReadRegion:PSMALL_RECT):WINBOOL;  name 'ReadConsoleOutputA';
+
+  function WriteConsoleOutput(hConsoleOutput:HANDLE; var lpBuffer:CHAR_INFO; dwBufferSize:COORD; dwBufferCoord:COORD; lpWriteRegion:PSMALL_RECT):WINBOOL;  name 'WriteConsoleOutputA';
+
+  function ReadConsoleOutputCharacter(hConsoleOutput:HANDLE; lpCharacter:LPSTR; nLength:DWORD; dwReadCoord:COORD; lpNumberOfCharsRead:LPDWORD):WINBOOL;  name 'ReadConsoleOutputCharacterA';
+
+  function WriteConsoleOutputCharacter(hConsoleOutput:HANDLE; lpCharacter:LPCSTR; nLength:DWORD; dwWriteCoord:COORD; lpNumberOfCharsWritten:LPDWORD):WINBOOL;  name 'WriteConsoleOutputCharacterA';
+
+  function FillConsoleOutputCharacter(hConsoleOutput:HANDLE; cCharacter:CHAR; nLength:DWORD; dwWriteCoord:COORD; lpNumberOfCharsWritten:LPDWORD):WINBOOL;  name 'FillConsoleOutputCharacterA';
+
+  function ScrollConsoleScreenBuffer(hConsoleOutput:HANDLE; var lpScrollRectangle:SMALL_RECT; var lpClipRectangle:SMALL_RECT; dwDestinationOrigin:COORD; var lpFill:CHAR_INFO):WINBOOL;  name 'ScrollConsoleScreenBufferA';
+
+  function GetConsoleTitle(lpConsoleTitle:LPSTR; nSize:DWORD):DWORD;  name 'GetConsoleTitleA';
+
+  function SetConsoleTitle(lpConsoleTitle:LPCSTR):WINBOOL;  name 'SetConsoleTitleA';
+
+  function ReadConsole(hConsoleInput:HANDLE; lpBuffer:LPVOID; nNumberOfCharsToRead:DWORD; lpNumberOfCharsRead:LPDWORD; lpReserved:LPVOID):WINBOOL;  name 'ReadConsoleA';
+
+  function WriteConsole(hConsoleOutput:HANDLE;lpBuffer:pvoid; nNumberOfCharsToWrite:DWORD; lpNumberOfCharsWritten:LPDWORD; lpReserved:LPVOID):WINBOOL;  name 'WriteConsoleA';
+
+   function VerLanguageName(wLang:DWORD; szLang:LPSTR; nSize:DWORD):DWORD; name 'VerLanguageNameA';
+  function CreateProcess(lpApplicationName:LPCSTR; lpCommandLine:LPSTR; lpProcessAttributes:LPSECURITY_ATTRIBUTES; lpThreadAttributes:LPSECURITY_ATTRIBUTES; bInheritHandles:WINBOOL;
+             dwCreationFlags:DWORD; lpEnvironment:LPVOID; lpCurrentDirectory:LPCSTR; lpStartupInfo:LPSTARTUPINFO; lpProcessInformation:LPPROCESS_INFORMATION):WINBOOL; name 'CreateProcessA';
+
+  procedure GetStartupInfo(lpStartupInfo:LPSTARTUPINFO); name 'GetStartupInfoA';
+
+  function FindFirstFile(lpFileName:LPCSTR; lpFindFileData:LPWIN32_FIND_DATA):HANDLE; name 'FindFirstFileA';
+
+  function FindNextFile(hFindFile:HANDLE; lpFindFileData:LPWIN32_FIND_DATA):WINBOOL; name 'FindNextFileA';
+
+  function GetVersionEx(lpVersionInformation:LPOSVERSIONINFO):WINBOOL; name 'GetVersionExA';
+
+
+  function BuildCommDCB(lpDef:LPCSTR; lpDCB:LPDCB):WINBOOL; name 'BuildCommDCBA';
+
+  function BuildCommDCBAndTimeouts(lpDef:LPCSTR; lpDCB:LPDCB; lpCommTimeouts:LPCOMMTIMEOUTS):WINBOOL;  name 'BuildCommDCBAndTimeoutsA';
+
+  function CommConfigDialog(lpszName:LPCSTR; ParParhWnd:HWND; lpCC:LPCOMMCONFIG):WINBOOL; name 'CommConfigDialogA';
+
+  function GetDefaultCommConfig(lpszName:LPCSTR; lpCC:LPCOMMCONFIG; lpdwSize:LPDWORD):WINBOOL; name 'GetDefaultCommConfigA';
+
+  function SetDefaultCommConfig(lpszName:LPCSTR; lpCC:LPCOMMCONFIG; dwSize:DWORD):WINBOOL; name 'SetDefaultCommConfigA';
+
+  function GetComputerName(lpBuffer:LPSTR; nSize:LPDWORD):WINBOOL; name 'GetComputerNameA';
+
+  function SetComputerName(lpComputerName:LPCSTR):WINBOOL; name 'SetComputerNameA';
+
+{  function GetUserName(lpBuffer:LPSTR; nSize:LPDWORD):WINBOOL; name 'GetUserNameA';}
+  function FindFirstChangeNotification(lpPathName:LPCSTR; bWatchSubtree:WINBOOL; dwNotifyFilter:DWORD):HANDLE;name 'FindFirstChangeNotificationA';
+  function IsBadStringPtr(lpsz:LPCSTR; ucchMax:UINT):WINBOOL; name 'IsBadStringPtrA';
+  function GetBinaryType(lpApplicationName:LPCSTR; lpBinaryType:LPDWORD):WINBOOL; name 'GetBinaryTypeA';
+  function GetShortPathName(lpszLongPath:LPCSTR; lpszShortPath:LPSTR; cchBuffer:DWORD):DWORD; name 'GetShortPathNameA';
+  function GetEnvironmentStrings:LPSTR; name 'GetEnvironmentStringsA';
+  function FreeEnvironmentStrings(_para1:LPSTR):WINBOOL; name 'FreeEnvironmentStringsA';
+
+{}
+
+  function CreateMailslot(lpName:LPCSTR; nMaxMessageSize:DWORD; lReadTimeout:DWORD; lpSecurityAttributes:LPSECURITY_ATTRIBUTES):HANDLE; name 'CreateMailslotA';
+
+  function lstrcmp(lpString1:LPCSTR; lpString2:LPCSTR):longint; name 'lstrcmpA';
+
+  function lstrcmpi(lpString1:LPCSTR; lpString2:LPCSTR):longint; name 'lstrcmpiA';
+
+  function lstrcpyn(lpString1:LPSTR; lpString2:LPCSTR; iMaxLength:longint):LPSTR; name 'lstrcpynA';
+
+  function lstrcpy(lpString1:LPSTR; lpString2:LPCSTR):LPSTR; name 'lstrcpyA';
+
+  function lstrcat(lpString1:LPSTR; lpString2:LPCSTR):LPSTR; name 'lstrcatA';
+
+  function lstrlen(lpString:LPCSTR):longint; name 'lstrlenA';
+
+  function CreateMutex(lpMutexAttributes:LPSECURITY_ATTRIBUTES; bInitialOwner:WINBOOL; lpName:LPCSTR):HANDLE; name 'CreateMutexA';
+
+  function OpenMutex(dwDesiredAccess:DWORD; bInheritHandle:WINBOOL; lpName:LPCSTR):HANDLE; name 'OpenMutexA';
+
+  function CreateEvent(lpEventAttributes:LPSECURITY_ATTRIBUTES; bManualReset:WINBOOL; bInitialState:WINBOOL; lpName:LPCSTR):HANDLE; name 'CreateEventA';
+
+  function OpenEvent(dwDesiredAccess:DWORD; bInheritHandle:WINBOOL; lpName:LPCSTR):HANDLE; name 'OpenEventA';
+
+ function CreateSemaphore(lpSemaphoreAttributes:LPSECURITY_ATTRIBUTES; lInitialCount:LONG; lMaximumCount:LONG; lpName:LPCSTR):HANDLE; name 'CreateSemaphoreA';
+
+  function OpenSemaphore(dwDesiredAccess:DWORD; bInheritHandle:WINBOOL; lpName:LPCSTR):HANDLE; name 'OpenSemaphoreA';
+
+  function CreateFileMapping(ParhFile:HANDLE; lpFileMappingAttributes:LPSECURITY_ATTRIBUTES; flProtect:DWORD; dwMaximumSizeHigh:DWORD; dwMaximumSizeLow:DWORD;
+             lpName:LPCSTR):HANDLE; name 'CreateFileMappingA';
+
+  function OpenFileMapping(dwDesiredAccess:DWORD; bInheritHandle:WINBOOL; lpName:LPCSTR):HANDLE; name 'OpenFileMappingA';
+
+  function GetLogicalDriveStrings(nBufferLength:DWORD; lpBuffer:LPSTR):DWORD; name 'GetLogicalDriveStringsA';
+
+  function LoadLibrary(lpLibFileName:LPCSTR):HINST; name 'LoadLibraryA';
+
+  function LoadLibraryEx(lpLibFileName:LPCSTR; ParhFile:HANDLE; dwFlags:DWORD):HINST; name 'LoadLibraryExA';
+
+  function GetModuleFileName(hModule:HINST; lpFilename:LPSTR; nSize:DWORD):DWORD; name 'GetModuleFileNameA';
+
+  function GetModuleHandle(lpModuleName:LPCSTR):HMODULE; name 'GetModuleHandleA';
+
+  procedure FatalAppExit(uAction:UINT; lpMessageText:LPCSTR); name 'FatalAppExitA';
+
+  function GetCommandLine:LPSTR; name 'GetCommandLineA';
+
+  function GetEnvironmentVariable(lpName:LPCSTR; lpBuffer:LPSTR; nSize:DWORD):DWORD;  name 'GetEnvironmentVariableA';
+
+  function SetEnvironmentVariable(lpName:LPCSTR; lpValue:LPCSTR):WINBOOL;  name 'SetEnvironmentVariableA';
+
+  function ExpandEnvironmentStrings(lpSrc:LPCSTR; lpDst:LPSTR; nSize:DWORD):DWORD;  name 'ExpandEnvironmentStringsA';
+
+  procedure OutputDebugString(lpOutputString:LPCSTR);  name 'OutputDebugStringA';
+
+  function FindResource(hModule:HINST; lpName:LPCSTR; lpType:LPCSTR):HRSRC;  name 'FindResourceA';
+
+  function FindResourceEx(hModule:HINST; lpType:LPCSTR; lpName:LPCSTR; wLanguage:WORD):HRSRC;  name 'FindResourceExA';
+
+  function EnumResourceTypes(hModule:HINST; lpEnumFunc:ENUMRESTYPEPROC; lParam:LONG):WINBOOL;  name 'EnumResourceTypesA';
+
+  function EnumResourceNames(hModule:HINST; lpType:LPCSTR; lpEnumFunc:ENUMRESNAMEPROC; lParam:LONG):WINBOOL;  name 'EnumResourceNamesA';
+
+  function EnumResourceLanguages(hModule:HINST; lpType:LPCSTR; lpName:LPCSTR; lpEnumFunc:ENUMRESLANGPROC; lParam:LONG):WINBOOL;  name 'EnumResourceLanguagesA';
+
+  function BeginUpdateResource(pFileName:LPCSTR; bDeleteExistingResources:WINBOOL):HANDLE;  name 'BeginUpdateResourceA';
+
+  function UpdateResource(hUpdate:HANDLE; lpType:LPCSTR; lpName:LPCSTR; wLanguage:WORD; lpData:LPVOID;
+             cbData:DWORD):WINBOOL;  name 'UpdateResourceA';
+
+  function EndUpdateResource(hUpdate:HANDLE; fDiscard:WINBOOL):WINBOOL;  name 'EndUpdateResourceA';
+
+  function GlobalAddAtom(lpString:LPCSTR):ATOM;  name 'GlobalAddAtomA';
+
+  function GlobalFindAtom(lpString:LPCSTR):ATOM;  name 'GlobalFindAtomA';
+
+  function GlobalGetAtomName(nAtom:ATOM; lpBuffer:LPSTR; nSize:longint):UINT;  name 'GlobalGetAtomNameA';
+
+  function AddAtom(lpString:LPCSTR):ATOM; name 'AddAtomA';
+
+  function FindAtom(lpString:LPCSTR):ATOM; name 'FindAtomA';
+
+  function GetAtomName(nAtom:ATOM; lpBuffer:LPSTR; nSize:longint):UINT; name 'GetAtomNameA';
+
+  function GetProfileInt(lpAppName:LPCSTR; lpKeyName:LPCSTR; nDefault:INT):UINT; name 'GetProfileIntA';
+
+  function GetProfileString(lpAppName:LPCSTR; lpKeyName:LPCSTR; lpDefault:LPCSTR; lpReturnedString:LPSTR; nSize:DWORD):DWORD; name 'GetProfileStringA';
+
+  function WriteProfileString(lpAppName:LPCSTR; lpKeyName:LPCSTR; lpString:LPCSTR):WINBOOL; name 'WriteProfileStringA';
+
+  function GetProfileSection(lpAppName:LPCSTR; lpReturnedString:LPSTR; nSize:DWORD):DWORD; name 'GetProfileSectionA';
+
+  function WriteProfileSection(lpAppName:LPCSTR; lpString:LPCSTR):WINBOOL;  name 'WriteProfileSectionA';
+
+  function GetPrivateProfileInt(lpAppName:LPCSTR; lpKeyName:LPCSTR; nDefault:INT; lpFileName:LPCSTR):UINT; name 'GetPrivateProfileIntA';
+
+  function GetPrivateProfileString(lpAppName:LPCSTR; lpKeyName:LPCSTR; lpDefault:LPCSTR; lpReturnedString:LPSTR; nSize:DWORD;
+             lpFileName:LPCSTR):DWORD;  name 'GetPrivateProfileStringA';
+
+  function WritePrivateProfileString(lpAppName:LPCSTR; lpKeyName:LPCSTR; lpString:LPCSTR; lpFileName:LPCSTR):WINBOOL;  name 'WritePrivateProfileStringA';
+
+  function GetPrivateProfileSection(lpAppName:LPCSTR; lpReturnedString:LPSTR; nSize:DWORD; lpFileName:LPCSTR):DWORD;  name 'GetPrivateProfileSectionA';
+
+  function WritePrivateProfileSection(lpAppName:LPCSTR; lpString:LPCSTR; lpFileName:LPCSTR):WINBOOL;  name 'WritePrivateProfileSectionA';
+
+  function GetDriveType(lpRootPathName:LPCSTR):UINT;  name 'GetDriveTypeA';
+
+  function GetSystemDirectory(lpBuffer:LPSTR; uSize:UINT):UINT;  name 'GetSystemDirectoryA';
+
+  function GetTempPath(nBufferLength:DWORD; lpBuffer:LPSTR):DWORD;  name 'GetTempPathA';
+
+  function GetTempFileName(lpPathName:LPCSTR; lpPrefixString:LPCSTR; uUnique:UINT; lpTempFileName:LPSTR):UINT;  name 'GetTempFileNameA';
+
+  function GetWindowsDirectory(lpBuffer:LPSTR; uSize:UINT):UINT;  name 'GetWindowsDirectoryA';
+
+   function GetCurrentDirectory(nBufferLength:DWORD; lpBuffer:LPSTR):WINBOOL;  name 'GetCurrentDirectoryA';
+  function SetCurrentDirectory(lpPathName:LPCSTR):WINBOOL;  name 'SetCurrentDirectoryA';
+
+
+  function GetDiskFreeSpace(lpRootPathName:LPCSTR; lpSectorsPerCluster:LPDWORD; lpBytesPerSector:LPDWORD; lpNumberOfFreeClusters:LPDWORD; lpTotalNumberOfClusters:LPDWORD):WINBOOL;  name 'GetDiskFreeSpaceA';
+
+  function CreateDirectory(lpPathName:LPCSTR; lpSecurityAttributes:LPSECURITY_ATTRIBUTES):WINBOOL;  name 'CreateDirectoryA';
+
+  function CreateDirectoryEx(lpTemplateDirectory:LPCSTR; lpNewDirectory:LPCSTR; lpSecurityAttributes:LPSECURITY_ATTRIBUTES):WINBOOL;  name 'CreateDirectoryExA';
+
+  function RemoveDirectory(lpPathName:LPCSTR):WINBOOL; name 'RemoveDirectoryA';
+
+  function GetFullPathName(lpFileName:LPCSTR; nBufferLength:DWORD; lpBuffer:LPSTR; var lpFilePart:LPSTR):DWORD; name 'GetFullPathNameA';
+
+  function DefineDosDevice(dwFlags:DWORD; lpDeviceName:LPCSTR; lpTargetPath:LPCSTR):WINBOOL; name 'DefineDosDeviceA';
+
+  function QueryDosDevice(lpDeviceName:LPCSTR; lpTargetPath:LPSTR; ucchMax:DWORD):DWORD;  name 'QueryDosDeviceA';
+
+  function CreateFile(lpFileName:LPCSTR; dwDesiredAccess:DWORD; dwShareMode:DWORD; lpSecurityAttributes:LPSECURITY_ATTRIBUTES; dwCreationDisposition:DWORD;
+             dwFlagsAndAttributes:DWORD; hTemplateFile:HANDLE):HANDLE; name 'CreateFileA';
+
+  function SetFileAttributes(lpFileName:LPCSTR; dwFileAttributes:DWORD):WINBOOL; name 'SetFileAttributesA';
+
+  function GetFileAttributes(lpFileName:LPCSTR):DWORD; name 'GetFileAttributesA';
+
+  function GetCompressedFileSize(lpFileName:LPCSTR; lpFileSizeHigh:LPDWORD):DWORD; name 'GetCompressedFileSizeA';
+
+
+  function DeleteFile(lpFileName:LPCSTR):WINBOOL; name 'DeleteFileA';
+
+  function SearchPath(lpPath:LPCSTR; lpFileName:LPCSTR; lpExtension:LPCSTR; nBufferLength:DWORD; lpBuffer:LPSTR;
+             var lpFilePart:LPSTR):DWORD; name 'SearchPathA';
+  function CopyFile(lpExistingFileName:LPCSTR; lpNewFileName:LPCSTR; bFailIfExists:WINBOOL):WINBOOL; name 'CopyFileA';
+
+  function MoveFile(lpExistingFileName:LPCSTR; lpNewFileName:LPCSTR):WINBOOL;  name 'MoveFileA';
+
+  function MoveFileEx(lpExistingFileName:LPCSTR; lpNewFileName:LPCSTR; dwFlags:DWORD):WINBOOL; name 'MoveFileExA';
+
+  function CreateNamedPipe(lpName:LPCSTR; dwOpenMode:DWORD; dwPipeMode:DWORD; nMaxInstances:DWORD; nOutBufferSize:DWORD;
+             nInBufferSize:DWORD; nDefaultTimeOut:DWORD; lpSecurityAttributes:LPSECURITY_ATTRIBUTES):HANDLE;  name 'CreateNamedPipeA';
+
+  function GetNamedPipeHandleState(hNamedPipe:HANDLE; lpState:LPDWORD; lpCurInstances:LPDWORD; lpMaxCollectionCount:LPDWORD; lpCollectDataTimeout:LPDWORD;
+             lpUserName:LPSTR; nMaxUserNameSize:DWORD):WINBOOL; name 'GetNamedPipeHandleStateA';
+
+  function CallNamedPipe(lpNamedPipeName:LPCSTR; lpInBuffer:LPVOID; nInBufferSize:DWORD; lpOutBuffer:LPVOID; nOutBufferSize:DWORD;
+             lpBytesRead:LPDWORD; nTimeOut:DWORD):WINBOOL; name 'CallNamedPipeA';
+
+  function WaitNamedPipe(lpNamedPipeName:LPCSTR; nTimeOut:DWORD):WINBOOL; name 'WaitNamedPipeA';
+
+  function SetVolumeLabel(lpRootPathName:LPCSTR; lpVolumeName:LPCSTR):WINBOOL;  name 'SetVolumeLabelA';
+  function GetVolumeInformation(lpRootPathName:LPCSTR; lpVolumeNameBuffer:LPSTR; nVolumeNameSize:DWORD; lpVolumeSerialNumber:LPDWORD; lpMaximumComponentLength:LPDWORD;
+             lpFileSystemFlags:LPDWORD; lpFileSystemNameBuffer:LPSTR; nFileSystemNameSize:DWORD):WINBOOL; name 'GetVolumeInformationA';
+
+
+end;
+procedure DebugMessage(ParStr:string);
+end public
+procedure DebugMessage(ParStr:string);
+begin
+end;
+
+
+end.
+

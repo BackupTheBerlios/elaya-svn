@@ -1,0 +1,34 @@
+include $(inc_path)/Values.tpl
+include $(inc_path)/Makefile.inc
+
+
+.PHONY:clean all all_ela all_win32 all_linux dep
+
+
+
+zothall=
+zothclean=
+ifdef othall
+	zothall=$(othall)
+endif
+
+ifdef othclean
+	zothclean=$(othclean)
+endif
+
+all_ela_sources=$(wildcard *.ELA) $(wildcard *.ela)
+
+Base_Dir:=$(Dir_$(rtl_target)_Rtl)
+ELA_CPL:=$(LIB_ELA) -t $(rtl_target)
+dep_file:=dep_$(rtl_target)
+vpath %.emd $(Base_Dir)
+all:dep  all_main $(zothall)
+
+clean: clean_main $(zothclean)
+	rm dep_$(rtl_target)
+
+dep:$(dep_file) 
+$(dep_file): $(all_ela_sources) $(inc_path)/include/alp.$(rtl_target)
+	$(eladep) -a $(inc_path)/include/alp.$(rtl_target) $(all_ela_sources) -c "$(ELA_CPL)" -u $(Base_Dir)/ -s .ela -e .emd >$(dep_file)
+
+include $(dep_file)

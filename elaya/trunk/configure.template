@@ -1,0 +1,89 @@
+#   Elaya,; the compiler for the ;elaya language
+#    Copyright (C) 1999,2001  J.v.Iddekinge.
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Directories where compiled files go, change is as you wish
+
+if test $HOME = "/"; then HOME=`pwd`;fi;
+
+
+source param.$1
+
+Dir_Program=$HOME/bin/elaya/bin
+Dir_Cpl_Lib=$HOME/bin/lib
+Dir_Ela_Rtl=$HOME/bin/elaya/lib
+
+
+
+#set to y when compiling win32 and linux under linux.
+#compile linux under win32 supported, but the
+#build system can't handle it.
+Can_Cross_Compile='y'
+
+#fpc and ela options
+
+Fpc="ppc386"
+ela="$Dir_Program/ela"
+eladep="$Dir_Program/eladep"
+
+Opt_Fpc="-XD -a -O2g -Ci- -Ch1000000  -S2c  -vrwen"
+
+
+
+# Main Program
+
+echo Dir_Program=$Dir_Program>Values.tpl
+echo Dir_Cpl_Lib=$Dir_Cpl_Lib>>Values.tpl
+echo Dir_linux_Rtl=$Dir_Ela_Rtl/linux>>Values.tpl
+echo Dir_win32_Rtl=$Dir_Ela_Rtl/win32>>Values.tpl
+echo Dir_Ela_Rtl_Base=$Dir_Ela_Rtl>>Values.tpl
+echo Host_Type=linux>>Values.tpl
+echo Opt_Fpc=$Opt_Fpc>>Values.tpl
+echo Fpc=$Fpc>>Values.tpl
+echo ELA=$ela>>Values.tpl
+echo Opt_Ela=$Opt_Ela>>Values.tpl
+echo Rtl_Target=$Rtl_Target>>Values.tpl
+echo Can_Cross_Compile=$Can_Cross_Compile>>Values.tpl
+echo Cpl_Target=$Cpl_Target>>Values.tpl
+echo cmd_rm=$cmd_rm>>Values.tpl
+echo cmd_cp=$cmd_cp>>Values.tpl
+echo Dir_Dirt=../dirt>>Values.tpl
+echo Dir_Sep=/>>Values.tpl
+echo Dir_Linux_As=$Dir_Linux_As>>Values.tpl
+echo Dir_Linux_Ld=$Dir_Linux_Ld>>Values.tpl
+echo Dir_Win32_As=$Dir_Win32_As>>Values.tpl
+echo Dir_Win32_Ld=$Dir_Win32_Ld>>Values.tpl
+echo linux_auto_load=$linux_auto_load>>Values.tpl
+echo win32_auto_load=$win32_auto_load>>Values.tpl
+echo pp_unit_ext=$pp_unit_ext>>Values.tpl
+echo eladep=$eladep>>Values.tpl
+echo exe_ext=$exe_ext>>Values.tpl
+mkdir -p $Dir_Program
+mkdir -p $Dir_Cpl_Lib
+mkdir -p $Dir_Ela_Rtl
+mkdir -p $Dir_Ela_Rtl/linux
+mkdir -p $Dir_Ela_Rtl/win32
+mkdir -p dirt
+
+echo
+echo FEEDBACK FEEDBACK FEEDBACK
+echo 
+echo For problems, bugs and comments please visit www.elaya.org.
+echo or mailing list at : Elaya-public@lists.Sourceforge.net
+echo 
+echo Thank you
+echo 
+

@@ -1,0 +1,10 @@
+uses win32types,win32gui;
+var
+	vlStr : string;
+begin
+	messagebox(0,'Write starts','Info',mb_ok);
+	writeln('hello');
+	vlStr :=' Native Error='+ IntToStr(GetNativeError)+' ';
+	vlStr :='Elaya Error = '+IntToStr(GetLastError) + vlStr+char(0);
+	messagebox(0,PAsc(@vlStr[1]),'Result',mb_ok);
+end.

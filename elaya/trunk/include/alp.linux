@@ -1,0 +1,8 @@
+core:
+linux:
+sys_int:
+sockets:
+classes:
+memory:
+sys:linux,sys_int,core
+*:sys,core,classes

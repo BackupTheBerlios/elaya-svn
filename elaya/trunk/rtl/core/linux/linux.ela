@@ -1,0 +1,1353 @@
+{    Elaya Rtl  for the elaya compiler
+    Copyright (C) 1999,2000  J.v.Iddekinge.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+ unit;
+ uses core;
+
+ public
+
+ type
+        align 4;
+	u_char2    = char;
+	u_char     = char;
+	u_short    = byte;
+	u_int      = clong;
+	u_long     = clong;
+	u_Quad_t   = array[0 to 1] of clong;
+	Quad_t     = array[0 to 1] of longint;
+	IHnt8_t    = short;
+	uint8_t    = byte;
+	int16_t    = integer;
+         uint16_t   = word;
+	int32_t    = longint;
+	uint32_t   = clong;
+	QAddr_t    = pvoid;
+	Dev_t	  = Quad_t;
+	Uid_t	  = u_int;
+	Gid_t	  = u_int;
+	Ino_t	  = u_long;
+	Mode_t	  = u_int;
+	Nlink_t    = u_int;
+	Off_t      = longint;
+	lOff_t     = quad_t;
+	Pid_t      = cint;
+	Size_t     = cint;
+	PSize_T    = ptr Size_t;
+	rlim_t     = longint;
+	rlim64_t   = quad_t;
+	id_t	  = u_int;
+	len_t	  = cint;
+	fsid_t	   = record
+		__Val:array[0 to 1] of integer;
+	end;
+	daddr_t	   = integer;
+	CAddr_t    = PAsc;
+	time_t     = longint;
+	swblk_t    = longint;
+	clock_t    = clong;
+	fd_Mask    = clong;
+
+        {file}
+const
+
+        f_DupfD  = 0;
+        f_GetFD  = 1;
+        f_SetFd  = 2;
+        f_GetFl  = 3;
+        f_SetFl  = 4;
+        f_GetLk  = 5;
+        f_SetLk  = 6;
+        f_SetlkW = 7;
+
+const
+	fd_SetSize= 1024;
+	NfDBits   = 8 * sizeof(fd_Mask);
+
+
+  const
+     ENOERR  = 0;
+     EPERM   = 1;  { Operation not permitted  }
+     ENOENT  = 2;  { No such file or directory  }
+     ESRCH   = 3;  { No such process  }
+     EINTR   = 4;  { Interrupted system call  }
+     EIO     = 5;  { I/O error  }
+     ENXIO   = 6;  { No such device or address  }
+     E2BIG   = 7;  { Arg list too clong  }
+     ENOEXEC = 8;  { Exec format error  }
+     EBADF   = 9;  { Bad file number  }
+     ECHILD  = 10; { No child processes  }
+     EAGAIN  = 11; { Try again  }
+     ENOMEM  = 12; { Out of memory  }
+     EACCES  = 13; { Permission denied  }
+     EFAULT  = 14; { Bad address  }
+     ENOTBLK = 15; { Block device required  }
+     EBUSY   = 16; { Device or resource busy  }
+     EEXIST  = 17; { File exists  }
+     EXDEV   = 18; { Cross-device link  }
+     ENODEV  = 19; { No such device  }
+     ENOTDIR = 20; { Not a directory  }
+     EISDIR  = 21; { Is a directory  }
+     EINVAL  = 22; { Invalid argument  }
+     ENFILE  = 23; { File table overflow  }
+     EMFILE  = 24; { Too many open files  }
+     ENOTTY  = 25; { Not a typewriter  }
+     ETXTBSY = 26; { Text file busy  }
+     EFBIG   = 27; { File too large  }
+     ENOSPC  = 28; { No space left on device  }
+     ESPIPE  = 29; { Illegal seek  }
+     EROFS   = 30; { Read-only file system  }
+     EMLINK  = 31; { Too many links  }
+     EPIPE   = 32; { Broken pipe  }
+     EDOM    = 33; { Math argument out of domain of func  }
+     ERANGE  = 34; { Math result not representable  }
+     EDEADLK = 35; { Resource deadlock would occur  }
+     ENAMETOOLONG = 36;    { File name too clong  }
+  { No record locks available  }
+     ENOLCK = 37;
+  { Function not implemented  }
+     ENOSYS = 38;
+  { Directory not empty  }
+     ENOTEMPTY = 39;
+  { Too many symbolic links encountered  }
+     ELOOP = 40;
+  { Operation would block  }
+     EWOULDBLOCK = EAGAIN;
+  { No message of desired type  }
+     ENOMSG = 42;
+  { Identifier removed  }
+     EIDRM = 43;
+  { Channel number out of range  }
+     ECHRNG = 44;
+  { Level 2 not synchronized  }
+     EL2NSYNC = 45;
+  { Level 3 halted  }
+     EL3HLT = 46;
+  { Level 3 reset  }
+     EL3RST = 47;
+  { Link number out of range  }
+     ELNRNG = 48;
+  { Protocol driver not attached  }
+     EUNATCH = 49;
+  { No CSI structure available  }
+     ENOCSI = 50;
+  { Level 2 halted  }
+     EL2HLT = 51;
+  { Invalid exchange  }
+     EBADE = 52;
+  { Invalid request descriptor  }
+     EBADR = 53;
+  { Exchange full  }
+     EXFULL = 54;
+  { No anode  }
+     ENOANO = 55;
+  { Invalid request code  }
+     EBADRQC = 56;
+  { Invalid slot  }
+     EBADSLT = 57;
+     EDEADLOCK = EDEADLK;
+  { Bad font file format  }
+     EBFONT = 59;
+  { Device not a stream  }
+     ENOSTR = 60;
+  { No data available  }
+     ENODATA = 61;
+  { Timer expired  }
+     ETIME = 62;
+  { Out of streams resources  }
+     ENOSR = 63;
+  { Machine is not on the network  }
+     ENONET = 64;
+  { Package not installed  }
+     ENOPKG = 65;
+  { Object is remote  }
+     EREMOTE = 66;
+  { Link has been severed  }
+     ENOLINK = 67;
+  { Advertise error  }
+     EADV = 68;
+  { Srmount error  }
+     ESRMNT = 69;
+  { Communication error on send  }
+     ECOMM = 70;
+  { Protocol error  }
+     EPROTO = 71;
+  { Multihop attempted  }
+     EMULTIHOP = 72;
+  { RFS specific error  }
+     EDOTDOT = 73;
+  { Not a data message  }
+     EBADMSG = 74;
+  { Value too large for defined data type  }
+     EOVERFLOW = 75;
+  { Name not unique on network  }
+     ENOTUNIQ = 76;
+  { File descriptor in bad state  }
+     EBADFD = 77;
+  { Remote address changed  }
+     EREMCHG = 78;
+  { Can not access a needed shared library  }
+     ELIBACC = 79;
+  { Accessing a corrupted shared library  }
+     ELIBBAD = 80;
+  { .lib section in a.out corrupted  }
+     ELIBSCN = 81;
+  { Attempting to link in too many shared libraries  }
+     ELIBMAX = 82;
+  { Cannot exec a shared library directly  }
+     ELIBEXEC = 83;
+  { Illegal byte sequence  }
+     EILSEQ = 84;
+  { Interrupted system call should be restarted  }
+     ERESTART = 85;
+  { Streams pipe error  }
+     ESTRPIPE = 86;
+  { Too many users  }
+     EUSERS = 87;
+  { Socket operation on non-socket  }
+     ENOTSOCK = 88;
+  { Destination address required  }
+     EDESTADDRREQ = 89;
+  { Message too clong  }
+     EMSGSIZE = 90;
+  { Protocol wrong type for socket  }
+     EPROTOTYPE = 91;
+  { Protocol not available  }
+     ENOPROTOOPT = 92;
+  { Protocol not supported  }
+     EPROTONOSUPPORT = 93;
+  { Socket type not supported  }
+     ESOCKTNOSUPPORT = 94;
+  { Operation not supported on transport endpoint  }
+     EOPNOTSUPP = 95;
+  { Protocol family not supported  }
+     EPFNOSUPPORT = 96;
+  { Address family not supported by protocol  }
+     EAFNOSUPPORT = 97;
+  { Address already in use  }
+     EADDRINUSE = 98;
+  { Cannot assign requested address  }
+     EADDRNOTAVAIL = 99;
+  { Network is down  }
+     ENETDOWN = 100;
+  { Network is unreachable  }
+     ENETUNREACH = 101;
+  { Network dropped connection because of reset  }
+     ENETRESET = 102;
+  { Software caused connection abort  }
+     ECONNABORTED = 103;
+  { Connection reset by peer  }
+     ECONNRESET = 104;
+  { No buffer space available  }
+     ENOBUFS = 105;
+  { Transport endpoint is already connected  }
+     EISCONN = 106;
+  { Transport endpoint is not connected  }
+     ENOTCONN = 107;
+  { Cannot send after transport endpoint shutdown  }
+     ESHUTDOWN = 108;
+  { Too many references: cannot splice  }
+     ETOOMANYREFS = 109;
+  { Connection timed out  }
+     ETIMEDOUT = 110;
+  { Connection refused  }
+     ECONNREFUSED = 111;
+  { Host is down  }
+     EHOSTDOWN = 112;
+  { No route to host  }
+     EHOSTUNREACH = 113;
+  { Operation already in progress  }
+     EALREADY = 114;
+  { Operation now in progress  }
+     EINPROGRESS = 115;
+  { Stale NFS file handle  }
+     ESTALE = 116;
+  { Structure needs cleaning  }
+     EUCLEAN = 117;
+  { Not a XENIX named type file  }
+     ENOTNAM = 118;
+  { No XENIX semaphores available  }
+     ENAVAIL = 119;
+  { Is a named type file  }
+     EISNAM = 120;
+  { Remote I/O error  }
+     EREMOTEIO = 121;
+  { Quota exceeded  }
+     EDQUOT = 122;
+  { No medium found  }
+     ENOMEDIUM = 123;
+  { Wrong medium type  }
+     EMEDIUMTYPE = 124;
+
+const
+     {waitpid}
+     WNoHang  =1;
+     WUntraced=2;
+type
+fd_set =  record
+     _fds_bits:array[0 to FD_SETSIZE div NFDBITS - 1] of fd_Mask;
+end;
+
+key_t        = integer;
+Ipc_Pid_t    = word ; {? Unsigned short int ?}
+BlkCnt_t     = longint;
+BlkCnt64_t   = quad_t;
+FsBlkCnt_t   = u_long;
+FsBlkCnt64_t = Quad_t ;
+FsFilCnt_t   = u_long;
+FsFilCnt64_t = Quad_t;
+Ino64_t      = u_long;
+off64_t      = loff_t;
+t_UScalar_t  = word;
+IntPtr_t     = integer;
+
+SysCtl_Args = record
+	vName   : PInteger;
+	nlen    : integer;
+	OldVal  : PVoid;
+	OldTemp : PSize_t;
+	NewVal  : PVoid;
+	NewLen  : Size_t;
+	Unused  : array[0 to 3] of clong;
+end;
+
+Time_Val =record
+         tv_Sec  : Time_T;
+	tv_USec : Time_T;
+end;
+
+
+{------------( File   Part )-------------------------------------------------}
+
+const
+
+	O_AccMode    = 3;
+	O_RdOnly     = 0;
+	O_WrOnly     = 1;
+	O_RDWR       = 2;
+	O_Creat       = 64;
+	O_Append      = 8192;
+	O_NonBlock    = 2048;
+	O_NDelay      = O_NonBlock;
+	O_Sync        = 4096;
+	O_FSync       = O_Sync;
+	O_ASync       = 8192;
+
+	StdIn_FileNo  =  0;
+	StdOut_FileNo = 1;
+	StdErr_FileNo = 2;
+	Seek_Set       = 0;
+	Seek_Cur      = 1;
+	SEEK_End      = 2;
+
+	lock_SH	      = 1;
+	lock_Ex	      = 2;
+	Lock_Nb	      = 4;
+	lock_Un	      = 8;
+	dt_Fifo	      = 1;
+	dt_Chr	      = 2;
+	dt_dir	      = 4;
+	dt_Blk	      = 8;
+	dt_Lnk	      = 10;
+	dt_Sck	      = 12;
+
+	s_ifmt        = $F000;
+	S_ifsock      = $C000;
+	s_iflnk       = $a000;
+	s_ifreg       = $8000;
+	s_ifblk       = $6000;
+	s_ifdir       = $4000;
+	s_ifchr       = $2000;
+	s_ififo       = $1000;
+	s_isuid       = $0800;
+	s_isgid       = $0400;
+	s_isvtx       = $0200;
+	s_irwxu       = $01c0;
+	s_irusr       = $0100;
+	s_iwusr       = $0080;
+	s_ixusr       = $0040;
+type
+         align 4;
+	stat=record
+	st_dev      : dev_t;
+	Pad1	   : clong;
+	st_Ino      : ino_t;
+	st_mode     : mode_t;
+         st_nlink    : nlink_t;
+	st_uid      : uid_t;
+	st_gid      : gid_t;
+	st_rdev     : dev_t;
+	Pad2	   : clong;
+	st_size     : off_t;
+	st_lblkSize : clong;
+	st_blocks   : clong;
+         st_atime    : time_t;
+	dm1	   : clong;
+	st_mtime    : time_T;
+	dm2	   : clong;
+	st_ctime    : time_t;
+	dm3	   : clong;
+	dm4	   : clong;
+         dm5	   : clong;
+end;
+
+align 4;
+PStat=ptr stat;
+
+type
+	align 1;
+	DirEnt=record
+		d_ino    : ino_t;
+		d_off    : off_t;
+		d_reclen : word;
+		d_type   : byte;
+		d_Name   : Asc255;
+	end;
+
+	align 4;
+	PDirEnt=ptr DirEnt;
+	PDir=pvoid;
+
+statfs=record
+	f_type     : clong;
+	f_BSize    : clong;
+	f_fsid 	  : fsid_t;
+	f_Namelen  : clong;
+	f_Blocks   : fsBlkCnt_t;
+	f_bFree    : fsblkCnt_t;
+	f_bAvail   : FsBlkCnt_t;
+	f_files    : FsFilCnt_t;
+	f_ffree    : FsFilCnt_t;
+	f_Spare    : array[0 to 5] of byte;
+end;
+
+
+
+const
+
+ 	Ctl_Kern  = 1;
+	Ctl_Vm    = 2;
+	Ctl_Net   = 3;
+	Ctl_Proc  = 4;
+	Ctl_Fs    = 5;
+	Ctl_Debug = 6;
+	Ctl_Dev   = 7;
+	Ctl_Bus   = 8;
+
+{/ CTL_KERN names: }
+	KERN_OSTYPE=1;		{ string: system version }
+	KERN_OSRELEASE=2;	{ string: system release }
+	KERN_OSREV=3;		{ int: system revision }
+	KERN_VERSION=4;		{ string: compile time info }
+	KERN_SECUREMASK=5;	{ struct: maximum rights mask }
+	KERN_PROF=6;		{ table: profiling information }
+	KERN_NODENAME=7;
+	KERN_DOMAINNAME=8;
+
+	KERN_CAP_BSET=14;	{ int: capability bounding set }
+	KERN_PANIC=15;		{ int: panic timeout }
+	KERN_REALROOTDEV=16;	{ real root device to mount after initrd }
+
+	KERN_JAVA_INTERPRETER=19; { path to Java(tm) interpreter }
+	KERN_JAVA_APPLETVIEWER=20; { path to Java(tm) appletviewer }
+	KERN_SPARC_REBOOT=21;	{ reboot command on Sparc }
+	KERN_CTLALTDEL=22;	{ int: allow ctl-alt-del to reboot }
+	KERN_PRINTK=23;		{ struct: control printk logging parameters }
+	KERN_NAMETRANS=24;	{ Name translation }
+	KERN_PPC_HTABRECLAIM=25; { turn htab reclaimation on/off on PPC }
+	KERN_PPC_ZEROPAGED=26;	{ turn idle page zeroing on/off on PPC }
+	KERN_PPC_POWERSAVE_NAP=27; { use nap mode for power saving }
+	KERN_MODPROBE=28;
+	KERN_SG_BIG_BUFF=29;
+	KERN_ACCT=30;		{ BSD process accounting parameters }
+	KERN_PPC_L2CR=31;	{ l2cr register on PPC }
+
+	KERN_RTSIGNR=32;	{ Number of rt sigs queued }
+	KERN_RTSIGMAX=33;	{ Max queuable }
+
+	KERN_SHMMAX=34;         { int: Maximum shared memory segment }
+	KERN_MSGMAX=35;         { int: Maximum size of a messege }
+	KERN_MSGMNB=36;         { int: Maximum message queue size }
+	KERN_MSGPOOL=37;         { int: Maximum system message pool size }
+	KERN_SYSRQ=38;		{ int: Sysreq enable }
+	KERN_SHMALL=41;		{ int: maximum size of shared memory }
+
+
+{ CTL_VM names: }
+	VM_SWAPCTL=1;		{ struct: Set vm swapping control }
+	VM_SWAPOUT=2;		{ int: Background pageout interval }
+	VM_FREEPG=3;		{ struct: Set free page thresholds }
+	VM_BDFLUSH=4;		{ struct: Control buffer cache flushing }
+	VM_OVERCOMMIT_MEMORY=5;	{ Turn off the virtual memory safety limit }
+	VM_BUFFERMEM=6;		{ struct: Set buffer memory thresholds }
+	VM_PAGECACHE=7;		{ struct: Set cache memory thresholds }
+	VM_PAGERDAEMON=8;	{ struct: Control kswapd behaviour }
+	VM_PGT_CACHE=9;		{ struct: Set page table cache parameters }
+	VM_PAGE_CLUSTER=10;	{ int: set number of pages to swap together }
+
+
+{ CTL_NET names: }
+	NET_CORE=1;
+	NET_ETHER=2;
+	NET_802=3;
+	NET_UNIX=4;
+	NET_IPV4=5;
+	NET_IPX=6;
+	NET_ATALK=7;
+	NET_NETROM=8;
+	NET_AX25=9;
+	NET_BRIDGE=10;
+	NET_ROSE=11;
+	NET_IPV6=12;
+	NET_X25=13;
+	NET_TR=14;
+	NET_DECNET=15;
+	NET_ECONET=16;
+
+{ /proc/sys/bus/isa }
+	BUS_ISA_MEM_BASE=1;
+	BUS_ISA_PORT_BASE=2;
+	BUS_ISA_PORT_SHIFT=3;
+
+{ /proc/sys/net/core }
+	NET_CORE_WMEM_MAX=1;
+	NET_CORE_RMEM_MAX=2;
+	NET_CORE_WMEM_DEFAULT=3;
+	NET_CORE_RMEM_DEFAULT=4;
+{ was	NET_CORE_DESTROY_DELAY }
+	NET_CORE_MAX_BACKLOG=6;
+	NET_CORE_FASTROUTE=7;
+	NET_CORE_MSG_COST=8;
+	NET_CORE_MSG_BURST=9;
+	NET_CORE_OPTMEM_MAX=10;
+
+{ /proc/sys/net/ethernet }
+
+{ /proc/sys/net/802 }
+
+{ /proc/sys/net/unix }
+
+	NET_UNIX_DESTROY_DELAY=1;
+	NET_UNIX_DELETE_DELAY=2;
+	NET_UNIX_MAX_DGRAM_QLEN=3;
+
+{ /proc/sys/net/ipv4 }
+	{ v2.0 compatibile variables }
+	NET_IPV4_FORWARD=8;
+	NET_IPV4_DYNADDR=9;
+
+	NET_IPV4_CONF=16;
+	NET_IPV4_NEIGH=17;
+	NET_IPV4_ROUTE=18;
+	NET_IPV4_FIB_HASH=19;
+
+	NET_IPV4_TCP_TIMESTAMPS=33;
+	NET_IPV4_TCP_WINDOW_SCALING=34;
+	NET_IPV4_TCP_SACK=35;
+	NET_IPV4_TCP_RETRANS_COLLAPSE=36;
+	NET_IPV4_DEFAULT_TTL=37;
+	NET_IPV4_AUTOCONFIG=38;
+	NET_IPV4_NO_PMTU_DISC=39;
+	NET_IPV4_TCP_SYN_RETRIES=40;
+	NET_IPV4_IPFRAG_HIGH_THRESH=41;
+	NET_IPV4_IPFRAG_LOW_THRESH=42;
+	NET_IPV4_IPFRAG_TIME=43;
+	NET_IPV4_TCP_MAX_KA_PROBES=44;
+	NET_IPV4_TCP_KEEPALIVE_TIME=45;
+	NET_IPV4_TCP_KEEPALIVE_PROBES=46;
+	NET_IPV4_TCP_RETRIES1=47;
+	NET_IPV4_TCP_RETRIES2=48;
+	NET_IPV4_TCP_FIN_TIMEOUT=49;
+	NET_IPV4_IP_MASQ_DEBUG=50;
+	NET_TCP_SYNCOOKIES=51;
+	NET_TCP_STDURG=52;
+	NET_TCP_RFC1337=53;
+	NET_TCP_SYN_TAILDROP=54;
+	NET_TCP_MAX_SYN_BACKLOG=55;
+	NET_IPV4_LOCAL_PORT_RANGE=56;
+	NET_IPV4_ICMP_ECHO_IGNORE_ALL=57;
+	NET_IPV4_ICMP_ECHO_IGNORE_BROADCASTS=58;
+	NET_IPV4_ICMP_SOURCEQUENCH_RATE=59;
+	NET_IPV4_ICMP_DESTUNREACH=60;
+	NET_IPV4_ICMP_TIMEEXCEED_RATE=61;
+	NET_IPV4_ICMP_PARAMPROB_RATE=62;
+	NET_IPV4_ICMP_ECHOREPLY_RATE=63;
+	NET_IPV4_ICMP_IGNORE_BOGUS_ERROR_RESPONSES=64;
+	NET_IPV4_IGMP_MAX_MEMBERSHIPS=65;
+	NET_IPV4_ALWAYS_DEFRAG=67;
+
+	NET_IPV4_ROUTE_FLUSH=1;
+	NET_IPV4_ROUTE_MIN_DELAY=2;
+	NET_IPV4_ROUTE_MAX_DELAY=3;
+	NET_IPV4_ROUTE_GC_THRESH=4;
+	NET_IPV4_ROUTE_MAX_SIZE=5;
+	NET_IPV4_ROUTE_GC_MIN_INTERVAL=6;
+	NET_IPV4_ROUTE_GC_TIMEOUT=7;
+	NET_IPV4_ROUTE_GC_INTERVAL=8;
+	NET_IPV4_ROUTE_REDIRECT_LOAD=9;
+	NET_IPV4_ROUTE_REDIRECT_NUMBER=10;
+	NET_IPV4_ROUTE_REDIRECT_SILENCE=11;
+	NET_IPV4_ROUTE_ERROR_COST=12;
+	NET_IPV4_ROUTE_ERROR_BURST=13;
+	NET_IPV4_ROUTE_GC_ELASTICITY=14;
+	NET_IPV4_ROUTE_MTU_EXPIRES=15 ;
+
+	NET_PROTO_CONF_ALL=-2;
+	NET_PROTO_CONF_DEFAULT=-3;
+
+	{ And device ifindices ... }
+
+	NET_IPV4_CONF_FORWARDING=1;
+	NET_IPV4_CONF_MC_FORWARDING=2;
+	NET_IPV4_CONF_PROXY_ARP=3;
+	NET_IPV4_CONF_ACCEPT_REDIRECTS=4;
+	NET_IPV4_CONF_SECURE_REDIRECTS=5;
+	NET_IPV4_CONF_SEND_REDIRECTS=6;
+	NET_IPV4_CONF_SHARED_MEDIA=7;
+	NET_IPV4_CONF_RP_FILTER=8;
+	NET_IPV4_CONF_ACCEPT_SOURCE_ROUTE=9;
+	NET_IPV4_CONF_BOOTP_RELAY=10;
+	NET_IPV4_CONF_LOG_MARTIANS=11;
+
+{ /proc/sys/net/ipv6 }
+	NET_IPV6_CONF=16;
+	NET_IPV6_NEIGH=17;
+	NET_IPV6_ROUTE=18;
+
+	NET_IPV6_ROUTE_FLUSH=1;
+	NET_IPV6_ROUTE_GC_THRESH=2;
+	NET_IPV6_ROUTE_MAX_SIZE=3;
+	NET_IPV6_ROUTE_GC_MIN_INTERVAL=4;
+	NET_IPV6_ROUTE_GC_TIMEOUT=5;
+	NET_IPV6_ROUTE_GC_INTERVAL=6;
+	NET_IPV6_ROUTE_GC_ELASTICITY=7;
+	NET_IPV6_ROUTE_MTU_EXPIRES=8;
+
+	NET_IPV6_FORWARDING=1;
+	NET_IPV6_HOP_LIMIT=2;
+	NET_IPV6_MTU=3;
+	NET_IPV6_ACCEPT_RA=4;
+	NET_IPV6_ACCEPT_REDIRECTS=5;
+	NET_IPV6_AUTOCONF=6;
+	NET_IPV6_DAD_TRANSMITS=7;
+	NET_IPV6_RTR_SOLICITS=8;
+	NET_IPV6_RTR_SOLICIT_INTERVAL=9;
+	NET_IPV6_RTR_SOLICIT_DELAY=10;
+
+{ /proc/sys/net/<protocol>/neigh/<dev> }
+	NET_NEIGH_MCAST_SOLICIT=1;
+	NET_NEIGH_UCAST_SOLICIT=2;
+	NET_NEIGH_APP_SOLICIT=3;
+	NET_NEIGH_RETRANS_TIME=4;
+	NET_NEIGH_REACHABLE_TIME=5;
+	NET_NEIGH_DELAY_PROBE_TIME=6;
+	NET_NEIGH_GC_STALE_TIME=7;
+	NET_NEIGH_UNRES_QLEN=8;
+	NET_NEIGH_PROXY_QLEN=9;
+	NET_NEIGH_ANYCAST_DELAY=10;
+	NET_NEIGH_PROXY_DELAY=11;
+	NET_NEIGH_LOCKTIME=12;
+	NET_NEIGH_GC_INTERVAL=13;
+	NET_NEIGH_GC_THRESH1=14;
+	NET_NEIGH_GC_THRESH2=15;
+	NET_NEIGH_GC_THRESH3=16;
+
+{ /proc/sys/net/ipx }
+
+
+{ /proc/sys/net/appletalk }
+	NET_ATALK_AARP_EXPIRY_TIME=1;
+	NET_ATALK_AARP_TICK_TIME=2;
+	NET_ATALK_AARP_RETRANSMIT_LIMIT=3;
+	NET_ATALK_AARP_RESOLVE_TIME=4;
+	NET_NETROM_DEFAULT_PATH_QUALITY=1;
+	NET_NETROM_OBSOLESCENCE_COUNT_INITIALISER=2;
+	NET_NETROM_NETWORK_TTL_INITIALISER=3;
+	NET_NETROM_TRANSPORT_TIMEOUT=4;
+	NET_NETROM_TRANSPORT_MAXIMUM_TRIES=5;
+	NET_NETROM_TRANSPORT_ACKNOWLEDGE_DELAY=6;
+	NET_NETROM_TRANSPORT_BUSY_DELAY=7;
+	NET_NETROM_TRANSPORT_REQUESTED_WINDOW_SIZE=8;
+	NET_NETROM_TRANSPORT_NO_ACTIVITY_TIMEOUT=9;
+	NET_NETROM_ROUTING_CONTROL=10;
+	NET_NETROM_LINK_FAILS_COUNT=11;
+
+{ /proc/sys/net/ax25 }
+	NET_AX25_IP_DEFAULT_MODE=1;
+	NET_AX25_DEFAULT_MODE=2;
+	NET_AX25_BACKOFF_TYPE=3;
+	NET_AX25_CONNECT_MODE=4;
+	NET_AX25_STANDARD_WINDOW=5;
+	NET_AX25_EXTENDED_WINDOW=6;
+	NET_AX25_T1_TIMEOUT=7;
+	NET_AX25_T2_TIMEOUT=8;
+	NET_AX25_T3_TIMEOUT=9;
+	NET_AX25_IDLE_TIMEOUT=10;
+	NET_AX25_N2=11;
+	NET_AX25_PACLEN=12;
+	NET_AX25_PROTOCOL=13;
+	NET_AX25_DAMA_SLAVE_TIMEOUT=14;
+
+{ /proc/sys/net/rose }
+	NET_ROSE_RESTART_REQUEST_TIMEOUT=1;
+	NET_ROSE_CALL_REQUEST_TIMEOUT=2;
+	NET_ROSE_RESET_REQUEST_TIMEOUT=3;
+	NET_ROSE_CLEAR_REQUEST_TIMEOUT=4;
+	NET_ROSE_ACK_HOLD_BACK_TIMEOUT=5;
+	NET_ROSE_ROUTING_CONTROL=6;
+	NET_ROSE_LINK_FAIL_TIMEOUT=7;
+	NET_ROSE_MAX_VCS=8;
+	NET_ROSE_WINDOW_SIZE=9;
+	NET_ROSE_NO_ACTIVITY_TIMEOUT=10;
+
+{ /proc/sys/net/x25 }
+	NET_X25_RESTART_REQUEST_TIMEOUT=1;
+	NET_X25_CALL_REQUEST_TIMEOUT=2;
+	NET_X25_RESET_REQUEST_TIMEOUT=3;
+	NET_X25_CLEAR_REQUEST_TIMEOUT=4;
+	NET_X25_ACK_HOLD_BACK_TIMEOUT=5;
+
+{ /proc/sys/net/token-ring }
+	NET_TR_RIF_TIMEOUT=1   ;
+
+{ /proc/sys/net/decnet }
+	NET_DECNET_DEF_T3_BROADCAST=1;
+	NET_DECNET_DEF_T3_POINTTOPOINT=2;
+	NET_DECNET_DEF_T1=3;
+	NET_DECNET_DEF_BCT1=4;
+	NET_DECNET_CACHETIMEOUT=5;
+	NET_DECNET_DEBUG_LEVEL=6 ;
+
+{ CTL_PROC names: }
+
+{ CTL_FS names:}
+	FS_NRINODE=1;	{ int:current number of allocated inodes }
+	FS_STATINODE=2;
+	FS_MAXINODE=3;	{ int:maximum number of inodes that can be allocated }
+	FS_NRDQUOT=4;	{ int:current number of allocated dquots }
+	FS_MAXDQUOT=5;	{ int:maximum number of dquots that can be allocated }
+	FS_NRFILE=6;	{ int:current number of allocated filedescriptors }
+	FS_MAXFILE=7;	{ int:maximum number of filedescriptors that can be allocated }
+	FS_DENTRY=8;
+	FS_NRSUPER=9;	{ int:current number of allocated super_blocks }
+	FS_MAXSUPER=10; 	{ int:maximum number of super_blocks that can be allocated }
+
+{ CTL_DEBUG names: }
+
+{ CTL_DEV names: }
+	DEV_CDROM=1;
+	DEV_HWMON=2;
+
+{ /proc/sys/dev/cdrom }
+	DEV_CDROM_INFO=1;
+
+
+{msg}
+	MSG_WAITALL=$100;
+
+type
+timex=record
+	Modes      : longint;
+	nOffset    : clong;
+         freq       : clong;
+	MaxError   : clong;
+	EstError   : clong;
+	Status     : longint;
+	Constant   : clong;
+	Precision  : clong;
+	Tolerance  : clong;
+	tick	  : clong;
+end;
+
+type  TCloneProc=procedure(Arg:PVoid);
+
+
+const
+
+    IPPROTO_IP = 0;   { Dummy protocol for TCP.  }
+    IPPROTO_HOPOPTS = 0;   { IPv6 Hop-by-Hop options.  }
+    IPPROTO_ICMP = 1;   { Internet Control Message Protocol.  }
+    IPPROTO_IGMP = 2;   { Internet Group Management Protocol. }
+    IPPROTO_IPIP = 4;   { IPIP tunnels (older KA9Q tunnels use 94).  }
+    IPPROTO_TCP = 6;   { Transmission Control Protocol.  }
+    IPPROTO_EGP = 8;   { Exterior Gateway Protocol.  }
+    IPPROTO_PUP = 12;   { PUP protocol.  }
+    IPPROTO_UDP = 17;   { User Datagram Protocol.  }
+    IPPROTO_IDP = 22;   { XNS IDP protocol.  }
+    IPPROTO_TP = 29;   { SO Transport Protocol Class 4.  }
+    IPPROTO_IPV6 = 41;     { IPv6 header.  }
+    IPPROTO_ROUTING = 43;  { IPv6 routing header.  }
+    IPPROTO_FRAGMENT = 44; { IPv6 fragmentation header.  }
+    IPPROTO_RSVP = 46;   { Reservation Protocol.  }
+    IPPROTO_GRE = 47;   { General Routing Encapsulation.  }
+    IPPROTO_ESP = 50;      { encapsulating security payload.  }
+    IPPROTO_AH = 51;       { authentication header.  }
+    IPPROTO_ICMPV6 = 58;   { ICMPv6.  }
+    IPPROTO_NONE = 59;     { IPv6 no next header.  }
+    IPPROTO_DSTOPTS = 60;  { IPv6 destination options.  }
+    IPPROTO_MTP = 92;   { Multicast Transport Protocol.  }
+    IPPROTO_ENCAP = 98;   { Encapsulation Header.  }
+    IPPROTO_PIM = 103;   { Protocol Independent Multicast.  }
+    IPPROTO_COMP = 108;   { Compression Header Protocol.  }
+    IPPROTO_RAW = 255;   { Raw IP packets.  }
+    IPPROTO_MAX =256;
+
+
+      IPPORT_ECHO = 7;{ Echo service.  }
+    IPPORT_DISCARD = 9;{ Discard transmissions service.  }
+    IPPORT_SYSTAT = 11;{ System status service.  }
+    IPPORT_DAYTIME = 13;{ Time of day service.  }
+    IPPORT_NETSTAT = 15;{ Network status service.  }
+    IPPORT_FTP = 21;{ File Transfer Protocol.  }
+    IPPORT_TELNET = 23;{ Telnet protocol.  }
+    IPPORT_SMTP = 25;{ Simple Mail Transfer Protocol.  }
+    IPPORT_TIMESERVER = 37;{ Timeserver service.  }
+    IPPORT_NAMESERVER = 42;{ Domain Name Service.  }
+    IPPORT_WHOIS = 43;{ Internet Whois service.  }
+    IPPORT_MTP = 57;
+
+    IPPORT_TFTP = 69;{ Trivial File Transfer Protocol.  }
+    IPPORT_RJE = 77;
+    IPPORT_FINGER = 79;{ Finger service.  }
+    IPPORT_TTYLINK = 87;
+    IPPORT_SUPDUP = 95;{ SUPDUP protocol.  }
+
+
+    IPPORT_EXECSERVER = 512;{ execd service.  }
+    IPPORT_LOGINSERVER = 513;{ rlogind service.  }
+    IPPORT_CMDSERVER = 514;
+    IPPORT_EFSSERVER = 520;
+
+    { UDP ports.  }
+    IPPORT_BIFFUDP = 512;
+    IPPORT_WHOSERVER = 513;
+    IPPORT_ROUTESERVER = 520;
+
+    { Ports less than this value are reserved for privileged processes.  }
+    IPPORT_RESERVED = 1024;
+
+    { Ports greater this value are reserved for (non-privileged) servers.  }
+    IPPORT_USERRESERVED = 5000 ;
+	PF_UNSPEC	=0;	{ Unspecified.  }
+	AF_UNSPEC	= PF_UNSPEC;
+	PF_LOCAL	=1;	{ Local to host (pipes and file-domain).  }
+	AF_LOCAL	= PF_LOCAL;
+	PF_UNIX		=PF_LOCAL; { Old BSD name for PF_LOCAL.  }
+	AF_UNIX		=PF_UNIX;
+	PF_FILE		=PF_LOCAL; { Another non-standard name for PF_LOCAL.  }
+	AF_FILE		=PF_FILE;
+	PF_INET		=2;	{ IP protocol family.  }
+	AF_INET		= PF_INET;
+	PF_AX25		=3;	{ Amateur Radio AX.25.  }
+	AF_AX25		=PF_AX25;
+	PF_IPX		=4;	{ Novell Internet Protocol.  }
+	AF_IPX		=PF_IPX;
+	PF_APPLETALK	=5;	{ Appletalk DDP.  }
+	AF_APPLETALK    = PF_APPLETALK;
+	PF_NETROM	=6;	{ Amateur radio NetROM.  }
+	AF_NETROM	=PF_NETROM;
+	PF_BRIDGE	=7;	{ Multiprotocol bridge.  }
+	AF_BRIDGE       =PF_BRIDGE;
+	PF_ATMPVC	=8;	{ ATM PVCs.  }
+	AF_ATMPVC	= PF_ATMPVC;
+	PF_X25		=9;	{ Reserved for X.25 project.  }
+	AF_X25		=PF_X25;
+	PF_INET6	=10;	{ IP version 6.  }
+	AF_INET6	=PF_INET6;
+	PF_ROSE		=11;	{ Amateur Radio X.25 PLP.  }
+	AF_ROSE		=PF_ROSE;
+	PF_DECnet	=12;	{ Reserved for DECnet project.  }
+	AF_DecNet	=PF_DecNet;
+	PF_NETBEUI	=13;	{ Reserved for 802.2LLC project.  }
+	AF_NetBeui	=PF_NetBeui;
+	PF_SECURITY	=14;	{ Security callback pseudo AF.  }
+	AF_Security	=PF_Security;
+	PF_KEY		=15;	{ PF_KEY key management API.  }
+	AF_Key		=PF_Key;
+	PF_NETLINK	=16 ;
+	AF_NetLink	=PF_NetLink;
+	PF_ROUTE	=PF_NETLINK; { Alias to emulate 4.4BSD.  }
+	AF_Route	=PF_Route;
+	PF_PACKET	=17;	{ Packet family.  }
+	AF_Packet	=PF_Packet;
+	PF_ASH		=18;	{ Ash.  }
+	AF_Ash		=PF_Ash;
+	PF_ECONET	=19;	{ Acorn Econet.  }
+	AF_Econet	=PF_Econet;
+	PF_ATMSVC	=20;	{ ATM SVCs.  }
+	AF_AtmSvc	=PF_AtmSvc;
+	PF_SNA		=22;	{ Linux SNA Project }
+	AF_Sna		=Pf_Sna;
+	PF_IRDA		=23;	{ IRDA sockets.  }
+	Af_Irda		=PF_Irda;
+	PF_MAX		=32;	{ For now..  }
+        AF_Max		=PF_Max;
+
+	Sock_Stream	= 1;
+	Sock_DGram	= 2;
+	Sock_RDM        = 4;
+	Sock_SeqPacket  = 5;
+	Sock_Packet	= 10;
+
+
+	SOL_SOCKET = 1;
+	SO_DEBUG  = 1;
+	SO_REUSEADDR = 2;
+	SO_TYPE = 3;
+	SO_ERROR=4;
+type TInaddr = record
+	s_addr:clong;
+end;
+
+   TSaFamily= word;
+
+   align 1;
+   TIn6Addr=union
+	sAddr8  : array[0 to 15] of byte;
+	sAddr16 : array[0 to 7] of word;
+	sAddr32 : array[0 to 4] of clong;
+   end;
+
+  TSockaddr=record
+	sin     : TSaFamily;
+	sa_data : array[0 to 13] of byte;
+  end;
+  PSockAddr= ptr TSockAddr;
+
+  TSockaddr_In=record
+       sin   : TSafamily;
+       Port  : word;
+       Addr  : array[0 to 3] of byte;
+       dummy : array[0 to (sizeof(TSockaddr) - sizeof(TSaFamily) - sizeof(TInAddr)-sizeof(word)-1)] of byte;
+   end;
+   align 4;
+   PPAsc    = ptr PAsc;
+   PHostEnt = Ptr THostEnt;
+   THostEnt =record
+      vrName     : PAsc;
+      vrAliases  : PPAsc;
+      vrAddrType : cInt;
+      vrLength   : cint;
+      vrAddrList : PPAsc;
+   end;
+
+   TSocklen=cint;
+   TSocket =cint;
+
+{--( Signal )--------------------------------------------------}
+
+const 	SigHup		= 1;
+	SigInt		= 2;
+	SigQuit 		= 3;
+	SigIll		= 4;
+	SigTrap		= 5;
+	SigAbrt		= 6;
+	SigIot		= 6;
+	SigBus		= 7;
+	SigFpe		= 8;
+	SigKill		= 9;
+	SigUsr1		= 10;
+	SigSegv		= 11;
+	SigUsr2		= 12;
+	SigPipe		= 13;
+	SigAlrm		= 14;
+	SigTerm		= 15;
+	SigStkFlt	= 16;
+	SigCld		= 17;
+	SigChld		= SigCld;
+	SigCont		= 18;
+	SigStop		= 19;
+         SigTStp		= 20;
+	SigTTin		= 21;
+	SigTTou		= 22;
+	SigUrg		= 23;
+	SigXCpu		= 24;
+	SigXfSz		= 25;
+	SigVTalrm	= 26;
+	SigPRof		= 27;
+	SigWinch	= 28;
+	SigPoll		= 29;
+	SigIo		= 30;
+	SigPwr		= 31;
+	SigUnused	= 32;
+
+	Sig_Err		= -1;
+	Sig_Dfl		= 0;
+        Sig_Ign		= 1;
+
+	SA_NoCldStop	= 1;
+	SA_SigInfo	= 4;
+	SA_OnStack	= $08000000;
+	Sa_Restart	= $10000000;
+	Sa_Interrupt	= $20000000;
+	Sa_NoDefer	= $40000000;
+	Sa_ResetHand	= $80000000;
+        sa_NoMask       = sa_NoDefer;
+        sa_oneshot      = sa_resethand;
+	SigBlock	= 0;
+	Sig_Unblock	= 1;
+	Sig_SetMask	= 2;
+
+const  __si_Max_Size = 128;
+       _sig_Set_NWords = 1024 div (8 * sizeof(clong));
+type
+
+    align 1;
+
+    SigVal_t=record
+           sival_int : cInt;
+           sival_ptr : pointer;
+    end;
+
+    sigcontext=record
+    	dm:array[0 to 4] of long;
+    	gs,gsh:word;
+        fs,fsh:word;
+        es,esh:word;
+        ds,dsh:word;
+        edi : long;
+        esi : long;
+        ebp : long;
+        esp : long;
+        ebx : long;
+        edx : long;
+        ecx : long;
+        eax : long;
+        trapno : long;
+        err    : long;   {EBX}
+        eip    : long;
+        cs,csh : word;
+        eflags : long;
+        espsig : long;
+        ss,ssh : word;        
+    end;
+    PSigContext=ptr sigcontext;
+    
+    SigInfo_t=record
+          si_signo : cInt;
+          si_errno : cInt;
+          si_code  : cInt;
+          si_info  : union
+                   vlPad : array[0 to __si_Max_SIze div sizeof(cInt) -3-1] of cInt;
+                   Kill  : record
+                         si_pid : pid_t;
+                         si_uid : uid_t;
+                    end;
+                   timer : record
+                         si_pid    : pid_t;
+                         si_uid    : uid_t;
+                         si_sigval : sigval_t;
+                   end;
+                   rt    :record
+                         si_pid    : pid_t;
+                         si_Uid    : uid_t;
+                         si_sigval :sigval_t;
+                   end;
+                   sigfault : record
+                        si_addr    :clong;
+                   end;
+                   sigpoll  :record
+                       si_band : cInt;
+                       si_fd   : cint;
+                   end;
+             end;
+       end;
+
+       sigset_t = record
+                vlu:array[0 to _sig_set_Nwords - 1] of clong;
+       end;
+
+	SigInfoProc   = procedure(ParCode:cint;const ParInfo:Siginfo_t;ParDum:PSigCOntext);cdecl;
+         SaHandlerproc = procedure(ParProc:cInt); cdecl;
+         TProcedure  = procedure; cdecl;
+	align 4;
+	SigAction=record
+		handler:union
+                  	SnProc    : SaHandlerProc;
+			SaProc    : SigInfoProc;
+		end;
+		Sa_Mask       : SigSet_t;
+		Sa_Flags      : clong;
+		Sa_Restorer   : Tprocedure;
+        end;
+
+         PSigAction=ptr SigAction;
+         PSigSet_t= ptr SigSet_t;
+
+
+const
+        Uts_Name_Length = 65;
+        sys_nmln        = Uts_name_Length;
+type
+        sys_asc = asciiz size=sys_nmln;
+        UtsName=record
+                      sysname:sys_asc;
+                      NodeName:sys_asc;
+                      Release :sys_asc;
+                      Version :sys_asc;
+                      Machine :sys_asc;
+                      Domain  :sys_asc;
+        end;
+
+        TPipeArr=array[0 to 1] of handle;
+
+{poll}
+
+const
+	pollin  = $1;
+	pollpri = $2;
+	pollout = $4;
+	pollerr = $8;
+	pollhup = $10;
+	pollnval= $20;
+
+type
+	TPollFd=record
+		fd      : cint;
+		Events  : word;
+		REvents : word;
+	end;
+
+	PPollFd=ptr TPollFd;
+
+{----( Libs )---------------------------------------------------------}
+
+
+external linked 'inter.o'
+	function Linux_GetEnvp:PPAsc;cdecl;name 'inter_getenvp';
+	function Linux_GetArgc:clong;cdecl; name 'inter_getargc';
+	function Linux_GetArgp:PPAsc;cdecl;name 'inter_getargp';
+	function Linux_GetErrno:longint;cdecl;name 'inter_geterrno';
+end;
+
+external linked 'libc.so' cdecl
+function  Linux_Access(ParPath:PAsc;ParMode:cint):cint; name 'access';
+function  Linux_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):cint;name 'accept';
+function  Linux_Acct(ParPath:PAsc):cint;name 'acct';
+function  Linux_AdjTimex(const ParTime:Timex):cint;name 'adjtimex';
+function  LInux_Alarm(ParSeconds:cint):cint;name 'alarm';
+function  Linux_BDFlush(ParFunc:cint;ParData:clong):cint; name 'bdflush';
+function  Linux_Bind(ParSocket:TSocket;ParAddres:PSockAddr;ParSockLen:TSockLen):cint;name 'bind';
+function  Linux_Brk(ParPtr:PVoid):cint; name 'brk';
+function  Linux_ChDir(const ParName:PAsc):cint;name 'chdir';
+function  Linux_ChMod(const ParName:PAsc;ParMode : mode_t):cint;name 'chmod';
+function  Linux_ChOwn(ParPath:PAsc;ParOwner:uid_t;ParGroup:gid_t):cint; name 'chown';
+function  Linux_ChRoot(ParName:PAsc):cint;name 'chroot';
+function  Linux_Close(Parfd:cint):cint;name 'close';
+function  Linux_CloseDir(ParDir : PDir):cint;name 'closedir';
+function  Linux_Connect(ParSocket:TSocket;const ParAddres:PSockAddr;ParSockLen:TSockLen):cint;name 'connect';
+function  Linux_Creat(PathName:PAsc;Mode:Mode_t):cint;name 'creat';
+function  Linux_Create_Module(ParName:PAsc;ParSize:size_t):caddr_t; name 'create_module';
+function  Linux_Delete_Module(PArName:PAsc):cint;name 'delete_module';
+function  Linux_Dup(ParOld:cint):cint;name 'dup';
+function  Linux_Dup2(ParOld,ParNew:cint):cint;name 'dup2';
+function  Linux_ExecVE(ParFileName:PAsc;ParArgv:pvoid;ParArgp:pvoid):cint;name 'execve';
+procedure Linux_Exit(ParStatus:cint);name '_exit';
+function  Linux_fchown(ParFd:clong;Parowner:uid_t;ParGroup:gid_t):cint; name 'fchown';
+function  Linux_fChDir(ParFd:cint):cint;name 'fchdir';
+function  Linux_fChMod(Parfd:cint;ParMode:Mode_t):cint;name 'fchmod';
+function  Linux_fcntl(ParFd:cint;ParCmd:cint;ParArg:clong):cint;name 'fcntl';
+function  Linux_fDataSync(ParFd:cint):cint;name 'fdatasync';
+function  Linux_Flock(ParFd:cint;ParOperation:cint):cint;name 'flock';
+function  Linux_Fork:Pid_t;name 'fork';
+procedure Linux_Free(ParPtr:pvoid);name 'free';
+function  linux_Fstat(ParFd:cint;var ParStat:Stat):cint;name 'fstat';
+function  linux_fStatfs(ParFd:cint;var ParBuf:statfs):cint;name 'fstatfs';
+function  Linux_fsync(ParFd:cint):cint;name 'fsync';
+function  Linux_fTruncate(ParFd:cint;ParSize:off_t):cint;name 'ftruncate';
+function  Linux_GetCwd(ParBuf : PAsc;ParSize:Size_t):pasc;name 'getcwd';
+function  Linux_GetEUid:uid_t;name 'geteuid';
+function  Linux_GetEGid:cint;name 'getegid';
+function  Linux_GetGid:cint;name 'getgid';
+function  Linux_GetHostByName(ParName : PAsc):PHostEnt;name 'gethostbyname';
+function  Linux_GetHostId:cint;name 'gethostid';
+function  Linux_GetHostName(ParName:PAsc;ParSize:cint):cint;name 'gethostname';
+function  Linux_GetPid:pid_t;name 'getpid';
+function  Linux_GetPPid:pid_t;name 'getppid';
+function  Linux_GetUid : uid_t;name 'getuid';
+function  Linux_GetSockOpt(socket : cint;level : cint;optname : cint;var optval : void;var len:cint):cint;name 'getsockopt';
+function  Linux_Kill(ParPid :pid_t;sig : cint):cint;name 'kill';
+function  Linux_LChown(ParPath:PAsc;ParOwner:uid_t;ParGroup:gid_t):cint;name 'lchown';
+function  linux_listen(ParSocket : TSocket;ParBackLog : cint) : cint;name 'listen';
+function  Linux_link(ParOldPath,ParNewPath:PAsc):cint;name 'link';
+function  Linux_LSeek(ParFd:clong;ParOff:off_t;ParWhence:cint):off_t;name 'lseek';
+function  Linux_Mkdir(ParPath:PAsc;ParMode:cint):cint;name 'mkdir';
+function  Linux_Malloc(ParSize:size_t):pvoid; name 'malloc';
+function  Linux_Mount(ParFile:PAsc;ParDis:PAsc;ParType:PAsc;ParFlag:cint;ParData:pvoid):cint;name 'mount';
+function  Linux_Open(PathNAme:PAsc;ParFlags:cint;ParMode : mode_t):cint;name 'open';
+function  Linux_OpenDir(ParName : PAsc):PDir;name 'opendir';
+function  Linux_Poll(ParPollFd : PPollFd;ParNumFd : clong;ParTimeOut : cint):cint;name 'poll';
+function  Linux_Pipe(var ParHandle:TPipeArr):cint;name 'pipe';
+function  Linux_Read(ParFd:clong;ParBuffer:pvoid;ParSize:size_t):cint;name 'read';
+function  Linux_ReadLink(ParPath : PAsc;ParOut:PAsc;ParSize : size_t):cint;name 'readlink';
+function  Linux_ReadDir(ParDir : PDir):PDirEnt;name 'readdir';
+function  Linux_Realloc(ParPtr:Pointer;ParSize:size_t):pointer;name 'realloc';
+function  Linux_Recv(ParFd : cint;ParBuffer : PVoid;ParLength : len_t;ParFlags : cint) :cint;name 'recv';
+function  Linux_Socket(ParDomain:cint;ParType,ParProtoCol:cint):cint;name 'socket';
+function  Linux_Select(ParN:cint;var ParRead:fd_set;var ParWrite:fd_set;var ParExcept:fd_set;var ParTime:TIme_Val):cint;name 'select';
+function  Linux_Send(ParFd : cint;ParBuffer : PVoid;ParLength : len_t;ParFlags : cint) :cint;name 'send';
+function  Linux_SetHostId(ParHostId:cint):cint;name 'sethostid';
+function  Linux_SetHostName(ParName:Pasc;ParSIze:size_t):cint; name 'sethostname';
+function  Linux_SigAction(ParNum : cInt;ParAction,ParPrv:PSigAction):cInt; name 'sigaction';
+function  Linux_SigProcMask(ParHow : cInt;const ParSet : psigset_t;ParOld : PSigSet_t):cint;name 'sigprocmask';
+function  Linux_Sleep(ParTime : cint):cint;name 'sleep';
+function  Linux_Stat(ParName:PAsc ;ParStat : PStat):cint;name 'stat';
+function  Linux_StatFs(ParFd:cint;var ParBuf:StatFs):cint;name 'statfs';
+function  Linux_Time(var ParTime : time_t):time_t;name 'time';
+function  Linux_truncate(ParFile:Pasc;ParLength:off_t):cint;name 'truncate';
+function  Linux_UMask(ParMode:mode_t):cint;name 'umask';
+function  Linux_UMount(ParWhat:PAsc):cint;name 'umount';
+function  Linux_UName(var ParInfo:UtsName):cint;name 'uname';
+function  Linux_unlink(const ParName:PAsc):cint;name 'unlink';
+function  Linux_UseLib(const ParName:Pasc):cint;name 'uselib';
+function  Linux_vFork:pid_t;name 'vfork';
+function  Linux_vHangup:cint;name 'vhangup';
+function  Linux_Wait( ParStatus:plongint):pid_t;name 'wait';
+function  Linux_WaitPid(ParPid:Pid_t; ParStatus:plongint;ParOptions:cint):Pid_t;name 'waitpid';
+function  Linux_Write(PArFd:clong;ParBuffer:pvoid;ParSIze:size_t):cint; name 'write';
+end;
+
+function  Linux_WTermSig(ParStatus : cint) : cint;
+function  Linux_WIfExcited(ParStatus : cint):boolean;
+function  Linux_WExitStatus(ParStatus : cint):cint;
+
+procedure SetFdSetZero(var ParMask:fd_set);
+procedure SetFdSet(ParNo:clong;var ParMask:fd_set);
+procedure InitFaultHandlers;
+procedure DebugMessage(const ParStr : string);
+procedure DebugNumber(ParNum : longint);
+
+
+end public
+
+function  Linux_WTermSig(ParStatus : cint) : cint;
+begin
+	exit(ParStatus and $7f);
+end;
+
+function Linux_WIfExcited(ParStatus : cint):boolean;
+begin
+	exit(Linux_WTermSig(ParStatus) = 0);
+end;
+
+function Linux_WExitStatus(ParStatus : cint):cint;
+begin
+	exit((ParStatus and $ff00) div 256);
+end;
+
+
+
+procedure DebugMessage(const ParStr : string);
+var vlStr : string;
+begin
+     vlStr := 'DEBUG:';
+     Linux_write(stdout_fileNo,@vlStr[1],vlStr.length as byte);
+     Linux_write(stdout_fileNo,@ParStr[1],ParStr.length as byte);
+     vlStr[1] := 13 as char;vlStr[2] := 10 as char;vlStr.length := (2);
+     Linux_Write(stdout_fileNo,@vlStr[1],2);
+end;
+
+
+procedure DebugNumber(ParNum : longint);
+var
+	vlStr : string size=16;
+         vlCnt : long;
+begin
+	if ParNUm < 0 then begin
+        	ParNum := - ParNum;
+                DebugMessage('-');
+	end else begin
+        	DebugMessage('+');
+        end;
+	count vlCnt from  16 downto 1 do begin
+		vlStr[vlCnt]:= ((ParNum  mod 10) +48) as char;
+		Parnum := ParNUm div 10;
+	end;
+	vlStr.Length := 16;
+	DebugMessage(vlStr);
+end;
+
+
+
+
+procedure SetFdSetZero(var ParMask:fd_set);
+var vlCnt:word;
+begin
+     vlCnt := 0;
+     while vlCnt <= FD_SETSIZE div NFDBITS - 1 do  begin
+           parmask._fds_bits[vlCnt] := 0;
+           vlCnt := vlCnt + 1;
+     end;
+end;
+
+procedure SetFdSet(ParNo:clong;var ParMask:fd_set);
+var vlInd  : clong;
+    vlBit  : clong;
+    vlMask : clong;
+    vlCnt  : clong;
+begin
+    vlInd  := ParNo div NFDBits;
+     vlBit  := ParNo mod NFDBits;
+     vlMask := 1;
+     while vlBit > 0 do begin
+           vlMask := vlMask *  2;
+           vlBit  := vlBit - 1;
+     end;
+     ParMask._fds_bits[vlInd] := ParMask._fds_bits[vlInd] or vlMask;
+end;
+
+procedure Other(ParProc : cInt);cdecl;
+begin
+	linux_exit(1);
+end;
+
+procedure HandleSegmentFault(ParCodex:cInt;const ParInfo:Siginfo_t;ParOther:Psigcontext);cdecl;
+var 
+	vlAddr : long;
+begin
+	if ParOther <> nil then begin
+		vlAddr := ParOther^.eip;
+	end else begin
+		vlAddr := 0;
+	end;
+	CallSegFaultHandler(vlAddr);
+	linux_exit(1);
+end;
+
+
+procedure InitSegmentFaultHandler;
+var vlInfo    : sigAction;
+    vlPrvInfo : sigAction;
+begin
+     fillchar(vlInfo.sa_mask,sizeof(vlInfo.Sa_mask),255);
+     vlInfo.Handler.SaProc := @HandleSegmentFault;
+     vlInfo.Sa_flags       := sa_siginfo ;
+     vlInfo.sa_restorer    := nil;
+     if linux_sigaction(sigSegv,@vlInfo,nil) = -1 then DebugMessage('Error init sigfault handler');
+end;
+
+procedure InitFaultHandlers;
+begin
+     InitSegmentFaultHandler;
+end;
+
+
+
+
+begin
+	InitFaultHandlers;
+end.

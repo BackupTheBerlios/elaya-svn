@@ -1,0 +1,31 @@
+unit;
+uses twidget,interface;
+public
+type
+		TWindow=class inherit TWidget
+		protected
+			procedure Expose;override;
+			procedure InitWidget;override;
+		end;
+
+end public
+
+procedure TWindow.Expose;override;
+begin
+end;
+
+procedure TWindow.InitWidget;override;
+var
+	vlHandle : TInterface.PWIdgetHandle;
+begin
+
+	if Parent <> nil then begin
+		vlHandle := Parent.Handle;
+	end else begin
+		vlHandle := nil;
+	end;
+
+	vgInterface.CreateInterWindow(X,y,W,H,vlHandle,Handle,Title);
+end;
+
+end.

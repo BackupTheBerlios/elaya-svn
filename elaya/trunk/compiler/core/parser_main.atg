@@ -1,0 +1,297 @@
+ PRODUCTIONS
+
+
+
+(* 			Simple Identifiers			*)
+
+
+RConfigVar<var ParString : string>
+(.
+	var
+		vlIdent :string;
+.)
+=
+"&" RIdent<vlIdent>    (.   if not(GetConfig.GetVarValue(vlIdent,ParString)) then ErrorText(Err_Unkown_COnfig_Variable,vlIdent); .)
+.
+
+
+RString<var ParString:String>
+=
+TString
+(.
+	LexString(ParString);
+	ParString := copy(ParString,2,length(PArString)-2);
+.)
+.
+
+RText:"string"<var ParString : string>
+=
+	RString<ParString>
+	|RConfigVar<ParString>
+.
+
+
+RIdent<var ParIdent:string>
+=TIdent				(. LexName(ParIdent); .)
+.
+
+
+
+RHex_Number<var ParNum:TNumber;var ParValid : boolean>
+(.
+  var vlTmp : string;
+      vlErr : boolean;
+.)
+= THex
+(.
+	LexName(vlTmp);
+	delete(vlTmp,1,1);
+	ParNum := HexToLongint(vlTmp,vlErr);
+	ParValid := not vLErr;
+.)
+.
+
+
+RBin_Number<var ParNum:TNumber;var ParValid : boolean>
+(.
+var
+	vlTmp:string;
+	vlErr:boolean;
+.)
+= TBin
+(.
+  LexName(vlTmp);
+  delete(vlTmp,1,2);
+  ParNum := BinToLongint(vlTmp,vlErr);
+  ParValid := not vlErr;
+.)
+
+
+.
+
+
+RDec_Number<var ParNum:TNumber; var ParValid:boolean>
+(.
+var
+	vlTmp : String;
+.)
+= TInt_Num
+(.
+	LexName(vlTmp);
+	ParValid := not(StringToLarge(vlTmp, ParNum));
+	if not ParValid then LoadLOng(ParNum,1);
+.)
+.
+
+RNumber:"number"<var ParNum : TNumber;var ParValid : boolean>
+=
+	(. 	 loadlong(ParNum,0); .)
+	( RDec_Number<ParNum,ParValid>
+	|RBin_Number<ParNum,ParValid>
+	|RHex_Number<ParNum,ParValid>)
+.
+
+RIdentObj<var ParDef:TDefinition>
+(.
+	var
+		vlname:string;
+.)
+=
+RIdent<vlName>
+(.
+	ParDef := fNDCreator.GetPtr(vlName);
+	if ParDef = nil then ErrorText(Err_Unkown_Ident,vlName);
+.)
+.
+
+
+
+RDefIdentObj<var ParDef : TDefinition;ParAccCheck : boolean>
+(.
+	var
+		vlName  : string;
+		vlOwner : TDefinition;
+.)
+=
+RIdentObj<ParDef>
+{ "." RIdent<vlName>
+(.
+	if ParDef <> nil then begin
+		ParDef.GetPtrByName(vlName,[SO_Local],vlOwner,ParDef);
+		if ParDef = nil then ErrorText(Err_Unkown_Ident,vlName);
+	end;
+.)
+}
+(.
+	if(ParAccCheck) then fNDCreator.CheckAccessLevel(ParDef);
+.)
+.
+
+
+
+RAlign
+(.
+	var
+		vlAlign : TSize;
+.)
+=
+IAlign RDirectCardinal<vlAlign>";"  (. GetConfig.SetAlign(vlAlign);.)
+.
+
+
+(*		Uses 						*)
+
+
+RUsedUnit
+(.
+	var
+		vlName:string;
+.)
+=
+RIdent<vlName>   (.
+					LowerStr(vlName);
+					fNDCreator.AddUnitInUse(vlName);
+				 .)
+.
+
+
+RUseBlock
+=
+IUses
+RUsedUnit
+{"," RUsedUnit}
+";"
+.
+
+
+
+
+(*			Type Declaration			   *)
+
+
+RVarDecl:"variable declaration"
+(.
+	var
+		vlIdent : string;
+		vlName  : TNameList;
+		vlTYpe  : TType;
+ .)
+=
+(.
+	vlName := TNameList.Create;
+	 vlType := nil;
+.)
+RIdent<vlIdent>				      (. vlName.AddName(vlIdent);.)
+{ "," RIdent <vlIdent>			      (. vlName.AddName(vlIdent);.)
+}
+':'
+RUsableType<vlType>
+(.
+	AddVar(vlName,vlType);
+	vlName.destroy;
+.)
+
+.
+
+
+
+
+RVarBlock=
+IVar  {(RVarDecl )
+      |RAlign}
+.
+
+
+
+(*		        Module type				        *)
+RMod_Type:"module type specification"	=
+((IUnit      		(.  fNDCreator.SetIsUnitFlag(true); .)
+|IProgram)";"
+
+) .
+
+(*			Main Declaration 				*)
+
+
+ELA:"program definition"
+(.
+var
+	vlPrn       : TRoutineNode;
+    vlRoutine   : TStartupProc;
+    vlHasPublic : boolean;
+    vlSetMang   : boolean;
+.)
+=
+(.
+     vlHasPublic := false;
+     fNDCreator.AutoLoadModule;
+.)
+
+[RMod_Type]
+[RUseBlock]
+(.
+	if not SuccessFul then exit;
+	fNDCreator.ProcessUseClause;
+	if not SuccessFul then exit;
+	Bind;
+	if not successful then exit;
+.)
+
+{IPublic            (. vlSetMang := false; .)
+[ICDecl   	    (. vlSetMang := true;   .) ]
+(.
+	vlHasPublic := true;
+	fNDCreator.SetCurrentDefModes([DM_CPublic],vlSetMang);
+	fNDCreator.fInPublicSection  := true;
+	fNDCreator.fCUrrentDefAccess := AF_Public;
+.)
+ { RTypeBlock
+ |RVarBlock
+ |RExternal
+ |RConstant
+ |RRoutineForward
+ }
+
+IEnd IPublic
+}
+(.
+	fNdCreator.fCurrentDefAccess := AF_Private;
+	fNDCreator.fInPublicSection  := false;
+	fNDCreator.SetCurrentDefModes([DM_CPublic],false);
+	if not(fNDCreator.GetIsUnitFlag) and (vlHasPublic) then SemError(Err_Prog_Cant_Have_Pubs) else
+	if fNDCreator.GetIsUnitFlag and not(vlHasPublic) then SemError(Err_Unit_Must_Have_Pubs);
+.)
+
+
+{
+ RTypeBlock
+|RVarBlock
+|RRoutine
+|RExternal
+|RConstant}
+(
+(.
+	vlRoutine := TStartupProc.Create(fNDCreator.fCollection,fNDCreator.GetIsUnitFlag);
+	vlRoutine.SetIsDefined;
+	fNDCreator.fCurrentDefAccess := AF_Public;
+	fNDCreator.AddRoutineItem(vlRoutine);
+	fNDCreator.AddCurrentDefinition(vlRoutine);
+	vlPrn   := TRoutineNode.Create(vlRoutine);
+.)
+	(RBlockOfCode<vlPrn>
+	|(IEnd
+		(. if (not fNDCreator.GetIsUnitFlag) then SemError(Err_Program_Needs_Main); .)
+	))
+)
+"."
+(.
+ 						   vlRoutine.fStatements := vlPrn;
+						   if vlPrn <> nil then vlPrn.ValidateAfter(fNDCreator);
+						   fNDCreator.EndIdent;
+						   WriteResFile;
+
+.)
+.
+
+
+END.

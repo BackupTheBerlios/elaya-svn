@@ -1,0 +1,7 @@
+uses win32types,win32gui,win32op;
+var
+	vlA:pasc;
+	vlB:pasc;
+begin
+	MessageBox(0,'x','y',mb_iconhand or mb_ok);
+end.

@@ -1,0 +1,9 @@
+unit;
+public
+   type
+	TGraphics=class inherit TRoot
+	end;
+
+end public
+
+end.

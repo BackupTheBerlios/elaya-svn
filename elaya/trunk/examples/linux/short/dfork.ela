@@ -1,0 +1,15 @@
+uses edol;
+
+begin
+       EFork with 
+          child:begin
+            repeat
+                writeln('Child ...');
+	    until false;
+	    exit(0);
+	   end;
+	end; 
+       repeat
+ 	writeln('Parent...');
+	until false;
+end.

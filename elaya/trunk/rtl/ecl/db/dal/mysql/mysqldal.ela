@@ -1,0 +1,44 @@
+unit;
+uses mysql,emysql,dal;
+public
+end public
+
+
+function mysqldal_connect(var ParConnection : TDalDBConnection;const ParHost,ParDB,ParUser,ParPw : string) : boolean;
+var
+	vlMySql : PMySql;
+begin
+
+	vlMySql := reservemem(sizeof(TMySql));
+	fillbytes(sizeof(tmysql) >>ParSize,0 >> ParByte,vlMysql >>ParDest);
+	ParConnection.Native_Error := 0;
+	ParConnection.Dal_Error := 0;
+	ParConnection.Private_data :=vlMySql;
+	if(EMySql_Connect(vlMySql,ParHost,ParUSer,ParPw)) then begin
+		writeln('err:',mysql_error(vlMysql)^);
+		exit(true);
+	end;
+	if(EMySql_Select_db(vlMySql,ParDb)) then exit(true);{TODO Close private_data}
+	exit(false);
+end;
+
+{TODO ERRORS}
+function mysqldal_close(var ParConnection : TDalDBConnection):boolean;
+begin
+	if PArConnection.Private_data = nil then exit(true);
+	if mysql_close(ParConnection.private_data as PMySql) <0 then exit(true);
+	exit(false);
+end;
+
+procedure InitMysqlDal;
+var
+	vlDal : TDalInterface;
+begin
+	vlDal.DbCOnnect := @mysqldal_connect;
+	vlDal.DbClose   := @mysqldal_close;
+	SetDalInterface(vlDal);
+end;
+
+begin
+	InitMySqlDal;
+end.

@@ -1,0 +1,32 @@
+uses edol;
+
+procedure MySpoon;inherit dfork;
+protected
+         function child:long;override;
+	 var 
+    		vlCnt:long;
+	 begin
+
+            count vlCnt from 0 to 100000 do begin
+                writeln('Child ...',vlCnt);
+	    end;
+	    exit(3);
+         end;
+
+	 procedure Parent;override;
+ 	 var
+		vlStat :long;
+	 begin
+       	   repeat
+ 		writeln('Parent...');
+  	   until GetChildExitStatus(vlStat);
+	   writeln('Exited with stat ',vlStat);
+	 end;
+
+begin
+	inherited of main;
+end;
+	 
+begin
+	MySpoon;	 
+end.

@@ -1,0 +1,233 @@
+unit;
+public
+type 
+	Elf32_Addr=number size=4;
+	Elf32_Half=number size=2;
+	Elf32_Off=number size=4;
+	Elf32_SWord=number signed size=4;
+	Elf32_Word=number size=4;
+	uchar=number size=1;
+
+const EI_NIdent=16;
+	
+	ET_None = 0;
+	ET_Rel = 1;
+	ET_Exec = 2;
+	ET_Dyn=3;
+	ET_Core=4;
+	ET_LoProc=$FF00;
+	ET_HiProc=$FFFF;
+
+	EM_M32 = 1;
+	EM_SPARC = 2;
+	EM_386 = 3;
+	EM_68k = 4;
+	EM_88k = 5;
+	EM_860=7;
+	EM_MIPS = 8;
+	EM_MIPS_RS4_BE=10;
+	
+	EV_NONE = 0;
+	EV_CURRENT = 1;
+
+	SHT_NULL  = 0;
+	SHT_PROGBITS = 1;
+	SHT_SYMTAB = 2;
+	SHT_STRTAB = 3;
+	SHT_RELA = 4;
+	SHT_HASH = 5;
+	SHT_DYNAMIC=6;
+	SHT_NOTE=7;
+	SHT_NOBITS=8;
+	SHT_REL=9;
+	SHT_SHLIB=10;
+	SHT_DYNSYM=11;
+	SHT_LOPROC=$70000000;
+	SHT_HIPROC=$7FFFFFFF;
+	SHT_LOUSER=$80000000;
+	SHT_HIUSER=$8FFFFFFF;
+
+	SHF_WRITE=1;
+	SHF_ALLOC=2;
+	SHF_EXECINSTR=8;
+	SHF_MASKPROC=$f0000000;
+
+	STB_LOCAL=0;
+	STB_GLOBAL=1;
+	STB_WEAK=2;
+	STB_LOPROC=13;
+	STB_HIPROC=15;
+type Elf32_Ehdr=record
+	e_ident:array[0 to EI_NIDENT-1] of uchar;
+	e_type :Elf32_Half;
+	e_machine : ELF32_Half;
+	e_version : ELF32_word;
+	e_entry : ELF32_Addr;
+	e_Phoff : ELF32_Off;
+	e_Shoff : Elf32_Off;
+	e_flags : Elf32_word;
+	e_ehsize : Elf32_Half;
+	e_phentsize : ELF32_Half;
+	e_phnum : Elf32_Half;
+	e_shentsize : Elf32_Half;
+	e_shnum : Elf32_Half;
+	e_shstrndx : ELf32_Half;
+     end;
+
+     PElf32_Shdr=ptr Elf32_Shdr;
+     Elf32_Shdr=record
+	sh_name : ELf32_word;
+	sh_type : ELF32_word;
+	sh_flags : Elf32_word;
+	sh_addr : Elf32_addr;
+	sh_offset : Elf32_off;
+	sh_size : ELf32_word;
+	sh_link : Elf32_word;
+	sh_info : Elf32_word;
+	sh_addralign : Elf32_word;
+	sh_entsize : Elf32_word;
+     end;
+
+	PElf32_Sym=ptr Elf32_Sym;
+ 	Elf32_sym=record
+		st_name : Elf32_word;
+		st_value : ELF32_addr;
+		st_size : Elf32_word;
+		st_info : uchar;
+		st_other : uchar;
+		st_shndx : Elf32_Half;
+	end;
+
+    type TELF32_Info=record
+	    vrFile : TFile;
+	    vrHeader: ELF32_Ehdr;
+	    vrSection : PElf32_Shdr;
+	    vrSymInfo : PElf32_Sym;
+	    vrSymNum   : long;
+	    vrStrTabSec : long;
+	    vrStrTabData : pointer;
+	    vrSymStr : long;
+	end;
+	
+	function OpenInfo(var ParInfo : TElf32_info;const ParFileName : string):boolean;
+	function GetNameByAddress(var ParInfo : TElf32_INfo;ParAddr : Long;var ParName : string):boolean;
+end public
+
+
+function GetSectionHeader(const ParInfo : TElf32_info;ParNum : long) : PElf32_Shdr;
+begin
+	exit(((ParInfo.vrSection) as pbyte + ParNUm * ParInfo.vrHeader.e_shentsize) as PElf32_Shdr);
+end;
+
+function GetData(var ParFile : TFile;ParOffset,ParSize : long;var ParBuffer : pointer):boolean;
+var
+	vlWhere : longint;
+	vlHas : long;
+begin
+	ParBuffer := ReserveMem(ParSize);
+	if Seek(ParFile,ParOffset,SM_Begin,vlWhere) then exit(true);
+	if ReadFile(ParFile,ParSize,vlHas,(ParBuffer as pbyte)^) then exit(true);
+	exit(false);
+end;
+
+
+
+function ReadSectionData(var ParInfo :TElf32_info;ParNum : long;var parData : pointer) : boolean;
+var
+	vlSec : PElf32_ShDr;
+	
+begin
+	vlSec := GetSectionHeader(ParInfo,ParNum);
+	ParData := ReserveMem(vlSec^.sh_size);
+	if GetData(ParInfo.vrFile,vlSec^.sh_offset,vlSec^.sh_size,ParData) then exit(true);
+	exit(false);
+end;
+
+function GetStringFromTab(var ParInfo : TElf32_info;ParSec,Parindx : long;var ParStr : string):boolean;
+begin
+	if (ParInfo.vrStrTabData = nil) or(ParInfo.vrStrTabSec <> ParSec) then begin
+		if ParInfo.vrStrTabData <> nil then Freemem(ParInfo.vrStrTabData);
+		ReadSectionData(ParInfo,ParSec,ParInfo.vrStrTabData);
+		ParInfo.vrStrTabSec := ParSec;
+	end;
+	ParStr := ((ParInfo.vrStrTabData + parIndx) as pasc)^;
+end;
+
+
+function OpenInfo(var ParInfo : TElf32_info;const ParFileName : string):boolean;
+var
+	vlSize : long;
+	vlHas  : long;
+	vlFailed : boolean;
+	vlCnt : long;
+	vlHdr : PELf32_SHdr;
+	vlStr : string;
+begin
+	vlFailed := true;
+	begin
+		if OpenFile(normalfile,ParInfo.vrFile,ParFileName,OM_Read) then leave;
+		ParInfo.vrStrTabSec := 0;
+		ParInfo.vrStrTabData := nil;
+		ParInfo.vrSection := nil;
+		ParInfo.vrSymStr := 0;
+		if ReadFile(ParInfo.vrFile,sizeof(ParInfo.vrHeader),vlHas,ParInfo.vrHeader) then Leave;
+		vlSize := ParInfo.vrHeader.e_shentsize * ParInfo.vrHeader.e_shnum;
+		if Getdata(ParInfo.vrFile,ParInfo.vrHeader.e_shoff,vlSize,ParInfo.vrSection) then Leave;
+		vlFailed := false;
+		count vlCnt from 0 to ParInfo.vrHeader.e_shnum-1 do begin
+			vlHdr := GetSectionHeader(ParInfo,vlCnt);
+			GetStringFromTab(ParInfo,ParInfo.vrHeader.e_shstrndx,vlHdr^.sh_name,vlStr);
+			if(vlHdr^.sh_type=SHT_STRTAB) and (vlStr='.strtab') then begin
+				ParInfo.vrSymStr := vlCnt;
+				break;
+			end;
+		end;
+		vlCnt := ParInfo.vrHeader.e_shnum-1;
+		while vlCnt > 0 do begin
+			vlHdr := GetSectionHeader(ParInfo,vlCnt);
+			if vlHdr^.sh_type=SHT_SYMTAB then begin
+				if ReadSectionData(ParInfo,vlCnt,ParInfo.vrSymInfo) then leave;
+				ParInfo.vrSymNum :=vlHdr^.sh_size div sizeof(Elf32_Sym);
+				break;
+			end;
+			dec(vlCnt);
+		end;
+	end;
+	exit(vlFailed);
+end;
+
+
+
+
+function GetNameByAddress(var ParInfo : TElf32_INfo;ParAddr : Long;var ParName : string):boolean;
+var
+	
+	vlPtr: PElf32_SYm;
+	vlCnt: long;
+	vlNum : long;
+begin
+
+	vlPtr := ParInfo.vrSymInfo+1;
+	vlNum := ParINfo.vrSYmNum;
+	vlCnt := vlNum -1;
+	Parname.Length := 0;
+	while vlCnt > 0 do begin
+		if (vlPtr^.st_shndx < ParInfo.vrHeader.e_shnum) and (ParAddr between ((vlPtr)^.st_value) and ((vlPtr)^.st_value + (vlPtr)^.st_size)) then begin
+			GetStringFromTab(ParInfo,ParInfo.vrSymStr,(vlPtr)^.st_name,ParName);
+			break;
+		end;
+		inc(vLPtr);
+		dec(vlCnt);
+	end;		
+	exit(false);
+end;
+
+end.
+		
+
+
+
+
+
+	
+

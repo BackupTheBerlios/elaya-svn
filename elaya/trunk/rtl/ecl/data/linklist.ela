@@ -1,0 +1,379 @@
+{    Elaya, the Fcompiler for the elaya language
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+unit;
+public
+type
+
+
+	TListItem=class inherit TRoot
+	private
+		var
+			voPrv : TListItem;
+			voNxt : TListItem;
+	protected
+		procedure commonsetup;override;
+	public
+		property prv : TListItem;
+		begin
+			public read voPrv;
+			public write voPrv;
+		end;
+		property nxt : TListItem;
+		 begin
+			public read voNxt;
+			public write voNxt;
+		end;
+
+	end;
+         
+
+ 	TList=class inherit TRoot
+	private
+		var
+			voStart : TListItem;
+			voTop   : TListItem;
+	protected
+		procedure  Clear;override;
+		procedure  Commonsetup;override;
+	public
+      property Start : TListItem;
+		begin
+			public read voStart;
+			public write voStart;
+		end;
+
+		property Top : TlistItem;
+		begin
+			public read voTop;
+			public write voTop;
+		end;
+
+		function  CutOut(ParItem:TListItem):TListItem;
+
+		function  Insert :TListItem;root;overload;
+			Has
+				private
+				var
+					voCurrent : TListItem;
+				protected
+				var
+					property Current : TListItem;
+					begin
+						public read voCurrent;
+						private write voCurrent;
+					end;
+				function MustInsert(ParFound : boolean):boolean;virtual;
+				function DoWhere : boolean;virtual;
+				function DefaultAt : TListItem;virtual;
+				function Item : TListItem;virtual;
+				procedure Rejected;virtual;
+				main;
+		end;
+
+		function Insert(ParItem : TListItem): TListItem;inherit Insert;overload;
+			has
+          	protected
+					function Item : TListItem;override;
+					main;
+		end;
+
+		function  InsertAt(ParAt:TListItem;ParItem:TListItem):TListItem;
+		function  InsertAtTop(PArItem : TListItem) :TListItem;
+		function  DeleteLink(ParItem:TListItem):TListItem;
+		function  GetItemByNum(ParNUm : long) : TListItem;
+		procedure DeleteAll;
+		procedure  ClearList;
+		function  GetNumItems:longint;
+		function  IsEmpty:boolean;
+		function Scan : TListItem;root;
+			has
+				private
+				var
+					vlCurrent : TListItem;
+
+				protected
+
+				property current : TListItem;
+				begin
+					public read vlCurrent;
+					public write vlCurrent;
+				end;
+
+				function EndWhen:boolean;virtual;
+				procedure DoItem;virtual;
+				procedure found;virtual;
+				procedure NotFound;virtual;
+				main;
+			end;
+
+		procedure DeleteItems;inherit Scan;
+        has
+			protected
+				function DeleteWhen : boolean;virtual;
+				procedure DoItem;final;
+				main;
+		end;
+     end;
+
+
+end public
+
+
+
+
+
+function  TList.Insert : TListItem;root;overload;
+
+protected
+
+	procedure  Rejected;virtual;
+	begin
+	end;
+	
+	function   Item : TListItem;virtual;
+	begin
+		exit(nil);
+	end;
+	
+	
+	function  DOWhere :boolean;virtual;
+	begin
+		exit(true);
+	end;
+	
+	function DefaultAt : TListItem;virtual;
+	begin
+		exit(nil);
+	end;
+	
+	function MustInsert(ParFound : boolean):boolean;virtual;
+	begin
+		exit(true);
+	end;
+
+var
+	vlFound : boolean;
+begin
+   current := Start;
+
+	while (current <> nil) and not(Dowhere) do current := current.Nxt;
+
+   vlFound := true;
+
+	if current = nil then begin
+		current := defaultAt;
+		vlFOund := false;
+	end else begin
+		current := current.prv;
+	end;
+
+	if MustInsert(vlFound) then begin
+		exit(InsertAt(current,Item));
+
+	end else begin
+		Rejected;
+	end;
+	exit(nil);
+end;
+
+
+
+function TList.Insert(ParItem : TListItem): TListItem;inherit Insert;overload;
+
+protected
+	function  Item : TListItem;override;
+	begin
+		exit(ParItem);
+	end;
+var vlItem : TLIstItem;
+
+begin
+	vlItem := inherited of main;
+	exit(vlItem);
+end;
+
+{---( TListItem )-----------------------------------------------------------}
+procedure TListItem.Commonsetup;override;
+begin
+     inherited Commonsetup;
+     Prv := nil;
+     Nxt := nil;
+end;
+
+
+{---( TList )------------------------------------------------------------------}
+
+
+function  TList.Scan has protected EndWhen:boolean;virtual;
+begin
+	exit(false);
+end;
+
+procedure TList.Scan has protected DoItem;virtual;
+begin
+end;
+
+procedure TList.Scan has protected found;virtual;
+begin
+end;
+
+procedure TList.Scan has protected notfound;virtual;
+begin
+end;
+
+function TList.Scan : TListItem;root;
+var
+	vlNxt : TListItem;
+begin
+	current := Start;
+	while (current <> nil) do begin
+		if  EndWhen then begin
+			found;
+			exit(current);
+		end;
+		vlNxt := current.Nxt;
+		DoItem;
+		current  := vlNxt;
+	end;
+	NotFound;
+	exit(current);
+end;
+
+
+function TList.GetItemByNum(ParNum : long) : TListItem;
+var
+   vlCurrent : TListItem;
+begin
+     vlCurrent := Start;
+     while (vlCurrent <> nil) and (ParNum > 1) do begin
+           vlCurrent := vlCurrent.Nxt;
+           dec(ParNum);
+     end;
+     exit(vlCurrent);
+end;
+
+
+function TList.CutOut(ParItem:TListItem):TListItem;
+var vlNxt:TListItem;
+begin
+     if ParItem = nil then exit(nil);
+     vlNxt := ParItem.Nxt;
+     if  vlNxt = nil then Top  := ParItem.Prv
+                     else vlNxt.Prv := parItem.Prv;
+      if ParItem.Prv <> nil  then parItem.Prv.Nxt := vlNxt
+                               else Start := vlNxt;
+	exit(vlNxt);
+end;
+
+
+function TList.IsEmpty:boolean;
+begin
+     exit(Start = nil);
+end;
+
+function TList.GetNumItems:longint;
+var
+	vlCnt:longint;
+	vlCur:TListItem;
+begin
+	vlCur := Start;
+	vlCnt :=0;
+	while vlCur <> nil do begin
+		inc(vlCnt);
+		vlCur := vlCur.Nxt;
+	end;
+	exit(vlCnt);
+end;
+
+
+function TList.InsertAtTop(PArItem : TListItem) :TListItem;
+begin
+	exit(InsertAt(Top >> ParAt, ParItem >> ParItem));
+end;
+
+function TList.InsertAt(ParAt:TListItem;ParItem:TListItem):TListItem;
+var vlNxt : TListItem;
+begin
+	if ParItem = nil then exit(nil);
+	if ParAt = nil then begin
+		ParItem.Prv := nil;
+		ParItem.Nxt := Start;
+		if Start <> nil then Start.Prv := ParItem;
+		Start := ParItem;
+	end else begin
+		vlNxt := ParAt.Nxt;
+		if vlNxt <> nil then vlNxt.Prv := ParItem;
+		ParItem.Prv := ParAt;
+		ParItem.Nxt := vlNxt;
+		ParAt.Nxt := ParItem;
+	end;
+	if ParItem.Nxt = nil then Top := ParItem;
+	exit(ParItem);
+end;
+
+function TList.DeleteLink(ParItem:TListItem):TListItem;
+var
+	vlTmp : TListItem;
+begin
+     vlTmp := CutOut(ParItem >> ParItem);
+     if ParItem <> nil then ParItem.Destroy;
+	exit(vlTmp);
+end;
+
+
+procedure TList.DeleteAll;
+begin
+     while Start <> nil do Start := deleteLink(Start);
+end;
+
+procedure TList.Commonsetup;override;
+begin
+	inherited Commonsetup;
+	Start := nil;
+   Top   := nil;
+end;
+
+procedure TList.ClearList;
+begin
+	DeleteAll;
+end;
+
+procedure TList.Clear; override;
+begin
+	inherited Clear;
+	ClearList;
+end;
+
+procedure TList.DeleteItems;inherit Scan;
+end;
+
+function TList.DeleteItems has protected DeleteWhen : boolean;virtual;
+begin
+	exit(true);
+end;
+
+procedure TList.DeleteItems has protected DoItem;final;
+begin
+	if DeleteWhen then DeleteLink(current >> ParItem);
+end;
+
+
+
+
+end.

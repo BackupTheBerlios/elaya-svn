@@ -1,0 +1,103 @@
+unit;
+uses interface,guitypes,guibase,linklist,twidget,twindow,twidgetlist;
+public
+
+type
+
+
+	TProgram=class inherit TRoot
+		private
+		var
+			voWidgetList : TWidgetLIst;
+			voMainWidget : TWidget;
+
+		protected
+
+		type
+
+			TMainWindow=isolate virtual class inherit TWindow
+			end;
+
+			property MainWidget : TWidget;
+			begin
+				protected read voMainWidget;
+				protected write voMainWidget;
+			end;
+
+      	property WidgetLIst : TWidgetList;
+			begin
+				private read voWidgetList;
+				private write voWidgetList;
+			end;
+
+			procedure SetupMainWidget;virtual;
+			procedure AfterExit;virtual;
+			procedure Commonsetup;override;
+			procedure EventHandler(var ParEvent :TEvent);virtual;
+			procedure RegisterWidget(ParWidget : pointer);
+		public
+			procedure run;
+		end;
+
+
+end public
+
+
+
+
+{---( TProgram )-----------------------------------------------------------------}
+procedure TProgram.Commonsetup;override;
+begin
+	MainWidget := nil;
+	inherited Commonsetup;
+	WidgetList := TWidgetList.Create;
+	vgProgramEventHandler := @EventHandler;
+	vgWidgetRegister := @RegisterWidget;
+end;
+
+procedure TProgram.RegisterWidget(ParWidget : pointer);
+begin
+	WidgetLIst.AddWidget(ParWidget as TWidget);
+end;
+
+procedure TProgram.EventHandler(var ParEvent :TEvent);virtual;
+var
+	vlWidget : TWidget;
+begin
+	if (ParEvent.base.vrType = EK_ExitProgram)  then begin
+		WidgetList.DestroyNoParentWidgets;
+		exit;
+	end;
+
+	vlWidget := WidgetList.GetWidget(ParEvent.base.vrHandle);
+	if vLWidget <> Nil then begin
+		if ParEvent.base.vrType = EK_WidgetDestroy then begin
+			WidgetList.DeleteWidget(vlWidget);
+			vlWidget.Destroy;
+		end else begin
+			vlWidget.HandleEvent(ParEvent);
+		end;
+	end;
+end;
+
+
+procedure TProgram.run;
+begin
+	InitInterface;
+	vgInterface.InterInit;
+	SetupMainWidget;
+	vgInterface.InterRun;
+	AfterExit;
+	DoneInterface;
+end;
+
+procedure TProgram.SetupMainWidget;virtual;
+begin
+	MainWidget := TMainWindow.create(nil);
+end;
+
+procedure TProgram.AfterExit;virtual;
+begin
+end;
+end.
+

@@ -1,0 +1,22 @@
+{Dcopy example split express <something>=<else>
+in <something> and <else>}
+uses dlib;
+var
+	vlStr : string;
+begin
+	if GetNumberOfArguments <> 1 then begin
+		writeln('Parameter error:');
+		writeln('dce <string>');
+		writeln('dce a=b print "a" and "b"');
+		quit(1);
+	end;
+	GetArgument(1,vlStr);
+	{ECopy Begin here}
+	writeln(ECopy(vlStr) with DoUntil:ParString[pos+1]='=';end);
+	writeln(ECopy(vlStr) with 
+			GetBeginPos:2;
+			DoFrom:ParString[pos-1]='=';
+		end
+	)
+;
+end.

@@ -1,0 +1,742 @@
+unit; 
+uses core;
+public
+
+
+
+{ WINSOCK.H--definitions to be used with the WINSOCK.DLL
+  
+   This header file corresponds to version 1.1 of the Windows Sockets
+   specification.
+  
+   Copyright (C) the Wine project
+  
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+  
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+  
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  }
+{
+   Setup phase
+  }
+{
+   This section defines the items that conflict with the Unix headers.
+  }
+{
+   Address families
+  }
+
+
+const
+   AF_UNSPEC = 0;
+   AF_UNIX = 1;
+   AF_INET = 2;
+   AF_IMPLINK = 3;
+   AF_PUP = 4;
+   AF_CHAOS = 5;
+   AF_NS = 6;
+   AF_IPX = AF_NS;
+   AF_ISO = 7;
+   AF_OSI = AF_ISO;
+   AF_ECMA = 8;
+   AF_DATAKIT = 9;
+   AF_CCITT = 10;
+   AF_SNA = 11;
+   AF_DECnet = 12;
+   AF_DLI = 13;
+   AF_LAT = 14;
+   AF_HYLINK = 15;
+   AF_APPLETALK = 16;
+   AF_NETBIOS = 17;
+   AF_VOICEVIEW = 18;
+   AF_FIREFOX = 19;
+   AF_UNKNOWN1 = 20;
+   AF_BAN = 21;
+   AF_ATM = 22;
+   AF_INET6 = 23;
+   AF_CLUSTER = 24;
+   AF_12844 = 25;
+   AF_IRDA = 26;
+   AF_MAX = 27;
+   PF_UNSPEC = AF_UNSPEC;
+   PF_UNIX = AF_UNIX;
+   PF_INET = AF_INET;
+   PF_IMPLINK = AF_IMPLINK;
+   PF_PUP = AF_PUP;
+   PF_CHAOS = AF_CHAOS;
+   PF_NS = AF_NS;
+   PF_IPX = AF_IPX;
+   PF_ISO = AF_ISO;
+   PF_OSI = AF_OSI;
+   PF_ECMA = AF_ECMA;
+   PF_DATAKIT = AF_DATAKIT;
+   PF_CCITT = AF_CCITT;
+   PF_SNA = AF_SNA;
+   PF_DECnet = AF_DECnet;
+   PF_DLI = AF_DLI;
+   PF_LAT = AF_LAT;
+   PF_HYLINK = AF_HYLINK;
+   PF_APPLETALK = AF_APPLETALK;
+   PF_VOICEVIEW = AF_VOICEVIEW;
+   PF_FIREFOX = AF_FIREFOX;
+   PF_UNKNOWN1 = AF_UNKNOWN1;
+   PF_BAN = AF_BAN;
+   PF_MAX = AF_MAX;
+
+const
+   SOCK_STREAM = 1;
+   SOCK_DGRAM = 2;
+   SOCK_RAW = 3;
+   SOCK_RDM = 4;
+   SOCK_SEQPACKET = 5;
+{$else}
+
+
+const
+   IPPROTO_IP = 0;
+   IPPROTO_ICMP = 1;
+   IPPROTO_IGMP = 2;
+   IPPROTO_GGP = 3;
+   IPPROTO_TCP = 6;
+   IPPROTO_UDP = 17;
+   IPPROTO_IDP = 22;
+   IPPROTO_ND = 77;
+   IPPROTO_RAW = 255;
+   IPPROTO_MAX = 256;
+
+
+type
+
+
+TU_SHort=word;
+TU_Long=long;
+PU_Long=ptr TU_Long;
+TU_Char=byte;
+TU_Int=long;
+THandle=longint;
+TBool=long;
+THWnd=longint;
+TFarproc=pointer;
+   Pprotoent = ptr Tprotoent;
+   Tprotoent = record
+        p_name : Pchar;
+        p_aliases : ptr Pchar;
+        p_proto : word;
+     end;
+   TPPROTOENT = Pprotoent;
+   PPPROTOENT = ptr TPPROTOENT;
+   TLPPROTOENT = Pprotoent;
+   PLPPROTOENT = ptr TLPPROTOENT;
+{
+   Networks
+  }
+{ official name of net  }
+{ alias list  }
+{ net address type  }
+{ network #  }
+   Pnetent = ptr Tnetent;
+   Tnetent = record
+        n_name : Pchar;
+        n_aliases : ptr Pchar;
+        n_addrtype : word;
+        n_net : Tu_long;
+     end;
+
+{
+   Services
+  }
+
+
+const
+   IPPORT_ECHO = 7;
+   IPPORT_DISCARD = 9;
+   IPPORT_SYSTAT = 11;
+   IPPORT_DAYTIME = 13;
+   IPPORT_NETSTAT = 15;
+   IPPORT_FTP = 21;
+   IPPORT_TELNET = 23;
+   IPPORT_SMTP = 25;
+   IPPORT_TIMESERVER = 37;
+   IPPORT_NAMESERVER = 42;
+   IPPORT_WHOIS = 43;
+   IPPORT_MTP = 57;
+   IPPORT_TFTP = 69;
+   IPPORT_RJE = 77;
+   IPPORT_FINGER = 79;
+   IPPORT_TTYLINK = 87;
+   IPPORT_SUPDUP = 95;
+   IPPORT_EXECSERVER = 512;
+   IPPORT_LOGINSERVER = 513;
+   IPPORT_CMDSERVER = 514;
+   IPPORT_EFSSERVER = 520;
+   IPPORT_BIFFUDP = 512;
+   IPPORT_WHOSERVER = 513;
+   IPPORT_ROUTESERVER = 520;
+   IPPORT_RESERVED = 1024;
+
+
+{ official service name  }
+{ alias list  }
+{ port #  }
+{ protocol to use  }
+type
+
+   Pservent = ptr Tservent;
+   Tservent = record
+        s_name : Pchar;
+        s_aliases : ptr Pchar;
+        s_port : word;
+        s_proto : Pchar;
+     end;
+   TPSERVENT = Pservent;
+   PPSERVENT = ptr TPSERVENT;
+   TLPSERVENT = Pservent;
+   PLPSERVENT = ptr TLPSERVENT;
+{
+   Hosts
+  }
+{ official name of host  }
+{ alias list  }
+{ host address type  }
+{ length of address  }
+{ list of addresses from name server  }
+
+   Phostent = ptr Thostent;
+   Thostent = record
+        h_name : Pchar;
+        h_aliases : ptr Pchar;
+        h_addrtype : word;
+        h_length : word;
+        h_addr_list : ptr Pchar;
+     end;
+   TPHOSTENT = Phostent;
+   PPHOSTENT = ptr TPHOSTENT;
+   TLPHOSTENT = Phostent;
+   PLPHOSTENT = ptr TLPHOSTENT;
+{
+   Sockets
+  }
+
+   PSOCKET = ptr TSOCKET;
+   TSOCKET = long	;
+{
+   This is used instead of -1, since the
+   SOCKET type is unsigned.
+  }
+
+const
+   INVALID_SOCKET =  not (0);
+   SOCKET_ERROR = -(1);
+type
+
+   Psockaddr = ptr Tsockaddr;
+   Tsockaddr = record
+        sa_family : Tu_short;
+        sa_data : array[0 to 13] of char;
+     end;
+   TPSOCKADDR = Psockaddr;
+   PPSOCKADDR = ptr TPSOCKADDR;
+   TLPSOCKADDR = Psockaddr;
+   PLPSOCKADDR = ptr TLPSOCKADDR;
+{ option on/off  }
+{ linger time  }
+
+   Plinger = ptr Tlinger;
+   Tlinger = record
+        l_onoff : Tu_short;
+        l_linger : Tu_short;
+     end;
+   TPLINGER = Plinger;
+   PPLINGER = ptr TPLINGER;
+   TLPLINGER = Plinger;
+   PLPLINGER = ptr TLPLINGER;
+{
+   Select
+  }
+
+const
+   FD_SETSIZE = 64;
+{ how many are SET?  }
+{ an array of SOCKETs  }
+type
+
+   Pfd_set = ptr Tfd_set;
+   Tfd_set = record
+        fd_count : Tu_int;
+        fd_array : array[0 to (FD_SETSIZE)-1] of TSOCKET;
+     end;
+   TPFD_SET = Pfd_set;
+   PPFD_SET = ptr TPFD_SET;
+   TLPFD_SET = Pfd_set;
+   PLPFD_SET = ptr TLPFD_SET;
+{ seconds  }
+{ and microseconds  }
+
+   Ptimeval = ptr Ttimeval;
+   Ttimeval = record
+        tv_sec : longint;
+        tv_usec : longint;
+     end;
+   TPTIMEVAL = Ptimeval;
+   PPTIMEVAL = ptr TPTIMEVAL;
+   TLPTIMEVAL = Ptimeval;
+   PLPTIMEVAL = ptr TLPTIMEVAL;
+{ TODO WINE_FD_CLR FD_SET1 FD_SET2
+
+
+
+
+#define FD_CLR(fd, set)      ___FD_CLR((fd),(set), fd_set)
+#define FD_SET(fd, set)      ___FD_SET((fd),(set), fd_set)
+#define FD_ZERO(set)         (((fd_set )(set))->fd_count=0)
+#define FD_ISSET(fd, set)    __WSAFDIsSet((SOCKET)(fd), (fd_set )(set))
+
+
+   Internet address (old style to . should be updated)
+  }
+
+const
+   IN_CLASSA_NSHIFT = 24;
+   IN_CLASSA_MAX = 128;
+   IN_CLASSA_NET = $ff000000;
+   IN_CLASSA_HOST = $00ffffff;
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function IN_CLASSA(i : longint) : longint;}{TODO}
+
+
+const
+   IN_CLASSB_NSHIFT = 16;
+   IN_CLASSB_MAX = 65536;
+   IN_CLASSB_NET = $ffff0000;
+   IN_CLASSB_HOST = $0000ffff;
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+
+
+
+
+const
+   IN_CLASSC_NSHIFT = 8;
+   IN_CLASSC_NET = $ffffff00;
+   IN_CLASSC_HOST = $000000ff;
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+
+
+const
+   INADDR_LOOPBACK = $7f000001;
+
+
+const
+   INADDR_NONE = $ffffffff;
+type
+
+Pin_addr = ptr Tin_addr;
+Tin_addr = record
+	S_un : union
+		S_un_b : record
+			s_b1 : Tu_char;
+			s_b2 : Tu_char;
+			s_b3 : Tu_char;
+			s_b4 : Tu_char;
+		end;
+		S_un_w : record
+			s_w1 : Tu_short;
+			s_w2 : Tu_short;
+		end ;
+		S_addr : Tu_long;
+	end;
+end;
+
+   TPIN_ADDR = Pin_addr;
+   PPIN_ADDR = ptr TPIN_ADDR;
+   TLPIN_ADDR = Pin_addr;
+   PLPIN_ADDR = ptr TLPIN_ADDR;
+
+   Psockaddr_in = ptr Tsockaddr_in;
+   Tsockaddr_in = record
+        sin_family : word;
+        sin_port : Tu_short;
+        sin_addr : Tin_addr;
+        sin_zero : array[0 to 7] of char;
+     end;
+   TPSOCKADDR_IN = Psockaddr_in;
+   PPSOCKADDR_IN = ptr TPSOCKADDR_IN;
+   TLPSOCKADDR_IN = Psockaddr_in;
+   PLPSOCKADDR_IN = ptr TLPSOCKADDR_IN;
+{
+   WSAStartup
+  }
+
+const
+   WSADESCRIPTION_LEN = 256;
+   WSASYS_STATUS_LEN = 128;
+type
+
+   PWSAData = ptr TWSAData;
+   TWSAData = record
+        wVersion : word;
+        wHighVersion : word;
+        szDescription : array[0 TO (WSADESCRIPTION_LEN + 1)-1] of char;
+        szSystemStatus : array[0 TO (WSASYS_STATUS_LEN + 1)-1] of char;
+        iMaxSockets : word;
+        iMaxUdpDg : word;
+        lpVendorInfo : Pchar;
+     end;
+   TLPWSADATA = PWSAData;
+   PLPWSADATA = ptr TLPWSADATA;
+{
+   [get,set]sockopt
+  }
+
+const
+   SOL_SOCKET = $ffff;
+   SO_DEBUG = $0001;
+   SO_ACCEPTCONN = $0002;
+   SO_REUSEADDR = $0004;
+   SO_KEEPALIVE = $0008;
+   SO_DONTROUTE = $0010;
+   SO_BROADCAST = $0020;
+   SO_USELOOPBACK = $0040;
+   SO_LINGER = $0080;
+   SO_OOBINLINE = $0100;
+{ was #define dname def_expr }
+
+
+const
+   SO_SNDBUF = $1001;
+   SO_RCVBUF = $1002;
+   SO_SNDLOWAT = $1003;
+   SO_RCVLOWAT = $1004;
+   SO_SNDTIMEO = $1005;
+   SO_RCVTIMEO = $1006;
+   SO_ERROR = $1007;
+   SO_TYPE = $1008;
+   IOCPARM_MASK = $7f;
+   IOC_VOID = $20000000;
+   IOC_OUT = $40000000;
+   IOC_IN = $80000000;
+   IOC_INOUT = IOC_IN or IOC_OUT;
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function _IO(x,y : longint) : longint;}{TODO}
+
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function _IOR(x,y,t : longint) : longint;}{TODO|
+
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function _IOW(x,y,t : longint) : longint;}{TODO}
+
+
+const
+   TCP_NODELAY = 1;
+{
+   Socket I/O flags (supported by spec 1.1)
+  }
+{ was #define dname def_expr }
+{function FIONREAD : longint;}{TODO}
+    { return type might be wrong }
+
+{ was #define dname def_expr }
+{function FIONBIO : longint;} {TODO}
+    { return type might be wrong }
+
+{ was #define dname def_expr }
+{function SIOCATMARK : longint;}{TODO}
+    { return type might be wrong }
+
+
+const
+   SOMAXCONN = 5;
+   MSG_OOB = $0001;
+   MSG_PEEK = $0002;
+   MSG_DONTROUTE = $0004;
+   MSG_MAXIOVLEN = $000a;
+   MSG_PARTIAL = $8000;
+{
+   Define constant based on rfc883, used by gethostbyxxxx() calls.
+  }
+   MAXGETHOSTSTRUCT = 1024;
+{
+   Define flags to be used with the WSAAsyncSelect() call.
+  }
+   FD_READ = $00000001;
+   FD_WRITE = $00000002;
+   FD_OOB = $00000004;
+   FD_ACCEPT = $00000008;
+   FD_CONNECT = $00000010;
+   FD_CLOSE = $00000020;
+{
+   All Windows Sockets error constants are biased by WSABASEERR from
+   the "normal"
+  }
+   WSABASEERR = 10000;
+{
+   Windows Sockets definitions of regular Microsoft C error constants
+  }
+   WSAEINTR = WSABASEERR + 4;
+   WSAEBADF = WSABASEERR + 9;
+   WSAEACCES = WSABASEERR + 13;
+   WSAEFAULT = WSABASEERR + 14;
+   WSAEINVAL = WSABASEERR + 22;
+   WSAEMFILE = WSABASEERR + 24;
+{
+   Windows Sockets definitions of regular Berkeley error constants
+  }
+   WSAEWOULDBLOCK = WSABASEERR + 35;
+   WSAEINPROGRESS = WSABASEERR + 36;
+   WSAEALREADY = WSABASEERR + 37;
+   WSAENOTSOCK = WSABASEERR + 38;
+   WSAEDESTADDRREQ = WSABASEERR + 39;
+   WSAEMSGSIZE = WSABASEERR + 40;
+   WSAEPROTOTYPE = WSABASEERR + 41;
+   WSAENOPROTOOPT = WSABASEERR + 42;
+   WSAEPROTONOSUPPORT = WSABASEERR + 43;
+   WSAESOCKTNOSUPPORT = WSABASEERR + 44;
+   WSAEOPNOTSUPP = WSABASEERR + 45;
+   WSAEPFNOSUPPORT = WSABASEERR + 46;
+   WSAEAFNOSUPPORT = WSABASEERR + 47;
+   WSAEADDRINUSE = WSABASEERR + 48;
+   WSAEADDRNOTAVAIL = WSABASEERR + 49;
+   WSAENETDOWN = WSABASEERR + 50;
+   WSAENETUNREACH = WSABASEERR + 51;
+   WSAENETRESET = WSABASEERR + 52;
+   WSAECONNABORTED = WSABASEERR + 53;
+   WSAECONNRESET = WSABASEERR + 54;
+   WSAENOBUFS = WSABASEERR + 55;
+   WSAEISCONN = WSABASEERR + 56;
+   WSAENOTCONN = WSABASEERR + 57;
+   WSAESHUTDOWN = WSABASEERR + 58;
+   WSAETOOMANYREFS = WSABASEERR + 59;
+   WSAETIMEDOUT = WSABASEERR + 60;
+   WSAECONNREFUSED = WSABASEERR + 61;
+   WSAELOOP = WSABASEERR + 62;
+   WSAENAMETOOLONG = WSABASEERR + 63;
+   WSAEHOSTDOWN = WSABASEERR + 64;
+   WSAEHOSTUNREACH = WSABASEERR + 65;
+   WSAENOTEMPTY = WSABASEERR + 66;
+   WSAEPROCLIM = WSABASEERR + 67;
+   WSAEUSERS = WSABASEERR + 68;
+   WSAEDQUOT = WSABASEERR + 69;
+   WSAESTALE = WSABASEERR + 70;
+   WSAEREMOTE = WSABASEERR + 71;
+   WSAEDISCON = WSABASEERR + 101;
+{
+   Extended Windows Sockets error constant definitions
+  }
+   WSASYSNOTREADY = WSABASEERR + 91;
+   WSAVERNOTSUPPORTED = WSABASEERR + 92;
+   WSANOTINITIALISED = WSABASEERR + 93;
+{
+   Error return codes from gethostbyname() and gethostbyaddr()
+   (when using the resolver). Note that these errors are
+   retrieved via WSAGetLastError() and must therefore follow
+   the rules for avoiding clashes with error numbers from
+   specific implementations or language run-time systems.
+   For this reason the codes are based at WSABASEERR+1001.
+   Note also that [WSA]NO_ADDRESS is defined only for
+   compatibility purposes.
+  }
+{ was #define dname def_expr }
+function h_errno : longint;
+    { return type might be wrong }
+
+{ Authoritative Answer: Host not found  }
+
+const
+   WSAHOST_NOT_FOUND = WSABASEERR + 1001;
+{ Non-Authoritative: Host not found, or SERVERFAIL  }
+   WSATRY_AGAIN = WSABASEERR + 1002;
+{ Non recoverable errors, FORMERR, REFUSED, NOTIMP  }
+   WSANO_RECOVERY = WSABASEERR + 1003;
+{ Valid name, no data record of requested type  }
+   WSANO_DATA = WSABASEERR + 1004;
+{ no address, look for MX record  }
+   WSANO_ADDRESS = WSANO_DATA;
+{$ifndef USE__PREFIX}
+
+const
+   HOST_NOT_FOUND = WSAHOST_NOT_FOUND;
+   TRY_AGAIN = WSATRY_AGAIN;
+   NO_RECOVERY = WSANO_RECOVERY;
+   NO_DATA = WSANO_DATA;
+   NO_ADDRESS = WSANO_ADDRESS;
+{$endif}
+{ USE__PREFIX  }
+{
+   Windows message parameter composition and decomposition
+   macros.
+  }
+{
+   WSAMAKEASYNCREPLY is intended for use by the Windows Sockets implementation
+   when constructing the response to a WSAAsyncGetXByY() routine.
+  }
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function WSAMAKEASYNCREPLY(buflen,error : longint) : longint;}{TODO}
+
+{
+   WSAMAKESELECTREPLY is intended for use by the Windows Sockets implementation
+   when constructing the response to WSAAsyncSelect().
+  }
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function WSAMAKESELECTREPLY(event,error : longint) : longint;}{TODO}
+
+{
+   WSAGETASYNCBUFLEN is intended for use by the Windows Sockets application
+   to extract the buffer length from the lParam in the response
+   to a WSAGetXByY().
+  }
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function WSAGETASYNCBUFLEN(lParam : longint) : longint;} {TODO}
+
+{
+   WSAGETASYNCERROR is intended for use by the Windows Sockets application
+   to extract the error code from the lParam in the response
+   to a WSAGetXByY().
+  }
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function WSAGETASYNCERROR(lParam : longint) : longint;}{ TODO}
+
+{
+   WSAGETSELECTEVENT is intended for use by the Windows Sockets application
+   to extract the event code from the lParam in the response
+   to a WSAAsyncSelect().
+  }
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+{function WSAGETSELECTEVENT(lParam : longint) : longint; TODO}
+
+{
+   WSAGETSELECTERROR is intended for use by the Windows Sockets application
+   to extract the error code from the lParam in the response
+   to a WSAAsyncSelect().
+  }
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+external dll 'winsock.dll' 
+function WSAGETSELECTERROR(lParam : longint) : longint;name 'WSAGETSELECTERROR';
+function WSAAsyncGetHostByAddr(para1:THWND; para2:Tu_int; para3:Pchar; para4:longint; para5:longint; 
+           para6:Pchar; para7:longint):THANDLE;cdecl; name 'WSAAsyncGetHostByAddr';
+
+function WSAAsyncGetHostByName(para1:THWND; para2:Tu_int; para3:Pchar; para4:Pchar; para5:longint):THANDLE;cdecl; name 'WSAAsyncGetHostByName';
+
+function WSAAsyncGetProtoByName(para1:THWND; para2:Tu_int; para3:Pchar; para4:Pchar; para5:longint):THANDLE;cdecl; name 'WSAAsyncGetProtoByName';
+function WSAAsyncGetProtoByNumber(para1:THWND; para2:Tu_int; para3:longint; para4:Pchar; para5:longint):THANDLE;cdecl; name 'WSAAsyncGetProtoByNumber';
+function WSAAsyncGetServByName(para1:THWND; para2:Tu_int; para3:Pchar; para4:Pchar; para5:Pchar; 
+           para6:longint):THANDLE;cdecl; name 'WSAAsyncGetServByName';
+
+function WSAAsyncGetServByPort(para1:THWND; para2:Tu_int; para3:longint; para4:Pchar; para5:Pchar; 
+           para6:longint):THANDLE;cdecl; name 'WSAAsyncGetServByPort';
+function WSAAsyncSelect(para1:TSOCKET; para2:THWND; para3:Tu_int; para4:longint):longint;cdecl; name 'WSAAsyncSelect';
+function WSACancelAsyncRequest(para1:THANDLE):longint;cdecl; name 'WSACancelAsyncRequest';
+function WSACancelBlockingCall:longint;cdecl; name 'WSACancelBlockingCall';
+function WSACleanup:longint;cdecl; name 'WSACleanup';
+function WSAGetLastError:longint;cdecl; name 'WSAGetLastError';
+function WSAIsBlocking:TBOOL;cdecl; name 'WSAIsBlocking';
+function WSASetBlockingHook(para1:TFARPROC):TFARPROC;cdecl; name 'WSASetBlockingHook';
+procedure WSASetLastError(para1:longint);cdecl; name 'WSASetLastError';
+function WSAStartup(para1:word; para2:TLPWSADATA):longint;cdecl; name 'WSAStartup';
+function WSAUnhookBlockingHook:longint;cdecl; name 'WSAUnhookBlockingHook';
+function accept(para1:TSOCKET; para2:Psockaddr; para3:Plongint):TSOCKET;cdecl; name 'accept';
+
+function bind(para1:TSOCKET; para2:Psockaddr; para3:longint):longint;cdecl; name 'bind';
+function closesocket(para1:TSOCKET):longint;cdecl; name 'closesocket';
+
+function connect(para1:TSOCKET; para2:Psockaddr; para3:longint):longint;cdecl; name 'connect';
+
+function gethostbyaddr(para1:Pchar; para2:longint; para3:longint):Phostent;cdecl; name 'gethostbyaddr';
+
+function gethostbyname(para1:Pchar):Phostent;cdecl; name 'gethostbyname';
+{TODO: gethostname not defined because of conflicts with unistd.h  }
+function getpeername(para1:TSOCKET; para2:Psockaddr; para3:Plongint):longint;cdecl; name 'getpeername';
+
+function getprotobyname(para1:Pchar):Pprotoent;cdecl; name 'getprotobyname';
+function getprotobynumber(para1:longint):Pprotoent;cdecl; name 'getprotobynumber';
+
+function select(para1:longint; para2:Pfd_set; para3:Pfd_set; para4:Pfd_set; para5:Ptimeval):longint;cdecl; name 'select';
+
+
+function getservbyname(para1:Pchar; para2:Pchar):Pservent;cdecl; name 'getservbyname';
+
+function getservbyport(para1:longint; para2:Pchar):Pservent;cdecl; name 'getservbyport';
+function getsockname(para1:TSOCKET; para2:Psockaddr; para3:Plongint):longint;cdecl; name 'getsockname';
+function getsockopt(para1:TSOCKET; para2:longint; para3:longint; para4:Pchar; para5:Plongint):longint;cdecl; name 'getsockopt';
+
+function inet_addr(para1:Pchar):dword;cdecl; name 'inet_addr';
+function inet_ntoa(para1:Tin_addr):Pchar;cdecl; name 'inet_ntoa';
+function ioctlsocket(para1:TSOCKET; para2:longint; para3:Pu_long):longint;cdecl; name 'ioctlsocket';
+function listen(para1:TSOCKET; para2:longint):longint;cdecl; name 'listen';
+function recv(para1:TSOCKET; para2:Pchar; para3:longint; para4:longint):longint;cdecl; name 'recv';
+function recvfrom(para1:TSOCKET; para2:Pchar; para3:longint; para4:longint; para5:Psockaddr; 
+           para6:Plongint):longint;cdecl; name 'recvfrom';
+
+function send(para1:TSOCKET; para2:Pchar; para3:longint; para4:longint):longint;cdecl; name 'send';
+function sendto(para1:TSOCKET; para2:Pchar; para3:longint; para4:longint; para5:Psockaddr; 
+           para6:longint):longint;cdecl; name 'sendto';
+
+function setsockopt(para1:TSOCKET; para2:longint; para3:longint; para4:Pchar; para5:longint):longint;cdecl; name 'setsockopt';
+function shutdown(para1:TSOCKET; para2:longint):longint;cdecl; name 'shutdown';
+function socket(para1:longint; para2:longint; para3:longint):TSOCKET;cdecl; name 'socket';
+function htonl(para1:Tu_long):Tu_long;cdecl; name 'htonl';
+function htons(para1:Tu_short):Tu_short;cdecl; name 'htons';
+function ntohl(para1:Tu_long):Tu_long;cdecl; name 'ntohl';
+function ntohs(para1:Tu_short):Tu_short;cdecl; name 'ntohs';
+end;
+
+const 
+	inaddr_any = 0;
+	inaddr_Broadcast = $FFFFFFFF;
+	so_dontlinger=not(SO_LINGER);
+end public
+
+{TOTO IOR IOW FIONREAD FIONBIO}
+{TODO SIOCATMARK
+
+{ was #define dname def_expr }		
+function h_errno : longint;
+begin
+     exit(WSAGetLastError);
+end;
+
+{TODO WASMAKEASSYNCREPLY}
+
+{ was #define dname(params) para_def_expr }
+{ argument types are unknown }
+{ return type might be wrong }   
+
+{TODO function WSAMAKESELECTREPLY(event,error : longint) : longint;}
+{TODO function WSAGETASYNCBUFLEN(lParam : longint) : longint;}
+{TODO function WSAGETASYNCERROR(lParam : longint) : longint;}
+{TODO function WSAGETSELECTEVENT(lParam : longint) : longint;}
+{TODO function WSAGETSELECTERROR(lParam : longint) : longint;}
+
+
+end.
+	

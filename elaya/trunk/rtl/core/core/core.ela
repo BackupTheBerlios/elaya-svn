@@ -1,0 +1,967 @@
+{    Elaya Rtl  for the elaya compiler
+    Copyright (C) 1999,2000  J.v.Iddekinge.
+
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+
+
+public
+
+
+
+
+ type
+	align 1;
+	byte   =  default number size=1;
+	short  =  default number signed size=1;
+	word   =  default number size=2;
+	integer=  default number signed size=2;
+	long   =  default number size=4;
+	longint=  default number signed size=4;
+	char   =  default chartype size = 1;
+	boolean=default booleantype size=4 (true,false);
+	shortboolean=booleantype size=1 (shorttrue,shortfalse);
+	Asc255   	=  default asciiz size=255;
+	Str255   	=  default string size=255;
+	
+	cint             = longint;
+	clong            = long;
+	Asc              =  Asc255;
+	Asc0             = Asciiz size=0;
+	PAsc             = Ptr Asc0;
+	PPAsc            = Ptr PAsc;
+	PChar            = ptr char;
+	PByte            = Ptr Byte;
+	PWord            = Ptr Word;
+	PLong            = ptr Long;
+	PInteger         = Ptr Integer;
+	PLongint         = Ptr Longint;
+	PSHort           = Ptr Short;
+	PStr255          = Ptr Str255;
+	PString	        = Ptr Str255;
+	TOfs_PathName  = ASCIIZ size=128;
+	Handle	        = long;
+	HFile	        = long;
+	Uint	        = long;
+	VOID            = default VoidType;
+	PVoid 	        = default Ptr Void;
+	Pointer         = PVoid;
+	PPointer         = ptr Pointer;
+	Const_Pointer   = ptr const void;
+	DWord	        = long;
+	TSplit	        = record
+		b1,b2,b3,b4:byte;
+	end;
+   
+	TSegfaultHandler=procedure(ParAddres:long);
+
+
+
+const
+	CS_Lower	= -1;
+	CS_Equal	= 0;
+	CS_Bigger	= 1;
+
+type
+
+TOpenMode=enum
+	OM_Close      := 0;
+	OM_Read	      := 1;
+	OM_Write      := 2;
+	OM_Read_Write := 3;
+	OM_Create     := 4;
+end;
+
+type
+
+TSeekMode=enum
+	SM_Begin      := 0;
+	SM_Current    := 1;
+	SM_End        := 2;
+end;
+
+   TDate=record
+     Year : long;
+     Month: long;
+     Day  : long;
+     Hour : long;
+     Min  : long;
+     Sec  : long;
+   end;
+
+   TDir=record
+       SPV : PVoid ;
+   end;
+
+   PDir=ptr TDir;
+   TFileType=enum
+        ft_unkown;
+        ft_CharDevice;
+        ft_Directory;
+        ft_BlockDevice;
+        ft_Regular;
+        ft_Fifo;
+   end;
+
+   TFileInfo=record
+       Filename : string;
+       FileType : TFileType;
+       FileSize : long;
+       CreTIme  : long;
+       vrFailed : boolean;
+   end;
+
+   TReadStatus=enum
+       rs_ok    := 0;
+       rs_end   := 1;
+       rs_error := 2;
+   end;
+
+   PMetaData= default metatype ptr const TMetaData;
+   TMetaData= default metatype record
+		vrParent : PMetaData;
+		vrName   : PStr255;
+   end;
+
+   const
+
+   { errors}
+   Err_No_Error              = 0;
+   Err_Native_Error          = 1;
+   Err_File_Not_Found        = 3;
+   Err_File_Allready_Exists  = 4;
+   Err_Not_Open              = 5;
+   Err_Allready_Open         = 6;
+   Err_Cant_Use_Item         = 7;
+   Err_No_Access             = 8;
+   Err_Not_Implemented       = 9;
+   Err_Wrong_Type_Of_File    = 10;
+   Err_Out_Of_Memory	     = 11;
+   Err_Int_Error             = 1000;
+   Err_Int_File_Not_Open     = 1001;
+
+   linked = 'linked';
+   dll    = 'dll';
+
+	procedure MoveAsciizString(const ParSource:str255;var ParDest:Asc255);
+	procedure MoveStringAsciiz(const ParSource:Asc255;var ParDest:str255);
+	procedure MoveAsciiz(const ParSource:Asc255;var ParDest:Asc255);
+	procedure StringMove(const ParSource:Str255;var ParDest:Str255);
+	operator (var ParA:str255) := (const ParB:str255); overload;
+	operator (var ParA:string) := (const ParB:Asc255); overload;
+	operator (var ParA:Asc255) := (const ParB:Asc255); overload;
+	operator (var ParA:string) := (ParB:char);overload;
+	operator (var Para:Asc255) := (const ParB:string); overload;
+	function GetSegFaultHandler : TSegFaultHandler;
+	procedure SetSegFaultHandler(ParHandler : TSegFaultHandler);
+	procedure CallSegFaultHandler(ParAddr : long);
+	procedure fillchar(var ParDest:void;ParNum:word;ParInfo:byte);
+
+	{---( String )----------------------------------------------------}
+	
+	function  CutString(const ParStr  : string;ParStart : long;ParSize : long):str255;overload name;
+	function  CutString(const ParStr  : string;ParStart : long;ParStop : long):str255;overload name;
+	function  CompStr(const ParStr1,ParStr2:string):longint;
+	procedure IntToHex(ParInt:Long;var ParHex:string;ParSize:byte);
+	function  StrTolong(const ParStr:String;var ParValue:long):boolean;
+	function  StrToInt(const ParStr:String;var ParValue:Longint):boolean;
+	procedure Concat(var parStr:string;const ParAt:string);
+	function  Pos(const ParCh:char;const ParWho:string):byte;overload;
+	function  Pos(const ParStr,ParWho:string):byte;overload;
+	procedure FillStr(ParSize:byte;ParChar:char;var ParStr:string);
+	procedure Str(ParInt:longint;var ParStr:string;Parsize:byte);overload;
+	procedure Str(ParInt:longint;var ParStr:string);overload;
+	procedure Str(ParInt:long;var ParStr:string);overload exact;
+	
+	function  IntToStr(ParInt:longint):str255;
+	function  Copy(const ParSrc:string;ParB1,ParLength:byte):str255;
+	procedure ToUpper(var ParStr:string);
+	procedure ToLower(var ParStr:string);
+	procedure Delete(var ParStr:string;ParBegin,ParNum:byte);
+	procedure RTrim(var ParStr:string);
+	procedure LTrim(var ParStr:string);
+	procedure Trim(var ParStr:string);
+	operator (const ParA:str255) + (const ParB:str255) : str255;overload;
+	operator (const ParA:str255) + (const ParB:char)  : str255; overload;
+	operator (PArA:char) + (const ParB:str255) : str255;overload;
+	operator (ParA:char) + (const ParB:char) : str255;overload;
+	operator (const ParA:str255) =  (const ParB:str255) : boolean;overload;
+	operator (const ParA:Asc255) =  (const PArB:str255) : boolean;overload;
+	operator (const ParA:Str255) =  (const ParB:Asc255) : boolean;overload;
+	operator (const ParA:Asc255) =  (const ParB:Asc255) : boolean;overload;
+	operator (const ParA:str255) >  (const ParB:str255) : boolean;overload;
+	operator (const ParA:Asc255) >  (const ParB:str255) : boolean;overload;
+	operator (const ParA:str255) >  (const ParB:Asc255) : boolean;overload;
+	operator (const ParA:Asc255) >  (const ParB:Asc255) : boolean;overload;
+	operator  (const ParA:Str255) >= (const ParB:str255) : boolean;overload;
+	operator (const ParA:Asc255) >= (const ParB:str255) : boolean;overload;
+	operator (const ParA:str255) >= (const ParB:Asc255) : boolean;overload;
+	operator (const ParA:Asc255) >= (const ParB:Asc255) : boolean;overload;
+	operator (const ParA:str255) <= (const ParB:str255) : boolean;overload;
+	operator (const ParA:str255) <  (const ParB:str255) : boolean;overload;
+	operator (const ParA:str255) <> (const ParB:str255) : boolean;overload;
+	function AsciizLength(const ParAsc : Asc):long;
+
+
+
+{--( Error Handling )------------------------------------------------}
+
+
+
+	procedure SetError(ParError:long);
+	procedure ResetErrors;
+	function  PushError:long;
+	function  GetLastError:long;
+	function  GetNativeError : long;
+	procedure SetNativeError(ParNative,ParError : long);
+
+const
+	Maximum_Byte    = 255;
+	Minimum_Byte    = 0;
+    Maximum_Short   = 127;
+	Minimum_Short   = -128;
+	Maximim_Word    = 65535;
+	Minimum_Word    = 0;
+	Maximum_Integer = 32767;
+	Minimum_Integer = -32768;
+	Maximum_Longint = 2147483647;
+	Minimum_longint = -(Maximum_longint+1);
+	Maximum_Long    = 2*Maximum_Longint+1;
+	Minimum_long    = 0;
+
+end public
+
+
+      var
+                vgErrorCode   	  : long;
+                vgNativeError 	  : long;
+		vgSegfaultHandler : TSegfaultHandler;
+
+{----( Fout afhandeling )------------------------------------------}
+
+procedure ResetErrors;
+begin
+	vgErrorCode   := 0;
+	vgNativeError := 0;
+end;
+
+procedure SetNativeError(ParNative,ParError : long);
+begin
+	vgNativeError := ParNative;
+	vgErrorCode   := ParError;
+end;
+
+
+procedure SetError(ParError:long);
+begin
+     vgNativeError := 0;
+     vgErrorCode   := ParError;
+end;
+
+function PushError:long;
+var vlErr:long;
+begin
+     vlErr := vgErrorCode;
+     vgErrorCode := Err_No_Error;
+     exit(vlErr);
+end;
+
+function GetLastError:long;
+begin
+     exit(vgErrorCode);
+end;
+
+function  GetNativeError : long;
+begin
+     exit(vgNativeError);
+end;
+
+
+
+{---( String commands )------------------------------------------------------------}
+
+procedure MoveAsciizString(const ParSource:str255;var ParDest:Asc255);
+var vlP1,vlP2:PByte;
+	vlSize:word;
+begin
+	vlP1 := @ParSource[1] as pbyte;
+	vlP2 := @ParDest[1] as pbyte;
+	vlSize := ParSource.length;
+	if vlSize > 254 then vlSize := 254;
+	while vlSize <> 0 do begin
+		vlP2^:= vlP1^;
+ 		inc vlP2;
+ 		inc vlP1;
+		dec vlSize;
+	end;
+	vlP2^ := 0;
+end;
+
+procedure MoveStringAsciiz(const  ParSource:Asc255;var ParDest:str255);
+var vlP1,vlP2  :  pchar;
+    vlSize	  : long;
+begin
+	vlP1 :=  @(ParSource[1]);
+	vlP2 :=  @(ParDest[1]);
+	vlSize := 0;
+	for (vlP1^ <> 0 as char) until vlSize >=255 do begin
+		vlP2^ := vlP1^;
+      inc vlP2 ;
+      inc vlp1;
+      inc vlSize;
+	end;
+	ParDest.Length := vlSize;
+end;
+
+procedure MoveAsciiz(const ParSource:Asc255;var ParDest:Asc255);
+var vlP1,vlP2:pbyte;
+    vlSize:long;
+    vlBt:byte;
+begin
+
+	vlP2 := @ParDest as pbyte;
+	vlP1 := @ParSource as pbyte;
+	vlSize := 0;
+	vlBt := vlP1^;
+	while (vlbt <> 0) and (vlSize<255) do begin
+		vlP2^ := vlBt;
+		inc vlP2;
+		inc vlP1;
+ 		inc vlSize;
+		vlBt := vlP1^;
+	end;
+	vlP2^ := 0;
+end;
+
+
+procedure StringMove(const ParSource:Str255;var ParDest:Str255);
+var      vlP1,vlP2:PByte;
+	vlSize:word;
+begin
+	vlP1 := @ParSource as pbyte;
+	vlP2 := @ParDest as pbyte;
+	vlSize := ParSource.Length;
+	vlSize := vlSize + 1;
+	repeat
+		vlP2^ := vlP1^;
+		inc vlP1;
+		inc vlp2;
+		dec vlSize;
+	until vlSize = 0;
+end;
+
+
+
+operator (var ParA:str255) := (const ParB:str255);overload;
+begin
+	StringMove(ParB,ParA);
+end;
+
+operator (var ParA:string) := (const ParB:Asc255);overload;
+begin
+	MoveStringAsciiz(ParB,ParA);
+end;
+
+operator (var Para:Asc255) := (const ParB:string);overload;
+begin
+ 	MoveAsciizString(ParB,ParA);
+end;
+
+operator (var ParA:Asc255) := (const ParB:Asc255); overload;
+begin
+	MoveAsciiz(ParB,ParA);
+end;
+
+operator (var ParA:string) := (ParB:char);overload;
+begin
+	ParA.Length := 1;
+	ParA[1]    := ParB;
+end;
+
+function GetSegFaultHandler : TSegFaultHandler;
+begin
+	exit(vgSegFaultHandler);
+end;
+
+procedure  SetSegFaultHandler(ParHandler : TSegFaultHandler);
+begin
+	vgSegFaultHandler := ParHandler;
+end;
+
+procedure CallSegFaultHandler(ParAddr : long);
+begin
+	if vgSegFaultHandler <> nil then vgSegFaultHandler^(ParAddr);
+end;
+
+procedure fillchar(var ParDest:void;ParNum:word;ParInfo:byte);
+var vlNum:word;
+    vlPtr:PByte;
+begin
+	vlPtr := @ParDest;
+	vlnum := ParNum;
+	while vlNum > 0 do begin
+		vlPtr^ := ParInfo;
+  		inc vlPtr;
+		dec vlNum;
+	end;
+end;
+
+{----( String )-------------------------------------------------------}
+
+function AsciizLength(const ParAsc : Asc):long;
+var
+	vlPtr : PChar;
+begin
+	vlPtr := @(ParAsc[1]);
+	while (vlPtr^ <> 0 as char) do inc(vlPtr);
+	exit(vlPtr - @ParAsc);
+end;
+
+function Copy(const ParSrc:string;ParB1,ParLength:byte):str255;
+var
+
+    vlDest  : byte;
+    vlCnt   : byte;
+    vlNum   : byte;
+    vlOut   : string;
+    vlStart : byte;
+begin
+     vlStart := ParB1;
+     if vLStart = 0 then vlStart := 1;
+     if vlStart >ParSrc.Length then begin
+		vlOut.length := 0;
+     end else begin
+		vlNum := ParLength;
+		if ParB1 +vlNum -1 > ParSrc.length then vlNum := ParSrc.length + 1- ParB1;
+	   vlOut.Length := vlNum;
+ 		vlCnt  := vlStart;
+		Count vlDest from 1 to  vlNum do begin
+	        vlOut[vlDest] := ParSrc[vlCnt];
+    	    inc(vlCnt);
+    	end;
+	end;
+    exit(vlOut);
+end;
+
+
+function CutString(const ParStr : string;ParStart : long;ParSize  : long):str255;overload name;
+begin
+	exit(copy(ParStr,ParStart,ParSize));
+end;
+
+function CutString(const ParStr  : string;ParStart  : long;ParStop : long):str255;overload name;
+begin
+	if ParStop <= ParStart then exit('');
+	exit(copy(ParStr,ParStart,ParStop-ParStart + 1));
+end;
+
+function CompStr(const ParStr1,ParStr2:string):longint;
+var vlLe1,vlLe2,vlLe,vlCnt:long;
+begin
+	vlLe1 := ParStr1.Length;
+	vlLe2 := ParStr2.Length;
+        vlLe  := vlLE1;
+	if vlLe > vlLe2 then vlLe := vlLe2;
+	vlCnt := 1;
+	while (vlCnt <=vlLe) do begin
+		if ParStr1[vlCnt] < ParStr2[vlCnt] then exit(cs_lower);
+		if ParStr1[vlCnt] > ParStr2[vlCnt] then exit(cs_bigger);
+                inc(vlCnt);
+	end;
+	if vlLe1 > vlLe2 then exit(cs_bigger);
+	if vlLe1 < vlLe2 then exit(cs_lower);
+	exit(cs_equal);
+end;
+
+function IsStrEqual(const ParStr1,ParStr2:string):boolean;
+var vlLe1,vlLe2:byte;
+    vlCnt:byte;
+begin
+	vlLe1 := ParStr1.Length;
+	vlLe2 := ParStr2.Length;
+	if vlLe1 <> vlLe2 then exit(false);
+        vlCnt := 1;
+	while vlCnt <= vlLe1 do begin
+		if ParStr1[vlCnt] <> ParStr2[vlCnt] then exit(false);
+                inc(vlCnt);
+	end;
+	exit(true);
+end;
+
+
+
+procedure IntToHex(ParInt:Long;var ParHex:string;ParSize:byte);
+var vlCnt : byte;
+    vlInt : Long;
+    vlNum : byte;
+begin
+	vlCnt := ParSize;
+	vlInt := ParInt;
+	ParHex.Length := vlCnt;
+	repeat
+		vlNum := vlInt and 15;
+		vlInt := vlInt div 16;
+		if vlNum <10 then begin
+			inc vlNum with 48;
+		end else begin
+			 inc vlNum with 55;
+		end;
+		if vlCnt > 0 then begin
+			ParHex[vlCnt] := vlNum as char;
+			dec vlCnt;
+		end else begin
+			ParHex := vlNum as char + ParHex;
+		end;
+	until (vlCnt=0) and (vlInt = 0);
+end;
+
+
+const max_long_div_10=Maximum_Long div 10;
+
+function StrTolong(const ParStr:String;var ParValue:long):boolean;
+var vlCnt : byte;
+    vlLen : byte;
+    vlInt : long;
+	vlPrv : long;
+begin
+	vlLen := ParStr.Length;
+	if vlLen=0 then exit(true);
+	vlCnt := 1;
+	vlInt := 0;
+        while vlCnt <= vlLen do begin
+		if not((ParStr[vlCnt]) between ('0') and ('9')) then exit(true);
+            if(vlInt > Max_Long_div_10) then exit(true);
+			vlInt := vlInt * 10;
+			vlPrv := vlInt;
+			inc vlInt with  ParStr[vlCnt] as byte - 48;
+			if vlPrv > vlInt then exit(true);
+        	inc vlCnt;
+	end;
+         ParValue := vlInt;
+	exit(false);
+end;
+
+const
+	Max_Longint_div10=Maximum_longint div 10;
+
+function StrToInt(const ParStr:String;var ParValue:Longint):boolean;
+var vlCnt : byte;
+    vlLen : byte;
+    vlInt : longint;
+    vlMin : boolean;
+	vlPrv : longint;
+begin
+	vlLen := ParStr.Length;
+	vlCnt := 1;
+	vlInt := 0;
+	if vlLen = 0 then exit(true);
+	vlMin := (ParStr[1]='-');
+	if vlMin then begin
+		if vlLen    = 1 then exit(true);
+		inc(vlCnt);
+	end;
+	while vlCnt <= vlLen do begin
+		if not((ParStr[vlCnt]) between ('0') and ('9')) then exit(true);
+        if vlInt > Max_Longint_Div10 then exit(true);
+ 		vlInt := vlInt * 10 ;
+		vlPrv := vlInt;
+		inc vlInt with ParStr[vlCnt] as byte - 48;
+		if vlPrv > vlInt then exit(true);
+		inc(vlCnt);
+	end;
+	if vlMin then vlInt := - vlint;
+	ParValue := vlInt;
+	exit(false);
+end;
+
+
+
+procedure Concat(var ParStr:string;const ParAt:string);
+var
+    vlCnt    : byte;
+    vlLength : byte;
+    vlDest   : byte;
+begin
+        vlCnt    := 1;
+        vlDest   := ParStr.Length;
+        vlLength := ParAt.Length;
+	while (vlLength > 0) do begin
+                inc vlDest;
+                ParStr[vlDest] := ParAt[vlCnt];
+                inc vlCnt;
+                dec vlLength;
+   	end;
+        ParStr.Length := vlDest;
+end;
+
+
+function ConcatStr(const parStr:string;const ParAt:string):str255;       overload;
+var
+	 vlDummy:string;
+begin
+	vlDummy := ParStr;
+	ConCat(vlDummy,ParAt);
+	exit(vlDummy);
+end;
+
+function ConcatStr(const ParStr:string;const ParChar:char):Str255; overload;
+var vlDummy : string;
+    vlLe    : byte;
+begin
+	vlDummy           := parStr;
+   vlLe              := vlDummy.Length+1;
+	vlDummy[vlLe]     := ParChar;
+	vlDummy.Length    := vlLe ;
+	exit(vlDummy);
+end;
+
+function Pos(const ParCh:char;const ParWho:string):byte;overload;
+var
+	vlPos : long;
+begin
+	count vlPos from 1 to ParWho.Length until ParWho[vlPos]=ParCh;
+	if vlPos > ParWho.Length  then vlPos := 0;
+	exit(vlPos);
+end;
+
+procedure FillStr(ParSize:byte;ParChar:char;var ParStr:string);
+var vlCnt : byte;
+begin
+	ParStr.Length := ParSize;
+ 	vlCnt := 1;
+	while vlCnt <= ParSize do begin
+		ParStr[vlCnt] := ParChar;
+		inc(vlCnt);
+	end;
+end;
+
+
+
+procedure Str(ParInt:longint;var ParStr:string;Parsize:byte);overload;
+var vlDummy : string;
+    vlL1    : byte;
+begin
+	str(ParInt,vlDummy);
+	vlL1 := vlDummy.Length;
+	ParStr.Length:= 0;
+	if vlL1 < ParSize then fillStr(ParSize - vlL1,' ',ParStr);
+	concat(ParStr,vlDummy);
+end;
+
+function IntToStr(ParInt:longint):str255;
+var vlStr:String;
+begin
+	str(ParInt,vlStr);
+	exit(vlStr);
+end;
+
+
+
+
+function Pos(const ParStr,ParWho:string):byte; overload;
+var 
+    vlP1,vlP2:pbyte;
+    vlL1,vlL2:byte;
+    vlMax : byte;
+    vlCnt : byte;
+    vlStr : byte;
+begin
+	vlL1 := ParStr.Length;
+	vlL2 := ParWho.Length;
+	if (vlL1 > vlL2) or (vlL1 = 0) then exit(0);
+	vlMax := vlL2 - vlL1 +1;
+	vlCnt := 1;
+	while vlCnt <=vlMax do begin
+		vlP1 := @ParWho[vlCnt] as pbyte;
+		vlP2 := @ParStr[1] as pbyte;
+		vlStr := ParStr.Length;
+		while (vlStr > 0) and (vlP1^=vlP2^) do begin
+			inc(vlP1);
+			inc(vlP2);
+			dec(vlStr);
+		end;
+		if vlStr = 0 then exit(vlCnt);
+		inc(vlCnt);
+	end;
+	exit(0);
+end;
+
+
+procedure ToUpper(var ParStr:string);
+var
+	vlCnt:byte;
+begin
+	vlCnt := parStr.Length;
+	while vlCnt > 0 do begin
+		if ParStr[vlCnt]  between ('a' ) and('z') then dec ParStr[vlCnt] with  32;
+		dec(vlCnt);
+	end;
+end;
+
+procedure ToLower(var ParStr:string);
+var
+	vlCnt:byte;
+begin
+	vlCnt := ParStr.Length;
+	while vlCnt > 0 do begin
+		if( ParStr[vlCnt]  between('A') and ('Z')) then inc ParStr[vlCnt] with 32;
+		dec(vlCnt);
+	end;
+end;
+
+
+procedure Delete(var ParStr:string;ParBegin,ParNum:byte);
+var vlDummy2:string;
+    vlLe,vlPos2:byte;
+begin
+	vlPos2 := ParBegin + ParNum;
+	vlLe   := ParStr.Length;
+	if (vlPos2 > vlLe) then begin
+		vlDummy2.Length := 0;
+	end else begin
+		vlDummy2 := copy(ParStr,vlPos2,vlLe +1-vlPos2);
+	end;
+	if ParBegin > 1 then begin
+           ParStr := copy(ParStr,1,ParBegin -1)+vlDummy2;
+    end else begin
+           ParStr := vlDummy2;
+    end;
+end;
+
+
+procedure RTrim(var ParStr:string);
+var
+	 vlCnt : byte;
+begin
+	count vlCnt from 1 to ParStr.length until (ParStr[vlCnt] <> ' ') and (ParStr[vlCnt] <> 9 as char);
+	delete(ParStr,1,vlCnt - 1);
+end;
+
+procedure LTrim(var ParStr:string);
+var
+	vlCnt : byte;
+begin
+	count vlCnt from ParStr.length downto 1 until (ParStr[vlCnt] <> ' ') and (ParStr[vlCnt] <> 9 as char);
+	ParStr.Length := vlCnt;
+end;
+
+
+procedure Trim(var ParStr:string);
+begin
+	LTrim(ParStr);
+	RTrim(ParStr);
+end;
+
+operator (const ParA:str255) + (const ParB:str255) : str255;overload;
+var
+	 vlTmp:Str255;
+begin
+	vlTmp := ParA;
+	Concat(vlTmp,ParB);
+        exit(vlTmp);
+end;
+
+
+operator (const ParA:str255) + (const ParB:char)  : str255;overload;
+var vlTmp:str255;
+    vlLe:byte;
+begin
+	vlLe  := ParA.Length;
+	vlTmp := ParA;
+	if vlLe <255 then begin
+		inc(vlLe);
+		vlTmp[vlLe]  := ParB;
+		vlTmp.Length := vlLe;
+	end;
+	exit(vlTmp);
+end;
+
+operator  (ParA:char) + (const ParB:str255) : str255;overload;
+var vlTmp:Str255;
+begin
+	vlTmp.Length := 1;
+	vlTmp[1]     := ParA;
+	concat(vlTmp,ParB);
+	exit(vlTmp);
+end;
+
+operator  (ParA:char) + (const ParB:char) :str255;overload;
+var vlTmp:str255;
+begin
+	vlTmp.Length := 2;
+	vlTmp[1] := ParA;
+	vlTmp[2] := ParB;
+	exit(vlTmp);
+end;
+
+operator  (const ParA:str255) = (const ParB:str255) :boolean;overload;
+begin
+	exit(IsStrEqual(ParA,ParB));
+end;
+
+operator  (const ParA:Asc255) = (const PArB:str255) :boolean;overload;
+var vlStrA:string;
+begin
+	vlStrA := ParA;
+	exit(isStrEqual(vlStrA,ParB));
+end;
+
+operator (const ParA:Str255) = (const ParB:Asc255) :boolean;overload;
+var vlStrB:string;
+begin
+	vlStrB := ParB;
+	exit(IsStrEqual(ParA,vlStrB));
+end;
+
+operator (const ParA:Asc255) = (const ParB:Asc255) :boolean;overload;
+var vlStrA:string;
+    vlStrB:String;
+begin
+	vlStrA := PArA;
+	vlStrB := ParB;
+	exit(IsStrEqual(vlStrA,vlStrB));
+end;
+
+operator (const ParA:str255) > (const ParB:str255)  :boolean;overload;
+begin
+	exit(CompStr(ParA,ParB) = CS_Bigger);
+end;
+
+operator (const ParA:Asc255) > (const ParB:str255) :boolean;overload;
+var vlStr:string;
+begin
+	vlStr := ParA;
+	exit(vlStr > ParB);
+end;
+
+operator (const ParA:str255) > (const ParB:Asc255) :boolean;overload;
+var vlStr:string;
+begin
+	vlStr := ParB;
+	exit(ParA > vlStr);
+end;
+
+operator (const ParA:Asc255) > (const ParB:Asc255) :boolean;overload;
+var vlStrA:String;
+    vlStrB:String;
+begin
+	vlStrA := PArA;
+	vlStrB := ParB;
+	exit(vlStrA> vlStrB);
+end;
+
+
+operator (const ParA:Str255) >= (const ParB:str255) : boolean;overload;
+begin
+	exit(CompStr(ParA,ParB) >= CS_Equal);
+end;
+
+operator (const ParA:Asc255) >= (const ParB:str255) : boolean;overload;
+var vlStr:string;
+begin
+	vlStr := ParA;
+	exit( vlStr >= ParB);
+end;
+
+operator (const ParA:str255) >= (const ParB:Asc255) : boolean;overload;
+var vlStr:string;
+begin
+	vlStr := ParB;
+	exit(ParA >= vlStr);
+end;
+
+operator (const ParA:Asc255) >= (const ParB:Asc255) : boolean;overload;
+var vlStrA:string;
+    vlStrB:String;
+begin
+	vlStrA := ParA;
+	vlStrB := ParB;
+	exit(vlStrA >= vlStrB);
+end;
+
+operator (const ParA:str255) <= (const ParB:str255) : boolean;overload;
+begin
+	exit(CompStr(ParA,ParB) <= CS_Equal);
+end;
+
+operator (const ParA:str255) <  (const ParB:str255) :boolean;overload;
+begin
+	exit(CompStr(ParA,ParB) = CS_Lower);
+end;
+
+operator (const ParA:str255) <> (const ParB:str255) :boolean;overload;
+begin
+	exit(CompStr(ParA,ParB) <> CS_Equal);
+end;
+
+procedure Str(ParInt:longint;var ParStr:string);     overload;
+var
+	vlBuf:array[1 to 20] of char;
+	vlCnt,vlCnt2:word;
+	vlInt:longint;
+begin
+	vlCnt :=0;
+	vlInt:= ParInt;
+	if ParInt < 0 then vlInt :=  - vlInt;
+	repeat
+		inc(vlCnt);
+		vlBuf[vlCnt] := (vlInt MOD 10 + 48) as char;
+		vlInt := vlInt  div  10;
+	until (vlInt = 0);
+	ParStr.Length := vlCnt;
+	vlCnt2 := 1;
+	if ParInt< 0 then begin
+		ParStr[1] := '-';
+		inc(vlCnt2 );
+		ParStr.Length := vlCnt + 1;
+	end;
+	while vlCnt > 0 do begin
+		ParStr[vlCnt2] := vlBuf[vlCnt];
+		inc(vlCnt2);
+		dec(vlCnt);
+	end;
+end;
+
+
+procedure Str(ParInt:long;var ParStr:string);     overload exact;
+var
+	vlBuf:array[1 to 20] of char;
+	vlCnt,vlCnt2:word;
+	vlInt:long;
+begin
+	vlCnt :=0;
+	vlInt:= ParInt;
+	repeat
+		inc(vlCnt);
+		vlBuf[vlCnt] := ((vlInt MOD 10) + 48) as char;
+		vlInt := vlInt  div  10;
+	until (vlInt = 0);
+	ParStr.Length := vlCnt;
+	vlCnt2 := 1;
+	while vlCnt > 0 do begin
+		ParStr[vlCnt2] := vlBuf[vlCnt];
+		inc(vlCnt2);
+		dec(vlCnt);
+	end;
+end;
+
+
+
+begin
+	SetSegFaultHandler(nil);
+end.

@@ -1,0 +1,30 @@
+unit;
+uses interface,guitypes,twidget,tedit,values;
+
+public
+type
+	TLineEdit=class inherit TEdit
+		protected
+      	procedure InitWidget;override;
+	end;
+
+
+end public
+
+
+procedure TLineEdit.InitWidget;override;
+var
+	vlHandle : TInterface.PWIdgetHandle;
+begin
+
+	if Parent <> nil then begin
+		vlHandle := Parent.Handle;
+	end else begin
+		vlHandle := nil;
+	end;
+
+	vgInterface.CreateInterLineEdit(X,y,W,H,vlHandle,handle,Title);
+end;
+
+
+end.

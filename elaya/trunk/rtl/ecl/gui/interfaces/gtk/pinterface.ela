@@ -1,0 +1,749 @@
+{
+    Elaya, the compiler for the ;elaya language
+	 Copyright (C) 1999-2003  J.v.Iddekinge.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+unit;
+	uses gtk,gdk,glib,linklist,ptypes,guitypes,guibase,values;
+
+public
+
+
+
+
+Type
+
+
+TInterInterface=class inherit TRoot
+	public
+	type
+      TWidgetHandle = T_WidgetHandle;
+		PWidgetHandle = P_WidgetHandle;
+      TGCHandle     = T_GcHandle;
+		TPixmapHandle  = T_PixmapHandle;
+		PPixmapHandle  = P_PixmapHandle;
+	var
+		voToolTips        : PGtkToolTips;
+
+		property ToolTips : PGtkToolTips;
+		begin
+			private read voToolTips;
+			private write voToolTips;
+		end;
+
+
+		procedure  CreateInterWidget(ParX,ParY : longint;ParW,ParH : long;ParParent : PWidgetHandle;ParWidget : PWidgetHandle);
+		root;
+		has
+			var
+				vlWidget : PGtkWidget;
+			protected
+				property fWidget : PGtkWidget;
+				begin
+					protected read vlWidget;
+					protected write vlWidget;
+			end;
+
+			procedure SetWidgetEvents;
+			procedure SetSignal(ParSignalWidget : PGtkWidget;ParName : string;ParFunc : TGtkSignalFunc);
+			procedure SetParent(ParParent,ParWidget : PGtkWidget;ParX,ParY : longint);
+			procedure GtkMoveWidget(ParWidget : PGtkWidget;ParX,ParY : longint);
+			procedure GtkSetSizeWidget(ParWidget : PGtkWidget;ParW,ParH : long);
+			procedure FinalizeWidget;virtual;
+			procedure InitWidget;virtual;
+			main;
+
+	end;
+
+	procedure CreateInterWindow(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+		has
+			protected
+				procedure InitWidget;override;
+				procedure FinalizeWidget;override;
+				main;
+		end;
+
+	procedure CreateInterButton(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+		has
+			protected
+				procedure InitWidget;override;
+				main;
+		end;
+
+	procedure CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+		has
+			protected
+				procedure InitWidget;override;
+				main;
+		end;
+
+	procedure CreateInterLineEdit(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+		has
+			protected
+				procedure InitWidget;override;
+				main;
+		end;
+
+		function GetEditText(ParWidget : PWidgetHandle;ParFrom,ParTo : longint) : TString;
+		procedure SetSize(ParWidget :PWidgetHandle;ParW,ParH : long);
+		procedure SetPosition( ParWidget : PWidgetHandle;ParX,ParY : longint);
+		procedure SetTitle( ParWidget : PWidgetHandle;const ParTitle : string);
+		procedure Show(ParWidget :  PWidgetHandle;ParShow : boolean);
+		procedure ClearWidget(ParWidget : PWidgetHandle);
+		procedure ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);
+		procedure SetToolTip(ParWidget : PWidgetHandle;const ParText : string);{todo veranderen in TString?}
+		procedure GetToolTip(ParWidget : PWidgetHandle;var ParText : string);
+		procedure SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+		procedure SetFgColor(ParWidget : PWidgetHandle;const ParColor: TColor);
+		procedure DestroyWidget(ParWidget : PWidgetHandle);
+		procedure DestroyGC(var ParGC : TGCHandle);
+		function  CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;
+		procedure Line(var ParGC :TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
+		procedure DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);
+		procedure GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);
+		procedure SetGcFgColor(var ParGC : TGCHandle;const ParColor : TColor);
+		procedure SetGcBgColor(var ParGC : TGCHandle;const ParColor : TColor);
+		procedure CreatePixmap(ParWidth,ParHeight,ParDepth: long;ParImage : PPixmapHandle);
+		procedure LoadPixmap(ParWindow : PWidgetHandle;const ParFileName : string;ParImage : PPixmapHandle;var ParWidth,ParHeight,ParDepth : long);
+		procedure DrawPixmap(var ParGC : TGCHandle;ParPixmap : PPixmapHandle;ParX,ParY : longint);
+		procedure SetButtonPixmap(ParWidget : PWIdgetHandle;ParPixmap : PPixmapHandle);
+		procedure SetTextAdjust(ParWidget : PWidgetHandle;ParAdjust : TTextAdjust);
+		procedure ExitProgram;
+		procedure InterInit;
+		procedure InterRun;
+		procedure aa;
+	protected
+		procedure SetButtonLabel(ParWidget : PWidgetHandle;ParLabel : PGtkWidget);
+		procedure gtk_setbgcolor(ParWidget : PGtkWidget;const ParColor : TColor);
+		procedure gtk_setfgcolor(ParWidget : PGtkWidget;const ParColor : TColor);
+
+end;
+end public
+
+
+
+procedure EventAllocateChanged(ParWidget : PGtkWidget;ParAllocation : PGtkAllocation;ParData : pointer);cdecl;
+var
+	vlEvent: TEvent;
+begin
+	vlEvent.allocationChanged.vrType := EK_AllocationChanged;
+	vlEvent.AllocationChanged.vrHandle := ParData;
+	vlEvent.AllocationChanged.X := ParAllocation^.x;
+	vlEvent.AllocationChanged.y := ParAllocation^.y;
+	vlEvent.AllocationChanged.W := ParAllocation^.Width;
+	vlEvent.AllocationChanged.H := ParAllocation^.Height;
+	vgProgramEventHandler^(vlEvent as TEvent);
+end;
+
+function EventDoExpose(ParObject : PGtkButton;ParEvent : PGdkEventExpose;ParData : Pointer) : long;cdecl;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.expose.vrType := EK_Expose;
+	vlEvent.expose.vrHandle := ParData;
+	vgProgramEventHandler^(vlEvent as TEvent);
+	exit(1);
+end;
+
+function EventDoKeyPRessed(ParObject : PGtkWidget;ParEvent : PGdkEventKey;ParData : pointer) : long;cdecl;
+begin
+	writeln(ParEvent^.state,' ',ParEvent^.keyval);
+end;
+
+function EventDoPressed(ParObject : PGtkButton;ParData : pointer):long;cdecl;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.buttonpress.vrType := EK_MouseBUttonPressed;
+	vlEvent.buttonpress.vrHandle := ParData;
+   vgProgramEventHandler^(vlEvent);
+	exit(0);
+end;
+
+function EventDoRelease(ParObject : PGtkButton;ParData : pointer):long;cdecl;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.buttonpress.vrType := EK_MouseButtonReleased;{TODO Buttonevent instead of button pressevent}
+	vlEvent.buttonpress.vrHandle := ParData;
+   vgProgramEventHandler^(vlEvent);
+	exit(0);
+end;
+
+
+function EventDoCrossing(ParObject : PGtkButton;ParEvent : PGDkEventCrossing;ParData : pointer) : long;cdecl;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.crossing.vrType := EK_Enter;
+	vlEvent.crossing.vrHandle := ParData;
+	vgProgramEventHandler^(vlEvent);
+	exit(0);
+end;
+
+function EventDoLeaving(ParObject : PGtkButton;ParEvent : PGDkEventCrossing;ParData : pointer) : long;cdecl;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.Crossing.vrType := EK_Leave;
+	vlEvent.Crossing.vrHandle := ParData;
+	vgProgramEventHandler^(vlEvent as TEvent);
+	exit(0);
+end;
+
+function EventDoDestroy(ParObject : PGtkButton;ParData : pointer):boolean;cdecl;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.WidgetDestroy.vrType := EK_WidgetDestroy;
+	vlEvent.WidgetDestroy.vrHandle := ParData;
+	vgProgramEventHandler^(vlEvent as TEvent);
+	exit(false);
+end;
+
+function EventDoDelete(ParObject : PGtkButton;ParEvent : PGDKEvent;ParData : pointer):boolean;cdecl;
+begin
+	exit(false);
+end;
+
+function DoMouseEvents(ParObject : PGtkWidget;ParEvent : PGdkEvent;ParData : pointer):boolean;cdecl;
+begin
+	exit(true);
+end;
+
+
+{--( TInterface )-----------------------------------------------------------------------}
+
+procedure TInterInterface.aa;
+begin
+end;
+
+procedure TInterInterface.SetButtonLabel(ParWidget : PWidgetHandle;ParLabel : PGtkWidget);
+var
+	vlButton : PGtkContainer;
+begin
+	if ParWidget^.vrType = WT_Button then begin
+		vlButton := ParWidget^.vrMainWidget as PGtkContainer;
+		gtk_container_remove(vlButton,(vlButton as PGtkBin)^.child);
+		gtk_container_add(vlButton,ParLabel);
+		gtk_widget_show_now(ParLabel);
+	end;
+end;
+
+procedure TInterInterface.SetButtonPixmap(ParWidget : PWIdgetHandle;ParPixmap : PPixmapHandle);
+var
+	vlWidget : PGtkWidget;
+begin
+	if ParWidget^.vrType = WT_Button then begin
+		vlWidget := gtk_pixmap_new(ParPixmap^.vrPixmap,nil);
+		SetButtonLabel(parWidget,vlWidget);
+	end;
+end;
+
+
+
+procedure TInterInterface.SetTextAdjust(ParWidget : PWidgetHandle;ParAdjust : TTextAdjust);
+var
+	vlAdjust : TGtkJustification;
+	vlAlign : long;
+begin
+	if ParWidget^.vrType = WT_Label then begin
+      vlAdjust := gtk_justify_left;
+		vlAlign := 0;
+		if ParAdjust = TA_Center then begin
+			 vlAdjust := gtk_justify_center;
+			 vlAlign := $3f000000;
+      end else if ParAdjust = TA_Right then begin
+		 	 vlAdjust := gtk_justify_right;
+			 vlAlign := $3f800000;
+		end;
+		gtk_label_set_justify(ParWidget^.vrFgWidget as PGtkLabel,vlAdjust);
+		gtk_misc_set_alignment(ParWidget^.vrFgWidget as PGtkMisc,vlAlign,$3f000000);
+	end;
+end;
+
+
+{TODO destroy pixmap}
+procedure TInterInterface.CreatePixmap(ParWidth,ParHeight,ParDepth: long;ParImage : PPixmapHandle);
+begin
+	ParImage^.vrPixmap := gdk_pixmap_new(nil,ParWidth,ParHeight,ParDepth);
+end;
+
+{TODO protect when file not found}
+procedure TInterInterface.LoadPixmap(ParWindow : PWidgetHandle;const ParFileName : string;ParImage : PPixmapHandle;var ParWidth,ParHeight,ParDepth : long);
+var
+	vlFileName : asciiz size=255;
+	vlWindow   : PGdkWindow;
+begin
+	vlFileName := ParFileName;
+   vlWindow   := nil;
+	if ParWindow <> nil then begin
+		if ParWindow^.vrDrawWidget <> nil then vlWindow := ParWindow^.vrDrawWidget^.Window;
+	end;
+	ParImage^.vrPixmap := gdk_pixmap_colormap_create_from_xpm(vlWindow,nil,nil,nil,@vlFileName as PGChar);
+	if ParImage^.vrPixmap = nil then writeln('Pixmap "',ParFileName,'" not found');
+	gdk_window_get_geometry(ParImage^.vrPixmap,nil,nil,@ParWidth,@ParHeight,@parDepth);
+end;
+
+procedure TInterInterface.DrawPixmap(var ParGC : TGCHandle; ParPixmap : PPixmapHandle;ParX,ParY : longint);
+begin
+   gdk_draw_Pixmap(ParGc.vrWindow,ParGc.vrGc,ParPixmap^.vrPixmap as PGdkDrawable,0,0,ParX,ParY,-1,-1);
+end;
+
+procedure TInterInterface.SetGcFgColor(var ParGc : TGCHandle;const ParColor : TColor);
+var
+	vlColor : TGdkColor;
+begin
+	vlColor.Pixel := 0;
+	vlColor.Red := ParColor.red shr 16;
+	vlColor.Green := ParColor.Green shr 16;
+	vlColor.Blue := ParColor.Blue shr 16;
+	gdk_colormap_alloc_color(gdk_colormap_get_system,@vlColor,1,0);
+	gdk_gc_set_foreground(ParGC.vrGc,@vlColor);
+end;
+
+
+procedure TInterInterface.SetGcBgColor(var PArGC : TGCHandle;const ParColor : TColor);
+var
+	vlColor : TGdkColor;
+begin
+	vlColor.Red := ParColor.red shr 16;
+	vlColor.Green := ParColor.Green shr 16;
+	vlColor.Blue := ParColor.Blue shr 16;
+	gdk_gc_set_background(ParGC.vrGc,@vlColor);
+end;
+
+
+procedure TInterInterface.GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);
+var
+	vlLb : longint;
+	vlRb : longint;
+	vlW  : longint;
+	vlA  : longint;
+	vld  : longint;
+	vlText : asciiz size=255;
+begin
+	vlText := ParText;
+	gdk_string_extents(ParGc.vrFont,@vlText as PGChar,@vlLb,@vlRB,@vlW,@vlA,@vlD);
+	ParW := vlW;
+	ParH := vlA + vlD;
+end;
+
+procedure TInterInterface.DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);
+var
+	vlText : asciiz size =255;
+begin
+	vlText := ParText;
+	gdk_draw_text(parGC.vrWIndow,ParGC.vrFont,ParGc.vrGc,ParX,ParY,(@vlText) as PGChar,ParText.length);
+end;
+
+procedure TInterInterface.Line(var ParGC : TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
+begin
+
+	gdk_draw_line(ParGc.vrWindow,ParGc.vrGc,ParX0,ParY0,ParX1,ParY1);
+end;
+
+procedure TInterInterface.DestroyGC(var ParGC : TGCHandle);
+begin
+	gdk_gc_unref(ParGc.vrGC);
+	gdk_font_unref(ParGc.vrFont);
+	ParGc.vrGc := nil;
+end;
+
+function  TInterInterface.CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;
+var
+	vlStyle : PGtkStyle;
+	vlTitle : Asciiz size=255;
+begin
+	ParGc.vrWindow := ParWidget^.vrDrawWidget^.window;
+	ParGc.vrGc  := gdk_gc_new(ParGc.vrWindow);
+	vlTitle := 'fixed';
+	ParGc.vrFont := gdk_font_load(@vlTitle as PGChar);
+	exit(ParGc.vrGC <> nil);
+end;
+
+procedure TInterInterface.DestroyWidget(ParWidget : PWidgetHandle);
+begin
+	gtk_widget_destroy(ParWidget^.vrMainWidget);
+end;
+
+procedure TInterInterface.ExitProgram;
+var
+	vlEvent : TEvent;
+begin
+	vlEvent.ExitProgram.vrType := EK_ExitProgram;
+	vlEvent.ExitProgram.vrHandle := nil;
+   vgProgramEventHandler^(vlEvent as TEvent);
+	gtk_main_quit;
+end;
+
+procedure TInterInterface.SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+begin
+	gtk_setbgcolor(ParWidget^.vrDrawWidget,ParColor);
+end;
+
+procedure TInterInterface.gtk_setbgcolor(ParWidget : PGtkWidget;const ParColor : TColor);
+var
+	vlStyle : PGtkStyle;
+	vlCnt : long;
+	vlColor : TGdkColor;
+begin
+	vlStyle := gtk_widget_get_style(ParWidget);
+	vlStyle := gtk_style_copy(vlStyle);
+	count vlCnt from 0 to 4 do begin
+		vlStyle^.bg[vlCnt].red := ParColor.red shr 16;
+		vlStyle^.bg[vlCnt].Green := ParColor.green shr 16;
+		vlStyle^.bg[vlCnt].blue := ParColor.Blue shr 16;
+		gtk_style_set_background(vlStyle,ParWidget^.window,vlCnt as TGtkStateType);
+	end;
+	gtk_widget_set_style(ParWidget,vlStyle);
+end;
+
+
+procedure TInterInterface.SetFgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+begin
+	gtk_setfgcolor(ParWidget^.vrFgWidget,ParColor);
+end;
+
+procedure TInterInterface.gtk_setfgcolor(ParWidget : PGtkWidget;const ParColor : TColor);
+var
+	vlStyle : PGtkStyle;
+	vlCnt : long;
+	vlColor : TGdkColor;
+begin
+	vlStyle := gtk_widget_get_style(ParWidget);
+	vlStyle := gtk_style_copy(vlStyle);
+	count vlCnt from 0 to 4 do begin
+		vlStyle^.fg[vlCnt].red := ParColor.red shr 16;
+		vlStyle^.fg[vlCnt].Green := ParColor.green shr 16;
+		vlStyle^.fg[vlCnt].blue := ParColor.Blue shr 16;
+		gtk_style_set_background(vlStyle,ParWidget^.window,vlCnt as TGtkStateType);
+	end;
+	gtk_widget_set_style(ParWidget,vlStyle);
+end;
+
+procedure TInterInterface.SetToolTip(ParWidget : PWidgetHandle;const ParText : string);{todo veranderen in TString?}
+var
+	vlText : string;
+	vlText2 : string;
+begin
+	vlText := ParText;
+	vlText[ParText.length + 1] := (0 as char);
+	vlText2[1] := (0 as char);
+	gtk_tooltips_set_tip(tooltips,ParWidget^.vrFgWidget,@vlText[1],@vlText2[1]);
+end;
+
+procedure TInterInterface.GetToolTip(ParWidget : PWidgetHandle;var ParText : string);
+var
+	vlData : PGtkToolTipsData;
+begin
+	vlData := gtk_tooltips_data_get(ParWidget^.vrDrawWidget);
+	if vlData <> nil then begin
+		ParText := (vlData^.tip_text as PAsc)^;
+	end else begin
+		ParText.length := 0;
+	end;
+end;
+
+
+procedure TInterInterface.ClearWidget(ParWidget : PWidgetHandle);
+begin
+	gtk_widget_queue_clear(ParWidget^.vrDrawWidget);
+end;
+
+procedure TInterInterface.ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);
+begin
+	gtk_widget_queue_clear_area(ParWidget^.vrDrawWidget,ParX,ParY,ParW,ParH);
+end;
+
+
+procedure TInterInterface.Show(ParWidget :  PWidgetHandle;ParShow : boolean);
+begin
+	if ParShow then gtk_widget_show_now(ParWidget^.vrDrawWidget)
+				  else gtk_widget_hide(ParWidget^.vrDrawWidget);
+end;
+
+
+procedure TInterInterface.SetTitle(ParWidget : PWidgetHandle;const ParTitle : string);
+var
+	vlTitle : asc;
+begin
+	vlTitle := ParTitle;
+	if ParWidget^.vrType = WT_Window then begin
+		gtk_Window_set_Title((ParWidget^.vrMainWidget) as PGtkWindow,(@vlTitle) as PGChar);
+	end else if ParWidget^.vrType=WT_Label then begin
+		gtk_label_Set_Text((ParWidget^.vrFgWidget) as PGtkLabel,(@vlTitle) as pChar);{TODO: in GTK+ unit Is defined as PChar should be PGCHar}
+	end else if ParWidget^.vrType=WT_Button then begin
+		SetButtonLabel(ParWidget,gtk_label_new((@vlTitle) as PChar));{TODO: in GTK+ unit it is defined as PChr not PGCHar}
+	end;
+
+end;
+
+procedure TInterInterface.SetPosition( ParWidget : PWidgetHandle;ParX,ParY : longint);
+begin
+	gtk_widget_set_uposition(ParWidget^.vrMainWidget,ParX,ParY);
+end;
+
+procedure TInterInterface.SetSize(ParWidget :PWidgetHandle;ParW,ParH : long);
+begin
+	if ParWidget^.vrType = WT_Window then begin
+		gtk_widget_set_uSize(ParWidget^.vrMainWidget,0,0);
+		gtk_Window_Set_Default_Size((ParWidget^.vrMainWidget) as PGtkWindow,ParW,ParH);
+	end else begin
+		gtk_widget_set_usize(ParWidget^.vrMainWidget,ParW,ParH);
+	end;
+end;
+
+
+{----( CreateInterWidget )-----------------------------------------------------------------------------}
+
+procedure TInterInterface.CreateInterWidget has protected SetSignal(ParSignalWidget : PGtkWidget;ParName : string;ParFunc : TGtkSignalFunc);
+var
+	vlName : asciiz size =256;
+begin
+	vlName := ParName;
+	writeln(ParName,'=>',ParSignalWidget as long);
+	gtk_signal_connect((ParSignalWidget) as PGtkObject,@vlName as pgchar , ParFunc,ParWidget);
+end;
+
+procedure TInterInterface.CreateInterWidget has protected SetParent(ParParent,ParWidget : PGtkWidget;ParX,ParY : longint);
+var
+	vlPacker : PGtkFixed;
+begin
+	if ParParent <>nil then begin
+		if (ParParent as PGtkObject)^.Klass^.TheType = Gtk_Fixed_Get_Type then begin
+			vlPacker :=(ParParent as pGtkFixed);
+		end else begin
+			vlPacker := (gtk_Container_children((ParParent) as PGtkContainer)^.data) as PGtkFixed;
+		end;
+		gtk_Fixed_Put(vlPacker,ParWidget,parX,ParY);
+	end;
+end;
+
+procedure TInterInterface.CreateInterWidget has protected SetWidgetEvents;
+begin
+	SetSignal(fWidget,'delete-event',(@EventDoDelete) as TGtkSignalFunc);
+	SetSignal(fWidget,'destroy',(@EventDoDestroy) as TGtkSignalFunc);
+	SetSignal(fWidget,'enter-notify-event',(@EventDoCrossing) as TGtkSignalFunc);
+	SetSignal(fWidget,'leave-notify-event',(@EventDoLeaving) as TGtkSignalFunc);
+	SetSignal(ParWidget^.vrDrawWidget,'expose-event',(@EventDoExpose) as TGtkSignalFunc);
+	SetSignal(fWidget,'key-press-event',(@EventDoKeyPressed) as TGtkSignalFunc);
+	SetSignal(fWidget,'size-allocate',(@EventAllocateChanged) as TGtkSignalFunc);
+end;
+
+procedure  TInterInterface.CreateInterWidget(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle);
+root;
+begin
+	fWidget := nil;
+	InitWidget;
+	if fWidget <> nil then begin
+		FinalizeWidget;
+      SetWidgetEvents;
+	end;
+end;
+
+procedure TInterInterface.CreateInterWidget has protected InitWidget;virtual;
+begin
+	ParWidget^.vrDrawWidget := nil;
+	ParWidget^.vrMainWidget := nil;
+	ParWidget^.vrFgWidget := nil;
+	ParWidget^.vrType := wt_Unkown;
+end;
+
+procedure TInterInterface.CreateInterWidget has protected GtkMoveWidget(ParWidget : PGtkWidget;ParX,ParY : longint);
+begin
+	Gtk_Widget_Set_uposition(ParWidget,ParX,ParY);
+end;
+
+procedure TInterInterface.CreateInterWidget has protected GtkSetSizeWidget(ParWidget : PGtkWidget;ParW,ParH : long);
+begin
+	Gtk_Widget_Set_USize(ParWidget,-1,-1);
+	Gtk_Widget_Set_USize(ParWidget,ParW,ParH);
+end;
+
+procedure  TInterInterface.CreateInterWidget has protected FinalizeWidget;virtual;
+begin
+	if ParParent <> nil then SetParent(ParParent^.vrDrawWidget,vlWidget,ParX,ParY);
+	Gtk_Widget_Set_USize(vlWidget,-1,-1);
+	GtkMoveWidget(vlWidget,ParX,ParY);
+	GtkSetSizeWidget(vlWidget,ParW,ParH);
+	Gtk_Widget_Set_Sensitive(vlWidget,1);
+	gtk_Widget_Show_all((vlWidget) as PGtkWidget);
+end;
+
+
+{----( CreateInterWindow )-----------------------------------------------------------------------}
+
+procedure TInterInterface.CreateInterWindow(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWidgetHandle;const ParTitle : string);
+inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+begin
+	inherited of main;
+end;
+
+procedure TInterInterface.CreateInterWindow has protected FinalizeWidget;override;
+begin
+	inherited FinalizeWidget;
+	Gtk_Widget_Set_uSize(fWidget,0,0);
+	gtk_window_set_default_size((fWidget) as PGtkWindow,ParW,ParH);
+end;
+
+procedure TInterInterface.CreateInterWindow has protected InitWidget;override;
+var
+	vlFixed : PGtkWidget;
+	vlTitle  : Asc;
+begin
+	vlTitle := ParTitle;
+	fWidget := gtk_window_new(gtk_window_dialog);
+	vlFixed := Gtk_Fixed_New;
+	gtk_container_add((fWidget) as PGtkContainer,vlFixed);
+	gtk_Window_Set_Title((fWidget) as PGtkWindow,(@vlTitle) as PGChar);
+	ParWidget^.vrType := WT_Window;
+	ParWidget^.vrMainWidget := fWidget;
+	ParWidget^.vrPrivateSize := 0;
+	ParWidget^.vrDrawWidget := vlFixed;
+	ParWidget^.vrFgWidget   := vlFixed;
+	ParWidget^.vrPrivate := nil;
+end;
+
+{---( CreateInterLabel )---------------------------------------------------------------------------------------------}
+
+procedure TInterInterface.CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWidgetHandle;const ParTitle : string);
+inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+begin
+	inherited of main;
+end;
+
+
+procedure TInterInterface.CreateInterLabel has protected InitWidget;override;
+var
+	vlTitle  : Asc;
+	vlLabel  : PGtkWidget;
+begin
+	vlTitle[1]:= (0 as char);
+	fWidget := gtk_event_box_new;
+	vlLabel := gtk_Label_new((@vlTitle));
+	gtk_container_add((fWIdget) as PGtkContainer,vlLabel);
+	vlTitle := ParTitle;
+	gtk_label_parse_uline((vlLabel) as PGtkLabel,(@vlTitle) as PGChar);
+	ParWidget^.vrType 		 := WT_Label;
+	ParWidget^.vrMainWidget  := fWidget;
+	ParWidget^.vrPrivateSize := 0;
+	ParWidget^.vrDrawWidget  := fWidget;
+	ParWidget^.vrFgWidget    := vlLabel;
+	ParWidget^.vrPrivate		 := nil;
+end;
+
+
+{---( CreateInterButton )----------------------------------------------------------------------------------}
+procedure TInterInterface.CreateInterButton(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWidgetHandle;const ParTitle : string);
+inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+begin
+	inherited of main;
+end;
+
+
+
+procedure TInterInterface.CreateInterButton has protected InitWidget;override;
+var
+	vlTitle  : Asc;
+	vlEvent  : string;
+begin
+	vlTitle := ParTitle;
+	fWidget := gtk_Button_new_with_label((@vlTitle) as pGChar);
+	ParWidget^.vrType := WT_Button;
+	ParWidget^.vrMainWidget  := fWidget;
+	ParWidget^.vrPrivateSize := 0;
+	ParWidget^.vrDrawWidget  := fWidget;
+	ParWidget^.vrFgWidget    := (fWidget as pGtkButton)^.child;
+	ParWidget^.vrPrivate := nil;
+	SetSignal(fWidget,'motion-notify-event'  , (@DoMouseEvents) as TGtkSignalFunc);
+	SetSignal(fWidget,'pressed',(@EventDoPressed) as TGtkSignalFunc);
+	SetSignal(fWidget,'released',(@EventDoRelease) as TGtkSignalFunc);
+end;
+
+{----( CreateInterLineEdit )-----------------------------------------------------------------}
+
+function TInterInterface.GetEditText(ParWidget : PWidgetHandle;ParFrom,ParTo : longint) : TString;
+var
+	vlAsc  : PAsc;
+	vlValue : TString;
+begin
+	if ParWidget^.vrType = WT_LineEdit then begin
+		vlAsc := (Gtk_Editable_Get_chars((ParWidget^.vrMainWidget) as PGtkEditable,ParFrom,ParTo)) as PAsc;
+      vlValue := TString.Create(vlAsc^);
+		g_free(vlAsc);
+		exit(vlValue);
+	end;
+	exit(nil);
+end;
+
+
+procedure TInterInterface.CreateInterLineEdit(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+inherit CreateInterWidget(ParX,ParY,ParW,ParH,ParParent,ParWidget);
+begin
+	inherited of main;
+end;
+
+procedure TInterInterface.CreateInterLineEdit has protected InitWidget;override;
+var
+	vlTitle : Asc;
+begin
+	vlTitle := ParTitle;
+	fWidget := gtk_entry_new;
+	ParWidget^.vrType := WT_LineEdit;
+	ParWidget^.vrMainWidget := fWidget;
+	ParWidget^.vrPrivateSize:= 0;
+	ParWidget^.vrDrawWidget := fWidget;
+	ParWidget^.vrFgWidget := fWidget;
+	ParWidget^.vrPrivate := nil;
+end;
+
+
+{---( Main )--------------------------------}
+
+procedure TInterInterface.InterRun;
+begin
+	Gtk_main;
+	gtk_exit(0);
+end;
+
+procedure TInterInterface.InterInit;
+var
+	vlArgc : longint;
+	vlArg2 : array[0 to 1] of PAsc;
+	vlArg  : Asciiz size=255;
+	vlArgStr : string;
+	vlArgv  : PPASc;
+begin
+	vlArgc := 1;
+	GetArgument(0,vlArgStr);
+	vlArg := vlArgStr;
+	vlArg2[0] := @vlArg;
+	vlArg2[1] := nil;
+	vlArgv := (@vlArg2) as PPASC;
+	gtk_Init(@vlArgc,@vlArgv);
+	gtk_signal_init;
+	ToolTips         := gtk_tooltips_new;
+	gtk_tooltips_enable(TOolTips);
+end;
+
+
+begin
+end.

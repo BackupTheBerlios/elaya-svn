@@ -1,0 +1,9 @@
+var
+	vlCnt:word;
+begin
+	count vlCnt from 0 to 10 do write(vlCnt);
+	writeln;
+	count vlCnt from 0 to 10 step 2 do write(vlCnt);
+	writeln;
+	count vlCnt from 0 to 10 step vlCnt+1 do write(vlCnt);
+end.

@@ -1,0 +1,20 @@
+unit;
+uses interface,twidget,guitypes,values;
+public
+
+type TEdit=class inherit TWidget
+		public
+			procedure GetValue(var ParValue : TString);
+
+     end;
+
+
+end public
+
+
+procedure TEdit.GetValue(var ParValue : TString);
+begin
+	ParValue := vgInterface.GetEditText(Handle,0,-1);
+end;
+
+end.

@@ -1,0 +1,325 @@
+PRODUCTIONS
+
+RBreak<var ParNode : TNodeIdent>=
+IBreak				(. AddBreakNode(ParNode);.)
+.
+
+RContinue<var ParNode : TNodeIdent>=
+IContinue			(. AddContinueNode(ParNode);.)
+.
+
+RWrite:"write statement"<ParNode:TNodeIdent>
+(.
+var
+	vlWritelnFlag:boolean;
+	vlNl      : TDefinition;
+	vlRoutine : TDefinition;
+	vlOwner   : TDefinition;
+	vlExpr    : TFormulaNode;
+	vlName    : string;
+	vlNode    : TCallNode;
+.)
+=
+(.
+	vlWritelnFlag := false;
+	vlNl          := nil;
+.)
+
+((
+  IWrite
+|(IWriteln
+  (.
+	vlWritelnFlag := true;
+  .)
+)
+)
+[
+(.
+	fNDCreator.GetWriteProc(false,vlRoutine,vlOwner);
+.)
+"(" RParam<vlExpr,vlName>   (. HandleWriteStatement(vlExpr,vlName,vlRoutine,vlOwner,ParNode); .)
+{ "," RParam<vlExpr,vlName> (. HandleWriteStatement(vlExpr,vlName,vlRoutine,vlOwner,ParNode); .)
+}
+")"
+]
+
+
+)
+(.
+  if vlWritelnFlag then begin
+	if fNDCreator.GetWriteProc(true,vlNl,vlOwner) then begin
+		vlNode := TCallNode(vlNl.createExecuteNode(fNDCreator,vlOwner));
+		AddNodeToNode(ParNode,vlNode);
+	end;
+  end;
+.)
+
+.
+
+
+
+RIncDec:"increment/decrement statement"<var ParNode : TNodeIdent>
+(.
+var
+	vlNode 		: TIncDecNode;
+	vlIncrNode  : TFormulaNode;
+	vlValueNode : TFormulaNode;
+	vlIncFlag   : boolean;
+.)
+
+=
+(.
+	vlValueNode := nil;
+.)
+( ((IInc		(. vlIncFlag := true; .))
+ |(IDec     (. vlIncFlag := false;.))
+ )  RFormula<vlIncrNode>
+ (
+  ( (IWith  RFormula<vlValueNode>)
+  | (. vlValueNode := TFormulaNode(fNDCreator.CreateIntNodeLong(1)); .))
+ ))
+  (.ParNode := TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode);.)
+.
+
+(*			Program Flow					*)
+
+
+RExit<var ParNode:TNodeIdent>
+(.
+   var
+	vlExp : TFormulaNode;
+.)
+=
+(.
+	vlExp := nil;
+.)
+
+IExit ["(" RFormula<vlExp> ")"]
+(.
+	ParNode := CreateExitNode(vlExp);
+.)
+.
+
+
+RWhile<var ParNode:TNodeIdent>
+(.
+ var
+    vlCond : TFormulaNode;
+ .)
+=
+IWhile RFormula<vlCond>
+(.
+	ParNode := TWhileNode.Create;
+	TWhileNode(ParNode).SetCond(fNDCreator,vlCond);
+	fNDCreator.AddCurrentNode(ParNode);
+.)
+IDo RCode<ParNode>
+(. fNDCreator.EndNode; .)
+.
+
+
+RCount:"count statement"<var ParNode:TNodeIdent>
+
+(.
+ var
+	vlN1,vln2,vlN3,vlN4:TFormulaNode;
+	vlNode : TCountNode;
+	vlUp   : boolean;
+	vlEndCondition : TFormulaNode;
+.)
+=
+(.
+	vlN4   := nil;
+	vlNode := TCountNode.Create;
+	vlUp   := false;
+ .)
+ICount RFormula<vlN1>			(.  vlNode.SetCount(fNDCreator,vlN1); .)
+IFrom  RFormula<vlN2>			(.  vlNode.SetBegin(fNDCreator,vlN2); .)
+[((ITo					(.  vlUp := true; .))
+|(IDownTo				(.  vlUp := false; .)))
+							(.  vlNode.Setup(vlUp); .)
+RFormula<vlN3>				(.  vlNode.SetEnd(fNDCreator,vlN3); .)]
+[IStep RFormula<vlN4>]
+(.
+	if vlN4 = nil then vlN4 := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
+	vlNode.SetStep(fNDCreator,vlN4);
+	fNDCreator.AddCurrentNode(vlNode);
+.)
+[IUntil RExpr<vlEndCondition>
+	(.
+		vlNode.SetEndCondition(fNDCreator,vlEndCondition);
+	.)
+]
+
+[IDo RCode<vlNode>]
+(.
+	ParNode := vlNode;
+	fNDCreator.EndNode;
+ .)
+.
+
+
+
+RFor<var ParNode :TNodeIdent>
+(.
+	var
+		vlExpr : TFormulaNode;
+        vlNode : TForNode;
+.)
+=
+					(. vlNode := (TForNode.Create); .)
+IFor RFormula<vlExpr>                      (. vlNode.SetBegin(fNDCreator,vlExpr); .)
+IUntil RFormula<vlExpr>
+(.
+	vlNode.SetEnd(vlExpr);
+	fNDCreator.AddCurrentNode(vlNode);
+.)
+[IDo    RCode<vlNode>]
+(.
+	ParNode := vlNode;
+	fNDCreator.EndNode;
+ .)
+.
+
+
+
+RIf<var ParNode:TNodeIdent>
+(.
+	var
+		vlCond : TFormulaNode;
+		vlThen : TThenElseNode;
+.)
+=
+IIf RFormula<vlCond>
+(.
+	ParNode := TIfNode.Create;
+	TIfNode(ParNode).SetCond(fNDCreator,vlCond);
+	vlThen := TThenElseNode.Create(True);
+	ParNode.AddNode(vlThen);
+.)
+IThen	RCode<vlThen>
+[IElse
+(.
+	vlThen := TThenElseNode.Create(False);
+	ParNode.AddNode(vlThen);
+.)
+RCode<vlThen>
+]
+.
+
+
+RRepeat<var ParNode:TNodeIdent>
+				(. var vlCond:TFormulaNode; .)
+=
+IRepeat        			(. ParNode := TRepeatNode.Create;
+				   fNDCreator.AddCurrentNode(ParNode); .)
+{RCode<ParNode> ";"}
+IUntil RFormula<vlCond>
+(.
+	TRepeatNode(ParNode).SetCond(fNDCreator,vlCond);
+	fNDCreator.EndNode;
+.)
+.
+
+RLoad:"syntax"<var Parexp:TFormulaNode>
+(. var
+	vlName   : string;
+	vlDigiL  : TDigiItem;
+	vlDigiR  : TDigiItem;
+.)
+=
+(.
+	ParExp := nil;
+.)
+RExprDigi<vlDigiL>
+((
+":="  (. LexName(vlName); .)
+ RExprDigi <vlDigiR>
+	(.
+		if vlDigiL <> nil then ParExp := vlDigiL.CreateWriteNode(fNDCreator,vlDigiR);
+		if vlDigiR <> nil then vlDigiR.Destroy;
+	.))
+
+|( (.
+    if vlDigiL <> nil then ParExp :=TFormulaNode(vlDigiL.CreateExecuteNode(fNDCreator));
+	if (ParExp = nil) then ErrorText(Err_Cant_Execute,'');
+	.)
+))
+(.
+	if vlDigiL <> nil then vlDigiL.Destroy;
+.)
+.
+
+
+
+RLeave<ParNode : TNodeIdent>
+=
+ILeave  (. if ParNode <> nil then ParNode.AddNode(TLeaveNode.Create); .)
+.
+
+RCode:"code item"<ParNode:TNodeIdent>
+(.
+ var
+	vlNode     : TNodeIdent;
+	vlLineInfo : TNodeident;
+.)
+=
+(.
+    vlNode := nil;
+    if (GetConfigValues.fGenerateDebug) and (ParNode <> nil)  then begin
+    	vlLineInfo := TLineNumberNode.create;
+    	vlLineInfo.fLine := nextLine;
+		ParNode.AddNode(vlLineInfo);
+    end;
+.)
+
+(RLoad<TFormulaNode(vlNode)>
+|RAsmBlock<vlNode>
+|RBreak<vlNode>
+|RContinue<vlNode>
+|RFor<vlNode>
+|RCount<vlNode>
+|RWhile<vlNode>
+|RIf<vlNode>
+|RRepeat<vlNode>
+|RExit<vlNode>
+|RIncDec<vlNode>
+|RCodes<ParNode>
+|RLeave<ParNode>
+|RWrite<ParNode>)
+
+(.
+	if vlNode <> nil then AddNodeToNode(ParNode,vlNode);
+.)
+.
+
+
+
+
+RCodes<ParNode:TNodeIdent>
+(.
+	var
+		vlNode : TBlockNode;
+.)
+=
+IBegin
+	(.
+		vlNode := TBlockNode.Create;
+		AddNodeToNode(ParNode,vlNode);
+	.)
+
+	  { RCode<vlNode>";"}
+IEnd
+.
+
+RBlockOfCode<ParNode : TNodeIdent>
+=
+RCodes<ParNode>
+(.
+	if ParNode <> nil then ParNode.FinishNode(fNDCreator,true);
+.)
+.
+
+
+
+END.
