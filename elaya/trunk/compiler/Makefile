@@ -11,9 +11,9 @@ dep_rem=base/*.pas config/*.pas core/*.pas
 
 all: dep all_lib all_rem
 dep_lib: $(dep_lib)
-	eladep -m lib -i objects -i dos -i strings -i sysutils -p $(dep_lib) -u $(Dir_Cpl_Lib)/ -c LIB_FPC -s .pas -e $(pp_unit_ext) >dep_lib
+	$(eladep) -m lib -i objects -i dos -i strings -i sysutils -p $(dep_lib) -u $(Dir_Cpl_Lib)/ -c LIB_FPC -s .pas -e $(pp_unit_ext) >dep_lib
 dep_rem: $(dep_rem)
-	eladep -m rem -i objects -i dos -i strings -i sysutils -p $(dep_rem) -u $(Dir_Dirt)/ -c EXE_FPC -s .pas -e $(pp_unit_ext) >dep_rem
+	$(eladep) -m rem -i objects -i dos -i strings -i sysutils -p $(dep_rem) -u $(Dir_Dirt)/ -c EXE_FPC -s .pas -e $(pp_unit_ext) >dep_rem
 
 dep: dep_lib dep_rem
 
