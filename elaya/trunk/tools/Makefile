@@ -15,12 +15,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-.PHONY : all clean cfgc ver eladep
+.PHONY : all clean cfgc eladep
 
 all	: cfgc eladep
-
-ver	:
-	$(MAKE) all -Csupport
 
 cfgc	:
 	$(MAKE) all -Ccfgc
@@ -30,5 +27,4 @@ eladep	:
 
 clean	:
 	$(MAKE) clean -Ccfgc 
-	$(MAKE) clean -Csupport
 	$(MAKE) clean -Celadep
