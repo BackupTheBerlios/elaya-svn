@@ -43,6 +43,7 @@ type
 		function    CreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;virtual;
 		procedure   DestroyFramePointer;virtual;
 		function    GetContextName : string;
+
 	end;
 	
 	TMacAddressing=class(TAddressing)
@@ -52,7 +53,6 @@ type
 	public
 		function    CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;override;
 		constructor Create(ParOwner ,ParContext: TDefinition;ParMac : TMacbase;ParDestroy : boolean);
-		
 	end;
 	
 	TNodeAddressing=class(TAddressing)
@@ -78,7 +78,6 @@ type
 		function    CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;override;
 		constructor Create(ParMacOption : TMacCreateOption;ParOwner,ParContext,ParFrameVarContext : TDefinition;ParVar : TVarBase;ParDestroy:boolean);
 		procedure   DestroyFramePointer;override;
-		
 	end;
 	
 	TAddressingList=class(TList)
@@ -108,8 +107,8 @@ type
 	public
 		procedure SetShare(ParFrame : TFrame);
 		property  fPrevious  : TFrame          read voPrevious   write voPrevious;
-		property  fShare     : TFrame	       read voShare	 write  SetShare;
-		property  fFrameSize : TOffset	       read vOFrameSize;
+		property  fShare     : TFrame	         read voShare	 write  SetShare;
+		property  fFrameSize : TOffset	      read vOFrameSize;
 		
 		procedure AddAddressing(ParOwner,ParContext : TDefinition;ParVar  : TMacBase;ParDestroy : boolean);
 		procedure AddAddressing(ParOwner,ParContext,ParFrameVarContext : TDefinition;ParVar  : TVarBase;ParDestroy : boolean);
@@ -181,6 +180,8 @@ begin
 	inherited Create(ParOwner,ParContext,ParDestroy);
     iNode := ParNode;
 end;
+
+
 
 
 {--------( TFrameVariable )------------------------------------}
@@ -258,7 +259,6 @@ begin
 	end;
 end;
 
-
 procedure TAddressing.DestroyFramePointer;
 begin
 end;
@@ -300,9 +300,8 @@ begin
 			vlMac := CreateFramePointerMac(ParCre);
 		end else begin
 			vlMac   := CreateMac(MCO_Result,ParCre,ParOffset,ParSize,ParSign);
-			vlMac2  := TMemOfsMac.Create;
+			vlMac2  := TMemOfsMac.Create(vlMac);
 			ParCre.AddObject(vlMac2);
-			vlMac2.SetSourceMac(vlMac);
 			vlMac   := vlMac2;
 		end;
 	end;
@@ -350,6 +349,7 @@ procedure TVarAddressing.DestroyFramePointer;
 begin
 	fFrameVar.Destroy;
 end;
+
 
 {---( TAddressingList )------------------------------------------------------------}
 

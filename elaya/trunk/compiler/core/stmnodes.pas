@@ -317,7 +317,7 @@ begin
 		iReturnInstruction.Print(ParDis);
 		ParDis.SetLeftMargin(-3);
 		ParDis.nl;
-		ParDis.Writenl('</expression');
+		ParDis.Writenl('</expression>');
 	end;
 	ParDis.Writenl('</exit>');
 end;
@@ -965,7 +965,7 @@ end;
 
 procedure TBreakNode.Print(parDis:TDisplay);
 begin
-	ParDis.Writenl('<Break></break>');
+	ParDis.Writenl('<break></break>');
 end;
 
 procedure TBreakNode.Commonsetup;
@@ -985,7 +985,7 @@ end;
 
 procedure TContinueNode.PRint(parDis:TDisplay);
 begin
-	ParDis.write('<Continue></continue>');
+	ParDis.write('<continue></continue>');
 end;
 
 procedure TContinueNode.Commonsetup;
@@ -1085,7 +1085,7 @@ end;
 procedure TLeaveNOde.PrintNode(ParDis:TDisplay);
 begin
 	ParDis.Write('<leave>');
-	ParDis.Writenl('</lave>');
+	ParDis.Writenl('</leave>');
 end;
 {----( TAsmNode )-------------------------------------------------------------}
 
@@ -1099,11 +1099,11 @@ end;
 
 procedure TAsmNode.Print(parDis:TDisplay);
 begin
-	ParDis.writeNl('<ASM>');
+	ParDis.writeNl('<asm>');
 	ParDis.SetLeftMargin(4);
 	PARDIS.WriteRaw(iText,iSize);
 	ParDis.SetLeftMargin(-4);
-	ParDis.writeNl('<END>');
+	ParDis.writeNl('</asm>');
 end;
 
 constructor TAsmNode.Create(ParSize : TSize;ParText:pointer);

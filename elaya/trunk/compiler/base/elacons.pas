@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elaya language
+{  5;3~  Elaya, the compile5;3~5;3~5;3~r for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -479,7 +479,8 @@ RTM_Change_After_Lock := 8,
 RTM_Inherit_Final     := 9,
 RTM_Isolate           := 10,
 RTM_Abstract          := 11,
-RTM_Exact_Overload    := 12
+RTM_Exact_Overload    := 12,
+RTM_Write_Mode        := 13
 );
 TRoutineModes=set of TRoutineMode;
 
@@ -525,11 +526,14 @@ DT_Routine   := 8,
 DT_Meta	   := 9,
 DT_Ptr_Meta  := 10,
 DT_Default   := 11,
-DT_New	   := 12      );
+DT_New		 := 12,
+DT_Const_Pointer := 13,
+DT_Max := 14
+      );
 TDefaultTypes=set of TDefaultTypeCode;
 const
-DT_Description:array[DT_Nothing..DT_Default] of string[15]
-=('Nothing','Boolean','Char','String','Number','asciiz','Void','Pointer','Routine','Meta','Ptr Meta','Defualt');
+DT_Description:array[DT_Nothing..DT_Max] of string[15]
+=('Nothing','Boolean','Char','String','Number','asciiz','Void','Pointer','Routine','Meta','Pointer to Meta','Defualt','New','Constant Pointer','Dummy max');
 
 type      TDatType=(
 DAT_Abstract	    := 0,

@@ -1392,6 +1392,7 @@ begin
       vlIsolate     : boolean;
       vlHasMain     : boolean;
       vlIsAbstract  : boolean;
+      vlIsWrite     : boolean;
       
       begin
              
@@ -1405,6 +1406,10 @@ begin
             vlHasMain  := false;
             vlIsAbstract := false;
             ;
+            if (GetSym = 97) then begin
+                  _IWrite;
+                    vlIsWrite := true; ;
+            end;
             if (GetSym = 68) then begin
                   _RProcedureHead( vlDef,vlHasses);
             end
@@ -1496,7 +1501,7 @@ begin
             	vlDef.GetTextStr(vlName);
             	verbose(VRB_Procedure_Name,'** Procedure name  :'+vlName);
             	if (ParForward) and (vlDef <> nil) then vlDef.SignalForwardDefined;
-            	ParRoutine := ProcessRoutineItem(vlDef,vlIsolate,vlROotCb,vlInhFinal,vlInherit,vlParentName,vlVirtual,vlOverload,vlIsAbstract);
+            	ParRoutine := ProcessRoutineItem(vlDef,vlIsolate,vlROotCb,vlInhFinal,vlInherit,vlParentName,vlVirtual,vlOverload,vlIsAbstract,vlIsWrite);
             ;
             if (GetSym = 48) then begin
                   _IHas;
@@ -1532,7 +1537,7 @@ begin
                               88 : begin
                                     _RTypeBlock;
                               end;
-                              28, 33, 47, 63, 68 : begin
+                              28, 33, 47, 63, 68, 97 : begin
                                     _RRoutineForward;
                               end;
                                else begin
@@ -2165,6 +2170,7 @@ begin
        var
       vlIdent    : string;
       vlType     : TType;
+      vlPtrType  : TPtrType;
       vlDefType  : TDefaultTypeCode;
       vlAdded    : boolean;
       
@@ -2208,11 +2214,13 @@ begin
                                       HandleDefaultType(vlDefType,DT_Default,[DT_Boolean]); ;
                               end;
                               74 : begin
-                                    _RPtrTypeDecl( vlType,true );
+                                    _RPtrTypeDecl( vlPtrType,true );
                                      
-                                             if vlDefType = DT_Meta then vlDefType := DT_Ptr_Meta;
-                                    							 HandleDefaultType(vlDefType,DT_Pointer,[DT_Asciiz,DT_Ptr_Meta,DT_Pointer]);
-                                          				 ;
+                                    										vlType := vlPtrType;
+                                         if (vlDefType=DT_Default) and (vlPtrType.fConstFlag) then vlDefType := DT_Const_Pointer;
+                                          if vlDefType = DT_Meta then vlDefType := DT_Ptr_Meta;
+                                    						 				HandleDefaultType(vlDefType,DT_Pointer,[DT_Const_Pointer,DT_Ptr_Meta,DT_Pointer]);
+                                    	   				 ;
                               end;
                               84 : begin
                                     _RStringTypeDecl( TStringType(vlType));
@@ -3865,7 +3873,7 @@ begin
                    else if (GetSym = 94) then begin
                         _RVarBlock;
                   end
-                   else if (GetSym in [28 , 33 , 47 , 63 , 68]) then begin
+                   else if vgDynSet[17].isSet(GetSym) then begin
                         _RRoutine;
                   end
                    else if (GetSym = 42) then begin
@@ -3951,7 +3959,7 @@ begin
              
             ParType := nil;
             ;
-            if vgDynSet[17].isSet(GetSym) then begin
+            if vgDynSet[18].isSet(GetSym) then begin
                   if (GetSym = 1) then begin
                         _RH_Type( ParType);
                   end
@@ -4356,9 +4364,10 @@ begin
                   		138: ParErr :='Invalid routine name:"PRIVATE","PROTECTED","(",":",";" expec'
                   			+'ted';
                   		139: ParErr :='Invalid property definition:"READ","WRITE" expected';
-                  		140: ParErr :='Invalid class definition:"VAR","TYPE","PUBLIC","PRIVATE","PR'
-                  			+'OTECTED","PROPERTY","PROCEDURE","OPERATOR","INHERIT","FUNCTI'
-                  			+'ON","END","DESTRUCTOR","CONSTRUCTOR","CONST",";" expected';
+                  		140: ParErr :='Invalid class definition:"WRITE","VAR","TYPE","PUBLIC","PRIV'
+                  			+'ATE","PROTECTED","PROPERTY","PROCEDURE","OPERATOR","INHERIT"'
+                  			+',"FUNCTION","END","DESTRUCTOR","CONSTRUCTOR","CONST",";" exp'
+                  			+'ected';
                   		141: ParErr :='Invalid type declaration:"NUMBER",identifier,"VOIDTYPE","CHA'
                   			+'RTYPE","ENUM","PTR","STRING","ASCIIZ","UNION","VIRTUAL","OVE'
                   			+'RRIDE","ISOLATE","CLASS","RECORD" expected';
@@ -4405,22 +4414,23 @@ begin
       const
       vgSetFill0:ARRAY[1..1] of cardinal=(0);
       vgSetFill1:ARRAY[1..15] of cardinal=(1,2,3,4,5,6,52,58,60,67,83,103,105,106,118);
-      vgSetFill2:ARRAY[1..6] of cardinal=(1,28,33,47,63,68);
+      vgSetFill2:ARRAY[1..7] of cardinal=(1,28,33,47,63,68,97);
       vgSetFill3:ARRAY[1..6] of cardinal=(108,112,113,114,115,116);
       vgSetFill4:ARRAY[1..30] of cardinal=(1,2,3,4,5,6,17,20,23,29,30,31,41,43,45,49,50,52,58,60,67,77,83,97,98,100,103,105,106,118);
-      vgSetFill5:ARRAY[1..12] of cardinal=(27,28,33,47,54,63,68,70,71,72,88,94);
+      vgSetFill5:ARRAY[1..13] of cardinal=(27,28,33,47,54,63,68,70,71,72,88,94,97);
       vgSetFill6:ARRAY[1..8] of cardinal=(2,3,4,5,6,25,105,106);
       vgSetFill7:ARRAY[1..120] of cardinal=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121);
-      vgSetFill8:ARRAY[1..14] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,88,94);
-      vgSetFill9:ARRAY[1..12] of cardinal=(27,28,33,47,63,68,70,71,72,73,88,94);
+      vgSetFill8:ARRAY[1..15] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,88,94,97);
+      vgSetFill9:ARRAY[1..13] of cardinal=(27,28,33,47,63,68,70,71,72,73,88,94,97);
       vgSetFill10:ARRAY[1..16] of cardinal=(1,15,18,21,25,26,39,53,59,66,74,76,84,90,95,99);
       vgSetFill11:ARRAY[1..14] of cardinal=(1,18,25,26,39,53,59,66,74,76,84,90,95,99);
       vgSetFill12:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
       vgSetFill13:ARRAY[1..7] of cardinal=(1,2,3,4,5,6,25);
-      vgSetFill14:ARRAY[1..10] of cardinal=(28,33,47,63,68,70,71,72,88,94);
+      vgSetFill14:ARRAY[1..11] of cardinal=(28,33,47,63,68,70,71,72,88,94,97);
       vgSetFill15:ARRAY[1..6] of cardinal=(1,2,6,24,25,103);
-      vgSetFill16:ARRAY[1..9] of cardinal=(27,28,33,42,47,63,68,88,94);
-      vgSetFill17:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
+      vgSetFill16:ARRAY[1..10] of cardinal=(27,28,33,42,47,63,68,88,94,97);
+      vgSetFill17:ARRAY[1..6] of cardinal=(28,33,47,63,68,97);
+      vgSetFill18:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
       
       
       procedure TELA_Parser.Commonsetup;
@@ -4450,6 +4460,7 @@ begin
                   vgDynSet[15].SetByArray(vgSetFill15);
                   vgDynSet[16].SetByArray(vgSetFill16);
                   vgDynSet[17].SetByArray(vgSetFill17);
+                  vgDynSet[18].SetByArray(vgSetFill18);
             end;
       end;
 end

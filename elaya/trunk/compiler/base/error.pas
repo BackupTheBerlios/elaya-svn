@@ -157,7 +157,7 @@ const
 	Err_Must_Isolate              = 1139;
 	Err_Invalid_Public_Type       = 1140;
 	Err_Ordinal_Type_Expected     = 1141;
-	Err_abstract_routine         = 1142;
+	Err_abstract_routine          = 1142;
 	Err_Routine_Is_Not_vir_or_Ext = 1143;
 	Err_No_Main_For_Abstr_fun     = 1144;
 	Err_Glob_Exists_in_dep_units  = 1145;
@@ -171,23 +171,23 @@ const
 	Err_Methode_Expected          = 1153;
 	Err_CDTor_only_in_class       = 1154;
 	Err_Cant_Find_Routine         = 1155;
-	Err_CD_Must_Be_Public	 	  = 1156;
-	Err_CD_Cant_be_Isolated		  = 1157;
-	Err_Cant_Find_Parameter     = 1158;
-	Err_Not_A_Class_Method		  = 1159;
+	Err_CD_Must_Be_Public	 	   = 1156;
+	Err_CD_Cant_be_Isolated		   = 1157;
+	Err_Cant_Find_Parameter       = 1158;
+	Err_Not_A_Class_Method		   = 1159;
 	Err_Ovr_different_kind_obj    = 1160;
 	Err_Parent_not_over_ident     = 1161;
-	Err_Not_A_Class				  = 1162;
+	Err_Not_A_Class				   = 1162;
 	Err_Wrong_Access_Level        = 1163;
 	Err_Recrusive_Call_in_prop    = 1164;
 	Err_Type_Differes_from_prop   = 1165;
 	Err_Wrong_Kind_ident_for_prop = 1166;
 	Err_Property_Routine_Overl    = 1167;
 	Err_Parent_class_incompleet   = 1168;
-	Err_Cant_use_cur_property      = 1169;
+	Err_Cant_use_cur_property     = 1169;
 	Err_Dep_Less_Public           = 1170;
 	Err_Nested_Require_Isolate    = 1171;
-	Err_Def_Class_Incompleet    = 1172;
+	Err_Def_Class_Incompleet      = 1172;
 	Err_Cant_Use_Const_From_OBj   = 1173;
 	Err_Duplicate_Main_Keyword    = 1174;
 	Err_Forward_No_Main           = 1175;
@@ -196,6 +196,7 @@ const
 	Err_Abs_cant_have_main        =1182;
 	Err_Vir_ch_Par_has_zu_Size    =1183;
 	Err_Array_Expected            =1184;
+	Err_Write_Rtn_Only_In_V_Class = 1185;
 
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
@@ -657,7 +658,7 @@ begin
 		Err_Write_Without_Read       : vlMsg := 'Previous value is not used';
 		Err_Write_Some_Without_Read  : vlMsg := 'Previous value is sometimes not used';
 		Err_Variable_Not_Used        : vlMsg := 'Variabel is not used';
-
+		Err_Write_Rtn_Only_In_V_Class: vlmsg := 'Write routine can only be used in value classes';
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';
 		Err_int_Wrong_Enum_List      : vlMsg := 'Internal error : Wrong enumiration list';

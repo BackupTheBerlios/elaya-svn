@@ -634,22 +634,19 @@ end;
 
 function  TLabelNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var vlName : string;
-	vlMac  : TMemOfsMac;
-	vlMac2 : TMacBase;
+	vlMac : TMacBase;
 begin
 	if ParOpt = MCO_Result then begin
 		GetName(vlName);
-		vlMac2 := TLabelMac.Create(vlName,GetTypeSize);
-		ParCre.AddObject(vlMac2);
+		vlMac := TLabelMac.Create(vlName,GetTypeSize);
+		ParCre.AddObject(vlMac);
 	end else if ParOpt in [mco_ValuePointer,MCO_ObjectPointer] then begin
-		vlMac := TMemOfsMac.Create;
-		vlMac.SetSourceMac(DoCreateMac(MCO_Result,ParCre));
-		vlMac2 := vlMac;
-		ParCre.AddObject(vlMac2);
+		vlMac := TMemOfsMac.Create(DoCreateMac(MCO_Result,ParCre));
+		ParCre.AddObject(vlMac);
 	end else begin
-		vlMac2 := inherited DoCreateMac(ParOpt,ParCre);
+		vlMac := inherited DoCreateMac(ParOpt,ParCre);
 	end;
-	exit(vlMac2);
+	exit(vlMac);
 end;
 
 
@@ -871,8 +868,7 @@ begin
 		vlMac.SetSize(GetTypeSize);
 		vlMac.SetSign(iType.GetSign);
 		vlMac.AddExtraOffset(LargeToLongInt(vlNumOfs));
-		vlOut := TMemOfsMac.Create;
-		TMemOfsMac(vlOut).SetSourceMac(vlMac);
+		vlOut := TMemOfsMac.Create(vlMac);
 		ParCre.AddObject(vlOut);
 	end else if (vlOut = nil) and (ParOpt=MCO_Result) then begin
 		vlOut := vlFirst.CreateMac(MCO_Result,ParCre);
@@ -2458,10 +2454,13 @@ begin
 end;
 
 procedure TOperatorNode.PrintNode(ParDis:TDisplay);
-var vlStr:string;
+var
+	vlStr  : string;
+	vlName : string;
 begin
 	GetOperStr(vlStr);
-	ParDis.print(['<operator><kind>',vlStr,'</kind><operands>']);
+	OperatorToDesc(vlStr,vlName);
+	ParDis.print(['<operator><kind>',vlName,'</kind><operands>']);
 	iParts.Print(ParDis);
 	ParDis.print(['</operands></operator>']);
 end;

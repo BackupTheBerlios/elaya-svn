@@ -533,7 +533,7 @@ begin
 	inherited Print(PArDis);
 	ParDis.Writenl('<record>');
 	PrintParts(ParDis);
-	ParDis.Write('<record>');
+	ParDis.Write('</record>');
 	
 end;
 
@@ -840,8 +840,7 @@ begin
 	vlMac := nil;
 	if fType <> nil then begin
 		if ParOption = MCO_Result then begin
-			vlOfs := TMemOfsMac.Create;
-			vlOfs.SetSourceMac(fType.CreateConstantMac(MCO_Result,ParCre,ParValue));
+			vlOfs := TMemOfsMac.Create(fType.CreateConstantMac(MCO_Result,ParCre,ParValue));
 			ParCre.AddObject(vlOfs);
 			vlMac := vlOfs;
 		end else begin
@@ -1093,13 +1092,11 @@ begin
 	case ParOption of
 	MCO_Result:begin
 		str(vlLab,vlName);vlName := '.L'+vlName;
-		vlMac := TMemMac.Create(fSize,false);
-		TMemMac(vlMac).SetName(vlName);
+		vlMac := TMemMac.Create(fSize,false,vlName);
 		ParCre.AddObject(vlMac);
     end;
 	MCO_ValuePointer,MCO_ObjectPointer:begin
-		vlMac2 := TMemOfsMac.Create;
-		vlMac2.SetSourceMac(CreateConstantMac(MCO_Result,ParCre,ParValue));
+		vlMac2 := TMemOfsMac.Create(CreateConstantMac(MCO_Result,ParCre,ParValue));
 		ParCre.AddObject(vlMac2);
 		vlMac := vlMac2;
 	end else begin

@@ -1,4 +1,4 @@
-{    Elaya, the xcompiler for the elaya language
+{    Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web  : www.elaya.org
 
@@ -77,7 +77,8 @@ public
 	const ParParent : string;
 	ParVirtual      : TVirtualMode;
 	ParOverLoad     : TOverloadMode;
-	ParAbstract     : boolean
+	ParAbstract     : boolean;
+	ParWrite        : boolean
 	):TRoutine;
 	constructor Create(const ParFileName:string);
 	
@@ -451,7 +452,7 @@ begin
 		end;
 		GetNewAnonName(vlName);
 		vlDef := TProcedureObj.Create(vlName);
-		vlDef := ProcessRoutineItem(TRoutine(vlDef),false,true,false,false,'',vir_none,ovl_none,false);
+		vlDef := ProcessRoutineItem(TRoutine(vlDef),false,true,false,false,'',vir_none,ovl_none,false,true);
 	end else begin
 		fNDCreator.AddCurrentDefinition(vlDef);
 	end;
@@ -470,7 +471,7 @@ begin
 		else ErrorText(Err_Unkown_Ident,ParName);
 		GetNewAnonName(vlName);
 		vlDef := TProcedureObj.Create(vlName);
-		vlDef := ProcessRoutineItem(TRoutine(vlDef),false,true,false,false,'',vir_none,ovl_none,false);
+		vlDef := ProcessRoutineItem(TRoutine(vlDef),false,true,false,false,'',vir_none,ovl_none,false,true);
 	end else begin
 		if TRoutineCOllection(vlDef).IsOverloaded then ErrorText(Err_Is_Overloaded,ParName);
 		vlRoutine := TRoutineCOllection(vlDef).GetFirstRoutine;
@@ -596,7 +597,7 @@ end;
 function TEla_User.ProcessShortSubCB(ParRoutine : TRoutine) : TRoutineNode;
 var vlCblk : TRoutineNode;
 begin
-	ProcessRoutineItem(ParRoutine,false,false,false,false,'',VIR_Override,OVL_Type,false);
+	ProcessRoutineItem(ParRoutine,false,false,false,false,'',VIR_Override,OVL_Type,false,true);
 	vlCblk := TRoutineNode.Create(ParRoutine);
 	ParRoutine.fStatements := vlCblk;
 	exit(vlCblk);
@@ -690,11 +691,13 @@ var
 	vlParent     : TRoutine;
 	vlParentName : string;
 	vlParentOwner: TDefinition;
+	vlIsWrite : boolean;
 begin
 	vlRoutine := nil;
 	vlParent  := nil;
+	vlIsWrite := false;
 	if ParRoutine <> nil then begin
-		if not(ParRoutine.Can([CAN_Execute]) )then begin
+		if not(ParRoutine is TRoutine)then begin
 			SemError(ERR_Cant_Execute);
 		end else begin
 			ParRoutine.GetTextStr(vlParentName);
@@ -703,6 +706,8 @@ begin
 				SemError(Err_Invalid_Parameters);
 				exit(nil);
 			end else begin
+				vlIsWrite := RTM_Write_Mode in (vlParent.fRoutineModes);
+
 				if not((RTM_extended) in vlParent.fRoutineModes) then begin
 					ErrorText(Err_Rtn_Is_Not_extended,vlParentName);
 					exit(nil);
@@ -723,7 +728,7 @@ begin
 	
 	vlRoutine.SetRoutineModes([RTM_ShortDCode],true);
 	vlRoutine.AutoMaticCreateMapping;
-	ProcessRoutineItem(vlRoutine,false,false,true,true,vlParentName,vir_none,OVL_Type,false);
+	ProcessRoutineItem(vlRoutine,false,false,true,true,vlParentName,vir_none,OVL_Type,false,vlIsWrite);
 	exit(vlRoutine);
 end;
 
@@ -782,7 +787,8 @@ ParInherited    : boolean;
 const ParParent : string;
 ParVirtual      : TVirtualMode;
 ParOverload     : TOverloadMode;
-ParAbstract     : boolean
+ParAbstract     : boolean;
+ParWrite        : boolean
 ):TRoutine;
 var
 	vlRoutine      : TRoutine;
@@ -813,14 +819,17 @@ begin
 	vlExtended :=  (ParRootCB) or (ParInherited) ;
 	if ParAbstract then begin
 
-        if (vlMother <> nil) and (vlMother is TRoutine)  then begin
+ 		if (vlMother <> nil) and (vlMother is TRoutine)  then begin
 			if  (vlMother.GetRealOwner <> nil)  and  not(TRoutine(vlMother).IsVirtual) then  ErrorDef(Err_No_abs_nested_nonvir,ParRoutine);
     	end;
 
 		if  not(vlExtended) and (ParVirtual <> VIR_Virtual)  then ErrorDef(Err_Routine_Is_Not_Vir_Or_Ext,ParRoutine);
 		vlAttrib := vlAttrib + [RTM_Abstract];
 	end;
-
+  { if ParWrite then begin
+		if (vlMother = nil) or not(vlMother is TValueClassType) then ErrorDef(Err_Write_Rtn_Only_In_V_Class,ParRoutine);
+		vlAttrib := vlAttrib + [RTM_Write_Mode];
+	end;                }
 	if vlExtended then vlAttrib := vlAttrib + [RTM_Extended];
 	if ParInhFinal then vlAttrib := vlAttrib+[RTM_Inherit_Final];
 	if ParIsolate  then vlAttrib := vlAttrib+[RTM_Isolate];

@@ -65,18 +65,7 @@ var
 	vlStr  : string;
 begin
 	GetTextStr(vlStr);
-	if vlStr = '#' then ParName := 'fence' else
-	if vlStr = '=' then ParName := 'equal' else
-	if vlStr = '>' then ParName := 'bigger' else
-	if vlStr = '>=' then ParName := 'bigger_equal' else
-	if vlStr = '<'  then ParName := 'smaller' else
-	if vlStr = '<=' then ParName := 'smaller_equal' else
-	if vlStr = '<>' then ParName := 'notequal' else
-	if vlStr = ':=' then ParName := 'load' else
-	if vlStr = '+'  then ParName := 'add' else
-	if vlStr = '-'  then ParName := 'neg' else
-	if vlStr = '*'  then ParName := 'mul'
-    else ParName := vlStr;
+	OperatorToDesc(vlStr,ParName);
 end;
 
 end.

@@ -2000,17 +2000,16 @@ begin
 end;
 
 function TSubPocList.AddLabel:TLabelPoc;
-var vlLab:TLabelPoc;
+var
+	vlLab:TLabelPoc;
 begin
 	if (fTop <> nil) and ( TPocBase(fTop).fIdentCode = IC_LabelPoc)then begin
-		AddLabel := TLabelPoc(fTop)
-	end
-	else begin
+		vlLab := TLabelPoc(fTop)
+	end else begin
 		vlLab := CreateLabel;
 		AddSec(vlLab);
-		AddLabel := vlLab;
 	end;
-	
+	exit(vlLab);
 end;
 
 function  TSubPocList.Optimize:boolean;

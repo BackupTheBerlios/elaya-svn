@@ -305,6 +305,7 @@ RTypeDecl:"type declaration"
 (.var
 	vlIdent    : string;
 	vlType     : TType;
+	vlPtrType  : TPtrType;
 	vlDefType  : TDefaultTypeCode;
 	vlAdded    : boolean;
 .)
@@ -326,10 +327,12 @@ RIdent<vlIdent>
 |( RVoidTypeDecl<vlType>	      (. HandleDefaultType(vlDefType,DT_Void,[DT_Void]); .))
 |( RCharDecl<vlType>			      (. HandleDefaultType(vlDefType,DT_Char,[DT_Char]); .))
 |( REnum<vlType>                    (. HandleDefaultType(vlDefType,DT_Default,[DT_Boolean]); .))
-|( RPtrTypeDecl<vlType,true >		      (.
+|( RPtrTypeDecl<vlPtrType,true >		      (.
+																vlType := vlPtrType;
+                                                if (vlDefType=DT_Default) and (vlPtrType.fConstFlag) then vlDefType := DT_Const_Pointer;
                                                  if vlDefType = DT_Meta then vlDefType := DT_Ptr_Meta;
-												 HandleDefaultType(vlDefType,DT_Pointer,[DT_Asciiz,DT_Ptr_Meta,DT_Pointer]);
-					      				 .))
+												 				HandleDefaultType(vlDefType,DT_Pointer,[DT_Const_Pointer,DT_Ptr_Meta,DT_Pointer]);
+					   	   				 .))
 |( RStringTypeDecl<TStringType(vlType)>	      (. HandleDefaultType(vlDefType,DT_String,[DT_String]); .))
 |( RAsciizDecl<vlType>			      (. HandleDefaultType(vlDefType,DT_Asciiz,[DT_Asciiz]); .))
 |( RUnion<vltype>                             (. HandleDefaultType(vlDefType,DT_Default,[]); .))

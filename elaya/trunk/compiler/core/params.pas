@@ -160,9 +160,13 @@ type
 	private
 		voMeta 	    : TDefinition;
 		voMetaFrame  : TVarBase;
+		voConstant   : boolean;   {TODO Am Hack,save to unit file}
 		property iMeta : TDefinition read voMeta write voMeta;
 		property iMetaFrame : TVarBase read voMetaFrame write voMetaFrame;
+		property iConstant : boolean read voConstant write voConstant;
 	public
+		property fConstant : boolean read voConstant write voConstant;
+
 		property fMetaFrame : TVarBase read voMetaFrame;
 		constructor Create(const ParName : String;ParMeta : TDefinition;ParMetaFrame : TVarBase;ParFrame,ParOther : TFrame;ParType : TType;ParTranType : TParamTransferType;ParVirtual : boolean);
 		procedure   InitParameter(ParOwner : TDefinition);override;
@@ -1473,17 +1477,23 @@ end;
 
 function    TClassFrameParameter.Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOrgOwner : TDefinition) : TParameterVar;
 var
-	vlName : string;
-	vlNewType : TDefinition;
-	vlParam  : TParameterVar;
-	vlNewMeta : TMeta;
+	vlName       : string;
+	vlNewType    : TDefinition;
+	vlParam      : TClassFrameParameter;
+	vlNewMeta    : TMeta;
+   vlNewMetaPtr : TVarBase;
 begin
 	vlNewType := ParNewOwner;
    vlNewMeta := nil;
+	vlNewMetaPtr := nil;
 	while (vlNewType <> nil) and not(iType.IsParentof(vlNewType)) do vlNewType := vlNewType.GetRealOwner;
    if(iMeta <> nil) then vlNewMeta := TClassType(vlNewType).fMeta;
+	{TODO: Avoid 'is' test'}
+	if(vlNewType <> nil) then begin
+		if vlNewType is TObjectClassType then vlNewMetaPtr := TObjectClassType(vlNewType).fMetaPtr;
+	end;
 	GetTextStr(vlName);
-	vlParam := TClassFrameParameter.Create(vlName,vlNewMeta,TClassType(vlNewType).fMetaPtr,ParFrame,TClassType(vlNewType).fFrame,TType(vlNewType),fTranType,fIsVirtual);
+	vlParam := TClassFrameParameter.Create(vlName,vlNewMeta,vlNewMetaPtr,ParFrame,TClassType(vlNewType).fFrame,TType(vlNewType),fTranType,fIsVirtual);
 	vlParam.SetPosition(iSourcePosition);
 	vlParam.fRealPosition := iRealPosition;
 	vlParam.fIsInherited  := true;

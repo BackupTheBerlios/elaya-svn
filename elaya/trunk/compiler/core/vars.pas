@@ -192,13 +192,11 @@ begin
 	Case ParOpt  of
 		MCO_Result:begin
 			GetMangledName(vlStr);
-			vlMac := TMemMac.Create(iType.fSize,iType.GetSign);
-			TMemMac(vlMac).SetName(vlStr);
+			vlMac := TMemMac.Create(iType.fSize,iType.GetSign,vlStr);
 			ParCre.AddObject(vlMac);
 		end;
 		MCO_ValuePointer,MCO_ObjectPointer:begin
-			vlMac := TMemOfsMac.Create;
-			TMemOfsMac(vlMac).SetSourceMac(CreateMac(ParContext,MCO_Result,ParCre));
+			vlMac := TMemOfsMac.Create(CreateMac(ParContext,MCO_Result,ParCre));
 			ParCre.AddObject(vlMac);
 		end
 		else vlMac := inherited CreateMac(ParContext,ParOpt,ParCre);

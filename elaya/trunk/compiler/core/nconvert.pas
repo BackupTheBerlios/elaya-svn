@@ -86,8 +86,7 @@ begin
 	Case ParOpt of
 	MCO_Result: begin
 		vlMac := TResultMac.Create(iType.fSize,iType.GetSign);
-       ParCre.AddObject(vlMac);
-		vlMac.SetName(GetNewResNo);
+      ParCre.AddObject(vlMac);
 		vlPoc := PArCre.MakeLoadPoc(vlMac,GetPartByNum(1).CreateMac(MCO_Result,ParCre));
 		ParCre.AddSec(vlPoc);
 		exit(vlMac);

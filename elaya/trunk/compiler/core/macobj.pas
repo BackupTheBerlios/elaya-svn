@@ -1,4 +1,4 @@
-{    Elaslya, the ;compilerfor the elaya language
+{    Elaslya5;3~, the ;compilerfor the elaya language
 Copyright (C) 1999-2002  J.v.Iddekinge.
 Web   : www.elaya.org
 Email : iddekingej@lycos.com
@@ -106,7 +106,7 @@ protected
 	procedure  CommonSetup;override;
 public
 	property   fName : TString read voName;
-	procedure  SetName(const ParName:String);
+	constructor Create(ParSize:TSize;ParSign:boolean;const ParName : string);
 	procedure  fNameStr(var ParName:String);
 	function   IsSame(ParMac:TSecBase):boolean;override;
 	procedure  Print(parDis:TDisplay);override;
@@ -122,10 +122,8 @@ private
 	property   iSourceMac : TMacBase read voSourceMac write voSourceMac;
 	
 public
-	property    GetSourceMac:TMacBase read voSourceMac;
-	constructor Create;
+	constructor Create(ParSourceMac : TMacBase);
 	procedure   CommonSetup;override;
-	procedure   SetSourceMac(ParMac:TMacBase);
 	function    CreateResource(ParCre:TInstCreator):TResource;override;
 	function    CreatePtrResource(ParCre : TInstCreator):TResource;override;
 	function    CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;override;
@@ -193,7 +191,6 @@ private
 	property iName:longint read voName write voName;
 public
 	property  fName:longint read voname;
-	procedure SetName(ParName:longint);
 	function  IsSame(ParSec:TSecBase):boolean;override;
 	function  CreatePtrResource(ParCre : TInstCreator):TResource;override;
 	function  CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;override;
@@ -524,12 +521,6 @@ end;
 {---( TResultMac )----------------------------------------------------}
 
 
-
-procedure   TResultMac.SetName(ParName:longint);
-begin
-	iName := ParName;
-end;
-
 function    TResultMac.IsSame(ParSec:TSecBase):boolean;
 var vlMac:TMacBase;
 begin
@@ -564,8 +555,8 @@ end;
 procedure   TResultMac.CommonSetup;
 begin
 	inherited Commonsetup;
-	SetName(GetNewResNo);
-	iIdentCode := (IC_ResultMac);
+	iName := GetNewResNo;
+	iIdentCode := IC_ResultMac;
 end;
 
 procedure   TResultMac.Print(ParDis:TDisplay);
@@ -760,37 +751,32 @@ end;
 
 procedure TMemOfsMac.FreeStorage;
 begin
-	if GetSourceMac <> nil then GetSourceMac.FreeStorage;
+	if iSourceMac <> nil then iSourceMac.FreeStorage;
 end;
 
 
 procedure  TMemOfsMac.ReserveStorage(ParList:TTLVStorageList);
 begin
-	if GetSourceMac<> nil then GetSourceMac.ReserveStorage(ParList);
+	if iSourceMac<> nil then iSourceMac.ReserveStorage(ParList);
 end;
 
-constructor TMemOfsMAc.Create;
+constructor TMemOfsMAc.Create(ParSourceMac : TMacBase);
 begin
 	inherited Create(GetAssemblerInfo.GetSystemSize,false);
+	iSourceMac := ParSourceMac;
 end;
 
 procedure TMemOfsMac.Print(parDis:TDisplay);
 begin
 	ParDis.Write('Addr(');
-	if GetSourceMac <> nil then GetSourceMac.Print(parDis);
+	if iSourceMac <> nil then iSourceMac.Print(parDis);
 	ParDis.Write(')');
 end;
 
 procedure TMemOfsMac.CommonSetup;
 begin
 	inherited CommonSetup;
-	iSourceMac := nil;
 	iIdentCode := (IC_MemOfsMac);
-end;
-
-procedure TMemOfsMac.SetSourceMac(ParMac:TMacBase);
-begin
-	iSourceMac := ParMac;
 end;
 
 function TMemOfsMac.CreateResource(parCre:TInstCreator):TResource;
@@ -799,7 +785,7 @@ var
 begin
 	vlRes := ParCre.ReserveResourceByUse(self);
 	if vlRes = nil then begin
-		vlRes := GetSourceMac.CreatePtrResource(ParCre);
+		vlRes := iSourceMac.CreatePtrResource(ParCre);
 	end;
 	exit(vlRes);
 end;
@@ -815,7 +801,7 @@ end;
 function TMemOfsMac.CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;
 var vlMac : TResource;
 begin
-	vlMac := GetSourceMac.CreateResource(ParCre);
+	vlMac := iSourceMac.CreateResource(ParCre);
 	vlMac.SetSize(ParSize);
 	vlMac.SetSign(ParSign);
 	exit(vlMac);
@@ -840,19 +826,18 @@ end;
 procedure TMemMac.CommonSetup;
 begin
 	inherited COmmonSetup;
-	iName      := nil;
 	iIdentCode := IC_MemMac;
 end;
 
-procedure TMemMac.SetName(const ParName:String);
+constructor TMemMac.Create(ParSize:TSize;ParSign:boolean;const ParName : string);
 begin
-	if fName <> nil then fName.Destroy;
+	inherited Create(ParSize,ParSign);
 	iName := TString.Create(ParName);
 end;
 
 procedure TMemMac.fNameStr(var ParName:String);
 begin
-	fName.GetString(ParName);
+	iName.GetString(ParName);
 end;
 
 procedure TMemMac.Print(parDis:TDisplay);

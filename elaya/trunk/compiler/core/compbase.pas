@@ -130,6 +130,7 @@ type
 	function GetNextProcStabNo : cardinal;
 	procedure AddTextToTextList(var ParName : string;ParExtra : string);
 	function SizeToMax(ParSize : TSize) : cardinal;
+	procedure OperatorToDesc(Const ParName : string;var ParDesc : string);
 	
 implementation
 	uses asminfo;
@@ -484,6 +485,22 @@ end;
 procedure SetLabelBase(const ParName :string);
 begin
 	vgLabBase := ParName;
+end;
+
+
+procedure OperatorToDesc(Const ParName : string;var ParDesc : string);
+begin
+	if ParName = '#' then ParDesc := 'fence'          else
+	if ParName = '=' then ParDesc := 'equal'          else
+	if ParName = '>' then ParDesc := 'bigger'         else
+	if ParName = '>=' then ParDesc := 'bigger_equal'  else
+	if ParName = '<'  then ParDesc := 'smaller'       else
+	if ParName = '<=' then ParDesc := 'smaller_equal' else
+	if ParName = '<>' then ParDesc := 'notequal'      else
+	if ParName = ':=' then ParDesc := 'load'          else
+	if ParName = '+'  then ParDesc := 'add'           else
+	if ParName = '-'  then ParDesc := 'neg'           else
+	if ParName = '*'  then ParDesc := 'mul'           else ParDesc := ParName;
 end;
 
 begin

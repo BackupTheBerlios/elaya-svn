@@ -355,6 +355,7 @@ RRoutineHeader:"routine header"<var ParRoutine:TRoutine;ParForward:boolean;var P
 	vlIsolate     : boolean;
 	vlHasMain     : boolean;
 	vlIsAbstract  : boolean;
+	vlIsWrite     : boolean;
 .)
 =
 (.
@@ -369,6 +370,7 @@ RRoutineHeader:"routine header"<var ParRoutine:TRoutine;ParForward:boolean;var P
 	vlIsAbstract := false;
 .)
 
+[IWrite (. vlIsWrite := true; .)]
 (RProcedureHead<vlDef,vlHasses>
 |RFunctionHead<vlDef,vlHasses>
 |RConstructorHead<vlDef,vlHasses>
@@ -406,7 +408,7 @@ RRoutineHeader:"routine header"<var ParRoutine:TRoutine;ParForward:boolean;var P
 		vlDef.GetTextStr(vlName);
 		verbose(VRB_Procedure_Name,'** Procedure name  :'+vlName);
 		if (ParForward) and (vlDef <> nil) then vlDef.SignalForwardDefined;
-		ParRoutine := ProcessRoutineItem(vlDef,vlIsolate,vlROotCb,vlInhFinal,vlInherit,vlParentName,vlVirtual,vlOverload,vlIsAbstract);
+		ParRoutine := ProcessRoutineItem(vlDef,vlIsolate,vlROotCb,vlInhFinal,vlInherit,vlParentName,vlVirtual,vlOverload,vlIsAbstract,vlIsWrite);
 .)
 [IHas
 (.

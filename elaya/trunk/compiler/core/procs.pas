@@ -907,9 +907,11 @@ end;
 procedure TReturnRoutine.PrintDefinitionHeader(ParDis:TDisplay);
 begin
 	inherited PrintDefinitionHeader(ParDis);
-	ParDis.Write('<returntype>');
-	PrintIdentName(ParDis,fType);
-	ParDis.writenl('</returntype>');
+	if fType <> nil then begin
+		ParDis.Write('<returntype>');
+		PrintIdentName(ParDis,fType);
+		ParDis.writenl('</returntype>');
+	end;
 end;
 
 function TReturnRoutine.SaveItem(ParStream:TObjectStream):boolean;

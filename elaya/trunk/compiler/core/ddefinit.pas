@@ -636,9 +636,9 @@ procedure TDefinition.Print(ParDis:TDisplay);
 begin
 	ParDis.write('<identdef>');
 	PrintDefinitionHeader(ParDis);
-	ParDis.Write('<body>');
+	ParDis.Write('<block>');
 	PrintDefinitionBody(ParDis);
-	ParDis.Write('</body><end>');
+	ParDis.Write('</block><end>');
 	PrintDefinitionEnd(ParDis);
 	ParDis.Write('</end>');
 	ParDis.write('</identdef>');
