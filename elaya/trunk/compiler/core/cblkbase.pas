@@ -62,6 +62,7 @@ type
 			property    fFrame       : TFrame     read voFrame      write voFrame;
 
 
+   		function CanUseInherited : boolean;
 			procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 			procedure   SetRoutineName(const ParName : string);
 			constructor Create(const ParName : string);
@@ -194,6 +195,8 @@ type
 			
 			{Is function}
 			function   IsIsolated : boolean;override;
+			function   CanUseInherited :boolean;
+
 			{Is/Copare}
 			function   IsSameAsForward(ParCB : TDefinition;var ParText : string):boolean;override;
 			function   IsSameRoutine(ParProc:TRoutine;ParType : TParamCompareOptions):boolean;virtual;
@@ -816,6 +819,12 @@ type
 	function TRoutine.IsVirtual : boolean;
 	begin
 		exit([RTM_Virtual,RTM_Override] * iRoutineModes <> []);
+	end;
+
+
+	function TRoutine.CanUseInherited :boolean;
+	begin
+		exit(CanInherit or IsVirtual);
 	end;
 	
 	function    TRoutine.MustNameAddAsOwner:boolean;
@@ -1868,6 +1877,15 @@ type
 	end;
 	
 	{-----( TCallNode )-------------------------------------------}
+
+	function TCallNode.CanUseInherited : boolean;
+   begin
+		if iRoutineItem <> nil then begin
+			exit(iRoutineItem.CanUseInherited);
+		end ;
+		exit(false);
+	end;
+
 	procedure TCallNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	begin
 			inherited ValidateFormulaDefinitionUse(ParCre,AM_Execute,ParUseList);

@@ -53,6 +53,7 @@ type
 	protected
 		function   OptimizeThisNode(ParCre : TCreator;ParNode : TFormulaNode):TFormulaNode;
 		procedure Commonsetup;override;
+   	   function  IsSubNodesSec:boolean;override;
 
 	public
 
@@ -1032,6 +1033,12 @@ begin
 end;
 
 {----( TLoopCBNode )---------------------------------------------------------}
+
+
+function TLoopCBNode.IsSubNodesSec:boolean;
+begin
+	exit(true);
+end;
 
 function TLoopCBNode.OptimizeThisNode(ParCre : TCreator;ParNode : TFormulaNode) : TFormulaNode;
 var vlRepl : TFormulaNode;

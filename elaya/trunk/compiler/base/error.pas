@@ -95,7 +95,7 @@ const
 	Err_Ovr_No_Virtual_Found      = 1076;
 	Err_Cant_find_ptr_type        = 1077;
 	Err_Acc_Must_atl_Protected    = 1078;
-	Err_Cant_Inh_Non_virt_Rtn     = 1079;
+	Err_Cant_Inh_Non_virt_ext_Rtn     = 1079;
 	Err_Virt_Only_In_Ext_Rtn      = 1080;
 	Err_Ident_not_Parameter       = 1081;
 	Err_Var_Param_cant_be_vir     = 1082;
@@ -555,7 +555,7 @@ begin
 		Err_Ovr_No_Virtual_Found     : vlMsg := 'Can''t find virtual identifier to override';
 		Err_Cant_Find_Ptr_Type       : vlMSg := 'Can''t find pointer type';
 		Err_Acc_Must_atl_Protected   : vlMsg := 'Access must be  protected or more for virtual routine';
-		Err_Cant_Inh_Non_virt_Rtn    : vlMsg := 'Can''t inherit non virtual routine';  {?}
+		Err_Cant_Inh_Non_virt_ext_Rtn: vlMsg := 'Can''t inherit non virtual or extended routine';
 		Err_Virt_Only_In_Ext_Rtn     : vlMsg := 'Virtual parameter only allowed in a extended routine';
 		Err_Ident_not_Parameter      : vlMsg := 'Identifier is not a parameter';
 		Err_Var_Param_cant_be_vir    : vlMsg := '''var'' parameter can''t be virtual';

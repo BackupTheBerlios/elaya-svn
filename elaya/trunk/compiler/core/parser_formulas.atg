@@ -417,9 +417,8 @@ IInherited
 	RIdentObject<nil,vlDef,vlDigi,vlMention>
 	(.
 		vlOut := TIdentHookDigiItem.Create(vlDigi);
-        SetDigiPos(vlOut);
+      SetDigiPos(vlOut);
 		vlOut.fInheritLevel := vlLevel;
-
 	.)
 	[RParameters<vlOut>]
 

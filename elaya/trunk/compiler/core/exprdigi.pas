@@ -1264,6 +1264,8 @@ begin
 	if vlIsCallNode then begin
 		if(iInheritLevel <> 0) then begin
 			TCallNode(ParNode).GetRoutineNameStr(vlName);
+			if TCallNode(ParNode).CanUseInherited then ParCre.ErrorText(Err_Cant_Inh_Non_virt_ext_Rtn,vlName);
+
 			ParCre.GetPtrByObject(vlName,ParNode,vlOrgOwner,TDefinition(vlOrgRoutine));
 			vlOwner2 := vlOrgOwner;
 			if vlOrgRoutine <> nil then begin
