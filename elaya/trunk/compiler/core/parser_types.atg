@@ -260,7 +260,7 @@ ICharType ISize "=" RDirectCardinal<vlSize>
 
 
 
-RPtrTypeDecl<var ParType:TType;ParCanForward : boolean>
+RPtrTypeDecl:"pointer type declaration"<var ParType:TType;ParCanForward : boolean>
 (.
 var
 	vlName : string;
@@ -347,7 +347,6 @@ RIdent<vlIdent>
 (.
   if not vlAdded then fNDCreator.AddType(vlIdent,vlType);
   if vlType <> nil then begin
-	vlType.AfterDef(fNDCreator);
     if (vlDefType <> DT_Nothing) then begin
 		vlType.SetDefault(vlDefType);
 		fNDCreator.AddToDefault(vlType);
@@ -357,7 +356,7 @@ RIdent<vlIdent>
 .
 
 
-RAnonymousType<var ParTYpe : TType>
+RAnonymousType:"type declaration"<var ParTYpe : TType>
 =
 (. ParType := nil;.)
  ( RArrayTypeDef<ParType>
@@ -452,21 +451,23 @@ RClassType:"class definition"<const ParName : string;var ParType : TType>
 		vlPrvAccess  : TDefAccess;
 		vlVirtual    : TVirtualMode;
 		vlIsolate    : boolean;
+		vlOfValue    : boolean;
 .)
 =
 (.
 	EmptyString(vlParent);
 	vlVirtual := VIR_None;
 	vlIsolate := false;
+	vlOfValue := false;
 .)
 [IIsolate                 (. vlIsolate := true;.)]
 [(IVirtual                (. vlVirtual := VIR_Virtual; .))
 |(IOverride				  (. vlVirtual := VIR_Override; .))]
-IClass
+IClass  [ IOf IValue  (. vlOfValue := true; .)]
 ((
 		[IInherit RIdent<vlParent>]
                          (.
-                            ParType := CreateClassType(ParName,vlParent,vlVirtual,false,vlIsolate);
+                            ParType := CreateClassType(ParName,vlParent,vlVirtual,false,vlIsolate,vlOfValue);
                             vlPrvAccess := fNDCreator.fCurrentDefAccess;
                             fNDCreator.fCurrentDefAccess := AF_Private;
                          .)
@@ -489,7 +490,7 @@ IEnd
 )
 |
 ((.
-	ParType := CreateClassType(ParName,vlParent,vlVirtual,true,vlIsolate);
+	ParType := CreateClassType(ParName,vlParent,vlVirtual,true,vlIsolate,vlOfValue);
 .))
 )
 .

@@ -47,18 +47,30 @@ type
 		function  LoadItem(PArStr:TObjectStream):boolean;override;
 		procedure GetTextStr(var ParStr:String);
 		procedure SetText(const ParStr:string);
-		function  IsSameText(const ParStr : TString):boolean;virtual;
-		function  IsSameText(const ParStr : string):boolean;virtual;
+		function  IsSameText(const ParStr : TString):boolean;
+		function  IsSameText(const ParStr : string):boolean;
 	end;
 
 
 	TBaseDefinition=class(TTextIdent)
 	private
 		voDefinitionModes : TDefinitionModes;
+		voPos					: cardinal;
+		voCol					: cardinal;
+		voLine				: cardinal;
+
 	protected
 		property     iDefinitionModes : TDefinitionModes read voDefinitionModes write voDefinitionModes;
 		procedure Commonsetup;override;
+		property     iPos             : cardinal         read voPos             write voPos;
+		property     iCol					: cardinal			 read voCol					write voCol;
+		property     iLine				: cardinal			 read voLine				write voLine;
+	
 	public
+		property     fPos        : cardinal         read voPos             write voPos;
+		property     fCol			 : cardinal			 read voCol					write voCol;
+		property     fLine		 : cardinal			 read voLine				write voLine;
+
 		property	fDefinitionModes : TDefinitionModes read voDefinitionModes;
 		function 	LoadItem(ParStream :TObjectStream) : boolean;override;
     	function    SaveItem(ParStream :TObjectStream) : boolean;override;
@@ -66,9 +78,6 @@ type
 		function    GetErrorName : string;
 	end;
 	
-	TSecList=class(TSMList)
-		procedure Print(PArDis:TDisplay);virtual;
-	end;
 	
 	TSecBase=class(TSMListitem)
 	private
@@ -97,6 +106,9 @@ type
 		property    fCompiler:TCompiler_Base read voCompiler;
 		procedure   AddError(ParError:TErrorType;ParLine,ParCol,ParPos:Longint;const ParText:String);
 		procedure   AddWarning(ParError:TErrorType;ParLine,ParCol,ParPos:Longint;const ParText:String);
+		procedure 	AddDefinitionWarning(ParDef : TBaseDefinition;ParError : TErrorTYpe;const ParText:string);
+
+
 		constructor Create(ParCompiler:TCompiler_Base);
 		function    GetIntSize(ParInt:TNumber;var ParSize:TSize;var ParSign:boolean):boolean;
 		function    Successful:boolean;
@@ -293,6 +305,26 @@ end;
 		iCompiler.AddWarning(parError,ParLine,PArcol,ParPos,ParText);
 	end;
 
+
+	procedure TCreator.AddDefinitionWarning(ParDef : TBaseDefinition;ParError : TErrorTYpe;const ParText:string);
+	var
+		vlLine : cardinal;
+		vlCol  : cardinal;
+		vlPos  : cardinal;
+	begin
+		vlLine := 0;
+		vlPos  := 0;
+		vlCol  := 0;
+		if (ParDef <> nil) then begin
+			vlLine := ParDef.fLine;
+			vlPos  := ParDef.fPos;
+			vlCol  := ParDef.fCol;
+		end;
+
+		AddWarning(ParError,vlLine,vlCol,vlPos,ParText);
+	end;
+
+
 	constructor TCreator.Create(ParCompiler:TCompiler_Base);
 	begin
 		iCompiler := ParCompiler;
@@ -331,26 +363,8 @@ end;
 		
 	end;
 	
-	
 
-	
-	{-----( TSecList )----------------------------------------------------}
-	
-	procedure TSecList.Print(ParDis:TDisplay);
-	var vlCurrent:TSecBase;
-	begin
-		vlCurrent := TSecBase(fStart);
-		while vlCurrent <> nil do begin
-			vlCurrent.Print(ParDis);
-			ParDis.nl;
-			vlCurrent := TSecBase(vlCurrent.fNxt);
-		end;
-	end;
-	
-	
-	
-	
-	
+
 	{---( TSecBase )----------------------------------------------------}
 	
 	

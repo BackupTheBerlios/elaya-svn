@@ -1,0 +1,51 @@
+unit;
+public
+
+	procedure EmptyPString(var ParPString : PString);
+	procedure FreePString(var PArPString : PString);
+	procedure ChangePString(var ParPString : PString;const ParText : string);
+   function  SafeGetPString(var ParPString : PString):String;
+	function  InitPString(const ParText : string):PString;
+end public
+
+	function  InitPString(const ParText : string):PString;
+	var
+		vlPtr : PString;
+	begin
+		vlPtr := reservemem(ParText.length + 1);
+		vlPtr^ := ParText;
+		exit(vlPtr);
+	end;
+
+   function  SafeGetPString(var ParPString : PString):String;
+	begin
+		if ParPString = nil then exit('');
+		exit(ParPString^);
+	end;
+
+	procedure EmptyPString(var ParPString : PString);
+	begin
+		FreePString( ParPString >> ParPString);
+		ParPString := ReserveMem(1);
+		ParPString^.length := 1;
+	end;
+
+	procedure FreePString(var ParPString : PString);
+	begin
+		if(ParPString <> nil) then freemem(ParPString);
+		ParPString := nil;
+	end;
+
+	procedure ChangePString(var ParPString : PString;const ParText : string);
+	begin
+		if(ParPString <> nil) then begin
+			if(ParPString^.length between (ParText.length) and (ParText.length+16)) then begin
+				ParPString^ := ParText;
+				exit;
+			end;
+		end;
+		FreePString(ParPString >> ParPString);
+		ParPString := InitPString(ParText);
+	end;
+
+end.

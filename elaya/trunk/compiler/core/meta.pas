@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit meta;
 interface
 uses macobj,stdobj,varbase,asminfo,strmbase,linklist,ddefinit,elacons,elatypes,
-types,formbase,streams,node,frames,compbase,ndcreat,asmcreat,asmdata;
+	  formbase,streams,node,frames,compbase,asmcreat,asmdata;
 type
 	TVmtItem=class(TListItem)
 	private
@@ -94,6 +94,7 @@ type
 		property    fParent          : TMeta    read voParent;
 		property    fVmtList         : TVmtList read voVmtLIst       write voVmtList;
 		property    fMetaFrame	     : TFrame   read voMetaFrame;
+		property    fAccessAddress	  : TVarBase read vOAccessAddress;
 		
 		procedure   GetLabelName(var ParName : string);
 		constructor Create(ParParent : Tmeta;const ParName : string;ParType : TType;ParVmtType : TType);
@@ -191,7 +192,7 @@ begin
 	begin
 		inherited Create;
 		iRoutineName := TString.Create(ParName);
-		iAccessAddress := TVariable.Create(name_meta,ParType);
+		iAccessAddress := TConstantVariable.Create(name_meta,ParType);
 		iAccessAddress.fOwner := self;
 		iAccessAddress.fDefAccess := AF_Public;
 		SetText(ParName);

@@ -19,11 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 program ela;
 
-USES  sysutils,stdobj,confval,elacfg,ela_comp,compbase,elacons,progutil,options
-{$ifdef mem}
-,mem
-{$endif}
-{$ifdef memleak},memleak{$endif}
+USES  sysutils,stdobj,confval,elacfg,ela_comp,compbase,elacons,progutil,options{$ifdef memleak},memleak{$endif}
 ;
 var
 	vgSourceName  : STRING;
@@ -31,9 +27,6 @@ var
 	vgSuccess	: boolean;
 
 begin
-	{$ifdef mem}
-	InitMemmoryManager;
-	{$endif}
 	writeln('Elaya Compiler   Version:',VER_NO);
 	writeln(ver_date);
 	writeln(ver_Head);
@@ -59,13 +52,6 @@ begin
 	if vgInits < vgDones then writeln('Warning : More object deleted as created :',vgDOnes - vgInits);
 	{$ifdef memleak}
 	ListResult;
-	{$endif}
-	{$ifdef mem}
-	DoneMemmoryManager;
-	{$ifdef statmem}
-	writeln('Total time in getmem ',vrTotG,'/',vrC1);
-	writeln('Total swap in getmem ',vrProbG,'/',vrC2);
-	{$endif}
 	{$endif}
 	if not vgSuccess then halt(1)
 	else halt(0);

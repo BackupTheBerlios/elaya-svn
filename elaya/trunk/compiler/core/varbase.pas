@@ -45,7 +45,7 @@ type
 		function    CAN(PArCan:TCAN_Types):boolean;override;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
 		function    GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
-		function    GetSize:TSize;virtual;
+		function    GetSize:TSize;
 		function    GetSign:boolean;
 		function    SaveItem(ParWrite:TObjectStream):boolean;override;
 		function    CreateReadNode(ParCre:TCreator;ParContext : TDefinition):TFormulaNode;override;
@@ -53,7 +53,7 @@ type
 		function    IsSame(ParOther : TVarBase):boolean;virtual;
 		function   	IsOptUnsave:boolean;virtual;
 		function   	GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
-    	procedure   AddToUseList(ParList : TVarUseList);override;
+    	function    CreateDefinitionUseItem : TDefinitionUseItemBase;override;
 	end;
 	
 	TVarNode=class(TValueNode)
@@ -72,21 +72,34 @@ type
 		procedure   PrintNode(ParDis:TDisplay);override;
 		function    GetType  :TType;override;
 		function    IsOptUnsave:boolean;override;
-		function    SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUSeItem) : TAccessStatus;override;
+		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		function    GetDefinition : TDefinition;override;
 	end;
 	
-	TVariable=class(TVarBase)
-	protected
-		procedure CommonSetup;override;
+	TVariableBase=class(TVarBase)
 	public
 		function  Can(ParCan:TCan_Types):boolean;override;
 		function  CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
-		procedure PrintDefinitionType(ParDis :TDisplay);override;
 		procedure PrintDefinitionHeader(ParDIs :TDisplay);override;
 		Procedure PrintDefinitionBody(ParDis :TDisplay);override;
 	end;
-	
-	TTLVariable = class(TVariable)
+
+	TConstantVariable=class(TVariableBase)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure PrintDefinitionType(ParDis :TDisplay);override;
+
+	end;
+
+	TVariable=class(TVariableBase)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure PrintDefinitionType(ParDis :TDisplay);override;
+	end;
+
+	TTLVariable = class(TVariableBase)
 	private
 		voName         : cardinal;
 		property iName : cardinal read voName write voName;
@@ -154,13 +167,20 @@ end;
 
 {--------( TVarNode )------------------------------------------}
 
-function  TVarNode.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUseItem) : TAccessStatus;
+function  TVarNode.GetDefinition : TDefinition;
 begin
-	if iVariable is TVariable then   begin
-		exit(ParUseList.SetAccess(iVariable,ParMode,ParItem));
-	end else begin
-		ParItem := nil;
-		exit(AS_Normal);
+	exit(iVariable);
+end;
+
+
+procedure  TVarNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+var
+	vlStatus : TAccessStatus;
+	vlItem : TDefinitionUseItemBase;
+begin
+	if iVariable is TVariableBase then   begin
+		vlStatus := ParUSeList.SetAccess(iVariable,ParMode,vlItem);
+		DefinitionUseStatusToError(ParCre,vlStatus,vlItem);
 	end;
 end;
 
@@ -232,9 +252,12 @@ end;
 {------( TVarBase )-------------------------------------------------}
 
 
-procedure TVarBase.AddToUseList(ParList : TVarUseList);
+function  TVarBase.CreateDefinitionUseItem : TDefinitionUseItemBase;
+var
+	vlUse : TDefinitionUseItemBase;
 begin
-	ParList.AddItem(self);
+	vlUse := (fType.CreateVarOfTypeUse(self));
+	exit(vlUse);
 end;
 
 function TVarBase.IsOptUnsave:boolean;
@@ -380,11 +403,41 @@ begin
 	exit(OFS_Different);
 end;
 
+
 {------( TVariable )------------------------------------------------}
 
+procedure TVariable.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode := IC_Variable;
+	iAccess := [Can_Read,Can_Write];
+end;
+procedure TVariable.PrintDefinitionType(ParDis:TDisplay);
+begin
+	ParDis.Write('variable');
+end;
 
 
-function TVariable.CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;
+{------( TConstantVariable )------------------------------------------------}
+
+procedure TConstantVariable.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode := IC_ConstantVariable;
+	iAccess := [Can_Read];
+end;
+
+procedure TConstantVariable.PrintDefinitionType(ParDis:TDisplay);
+begin
+	ParDis.Write('constant_variable');
+end;
+
+
+{------( TVariableBase )------------------------------------------------}
+
+
+
+function TVariableBase.CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var vlMac : TMacBase;
 	vlStr : string;
 begin
@@ -405,30 +458,18 @@ end;
 exit(vlmac);
 end;
 
-procedure TVariable.COmmonSetup;
-begin
-	Inherited CommonSetup;
-	iIdentCode := (IC_Variable);
-	iAccess := [Can_Read,Can_Write];
-end;
-
-
-function TVariable.Can(ParCan:TCan_Types):boolean;
+function TVariableBase.Can(ParCan:TCan_Types):boolean;
 begin
 	exit( inherited Can(ParCan - [Can_Pointer]));
 end;
 
-procedure TVariable.PrintDefinitionType(ParDis:TDisplay);
-begin
-	ParDis.Write('variable');
-end;
 
-procedure TVariable.PrintDefinitionHeader(ParDis:TDisplay);
+procedure TVariableBase.PrintDefinitionHeader(ParDis:TDisplay);
 begin
 	inherited PrintDefinitionHeader(ParDis);
 end;
 
-procedure TVariable.PrintDefinitionBody(ParDis:TDisplay);
+procedure TVariableBase.PrintDefinitionBody(ParDis:TDisplay);
 begin
 	pardis.write('<type>');
 	PrintIdentName(ParDis,fType);

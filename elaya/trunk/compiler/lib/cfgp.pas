@@ -7,7 +7,7 @@ UNIT CFGP;
 
 Interface
 
-Uses dynset,cmp_base,confdef,confnode,config,cmp_cons,progutil,cfg_error,stdobj, CFGS,CFG_cons,CFG_user;
+Uses dynset,cmp_base,confnode,progutil,stdobj, CFGS,CFG_cons,CFG_user;
 
 Type
 TCFG_Parser=class(TCFG_scanner)
@@ -48,20 +48,41 @@ end;
 
 IMPLEMENTATION
 
- procedure TCFG_Parser.pragma;
+(*    Elaya, the Fcompiler for the elaya language
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    Web   : www.elaya.org
+    Email : iddekingej@lycos.com
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*)
+
+
+procedure TCFG_Parser.pragma;
 begin
       
       End;
       
       Procedure TCFG_Parser._CFG;
       begin
-            WHILE (GetSym in [4 , 8 , 9]) do begin
-                  if (GetSym in [4 , 9]) then begin
+            WHILE (GetSym in [5 , 9 , 10]) do begin
+                  if (GetSym in [5 , 10]) then begin
                         _RVarDecl;
                   end
                    else begin
-                        _RSection( iConfig.fProgram);
-                        Expect(18);
+                        _RSection( fConfig.fProgram);
+                        Expect(19);
                   end
                   ;end;
             _IEnd;
@@ -78,16 +99,16 @@ begin
             AddNodeToNode(ParNode,vlSection);
             ;
             _ISection;
-            if (GetSym = 14) then begin
+            if (GetSym = 15) then begin
                   Get;
-                  WHILE (GetSym in [1 , 2 , 3 , 14]) do begin
+                  WHILE (GetSym in [1 , 2 , 3 , 15]) do begin
                           vlNode := TEqualConfigNode.Create; ;
                         _RExpression( vlNode);
-                        Expect(19);
+                        Expect(20);
                         _RExpression( vlNode);
                           vlSection.AddCondition(vlNode);  ;
                   end;
-                  Expect(15);
+                  Expect(16);
             end;
              
             ParSection := vlSection;
@@ -98,9 +119,9 @@ begin
         var vlSection : TSectionNode; 
       begin
             _RSectionHead( ParNode,vlSection);
-            WHILE (GetSym in [1 , 7 , 8 , 10]) do begin
+            WHILE (GetSym in [1 , 8 , 9 , 11]) do begin
                   _RCodeLine( vlSection);
-                  Expect(18);
+                  Expect(19);
             end;
             _IEnd;
       end;
@@ -110,17 +131,17 @@ begin
             if (GetSym = 1) then begin
                   _RLoad( ParNode);
             end
-             else if (GetSym = 8) then begin
+             else if (GetSym = 9) then begin
                   _RSection( ParNode);
             end
-             else if (GetSym = 10) then begin
+             else if (GetSym = 11) then begin
                   _RWrite( ParNode);
             end
-             else if (GetSym = 7) then begin
+             else if (GetSym = 8) then begin
                   _RFail( ParNode);
             end
             else begin
-                  SynError(21);
+                  SynError(22);
             end;
             ;end;
       
@@ -135,23 +156,23 @@ begin
              EmptyString(vlName);
              EmptyString(vlValue);
             ;
-            if (GetSym = 9) then begin
+            if (GetSym = 10) then begin
                   _IVar;
                     vlReadOnly := false; ;
             end
-             else if (GetSym = 4) then begin
+             else if (GetSym = 5) then begin
                   _IConst;
                     vlReadOnly := true; ;
             end
             else begin
-                  SynError(22);
+                  SynError(23);
             end;
             ;_RIdent( vlName);
-            if (GetSym = 16) then begin
+            if (GetSym = 17) then begin
                   Get;
                   _RConstantText( vlValue);
             end;
-            Expect(18);
+            Expect(19);
               AddVar(vlName,vlValue,vlReadOnly); ;
       end;
       
@@ -163,9 +184,9 @@ begin
       begin
               vlNode := TFailNode.Create; ;
             _IFail;
-            Expect(14);
-            _RExpression( vlNode);
             Expect(15);
+            _RExpression( vlNode);
+            Expect(16);
               AddNodeToNode(ParNode,vlNode); ;
       end;
       
@@ -176,13 +197,13 @@ begin
       begin
               vlNode := TWriteConfigNode.Create;;
             _IWrite;
-            Expect(14);
+            Expect(15);
             _RExpression( vlNode);
-            WHILE (GetSym = 17) do begin
+            WHILE (GetSym = 18) do begin
                   Get;
                   _RExpression( vlNode);
             end;
-            Expect(15);
+            Expect(16);
               AddNodeTONode(ParNode,vlNode); ;
       end;
       
@@ -197,7 +218,7 @@ begin
             ;
             _RIdent( vlIdent);
                vlNode := CreateLoadNode(vlIdent);;
-            Expect(16);
+            Expect(17);
             _RExpression( vlNode);
                AddNodeToNode(ParNode,vlNode);;
       end;
@@ -228,13 +249,13 @@ begin
                   ParNode := GetVarNode(vlTxt);
                   ;
             end
-             else if (GetSym = 14) then begin
+             else if (GetSym = 15) then begin
                   Get;
                   _RExpression( ParNode);
-                  Expect(15);
+                  Expect(16);
             end
             else begin
-                  SynError(23);
+                  SynError(24);
             end;
             ;end;
       
@@ -248,8 +269,8 @@ begin
             vlPrvCode := OC_None;
             ;
             _RIdentExpression( ParNode);
-            WHILE (GetSym in [5 , 13]) do begin
-                  if (GetSym = 13) then begin
+            WHILE (GetSym in [6 , 14]) do begin
+                  if (GetSym = 14) then begin
                         Get;
                           vlCode := OC_Mul; ;
                   end
@@ -274,8 +295,8 @@ begin
             vlPrvCode := OC_None;
             ;
             _RMul( ParNode);
-            WHILE (GetSym in [11 , 12]) do begin
-                  if (GetSym = 11) then begin
+            WHILE (GetSym in [12 , 13]) do begin
+                  if (GetSym = 12) then begin
                         Get;
                           vlCode := OC_Add; ;
                   end
@@ -308,7 +329,7 @@ begin
                   _RNumber( ParTxt);
             end
             else begin
-                  SynError(24);
+                  SynError(25);
             end;
             ;end;
       
@@ -334,42 +355,42 @@ begin
       
       Procedure TCFG_Parser._IWrite;
       begin
-            Expect(10);
+            Expect(11);
       end;
       
       Procedure TCFG_Parser._IVar;
       begin
-            Expect(9);
+            Expect(10);
       end;
       
       Procedure TCFG_Parser._ISection;
       begin
-            Expect(8);
+            Expect(9);
       end;
       
       Procedure TCFG_Parser._IFail;
       begin
-            Expect(7);
+            Expect(8);
       end;
       
       Procedure TCFG_Parser._IEnd;
       begin
-            Expect(6);
+            Expect(7);
       end;
       
       Procedure TCFG_Parser._IDiv;
       begin
-            Expect(5);
+            Expect(6);
       end;
       
       Procedure TCFG_Parser._IConst;
       begin
-            Expect(4);
+            Expect(5);
       end;
       
       procedure TCFG_Parser.Parse;
       begin
-            MaxT :=20;
+            MaxT :=21;
             SetupCompiler;
              Get;
             _CFG;
@@ -381,29 +402,30 @@ begin
                   		1: ParErr :='an identifier expected';
                   		2: ParErr :='a string expected';
                   		3: ParErr :='a number expected';
-                  		4: ParErr :='"CONST" expected';
-                  		5: ParErr :='"DIV" expected';
-                  		6: ParErr :='"END" expected';
-                  		7: ParErr :='"FAIL" expected';
-                  		8: ParErr :='"SECTION" expected';
-                  		9: ParErr :='"VAR" expected';
-                  		10: ParErr :='"WRITE" expected';
-                  		11: ParErr :='"+" expected';
-                  		12: ParErr :='"-" expected';
-                  		13: ParErr :='"*" expected';
-                  		14: ParErr :='"(" expected';
-                  		15: ParErr :='")" expected';
-                  		16: ParErr :='":=" expected';
-                  		17: ParErr :='"," expected';
-                  		18: ParErr :='";" expected';
-                  		19: ParErr :='"=" expected';
-                  		20: ParErr :='not expected';
-                  		21: ParErr :='Invalid statement:an identifier,"SECTION","WRITE","FAIL" exp'
+                  		4: ParErr :='PRAGMA expected';
+                  		5: ParErr :='"CONST" expected';
+                  		6: ParErr :='"DIV" expected';
+                  		7: ParErr :='"END" expected';
+                  		8: ParErr :='"FAIL" expected';
+                  		9: ParErr :='"SECTION" expected';
+                  		10: ParErr :='"VAR" expected';
+                  		11: ParErr :='"WRITE" expected';
+                  		12: ParErr :='"+" expected';
+                  		13: ParErr :='"-" expected';
+                  		14: ParErr :='"*" expected';
+                  		15: ParErr :='"(" expected';
+                  		16: ParErr :='")" expected';
+                  		17: ParErr :='":=" expected';
+                  		18: ParErr :='"," expected';
+                  		19: ParErr :='";" expected';
+                  		20: ParErr :='"=" expected';
+                  		21: ParErr :='not expected';
+                  		22: ParErr :='Invalid statement:an identifier,"SECTION","WRITE","FAIL" exp'
                   			+'ected';
-                  		22: ParErr :='Invalid Variable declaration:"VAR","CONST" expected';
-                  		23: ParErr :='Invalid expression:a string,a number,an identifier,"(" expec'
+                  		23: ParErr :='Invalid Variable declaration:"VAR","CONST" expected';
+                  		24: ParErr :='Invalid expression:a string,a number,an identifier,"(" expec'
                   			+'ted';
-                  		24: ParErr :='Invalid expression:a string,a number expected';
+                  		25: ParErr :='Invalid expression:a string,a number expected';
             end;
       end;
       
@@ -423,7 +445,7 @@ begin
             inherited Commonsetup;
             iCase := false;
             
-            MaxT := 20;
+            MaxT := 21;
             CreateDynSet(vgDynSet);
             if fOwnDynset then begin
                   vgDynSet[0].SetByArray(vgSetFill0);

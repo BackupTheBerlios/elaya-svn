@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit Nif;
 interface
-uses execobj,display,node,formbase,pocobj,elacons,ndcreat,varuse,stmnodes;
+uses display,node,pocobj,elacons,varuse,stmnodes;
 
 
 
@@ -32,16 +32,62 @@ type
 		procedure   InitParts;override;
 		procedure   PrintNode(ParDis:TDisplay);override;
 		function    CreateSec(ParCre:TSecCreator):boolean;override;
-		function  SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem :TVarUseItem) : TAccessStatus;override;
+		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList) ;override;
+
 	end;
 	
 	TIfNodeList=class(TNodeList)
 	public
 		procedure GetSubPoc(var ParThen,ParElse : TNodeIdent);
 	end;
+
+	TThenElseNode=class(TNodeIdent)
+	private
+		voThenElse:boolean;
+		property iThenElse : boolean read voThenElse write voThenElse;
+	public
+		function  CreateSec(ParCre:TSecCreator):boolean;override;
+		procedure print(ParDis:TDisplay);override;
+		constructor Create(ParThenElse:boolean);
+		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList) ;override;
+
+	end;
 	
 implementation
 
+
+{-----( TThenELseNode)---------------------------------------}
+
+function  TThenElseNode.CreateSec(ParCre:TSecCreator):boolean;{TODO Can be removed}
+begin
+	CreateSec := CreatePartsSec(ParCre);
+end;
+
+procedure TTHenElseNode.Print(ParDis:TDisplay);
+begin
+	if iThenElse then begin
+		ParDis.WriteNl('<then>')
+	end else begin
+		PArDis.WriteNl('<else>');
+	end;
+	iParts.Print(PArDis);
+	if iThenElse then begin
+		ParDis.WriteNl('</then>')
+	end else begin
+		PArDis.WriteNl('</else>');
+	end;
+
+end;
+constructor TThenElseNode.Create(ParThenElse:boolean);
+begin
+	inherited Create;
+	iThenElse := ParThenElse;
+end;
+
+procedure  TThenElseNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	fParts.ValidateDefinitionUse(ParCre,ParMode,ParUSeList);
+end;
 
 {-----( TIfNodeList )----------------------------------------}
 
@@ -95,25 +141,25 @@ begin
 	exit(false);
 end;
 
-function  TIfNode.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUseItem) : TAccessStatus;
+procedure  TIfNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
 var
-	vlUse           : TVarUseList;
+	vlUse           : TDefinitionUseList;
+	vlUseElse       : TDefinitionUseLIst;
 	vlTrueBlock     : TNodeIdent;
 	vlFalseBlock    : TNodeIdent;
 begin
-	ParITem := nil;
-	if fCond <> nil then fCond.ValidateVarUse(ParCre,AM_Read,ParUseList);
+	if fCond <> nil then fCond.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
 	vlUse := ParUseList.Clone;
 	TIfNodeLIst(iParts).GetSubPoc(vlTrueBlock,vlFalseBlock);
-	if vlFalseBlock <> nil then begin
-		vlTrueBlock.ValidateVarUse(ParCre,AM_Read,ParUseList);
-		vlFalseBLock.ValidateVarUse(ParCre,AM_Read,vlUse);
-	end else begin
-		vlTrueBlock.ValidateVarUse(ParCre,AM_Read,vlUse);
+	vlTrueBlock.ValidateDefinitionUse(ParCre,AM_Read,vlUse);
+	if vlFalseBlock <> nil then  begin
+		vlUseELse := ParUseList.Clone;
+		vlFalseBLock.ValidateDefinitionUse(ParCre,AM_Read,vlUseElse);{todo:Is this ok? or clone TUseList=>use it and combine}
+ 		vlUse.CombineIfWithElseUse(vlUseElse);
+		vlUseElse.Destroy;
 	end;
 	vlUse.CombineFlow(ParUseList);
 	vlUse.Destroy;
-	exit(AS_Normal);
 end;
 
 procedure TIfNode.Initparts;

@@ -93,7 +93,7 @@ type
 		
 		constructor Create(ParDef:TDefinition;ParIsolated,ParQueryOnly : boolean);
 		function    GetPtr(const ParName:string;var ParOwner, ParItem : TDefinition):boolean;
-		function    GetDefault(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;virtual;
+		function    GetDefault(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
 		function    GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 		procedure   AddCurrentNode(ParItem : TCurrentNodeItem);
 		procedure   PopCurrentNode;

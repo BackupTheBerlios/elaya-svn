@@ -353,7 +353,7 @@ var
 
 
 begin
-{	Output.Length := 0;
+	Output.Length := 0;
 	BeginPos    := GetBeginPos;
 	EndPos      := GetEndPos;
 	ScanLength := GetInputLength;
@@ -374,7 +374,7 @@ begin
 		end;
 		inc(Pos);
 	end;
-	AfterLoop;}
+	AfterLoop;
 end;
 
 

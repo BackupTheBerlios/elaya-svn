@@ -20,9 +20,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit stmnodes;
 interface
-uses asminfo,elacons,types,stdobj, ddefinit,error, display,compbase,cmp_type,elatypes,pocobj,macobj,node,formbase,varbase,ndcreat,varuse,execobj,cblkbase;
+uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,varuse,execobj,cblkbase;
 
 type
+
+
+
 	TExitNode=class(TNodeIdent)
 	private
 		voReturnType          : TType;
@@ -39,6 +42,8 @@ type
 		procedure   ValidateAfter(parCre : TCreator);override;
 		procedure   Optimize(ParCre:TCreator);override;
 		procedure   clear;override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+
 	end;
 
 	TLoopCBNode=class(TNodeIdent)
@@ -55,6 +60,7 @@ type
 
 		function  GetBreakLabel : TLabelPoc;
 		function  GetContinueLabel :TLabelPoc;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
 	end;
 
 
@@ -66,24 +72,29 @@ type
 		voEnd   : TFormulaNode;
 		voStep  : TFormulaNode;
 		voEndCondition : TFormulaNode;
+		voAllOf : TFormulaNode;
+		voDispAll:boolean;
 	protected
 		property iUp    : boolean      read voUp    write voUp;
 		property iCount : TFormulaNode read voCount write voCount;
 		property iBegin : TFormulaNode read voBegin write voBegin;
 		property iEnd   : TFormulaNode read voEnd   write voEnd;
 		property iStep  : TFormulaNode read voStep  write voStep;
+		property iAllOf : TFormulaNode read voAllOf write voAllOf;
 		property iEndCondition : TFormulaNode read voEndCondition write voEndCondition;
+		property iDispAll : boolean read voDispAll write voDispAll;
 	protected
 		procedure CheckNodeByType(ParCre : TCreator;ParType :TType ;ParCheck : TFormulaNode);
 		procedure  commonsetup;override;
 
 	public
 
-		procedure  SetCount(ParCre:TNDCreator;parNode:TFormulaNode);
-		procedure  SetBegin(ParCre:TNDCreator;ParNode:TFormulaNode);
-		procedure  SetEnd(ParCre:TNDCreator;ParNode:TFormulaNode);
-		procedure  SetStep(ParCre:TNDCreator;ParNode:TFormulaNode);
-		procedure  SetEndCondition(ParCre : TNDCreator;ParNode : TFormulaNode);
+		procedure  SetAllOf(ParNode : TFormulaNode);
+		procedure  SetCount(parNode:TFormulaNode);
+		procedure  SetBegin(ParNode:TFormulaNode);
+		procedure  SetEnd(ParNode:TFormulaNode);
+		procedure  SetStep(ParNode:TFormulaNode);
+		procedure  SetEndCondition(ParNode : TFormulaNode);
 		procedure  Setup(parUp:boolean);
 		procedure  print(ParDis:TDisplay);override;
 		function   CreateSec(parcre:TSecCreator):boolean;override;
@@ -92,6 +103,7 @@ type
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure Proces(ParCre : TCreator);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
 	end;
 	
 	TConditionNode=class(TLoopCBNode)
@@ -103,13 +115,13 @@ type
 
 	public
 		property fCond : TFormulaNode read voCond;
-		procedure  SetCond(ParCre :TNDCreator;ParCond:TFormulaNode);
+		procedure  SetCond(ParCond:TFormulaNode);
 		destructor destroy;override;
 		procedure  Optimize(ParCre : TCreator);override;
 		procedure  ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure  ValidateAfter(ParCre  : TCreator);override;
 		procedure Proces(ParCre : TCreator);override;
-		function  SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUseItem) : TAccessStatus;override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
 	end;
 	
 	TWhileNode=class(TConditionNode)
@@ -137,7 +149,7 @@ type
 		
 		property   fEnd : TFormulaNode read voEnd;
 		procedure  SetEnd(ParNode:TFormulaNode);
-		procedure  SetBegin(ParCre:TNDCreator;parNode:TFormulaNode);
+		procedure  SetBegin(parNode:TFormulaNode);
 		destructor destroy;override;
 		procedure  print(ParDis:TDisplay);override;
 		function   CreateSec(ParCre:TSecCreator):boolean;override;
@@ -145,6 +157,8 @@ type
 		procedure  ValidateAfter(ParCre  : TCreator);override;
 		procedure  ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure  Proces(ParCre : TCreator);override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+
 	end;
 
 
@@ -158,7 +172,7 @@ type
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
 		function CheckConvertTest(ParType1,ParType2 : TType) : boolean;override;
-		function  SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUseItem) : TAccessStatus;override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
 		function  CanSec : boolean;override;
 	end;
 
@@ -227,8 +241,13 @@ type
 
 implementation
 
+
 {---( TExitNode )-------------------------------------------------}
 
+procedure TExitNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+   if iReturnInstruction <> nil then iReturnInstruction.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+end;
 
 procedure TExitNode.Optimize(ParCre:TCreator);
 begin
@@ -319,11 +338,10 @@ begin
 	end;
 end;
 
-function  TConditionNode.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUseItem) : TAccessStatus;
+procedure TConditionNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
 begin
-	iCond.ValidateVarUse(ParCre,ParMode,ParUseList);
-	inherited SetVarUseItem(ParCre,ParMode,ParUseList,ParItem);
-	exit(AS_Normal);
+	iCond.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+	inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 end;
 
 procedure TConditionNode.ValidateAfter(ParCre  : TCreator);
@@ -345,7 +363,7 @@ begin
 end;
 
 
-procedure TConditionNode.SetCond(ParCre :TNDCreator;ParCond:TFormulaNode);
+procedure TConditionNode.SetCond(ParCond:TFormulaNode);
 begin
 	if iCond<> nil then iCond.Destroy;
 	iCond := ParCond;
@@ -456,9 +474,9 @@ begin
 end;
 
 
-procedure  TForNode.SetBegin(ParCre:TNDCreator;ParNode:TFormulaNode);
+procedure  TForNode.SetBegin(ParNode:TFormulaNode);
 begin
-	SetCond(ParCre,ParNode);
+	SetCond(ParNode);
 end;
 
 procedure  TForNode.SetEnd(ParNode:TFormulaNode);
@@ -466,6 +484,13 @@ begin
 	if iEnd <> nil then iEnd.Destroy;
 	iEnd := ParNode;
 end;
+
+procedure TForNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+	iEnd.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+end;
+
 
 procedure TForNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 begin
@@ -544,6 +569,16 @@ begin
 	end;
 end;
 
+procedure TCountNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	if iBegin <> nil then iBegin.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+	if iCount <> nil then iCount.ValidateDefinitionUse(ParCre,AM_Write,ParUseList);
+	if iEnd <> nil then iBegin.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+	if iEndCondition<> nil then iEndCondition.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+	IF iAllOf <> nil then iAllOf.ValidateDefinitionUse(ParCre,AM_Nothing,ParUseList);
+	inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+end;
+
 procedure TCountNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 begin
 	inherited ValidatePre(PArCre,ParIsSec);
@@ -572,17 +607,44 @@ begin
    	if not iCount.Can([Can_Write]) then TNDCreator(ParCre).AddNodeError(iCOunt,Err_Cant_Write_To_Item,'');
 		if not iCount.IsCompByIdentCode(IC_Number) then TNDCreator(ParCre).AddNodeDefError(iCount,Err_Wrong_Type,iCount.GetType);
 	end;
+	if iAllOf <>nil then begin
+		iAllOf.ValidatePre(ParCre,false);
+		if iAllOf.GetType <> nil then begin
+			if iAllOf.GetType is TStringType then begin
+				if not iAllOf.Can([Can_Read]) then TNDCreator(ParCre).AddNodeError(iAllOf,Err_Cant_Read_From_Expr,'');
+			end else if not(iAllOf.GetType is TArrayType)  then TNDCreator(ParCre).AddNodeError(iAllOf,Err_Array_Expected,'');
+		end;
+	end;
 
 end;
 
 procedure TCountNode.Proces(ParCre : TCreator);
+var
+	vlType : TType;
+	vlEndNode : TFormulaNode;
 begin
 	inherited Proces(ParCre);
 	if iEndCOndition <> nil then iEndCondition.Proces(ParCre);
-	if iBegin <> nil then iBegin.Proces(ParCre);
-	if iEnd <> nil then iEnd.Proces(ParCre);
 	if iStep <> nil then iStep.Proces(ParCre);
    if iCount <> nil then iCount.Proces(ParCre);
+	if (iAllOf <> nil) and (iEnd =nil) then begin
+		iAllOf.Proces(ParCre);
+      vlType  := TArrayType(iAllOf.GetType);
+		if vlType is TStringType then begin
+			SetBegin(TFormulaNode(TNDCreator(ParCre).CreateIntNodeLong(TStringTYpe(vlType).GetFirstOffset)));
+			vlEndNode := TStringType(vlType).GetIndexVar.CreateReadNode(ParCre,vlType);
+			vlEndNode.fRecord := iAllOf;
+			iDispAll := false;
+			SetEnd(vlEndNode);
+		end else begin
+			SetBegin(TFormulaNode(TNDCreator(ParCre).CreateIntNode(TArrayType(vlType).fLo)));
+			SetEnd(TFormulaNode(TNDCreator(ParCre).CreateIntNode(TArrayType(vlType).fHi)));
+		end;
+		SetStep(TFormulaNode(TNDCreator(ParCre).CreateIntNodeLong(1)));
+	end;
+	if iBegin <> nil then iBegin.Proces(ParCre);
+	if iEnd <> nil then iEnd.Proces(ParCre);
+
 end;
 
 
@@ -597,6 +659,7 @@ begin
 	if iEnd <> nil then iEnd.ValidateAfter(ParCre);
 	if iStep <> nil then iStep.ValidateAfter(ParCre);
 	if iEndCondition <> nil then iEndCondition.ValidateAfter(ParCre);
+   if iAllOf <> nil then iAllOf.ValidateAfter(ParCre);
 
 	if iCount <> nil then begin
 		iCount.ValidateAfter(ParCre);
@@ -615,38 +678,45 @@ begin
 	iCount := OptimizeThisNode(ParCre,iCount);
 	if iEndCondition <> nil then iEndCOndition := OptimizeThisNode(ParCre,iEndCondition);
 	if iStep <> nil then iStep := OptimizeThisNode(ParCre,iStep);
+	if iAllOf <> nil then iAllOf := OptimizeThisNode(ParCre,iAllOf);
 end;
 
 
-procedure  TCountNode.SetEndCondition(ParCre : TNDCreator;ParNode : TFormulaNode);
+procedure  TCountNode.SetEndCondition(ParNode : TFormulaNode);
 begin
 	if iEndCOndition <> nil then iEndCondition.Destroy;
 	iEndCondition := ParNode;
 end;
 
 
-procedure TCountNode.SetCount(ParCre:TNDCreator;ParNode:TFormulaNode);
+procedure TCountNode.SetCount(ParNode:TFormulaNode);
 begin
 	if iCount <> nil then iCount.Destroy;
 	iCount := ParNode;
 end;
 
-procedure TCountNOde.SetBegin(ParCre:TNDCreator;ParNode:TFormulaNode);
+procedure TCountNOde.SetBegin(ParNode:TFormulaNode);
 begin
 	if iBegin <> nil then iBegin.Destroy;
 	iBegin := ParNode;
 end;
 
-procedure TCountNode.SetEnd(ParCre:TNDCreator;PArNode:TFormulaNode);
+procedure TCountNode.SetEnd(PArNode:TFormulaNode);
 begin
 	if iEnd <> nil then iEnd.Destroy;
 	iEnd := ParNode;
 end;
 
-procedure TCountNode.SetStep(ParCre:TNDCreator;ParNode:TFormulaNode);
+procedure TCountNode.SetStep(ParNode:TFormulaNode);
 begin
 	if iStep <> nil then iStep.Destroy;
 	iStep := ParNode;
+end;
+
+procedure TCountNode.SetAllOf(ParNode : TFormulaNode);
+begin
+	if iAllOf <> nil then iAllOf.destroy;
+	iAllOf := ParNode;
 end;
 
 
@@ -663,7 +733,9 @@ begin
 	iBegin := nil;
 	iEnd   := nil;
 	iStep  := nil;
-	iUp    := false;
+	iUp    := true;
+	iAllOf := nil;
+	iDispAll := true;
 end;
 
 destructor TCountNode.Destroy;
@@ -674,12 +746,16 @@ begin
 	if iEnd   <> nil then iEnd.Destroy;
 	if iStep  <> nil then iStep.Destroy;
 	if iEndCondition <> nil then iEndCondition.Destroy;
+	if iDispALl and (iAllOf <> nil) then iAllOf.Destroy;
 end;
 
 procedure TCountNode.Print(ParDis:TDisplay);
 begin
 	ParDis.WriteNl('<count>');
 	ParDis.Write('<counter>');PrintiDent(ParDis,iCount);ParDis.WriteNl('</counter>');
+	if iAllOf <> nil then begin
+		ParDis.WriteNl('<allof>');iAllOf.Print(ParDis);ParDis.WriteNl('</allof>');
+	end;
 	ParDis.Write('<begin>');PrintIdent(ParDis,iBegin);ParDis.WriteNl('</begin>');
 	ParDis.Write('<direction>');
 	if iUp then begin
@@ -700,7 +776,7 @@ begin
 end;
 
 function  TCountNode.CreateSec(parcre:TSecCreator):boolean;
-var vlLod     :TLoadFor;
+var vlLod     :TPocBase;
 	vlCOunt   :TMacBase;
 	vlBegin   :TMacBase;
 	vlEnd     :TMacBase;
@@ -712,15 +788,13 @@ var vlLod     :TLoadFor;
 	vlPrvTrue : TLabelPoc;
 	vlPrvFalse : TLabelPoc;
 	vlTrue     : TLabelPoc;
-	vlTestFirst : boolean; {Test first and then decrement}
+	vlTestFirst : boolean;
 	vlValue     : TValue;
 	vlCheckLab  : TLabelPoc;
 begin
 	vlCount := iCount.CreateMac(MCO_Result,ParCre);
 	vlBegin := iBegin.CreateMac(MCO_Result,ParCre);
-	vlLod := (TLoadFor.create);
-	vlLod.SetVar(0,vlCount);
-	vlLod.SetVar(1,vlBegin);
+	vlLod := ParCre.MakeLoadPoc(vlCount,vlBegin);
 	ParCre.AddSec(vlLod);
 	vlLab := ParCre.AddLabel;
 	if iEndCondition <>nil then begin
@@ -737,7 +811,7 @@ begin
 	vlAddFor := TIncDecFor.Create(iUp);
 	vlAddFor.SetVar(0,iCount.CreateMac(MCO_Result,ParCre));
 	vlAddFor.SetVar(1,iStep.CreateMac(MCO_Result,ParCre));
-    vlTestFirst := true;
+   vlTestFirst := true;
 
 	if iEnd <>nil then begin
 		vlValue := iEnd.GetValue;
@@ -840,48 +914,35 @@ begin
 	end;
 end;
 
-function  TLoadNode.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem : TVarUseItem) : TAccessStatus;
+procedure TLoadNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
 var
 	vlFirst  : TFormulaNode;
 	vlSecond : TFormulaNode;
 begin
 	vlFirst  := TFormulaNode(GetPartByNUm(1));
 	vlSecond := TFormulaNode(GetPartByNum(2));
-	vlSecond.ValidateVarUse(ParCre,AM_Read,ParUseList);
-	vlFirst.ValidateVarUse(ParCre,AM_Write,ParUseList);
-	ParItem := nil;
-	exit(AS_Normal);
+	vlSecond.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+	vlFirst.ValidateDefinitionUse(ParCre,AM_Write,ParUseList);
 end;
 
 function TLoadNode.CreateSec(ParCre:TSecCreator):boolean;
-var vlPoc    : TLoadFor;
+var vlPoc    : TPocBase;
 	vlFirst  : TFormulaNode;
 	vlSecond : TFormulaNode;
-	vlSource : TMacBase;
-	vlDest   : TMacBase;
 	vlMac1   : TMacBase;
 	vlMac2   : TMacBase;
 begin
 	vlFirst  := TFormulaNode(GetPartByNUm(1));
 	vlSecond := TFormulaNode(GetPartByNum(2));
-	if (vlFirst.GetSize >GetAssemblerInfo.GetSystemSize) or (vlFirst.GetSize = 3)  then begin
-		vlDest   := vlFirst.CreateMac(MCO_Result,ParCre);
-		vlSource := vlSecond.CreateMac(MCO_Result,ParCre);
-		vlPoc    := TLoadFor(TLSMovePoc.Create(vlSource,vlDest,vlFirst.GetSize));
-		ParCre.AddSec(vlPoc);
+	if (vlSecond.fComplexity > vlFirst.fComplexity) then begin
+			vlMac1 := vlSecond.CreateMac(MCO_Result,ParCre);
+			vlMAc2 := vlFirst.CreateMac(MCO_Result,ParCre);
 	end else begin
-		vlPoc := TLoadFor.create;
-		if (vlSecond.fComplexity > vlFirst.fComplexity) then begin
-			vlMac1 := vlSecond.CreateMac(MCO_Result,ParCre);
-			vlMAc2 := vlFirst.CreateMac(MCO_Result,ParCre);
-		end else begin
 			vlMAc2 := vlFirst.CreateMac(MCO_Result,ParCre);
 			vlMac1 := vlSecond.CreateMac(MCO_Result,ParCre);
-		end;
-		vlPoc.SetVar(1,vlMac1);
-		vlPoc.SetVar(Mac_Output,vlMac2);
-		ParCre.AddSec(vlPoc);
 	end;
+	vlPoc := ParCre.MakeLoadPoc(vlMac2,vlMac1);
+	ParCre.AddSec(vlPoc);
 	if vlFirst.IsOptUnsave then ParCre.AddSec(TOptUnSavePoc.Create);
 	CreateSec := false;
 end;
@@ -1001,6 +1062,11 @@ begin
 	inherited Commonsetup;
 	iBreakLabel    := nil;
 	iContinueLabel := nil;
+end;
+
+procedure TLoopCBNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	iParts.ValidateDefinitionUse(ParCre,AM_Execute,ParUseList);
 end;
 
 {---( TLEaveNode )---------------------------------------------------------------}

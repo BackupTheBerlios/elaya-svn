@@ -1,3 +1,4 @@
+
 {
 Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
@@ -20,8 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit ExecObj;
 interface
-uses  classes,largenum,ddefinit,procs,frames,nconvert,types,error,elacons,progutil,vars, display,compbase,cmp_type,
-	elatypes,pocobj,macobj,node,formbase,varbase,params,ndcreat,stdobj,asminfo,elacfg,confval,varuse;
+uses  classes,largenum,ddefinit,procs,nconvert,types,error,elacons,progutil,vars, display,compbase,
+	elatypes,pocobj,macobj,node,formbase,varbase,ndcreat,stdobj,asminfo,confval,varuse;
 	
 type
 		
@@ -51,6 +52,8 @@ type
 		property  iValue : TValue read voValue write voValue;
 	protected
 		procedure   Commonsetup;override;
+		procedure   Clear;override;
+
 		function    DoCreateMac(ParOption : TMacCreateOption;ParCre : TSecCreator):TMacBase;override;
 
 	public
@@ -58,7 +61,6 @@ type
 		function    IsConstant : boolean;override;
 		procedure   PrintNode(ParDisplay : TDisplay);override;
 		constructor Create(ParValue : TValue;ParType : TType);
-		procedure   Clear;override;
 		function    ConvertNodeType(ParType : TType;ParCre : TCreator;var ParNode:TFormulaNode):boolean;override;
 		function    IsCompWithType(ParType :TType):boolean;override;
 		function    Can(ParCan:TCan_Types):boolean;override;
@@ -88,9 +90,10 @@ type
 		procedure PrintNode(ParDis:TDisplay);override;
 		function  GetType:TType;override;
 		procedure Get2SubNode(var ParFirst,ParSecond:TFormulaNode);
-		function CheckConvertTest(ParType1,ParType2 : TType) : boolean;virtual;
+		function  CheckConvertTest(ParType1,ParType2 : TType) : boolean;virtual;
 		function  DefaultNodeCheck : boolean;virtual;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
 	end;
 	
 	TArrayIndexNode=class(TOperatorNode)
@@ -101,17 +104,18 @@ type
 		property iBase : TFormulaNode read voBase write voBase;
 	protected
 		procedure commonsetup;override;
+		procedure Clear;override;
+		function  DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 
 	public
 		function  Can(ParCan:TCan_Types):boolean;override;
-		procedure  proces(ParCre:TCreator);override;
+		procedure proces(ParCre:TCreator);override;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure PrintNode(ParDis:TDisplay);override;
-		function  DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		function  GetType:TType;override;
 		procedure SetBase(ParCre : TNDCreator;ParNode : TFormulaNode);
-		procedure Clear;override;
 		procedure ValidateAfter(ParCre : TCreator);override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
 	end;
 	
 	TByPtrNode=class(TOperatorNode)
@@ -170,10 +174,10 @@ type
 	TBetweenNode=class(TBoolOperNode)
 	protected
 		procedure Commonsetup;override;
+		function  DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 
 	public
 		function  CreateSec(PArCre:TSecCreator):boolean;override;
-		function  DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		procedure PrintNode(ParDis:TDisplay);override;
 	end;
 	
@@ -250,8 +254,9 @@ type
 	
 	
 	TLogicNode=class(TOperatorNode)
-	public
+	protected
 		function DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+	public
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 	end;
 	
@@ -301,15 +306,6 @@ type
 	
 	
 	
-	TThenElseNode=class(TNodeIdent)
-	private
-		voThenElse:boolean;
-		property iThenElse : boolean read voThenElse write voThenElse;
-	public
-		function  CreateSec(ParCre:TSecCreator):boolean;override;
-		procedure print(ParDis:TDisplay);override;
-		constructor Create(ParThenElse:boolean);
-	end;
 	
 	TOperatorNodeList=class(TFormulaList)
 	private
@@ -355,35 +351,47 @@ type
 		function    HandleNode(ParCre:TSecCreator;ParNode:TNodeIdent):boolean;override;
 	end;
 	
-	TMacOption=class(TOperatorNode)
+	TSizeOfNode=class(TOperatorNode)
 	private
-		voDoneType  : boolean;
 		voType      : TType;
-		voMacOption : TMacCreateOption;
 		property iType : TType read voType write voType;
-		property iMacOption : TMacCreateOption read voMacOption write voMacOption;
-		property iDoneType  : boolean read voDoneType write voDoneType;
 	protected
 		procedure   commonsetup;override;
+		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 
 	public
-		property fMacOption : TMacCreateOption read voMacOption;
-		property fDoneTYpe  : boolean read voDoneType;
+		procedure GetOperStr(var ParOper:string);override;
+		function    Can(ParCan:TCan_Types):boolean;override;
+		procedure  proces(ParCre:TCreator);override;
+		function    GetType:TType;override;
+		function    GetValue:TValue;override;
+		function    IsConstant : boolean;override;
+		function  DefaultNodeCheck : boolean;override;
+		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList) ;override;
+	end;
+	
+	TValuePointerNode=class(TOperatorNode)
+	private
+		voType      : TType;
+		property iType : TType read voType write voType;
+	protected
+		procedure   commonsetup;override;
+		procedure   clear;override;
+		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+
+	public
 
 		procedure GetOperStr(var ParOper:string);override;
 		function    Can(ParCan:TCan_Types):boolean;override;
 		procedure  proces(ParCre:TCreator);override;
 		function    GetType:TType;override;
-		constructor Create(ParOption:TMacCreateOption);
-		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
-		destructor  destroy;override;
 		function    GetValue:TValue;override;
 		function    IsConstant : boolean;override;
 		function  DefaultNodeCheck : boolean;override;
 	end;
-	
 
-	TPointerOfNode=class(TOperatorNode)
+
+	TObjectPointerNode=class(TOperatorNode)
 	private
 		voType      : TType;
 		voExpression: TFormulaNode;
@@ -392,6 +400,8 @@ type
 	protected
 		procedure commonsetup;override;
 		procedure Clear;override;
+		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+
 	public
 
 		procedure  proces(ParCre:TCreator);override;
@@ -401,7 +411,8 @@ type
 		function    Can(ParCan:TCan_Types):boolean;override;
 		function    GetType:TType;override;
 		constructor Create(ParNode : TFormulaNode;ParType :TType);
-		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+
 	end;
 	
 	TTypeNode=class(TOperatorNode)
@@ -410,16 +421,17 @@ type
 	protected
 		property iType : TType read voType write voType;
 		procedure   Commonsetup;override;
+		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 
 	public
 		function   IsOptUnsave:boolean;override;
 		constructor Create(parTYpe:TType);
 		function    Can(ParCan:TCan_Types):boolean;override;
 		procedure   ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
-		function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		function    GetType:TType;override;
 		procedure   PrintNode(ParDis:TDIsplay);override;
 		function  DefaultNodeCheck : boolean;override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
 	end;
 	
 	TClassTypeNode=class(TTypeNode)
@@ -427,10 +439,6 @@ type
 		procedure InitDotFrame(ParCre : TSecCreator);override;
 		procedure DoneDotFrame;override;
 	end;
-	
-	
-	
-	
 	
 	TLabelNode=class(TFormulaNode)
 	private
@@ -440,11 +448,12 @@ type
 		property iDefinition: TDefinition read voDefinition write voDefinition;
 	protected
     	procedure Commonsetup;override;
+		function   DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+
 	public
 		function   Can(ParCan : TCan_Types):boolean;override;
 		procedure print(ParDis:TDisplay);override;
 		constructor create(ParDef : TDefinition;ParType : TType);
-		function   DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		procedure  GetName(var ParName : string);
 		function   GetType : TType;override;
 	end;
@@ -453,6 +462,7 @@ type
 	TStringNode=class(TConstantNode)
 	protected
 		procedure   Commonsetup;override;
+		function    DoCreateMac(ParOpt : TMacCreateOption;ParSec :TSecCreator):TMacBase;override;
 
 	public
 		constructor Create(ParNum:TStringCons);
@@ -460,7 +470,6 @@ type
 		function    ConvertNodeType(ParType : TTYpe;ParCre : TCreator;var ParNode:TFormulaNode):boolean;override;
 		function    IsCompWithType(ParType :TType):boolean;override;
 		function	CanWriteTo(ParExact : boolean;ParType : TType):boolean;override;
-		function    DoCreateMac(ParOpt : TMacCreateOption;ParSec :TSecCreator):TMacBase;override;
 	end;
 
 
@@ -650,6 +659,13 @@ end;
 {---(TArrayIndexNode )---------------------------------------------------------}
 
 {TODO ArrayIndexNodeLIST?}
+
+
+procedure TArrayIndexNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	inherited ValidateFormulaDefinitionUse(ParCre,ParMode,ParUseList);
+	iBase.ValidateFormulaDefinitionUse(ParCre,AM_Nothing,ParUseList);
+end;
 
 procedure TArrayIndexNode.Clear;
 begin
@@ -911,6 +927,11 @@ end;
 {---(TTypeNode )------------------------------------------------------------------}
 
 
+procedure TTypeNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	iParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+end;
+
 
 function  TTYpeNode.DefaultNodeCheck : boolean;
 begin
@@ -995,7 +1016,7 @@ end;
 function    TTypeNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var vlNode:TFormulaNode;
 	vlMac : TMacBase;
-	vlLd  : TLoadFor;
+	vlLd  : TPocBase;
 	vlMac2: TMacBase;
 	vlLi  : TLargeNumber;
 	vlMask: cardinal;
@@ -1016,7 +1037,7 @@ begin
 			{Todo: "is TNumberMac" A terr hack, this avoids TResultmac for number
 			because extra offset doesn't work on TResultmac}
 			if (vlMac is TNumberMac) then begin
-				vlLi := TNumberMac(vlMac).fInt;
+					vlLi := TNumberMac(vlMac).fInt;
            		if not(GetTypeSign) and (LargeCompareInt(vlLi,0) = LC_Lower) then begin
 					LargeAddLong(vlLi,1);
 					LargeNot(vlLi);
@@ -1031,15 +1052,13 @@ begin
 			end else if vlMac.fSize < GetTypeSize then begin
 				vlMac2 := TResultMac.Create(GetTypeSize,GetType.GetSign);
 				ParCre.AddObject(vlMac2);
-				vlLd   := TLoadFor.Create;
-				vlLd.SetVar(0,vlMac2);
-				vlLd.SetVar(1,vlMac);
+				vlLd   := ParCre.MakeLoadPoc(vlMac2,vlMac);
 				ParCre.AddSec(vlLd);
 				vlMac := vlMac2;
 			end;
 			vlMac.SetSign(GetTypeSign);
 		end;
-		DoCreateMac := vlMac;
+		exit(vlMac);
 	end;
 end;
 
@@ -1052,69 +1071,141 @@ begin
 end;
 
 
-{---( TMacOption )----------------------------------------------------------------}
+{---( TSizeOfNode )----------------------------------------------------------------}
 
-function  TMacOption.DefaultNodeCheck : boolean;
+function  TSizeOfNode.DefaultNodeCheck : boolean;
 begin
 	exit(false);
 end;
 
 
-function   TMacOption.Can(ParCan:TCan_Types):boolean;
+function   TSizeOfNode.Can(ParCan:TCan_Types):boolean;
 begin
-	Can := false;
-	case fMacoption of
-	MCO_Size 		   			  : Can := (ParCan - [CAN_Read]) = [];
-	MCO_ValuePointer,MCO_ObjectPointer : Can := (ParCan - [CAN_Size , Can_Read]) = [];
-end;
+	 Can := (ParCan - [CAN_Read]) = [];
 end;
 
 
-procedure   TMacOption.CommonSetup;
+procedure   TSizeOfNode.CommonSetup;
 begin
 	inherited CommonSetup;
-	iDoneType := false;
 	iType     := nil;
 	iCOmplexity := CPX_Constant;
 end;
 
-procedure TMacOption.GetOperStr(var ParOper:string);
+procedure TSizeOfNode.GetOperStr(var ParOper:string);
 begin
-	case fMacOption of
-	MCO_SIZE          : ParOper := 'SIZEOF';
-	MCO_ObjectPointer : ParOper := 'OBJECT POINTER';
-	MCO_ValuePointer  : ParOper := 'VALUE POINTER';
-	else
-end;
+	 ParOper := 'SIZEOF';
 end;
 
 
-function    TMacOption.GetType:TType;
+function    TSizeOfNode.GetType:TType;
 begin
 	exit( iType);
 end;
 
 
-function  TMacOption.IsConstant : boolean;
+function  TSizeOfNode.IsConstant : boolean;
 begin
-	exit(fMacOption = MCO_Size);
+	exit(true);
 end;
 
-function  TMacOption.GetValue:TValue;
+function  TSizeOfNode.GetValue:TValue;
 var
 	vlNode : TFormulaNode;
 	vlValue : TValue;
 begin
 	vlValue := nil;
-	if fMacOption=MCO_Size then begin
-		vlNode := TFormulaNode(GetPartByNum(1));
-		if vlNode <> nil then vlValue := TLongint.Create(vlNode.GetSize);
-	end;
+	vlNode := TFormulaNode(GetPartByNum(1));
+	if vlNode <> nil then vlValue := TLongint.Create(vlNode.GetSize);
 	exit(vlValue);
 end;
 
 
-procedure  TMacOption.proces(ParCre:TCreator);
+procedure  TSizeOfNode.proces(ParCre:TCreator);
+var vlType  : TType;
+	vlNode : TFormulaNode;
+begin
+	inherited Proces(ParCre);
+	if iType <> nil then exit;
+	vlNode := TFormulaNode(iParts.fStart);
+	if vlNode = nil then exit;
+	if vlNode.fNxt <> nil then TNDCreator(ParCre).AddNodeError(vlNode,Err_int_Too_many_Nodes,'');
+	if not vlNode.Can([Can_Size]) then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Determine_Size,'');
+	vlType := TNDCreator(PArCre).GetDefaultIDent(DT_Number,GetAssemblerInfo.GetSystemSize,false);
+	iType     := vlType;
+	if vlType = nil then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Find_type,'number');
+end;
+
+
+procedure TSizeOfNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	iParts.ValidateDefinitionUse(ParCre,AM_Nothing,ParUseList);
+end;
+
+
+function    TSizeOfNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
+var
+	vlNode : TFOrmulaNode;
+begin
+	if ParOpt = MCO_Result then begin
+		vlNode := TFormulaNode(iParts.fStart);
+		if vlNode <> nil then begin
+			exit(vlNode.CreateMac(MCO_Size,ParCre));
+		end else begin
+			fatal(FAT_Node_Is_NULL,'');
+		end;
+	end;
+	exit(inherited CreateMac(ParOpt,ParCre));
+end;
+
+
+
+
+{---( TValuePointerNode )----------------------------------------------------------------}
+
+function  TValuePointerNode.DefaultNodeCheck : boolean;
+begin
+	exit(false);
+end;
+
+
+function   TValuePointerNode.Can(ParCan:TCan_Types):boolean;
+begin
+	Can := (ParCan - [CAN_Size , Can_Read]) = [];
+end;
+
+
+procedure   TValuePointerNode.CommonSetup;
+begin
+	inherited CommonSetup;
+	iType     := nil;
+	iCOmplexity := CPX_Constant;
+end;
+
+procedure TValuePointerNode.GetOperStr(var ParOper:string);
+begin
+	 ParOper := 'VALUE POINTER';
+end;
+
+
+function    TValuePointerNode.GetType:TType;
+begin
+	exit( iType);
+end;
+
+
+function  TValuePointerNode.IsConstant : boolean;
+begin
+	exit(false);
+end;
+
+function  TValuePointerNode.GetValue:TValue;
+begin
+	exit(nil);
+end;
+
+
+procedure  TValuePointerNode.proces(ParCre:TCreator);
 var vlType  : TType;
 	vlName  : string;
 	vlNode : TFormulaNode;
@@ -1125,55 +1216,34 @@ begin
 	if vlNode = nil then exit;
 	if vlNode.fNxt <> nil then TNDCreator(ParCre).AddNodeError(vlNode,Err_int_Too_many_Nodes,'');
 	vlType := nil;
-	case fMacOption of
-		MCO_Size:begin
-			if not vlNode.Can([Can_Size]) then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Determine_Size,'');
-			vlType := TNDCreator(PArCre).GetDefaultIDent(DT_Number,GetAssemblerInfo.GetSystemSize,false);
-			iDoneType := false;
-			iType     := vlType;
-			if vlType = nil then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Find_type,'number');
-		end;
-		MCO_ValuePointer:begin
-			if vlNode is TCallNode then begin
-				if TCallNode(vlNode).fParCnt <> 0 then TNDCreator(ParCre).AddNodeError(vlNode,Err_No_Parameters_Expected,'');
-				if TCallNode(vlNode).IsOverloaded  then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Adr_Overl,'');
-				vlType := TRoutineType.create(false,TCallNode(vlNode).fRoutineItem,false);
-				TCallNode(vlNode).GetNameStr(vlName);
-				vlType.SetText('Ptr to '+vlName);{TODO Check if there is a messup of MCO_VALUEPOINTER or MCO_OBJECTPOINTER}
-			end else begin
-				vlType := TFormulaNode(vlNode).GetType;
-				if not TFormulaNode(vlNode).Can([CAN_Pointer]) then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Get_Expr_Pointer,'');
-				if vlType = nil then begin
+	if vlNode is TCallNode then begin
+		if TCallNode(vlNode).fParCnt <> 0 then TNDCreator(ParCre).AddNodeError(vlNode,Err_No_Parameters_Expected,'');
+		if TCallNode(vlNode).IsOverloaded  then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Adr_Overl,'');
+		vlType := TRoutineType.create(false,TCallNode(vlNode).fRoutineItem,false);
+		TCallNode(vlNode).GetNameStr(vlName);
+		vlType.SetText('Ptr to '+vlName);{TODO Check if there is a messup of MCO_VALUEPOINTER or MCO_OBJECTPOINTER}
+	end else begin
+		vlType := TFormulaNode(vlNode).GetType;
+		if not TFormulaNode(vlNode).Can([CAN_Pointer]) then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Get_Expr_Pointer,'');
+		if vlType = nil then begin
 					vlName  := 'Unkown Type';
-				end else begin
-					vlType.GetTextStr(vlName);
-					vlName := 'Ptr '+vlName;
-				end;
-				vlType := TPtrType.create(vlType,false);
-				vlType.SetText(vlName);
-			end;
-			iDoneType := true;
-			iType := vlType;
+		end else begin
+			vlType.GetTextStr(vlName);
+			vlName := 'Ptr '+vlName;
 		end;
-		else TNDCreator(ParCre).AddNodeError(vlNode,Err_Int_Invalid_Mac_Opt,'');
+		vlType := TPtrType.create(vlType,false);
+		vlType.SetText(vlName);
 	end;
+	iType := vlType;
 end;
 
-
-
-constructor TMacOption.Create(ParOption:TMacCreateOption);
-begin
-	iMacOption := ParOption;
-	inherited Create;
-end;
-
-function    TMacOption.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
+function    TValuePointerNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var
 	vlmac : TMacBase;
 begin
 	vlMac :=nil;
 	case ParOpt of
-		MCO_Result : vlMac := TFormulaNode(GetPartByNum(1)).CreateMac(fMacOption,ParCre);
+		MCO_Result : vlMac := TFormulaNode(GetPartByNum(1)).CreateMac(MCO_ObjectPointer,ParCre);
 		MCO_SIze   : vlMac := inherited DoCreateMac(MCO_Size,ParCre);
 		else begin
 			Fatal(Fat_Invalid_Mac_Number,['option=',cardinal(ParOpt)]);
@@ -1184,24 +1254,29 @@ begin
 end;
 
 
-destructor  TMacOption.Destroy;
+
+procedure TValuePOinterNode.clear;
 begin
-	inherited Destroy;
-	if iDoneType then iType.Destroy;
+	inherited clear;
+	if iType <> nil then iType.Destroy;
+end;
+
+{---( TObjectPointerNode )----------------------------------------------------------------}
+
+procedure TObjectPointerNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	inherited ValidateFormulaDefinitionUse(ParCre,ParMode,ParUseList);
+	iExpression.ValidateFormulaDefinitionUse(ParCre,AM_PointerOf,ParUseList);
 end;
 
 
-{---( TPointerOfNode )----------------------------------------------------------------}
-
-
-
-procedure TPointerOfNode.ValidateAfter(ParCre : TCreator);
+procedure TObjectPointerNode.ValidateAfter(ParCre : TCreator);
 begin
 	inherited ValidateAfter(ParCre);
 	if iExpression <> nil then iExpression.ValidateAfter(ParCre);
 end;
 
-procedure TPointerOfNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean); {TODO:Duplicate error when can't get pointer }
+procedure TObjectPointerNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean); {TODO:Duplicate error when can't get pointer }
 begin
 	inherited ValidatePre(ParCre,ParIsSec);
 	if iExpression <> Nil then begin
@@ -1210,7 +1285,7 @@ begin
 	end;
 end;
 
-procedure TPointerOfNode.Proces(ParCre : TCreator);
+procedure TObjectPointerNode.Proces(ParCre : TCreator);
 var
 	vlName : string;
 begin
@@ -1225,44 +1300,44 @@ begin
 	end;
 end;
 
-function   TPointerOfNode.Can(ParCan:TCan_Types):boolean;
+function   TObjectPointerNode.Can(ParCan:TCan_Types):boolean;
 begin
 	 Can := (ParCan - [CAN_Size , Can_Read]) = [];
 end;
 
 
-procedure   TPointerOfNode.CommonSetup;
+procedure   TObjectPointerNode.CommonSetup;
 begin
 	inherited CommonSetup;
 	iCOmplexity := CPX_Constant;
 {TODO :identcode}
 end;
 
-procedure TPointerOfNode.GetOperStr(var ParOper:string);
+procedure TObjectPointerNode.GetOperStr(var ParOper:string);
 begin
 	ParOper := 'OBJECT POINTER';
 end;
 
 
-function    TPointerOfNode.GetType:TType;
+function    TObjectPointerNode.GetType:TType;
 begin
 	exit( iType);
 end;
 
-constructor TPointerOfNode.Create(ParNode : TFormulaNode;ParTYpe : TType);
+constructor TObjectPointerNode.Create(ParNode : TFormulaNode;ParTYpe : TType);
 begin
 	iExpression := ParNode;
 	iType := ParType;
 	inherited Create;
 end;
 
-function    TPointerOfNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
+function    TObjectPointerNode.DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 begin
 	exit(iExpression.CreateMac(MCO_ObjectPOinter,ParCre));
 end;
 
 
-procedure TPointerOfNode.Clear;
+procedure TObjectPointerNode.Clear;
 begin
 	inherited Clear;
 	if iExpression <> nil then iExpression.Destroy;
@@ -1581,33 +1656,6 @@ begin
 	fPoc := (ParPoc);
 end;
 
-{-----( TThenELseNode)---------------------------------------}
-
-function  TThenElseNode.CreateSec(ParCre:TSecCreator):boolean;
-begin
-	CreateSec := CreatePartsSec(ParCre);
-end;
-
-procedure TTHenElseNode.Print(ParDis:TDisplay);
-begin
-	if iThenElse then begin
-		ParDis.WriteNl('<then>')
-	end else begin
-		PArDis.WriteNl('<else>');
-	end;
-	iParts.Print(PArDis);
-	if iThenElse then begin
-		ParDis.WriteNl('</then>')
-	end else begin
-		PArDis.WriteNl('</else>');
-	end;
-
-end;
-constructor TThenElseNode.Create(ParThenElse:boolean);
-begin
-	inherited Create;
-	iThenElse := ParThenElse;
-end;
 
 
 
@@ -2311,6 +2359,12 @@ end;
 
 {----( TOperatorNode )------------------------------------------}
 
+
+
+procedure TOperatorNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	iParts.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+end;
 
 function TOperatorNode.CheckConvertTest(ParType1,ParType2 : TType) : boolean;
 begin

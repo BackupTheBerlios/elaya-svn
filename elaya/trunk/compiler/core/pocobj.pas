@@ -18,15 +18,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 }
 
+
 unit Pocobj;
 interface
-uses simplist,display,compbase,linklist,procinst,elacons,macobj,elaTypes,
-progUtil,resource,error,stdobj,lsStorag,cmp_type;
+uses simplist,display,compbase,procinst,elacons,macobj,elaTypes,progUtil,resource,error,stdobj,lsStorag,cmp_type;
+
 type
 	TPocBase    = class;
 	TRefPocBase = class of TPocBase;
 	TLabelPoc = class;
-	TSubPocList  = class(TSecList)
+	TSubPocList  = class(TSmList)
 	private
 		fMacCnt : longint;
 	public
@@ -38,6 +39,7 @@ type
 		procedure Linearize(ParLIst:TSubPocList);
 		function  CreateInst(ParCre:TInstCreator):boolean;virtual;
 		procedure AssignTlStorage(ParList:TTlvStorageList);
+		procedure Print(ParDis:TDisplay);
 	end;
 	
 	
@@ -160,11 +162,11 @@ type
 		procedure   CommonSetup;override;
 	public
 		property    GetMacList:TMacList read voMacList ;
-		procedure   CreateList;virtual;
+		procedure   CreateList;
 		destructor  Destroy;override;
 		procedure   ReserveStorage(ParList:TTlvStorageList);override;
 		procedure   FreeStorage; override;
-		procedure   SetMacResTranslation(ParList:TOperandList;ParCre:TInstCreator);virtual;
+		procedure   SetMacResTranslation(ParList:TOperandList;ParCre:TInstCreator);
 		function    CreateResource(ParCre:TInstCreator;ParNo:TNormal):TOperand;
 		procedure   CreateAllResources(ParCre:TInstCreator;ParInst:TInstruction);virtual;
 		function    CreateInst(PArCre:TInstCreator):boolean;override;
@@ -202,9 +204,11 @@ type
 	end;
 	
 	TNotfor= class(TTwoFor)
+	protected
+		procedure commonsetup;override;
+	public
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(parDis:TDisplay);override;
-		procedure commonsetup;override;
 	end;
 	
 	TIncDecFor=class(TTwoFor)
@@ -221,75 +225,107 @@ type
 	end;
 	
 	TAddFor=class(TSimpleThreeFor)
+	protected
+		procedure  Commonsetup;override;
+
+	public
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
-		procedure  Commonsetup;override;
 	end;
 	
 	TSubFor=class(TSimpleThreeFor)
+	protected
+		procedure  Commonsetup;override;
+
+	public
 		procedure  Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
-		procedure  Commonsetup;override;
 	end;
 	
 	
 	
 	
 	TAndFor=class(TSImpleThreeFor)
+	protected
+		procedure Commonsetup;override;
+
+	public
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(ParDis:TDisplay);override;
-		procedure Commonsetup;override;
 	end;
 	
 	TOrFor=class(TSimpleThreeFor)
+	protected
+		procedure Commonsetup;override;
+
+	public
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(ParDis:TDisplay);override;
-		procedure Commonsetup;override;
 	end;
 	
 	TXorFor=class(TSimpleThreeFor)
+	public
+		procedure Commonsetup;override;
+
+	protected
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(ParDis:TDisplay);override;
-		procedure Commonsetup;override;
 	end;
 
 	TShrFor=class(TTHreePoc)
-		procedure Print(ParDis:TDisplay);override;
+	public
 		procedure Commonsetup;override;
+
+	protected
+		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
 
 	TShlFor=class(TTHreePoc)
+	protected
+   	procedure Commonsetup;override;
+
+	public
 		procedure Print(ParDis:TDisplay);override;
-		procedure Commonsetup;override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
 
 
 	TMulFor=class(TThreePoc)
-		procedure Print(ParDis:TDisplay);override;
+	protected
 		procedure Commonsetup;override;
+
+	public
+		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
 	
 	TDivFor=class(TDivTypeFor)
-		procedure Print(ParDis:TDisplay);override;
+	protected
 		procedure Commonsetup;override;
+
+	public
+		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
 	
 	TModFor=class(TDivTypeFor)
+	protected
+		procedure Commonsetup;override;
+
+	public
 		function  GetIdentNumber(ParMacPos:TNormal):TFlag;override;
 		procedure Print(ParDis:TDisplay);override;
-		procedure Commonsetup;override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
 	
 	
 	TLoadFor=class(TTwoFor)
+	protected
+		procedure CommonSetup;override;
+	public
 		function  CalcOutputMac(ParCre :TCreator):TMacbase;override;
 		procedure Print(ParDis:TDisplay);override;
-		procedure CommonSetup;override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
 	
@@ -297,6 +333,8 @@ type
 	private
 		voCompCode : TIdentCode;
 		property fCompCode :TIdentCode read voCompCode write voCompCode;
+	protected
+		procedure   CommonSetup;override;
 		
 	public
 		property    GetCompCode:TIdentCode read voCompCode;
@@ -304,7 +342,6 @@ type
 		function    GetIdentNumber(ParMacPos:TNormal):TFlag;override;
 		constructor Create(ParCompCode : TIdentCode);
 		procedure   print(ParDis:TDisplay);override;
-		procedure   CommonSetup;override;
 		function    CalcOutputMac(ParCre : TCreator):TMacBAse;override;
 		function    CreateInst(PArCre:TInstCreator):boolean;override;
 		
@@ -316,6 +353,9 @@ type
 		voRtlParameterFlag : boolean;
 		procedure SetRtlParameterFlag(ParFlag : boolean);
 		property  iPar : TMacBase read voPar write voPar;
+	protected
+		procedure  Commonsetup;override;
+
 	public
 		property   fPar:TMacBase read voPar;
 		property   fRtlParameterFlag:boolean read voRtlParameterFlag write SetRtlParameterFlag;
@@ -323,7 +363,6 @@ type
 		procedure  ReserveStorage(ParTLVList:TTLvStorageList);override;
 		procedure  FreeStorage;override;
 		function   CreateInst(PArCre:TInstCreator):boolean;override;
-		procedure  Commonsetup;override;
 		procedure  Print(ParDIs:TDisplay);override;
 		constructor Create(ParParam : TMacBase);
 	end;
@@ -334,20 +373,20 @@ type
 		voPAramSize : TSize;
 		voReturnVar : TMacBase;
 		voTargetMac : TMacBase;
-		property fTargetMac : TMacBase read voTargetMac write voTargetMac;
-		property fParamSize : TSIze    read voParamSize write voPAramSize;
-		property fCDecl     : boolean  read voCDecl	write voCDecl;
-		property fReturnVar : TMacBase read voReturnVar write voReturnVar;
-	public
-		property    GetTargetMac : TMacBase read voTargetMac;
-		property    GetParamSize : TSize    read voParamSize;
-		property    GetCDecl	 : boolean  read voCDecl;
-		property    GetReturnVar : TMacBase read voReturnVar;
-		
-		procedure   SetParamSize(ParSize:TSize);
-		procedure   SetCDecl(ParFlag:boolean);
-		procedure   SetReturnVar(PArVar:TMacBase);
+		property iTargetMac : TMacBase read voTargetMac write voTargetMac;
+		property iParamSize : TSIze    read voParamSize write voPAramSize;
+		property iCDecl     : boolean  read voCDecl	write voCDecl;
+		property iReturnVar : TMacBase read voReturnVar write voReturnVar;
+	protected
 		procedure   CommonSetup;override;
+
+	public
+		property    fTargetMac : TMacBase read voTargetMac;
+		property    fParamSize : TSize    read voParamSize;
+		property    fCDecl	 : boolean  read voCDecl;
+		property    fReturnVar : TMacBase read voReturnVar;
+		
+		procedure   SetReturnVar(PArVar:TMacBase);
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
 		constructor Create(ParTarget:TMacBase;ParCDecl:boolean;ParSize:TSize);
 		procedure   Print(ParDis:TDisplay);override;
@@ -360,13 +399,13 @@ type
 	protected
 		property  iGroupEnd   : TMetaPoc read voGroupEnd write voGroupEnd;
 		property  iGroupBegin : TMetaPoc read voGroupBegin write voGroupBegin;
+		procedure CommonSetup;override;
 
 	public
 		property  fGroupEnd   : TMetaPoc read voGroupEnd write voGroupEnd;
 		property  fGroupBegin : TMetaPoc read voGroupBegin write voGroupBegin;
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
-		procedure CommonSetup;override;
 	end;
 	
 	TLongResListItem=class(TSMListITem)
@@ -395,10 +434,12 @@ type
 	TLongResMetaPoc=class(TMetaPoc)
 	private
 		voMacList : TLongResList;
+	protected
+		procedure CommonSetup;override;
+
 	public
 		property fMacList : TLongResList read voMacList write voMacList;
-		procedure CreateList;virtual;
-		procedure CommonSetup;override;
+		procedure CreateList;
 		function   AddMac(ParCre :TCreator;ParMac:TMacBase):TMacBase;
 		procedure SetMacsLongRes(PArCre:TInstCreator;ParFlag:boolean);
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
@@ -665,14 +706,12 @@ end;
 
 function TLongResMetaPoc.AddMac(ParCre : TCreator;ParMac:TMacBase):TMacBase;
 var vlMac : TTLMac;
-	vlLod : TLoadFor;
+	vlLod : TPocBase;
 begin
 	vlMac :=  TTLMac.Create(ParMac.fSize,ParMac.fSign);
 	TSecCreator(ParCre).AddObject(vlMac);
 	fMacList.AddMac(vlMac);
-	vlLod := TLoadFor.Create;
-	vlLod.SetVar(0,vlMac);
-	vlLod.SetVar(1,ParMac);
+	vlLod := TSecCreator(ParCre).MakeLoadPoc(vlMac,ParMac);
 	TSecCreator(ParCre).AddSec(vlLod);
 	exit(vlMac);
 end;
@@ -918,53 +957,45 @@ end;
 {-----( TCallPoc )---------------------------------------------------------}
 
 
-procedure TCallPoc.SetCDecl(ParFlag:boolean);
-begin
-	fCDecl := ParFlag;
-end;
 
 procedure TCallPoc.SetReturnVar(PArVar:TMacBase);
 begin
-	fReturnVar := ParVar;
+	iReturnVar := ParVar;
 end;
 
 procedure TCallPoc.CommonSetup;
 begin
 	inherited COmmonSetup;
-	fTargetMac := nil;
-	fReturnVar := nil;
+	iTargetMac := nil;
+	iReturnVar := nil;
 	iIdentCode := IC_CallPoc;
-	SetCDecl(False);
-	SetParamSize(0);
+	iCDecl     := False;
+	iParamSize := 0;
 end;
 
 
 function  TCallPoc.CreateInst(ParCre:TInstCreator):boolean;
 begin
 	GetAssemblerInfo.TranslateCall(ParCre,self);
-	CreateInst := false;
+	exit(false);
 end;
 
-procedure TCallPoc.SetParamSize(ParSize:TSize);
-begin
-	fParamSize := ParSize;
-end;
 
 constructor TCallPoc.Create(ParTarget:TMacBase;ParCDecl:boolean;ParSize:TSize);
 begin
 	inherited Create;
-	fTargetMac := ParTarget;
-	SetCDecl(ParCDecl);
-	SetParamSize(parSize);
+	iTargetMac := ParTarget;
+	iCDecl     := ParCDecl;
+	iParamSize := parSize;
 end;
 
 procedure TCallPoc.Print(ParDis:TDisplay);
 begin
 	ParDis.write('Call ');
-	if fTargetMac <> nil then fTargetMac.Print(parDis);
-	if GetReturnVar <> nil then begin
+	if iTargetMac <> nil then iTargetMac.Print(parDis);
+	if iReturnVar <> nil then begin
 		ParDis.Write(' Return=');
-		fReturnVar.Print(ParDis);
+		iReturnVar.Print(ParDis);
 	end;
 end;
 
@@ -1892,6 +1923,20 @@ end;
 
 
 {---( TSubPocList )---------------------------------------------------------}
+
+
+	
+procedure TSubPocList.Print(ParDis:TDisplay);
+var vlCurrent:TSecBase;
+begin
+	vlCurrent := TSecBase(fStart);
+	while vlCurrent <> nil do begin
+		vlCurrent.Print(ParDis);
+		ParDis.nl;
+		vlCurrent := TSecBase(vlCurrent.fNxt);
+	end;
+end;
+
 
 { Assigns a TStorageObject to a TLMac
 Is Called  after the poclist is created from te nodelist.

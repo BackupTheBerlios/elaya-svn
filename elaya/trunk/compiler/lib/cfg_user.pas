@@ -24,8 +24,11 @@ uses largenum,display,progutil,stdobj,config,cmp_type,cfg_error,cmp_base,confdef
 type  TCFG_User=class(TCOmpiler_Base)
 	private
 		voConfig : TConfig;
+		property iConfig: TConfig read voConfig write voConfig;
+
 	protected
-		property iCOnfig: TConfig read voConfig write voConfig;
+		property fConfig: TConfig read voConfig;
+
 		procedure AddVar(const ParName,ParValue  : string;ParReadOnly:boolean);
 		function GetVar(const ParName : string) : TConfigVarItem;
 		function  GetVarNode(const ParName : string) : TVarConfigNode;

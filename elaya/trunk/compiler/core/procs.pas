@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit procs;
 
 interface
-uses error,strmbase,streams,cblkbase,asmdisp,Formbase,linklist,types,vars,compbase,asmcreat,asmdata,stdobj,ddefinit,asminfo,
-elacons,display,node,Pocobj,elatypes,resource,params,DIdentLs,progutil
-,DSbLsDef,macobj,NDCreat,idlist,elacfg,lsStorag,varbase,cmp_type,frames;
+uses error,strmbase,streams,cblkbase,Formbase,compbase,asmdata,stdobj,ddefinit,asminfo,
+elacons,display,node,params,DIdentLs,progutil,NDCreat,idlist,cmp_type,frames;
+
 type
 	
 	TProcedureObj=class(TRoutine)
@@ -117,7 +117,7 @@ type
 		function GetByDefinition(ParDef :TRoutine;ParTYpe : TParamCompareOptions):TRoutine;
 		function ExistsDefinition(ParDef:TRoutine):boolean;
 		function Validate(ParDef:TDefinition):TErrorType; override;
-		function IsOverloadingComp(ParDef:TDefinition):boolean;virtual;
+		function IsOverloadingComp(ParDef:TDefinition):boolean;
 		function GetDefaultRoutineItemByNode(ParNode : TCallNode) : TRoutine;
 		function GetRoutineByMapping(ParMapping : TParameterMappingList) : TRoutine;
 		function  AddidentAt(ParAt ,Parident:TDefinition):TErrorType;override;

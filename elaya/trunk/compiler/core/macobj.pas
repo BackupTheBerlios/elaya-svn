@@ -20,8 +20,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit MacObj;
 interface
-uses simplist,largenum,linklist,compbase,progutil,display,
-elatypes,elacons,Resource,register,error,stdobj,lsstorag;
+uses largenum,compbase,progutil,display,elatypes,elacons,Resource,error,stdobj,lsstorag;
+
 type
 	
 	TMacBase=class(TSecBase)
@@ -102,9 +102,10 @@ TMemMac=class(TMacBase)
 private
 	voName : TString;
 	property  iName : TString read voName write voName;
+protected
+	procedure  CommonSetup;override;
 public
 	property   fName : TString read voName;
-	procedure  CommonSetup;override;
 	procedure  SetName(const ParName:String);
 	procedure  fNameStr(var ParName:String);
 	function   IsSame(ParMac:TSecBase):boolean;override;
@@ -157,6 +158,8 @@ TOutputMac=class(TMacBase)
 protected
 	voName : longint;
 	property  iName : longint read voName write voName;
+	procedure CommonSetup;override;
+
 public
 	property  fName : longint read voName write voName;
 	function  CreateResource(ParCre:TInstCreator):TResource;override;
@@ -164,7 +167,6 @@ public
 	function  CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;override;
 	function  IsSame(ParSec:TSecBase):boolean;override;
 	procedure Print(ParDIs:TDisplay);override;
-	procedure CommonSetup;override;
 end;
 
 
@@ -173,6 +175,8 @@ TCompareMac=class(TMacBase)
 private
 	voCompCode : TIdentCode;
 	property    iCompCode : TIdentCode read voCompCode write voCompCode;
+protected
+	procedure   CommonSetup;override;
 public
 	property    fCompCode : TIdentCode read voCompCode;
 	constructor Create(ParCompCode : TIdentCode ; ParSign : boolean);
@@ -181,7 +185,6 @@ public
 	function    CreateResource(ParCre:TInstCreator):TResource;override;
 	function    IsSame(ParSec:TSecBase):boolean;override;
 	procedure   Print(ParDis:TDisplay);override;
-	procedure   CommonSetup;override;
 end;
 
 TResultMac =class(TMacBase)
@@ -203,6 +206,9 @@ TByPointerMac=class(TMacBase)
 private
 	voPointer : TMacBase;
 	property iPointer : TMacBase read voPointer write voPointer;
+protected
+	procedure   Commonsetup;override;
+
 public
 	property fPointer : TMacBase read voPointer;
 
@@ -214,18 +220,19 @@ public
 	function    CreateResource(ParCre:TInstCreator):TResource;override;
 	function    IsSame(ParSec:TSecBase):boolean;override;
 	constructor Create(ParSize:TSize;ParSign:boolean;ParOther:TMacBase);
-	procedure   Commonsetup;override;
 end;
 
 TTLMac=class(TMacBase)
 private
 	voName    : cardinal;
 	voStorage : TTlvStorageItem;
+protected
+	procedure   Commonsetup;override;
+
 public
 	property fStorage   : TTlvStorageItem read voStorage write voStorage;
 	property fName	    : cardinal        read voName    write voName;
 	
-	procedure   Commonsetup;override;
 	function    IsSame(ParSec:TSecBase):boolean;override;
 	function    CreatePtrResource(ParCre : TInstCreator):TResource;override;
 	function    CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;override;

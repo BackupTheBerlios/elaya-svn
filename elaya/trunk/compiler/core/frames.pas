@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit frames;
 interface
-uses largenum,streams,compbase,formbase,ddefinit,didentls,varbase,node,stdobj,macobj,linklist,elacons,elatypes,error,display;
+uses largenum,streams,compbase,formbase,ddefinit,varbase,node,stdobj,macobj,linklist,elacons,elatypes,error,display;
 type
 	TAddressing=class(TListItem)
 	private
@@ -31,6 +31,7 @@ type
 		property iOwner   : TDefinition read voOwner write voOwner;
 		property iContext : TDefinition read voContext write voContext;
 		property iDestroy : boolean     read voDestroy write voDestroy;
+		procedure   Clear;override;
 		
 	public
 		
@@ -41,7 +42,6 @@ type
 		function    CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;virtual;
 		function    CreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;virtual;
 		procedure   DestroyFramePointer;virtual;
-		procedure   Clear;override;
 		function    GetContextName : string;
 	end;
 	
@@ -102,6 +102,9 @@ type
 		property  iPrevious   : TFrame          read voPrevious   write voPrevious;
 		property  iShare      : TFrame		read voShare	  write voShare;
 		property  iAddressLIst : TAddressingList read voAddressList write voAddressList;
+		procedure Commonsetup;override;
+		procedure Clear;override;
+
 	public
 		procedure SetShare(ParFrame : TFrame);
 		property  fPrevious  : TFrame          read voPrevious   write voPrevious;
@@ -115,8 +118,6 @@ type
 		
 		procedure PopAddressing(ParOwner : TDefinition);
 		constructor Create(ParUpDirection : boolean);
-		procedure Commonsetup;override;
-		procedure Clear;override;
 		function  GetNewOffset(const ParSize : TSize) : TOffset;
 		function  CreateMac(ParContext :TDefinition;ParOpt : TMacCreateOption;ParCre : TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;
 		function  CreateFramePointerMac(ParContext :TDefinition;ParCre : TSecCreator) : TMacBase;
@@ -376,6 +377,7 @@ begin
 	if vlAddressing  = nil then begin
 		vlAddressing := TAddressing(fTop);
 		while(vlAddressing <> nil) do begin
+			writeln(cardinal(vlAddressing.fContext),' ',cardinal(ParOwner),' ',vlAddressing.GetContextName);
 			vlAddressing := TAddressing(vlAddressing.fPrv);
 		end;
 		if(ParOwner <> nil) then begin
@@ -424,7 +426,7 @@ begin
 		if ParOwner <> nil then ParOwner.GetTextStr(vlName1);
 		vlName2 := '<NULL>';
 		if TAddressing(fTop).fOwner<> nil then TAddressing(fTop).fOwner.GetTextStr(vlName2);
-		Fatal(FAT_Invalid_Pop_Addressing,['Owner: Parameter = ',vlName1,' Name2=',vlName2]);
+		Fatal(FAT_Invalid_Pop_Addressing,['Owner: Parameter = ',vlName1,' and must be  Name2=',vlName2]);
 	end;
 	DeleteLink(fTop);
 end;

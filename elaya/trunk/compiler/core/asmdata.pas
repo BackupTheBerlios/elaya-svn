@@ -51,9 +51,11 @@ type
 	TTextDataDef=class(TDataDef)
 	private
 		voText:TString;
+	protected
+		procedure   commonsetup;override;
+
 	public
 		function    GetName:TString;
-		procedure   commonsetup;override;
 		procedure   SetName(const ParName:string);
 		constructor Create(const ParName:string);
 		destructor  destroy;override;
@@ -176,10 +178,11 @@ type
 		voname   : TString;
 		property iName   : TString read voName   write voName;
 		property iGlobal : boolean read voGlobal write voGlobal;
+	protected
+		procedure   clear;override;
 	public
 		constructor Create(ParGlobal:boolean;ParType : TDatType;const ParName:string);
 		procedure   Print(parDis:TAsmDisplay);override;
-		procedure   clear;override;
 	end;
 	
 	TLabelDef=class(TAssemDef)

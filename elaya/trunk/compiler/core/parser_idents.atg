@@ -24,6 +24,7 @@ PRODUCTIONS
 
 IAbstract    = "abstract".
 IAlign	     = "align".
+IAll         = "all".
 IAnd	     = "and".
 IArray	     = "array".
 IAs          = "as".
@@ -103,6 +104,7 @@ IUntil	     = "until".
 IUnion	     = "union".
 IUnit	     = "unit".
 IUses	     = "uses".
+IValue     = "value".
 IVar	     = "var".
 IVirtual     = "virtual".
 IWhere       = "where".

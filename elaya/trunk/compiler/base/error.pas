@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit Error;
 interface
-uses sysutils,progutil,elatypes,strings,cmp_type;
+uses sysutils,progutil,strings,cmp_type;
 const
 	Err_No_Error              = 0;
 	Err_Illegal_Type_Size     = 1000;
@@ -195,6 +195,8 @@ const
 	Err_Not_A_Operator            = 1181;
 	Err_Abs_cant_have_main        =1182;
 	Err_Vir_ch_Par_has_zu_Size    =1183;
+	Err_Array_Expected            =1184;
+
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
 	Err_Int_Wrong_Enum_list  = 2002;
@@ -332,6 +334,9 @@ const
 	FAT_SPlit_Without_Main      = 4095;
 	FAT_Cant_Create_Nodes_here  = 4096;
 	FAT_Operant_To_big          = 4097;
+	FAT_Node_Is_NULL            = 4098;
+	Fat_Combine_Wrong_Type_du   = 4099;
+	FAT_no_du_list_from_context = 4100;
 	procedure GetError(ParErrorNo:TErrorTYpe;var ParMsg:string);
 	procedure Fatal(ParError:TErrorType;const ParRes:string);
 	procedure Fatal(PArError:TErrorTYpe;const ParArray:array of const);
@@ -439,8 +444,10 @@ begin
 	FAT_Obj_Allready_In_Obj_List : vlMsg := 'Object Allready in object List';
 	FAT_SPlit_Without_Main       : vlMsg := 'Can''t split routine without main';
 	FAT_Cant_Create_Nodes_here   : vlMsg := 'Can''t create nodes here';
-    FAT_Operant_To_big           : vlMsg := 'Operand to big';
-
+   FAT_Operant_To_big           : vlMsg := 'Operand to big';
+	FAT_Node_Is_NULL				  : vlMsg := 'Node is null';
+	FAT_Combine_Wrong_Type_DU    : vlMsg := 'Try to combine wrong type of definitionuse items';
+	FAT_no_du_list_from_context  : vlMsg := 'No definition-use list returned for context';
 	else writeln('Unkown fatal error '+IntToStr(ParError));
 	end;
 	writeln(vlMsg);
@@ -627,7 +634,7 @@ begin
 		Err_Parent_not_over_ident	 : vlMsg := 'Parent of class doesn''t descent from overriden identifier';
 		Err_Wrong_Access_Level		 : vlMsg := 'Wrong access level';
 		Err_Not_A_Class				 : vlMsg := 'Not a class';
-		Err_Recrusive_Call_in_prop   : vlMsg := 'Recruisive call not routine in property aceess';
+		Err_Recrusive_Call_in_prop   : vlMsg := 'Recruisive call not routine in property access';
         Err_Type_Differes_from_prop  : vlMSg := 'Identifier has differen type as property';
     	Err_Wrong_Kind_ident_for_prop: vlMsg := 'Wrong kind of identifier for property';
 		Err_Property_Routine_Overl   : vlMsg := 'Property routine is overloaded';
@@ -643,6 +650,7 @@ begin
 		Err_Not_A_Operator			 : vlmsg := 'Identifier is not a operator';
 		Err_Abs_cant_have_main       : vlMsg := 'Abstract routine can''''t have a main';
 		Err_Vir_ch_Par_has_zu_Size : vlMsg := 'Virtual parameter can''''t have has zero or an undefined size';
+		Err_Array_Expected			  : vlMsg := 'Array type expression  expected';
 
 		Err_Read_Without_Write       : vlMsg := 'Read of unitialised variable' ;
 		Err_Read_Some_without_Write  : vlMsg := 'Read of variable which is sometimes unitialised';

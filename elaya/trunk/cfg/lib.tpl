@@ -40,7 +40,7 @@ section
 	Print_Register_Res           := 'N';
 	Remember_External_Param_name := 'Y';	
 	Is_Elf_Target := 'N';
-	Auto_Load           := 'core;sys;classes;memory';
+	Auto_Load           := 'core;sys;classes;memory;strings';
 END;
 
 var MySql_Lib_Type := '';
@@ -139,6 +139,10 @@ SECTION(t_is_Win32='y')
         t_os_Ok:='y';
 END;
 
+
+SECTION(source_name='strings') 
+	Auto_Load := ''; 
+END; 
 
 SECTION(source_name='sys_int') 
 	Auto_Load := ''; 

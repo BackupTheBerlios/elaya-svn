@@ -110,7 +110,7 @@ RWhile<var ParNode:TNodeIdent>
 IWhile RFormula<vlCond>
 (.
 	ParNode := TWhileNode.Create;
-	TWhileNode(ParNode).SetCond(fNDCreator,vlCond);
+	TWhileNode(ParNode).SetCond(vlCond);
 	fNDCreator.AddCurrentNode(ParNode);
 .)
 IDo RCode<ParNode>
@@ -133,29 +133,31 @@ RCount:"count statement"<var ParNode:TNodeIdent>
 	vlNode := TCountNode.Create;
 	vlUp   := false;
  .)
-ICount RFormula<vlN1>			(.  vlNode.SetCount(fNDCreator,vlN1); .)
-IFrom  RFormula<vlN2>			(.  vlNode.SetBegin(fNDCreator,vlN2); .)
+ICount RFormula<vlN1>			(.  vlNode.SetCount(vlN1); .)
+((IAll IOf RFormula<vlN3> (. vlNode.SetAllOf(vlN3); .))|(
+
+IFrom  RFormula<vlN2>			(.  vlNode.SetBegin(vlN2); .)
 [((ITo					(.  vlUp := true; .))
 |(IDownTo				(.  vlUp := false; .)))
 							(.  vlNode.Setup(vlUp); .)
-RFormula<vlN3>				(.  vlNode.SetEnd(fNDCreator,vlN3); .)]
+RFormula<vlN3>				(.  vlNode.SetEnd(vlN3); .)]
 [IStep RFormula<vlN4>]
 (.
 	if vlN4 = nil then vlN4 := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
-	vlNode.SetStep(fNDCreator,vlN4);
+	vlNode.SetStep(vlN4);
+.)
+))
+[IUntil RExpr<vlEndCondition> (.	vlNode.SetEndCondition(vlEndCondition);.)
+]
+((.
 	fNDCreator.AddCurrentNode(vlNode);
 .)
-[IUntil RExpr<vlEndCondition>
-	(.
-		vlNode.SetEndCondition(fNDCreator,vlEndCondition);
-	.)
-]
-
 [IDo RCode<vlNode>]
 (.
 	ParNode := vlNode;
 	fNDCreator.EndNode;
  .)
+)
 .
 
 
@@ -168,7 +170,7 @@ RFor<var ParNode :TNodeIdent>
 .)
 =
 					(. vlNode := (TForNode.Create); .)
-IFor RFormula<vlExpr>                      (. vlNode.SetBegin(fNDCreator,vlExpr); .)
+IFor RFormula<vlExpr>                      (. vlNode.SetBegin(vlExpr); .)
 IUntil RFormula<vlExpr>
 (.
 	vlNode.SetEnd(vlExpr);
@@ -193,7 +195,7 @@ RIf<var ParNode:TNodeIdent>
 IIf RFormula<vlCond>
 (.
 	ParNode := TIfNode.Create;
-	TIfNode(ParNode).SetCond(fNDCreator,vlCond);
+	TIfNode(ParNode).SetCond(vlCond);
 	vlThen := TThenElseNode.Create(True);
 	ParNode.AddNode(vlThen);
 .)
@@ -216,7 +218,7 @@ IRepeat        			(. ParNode := TRepeatNode.Create;
 {RCode<ParNode> ";"}
 IUntil RFormula<vlCond>
 (.
-	TRepeatNode(ParNode).SetCond(fNDCreator,vlCond);
+	TRepeatNode(ParNode).SetCond(vlCond);
 	fNDCreator.EndNode;
 .)
 .

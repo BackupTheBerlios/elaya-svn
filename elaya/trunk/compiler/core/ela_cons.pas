@@ -6,7 +6,7 @@ Interface
 uses dynset;
 const
 
-	MaxP  =119;
+	MaxP  =121;
 	MaxSS =17;
 	SetSize=16;
 

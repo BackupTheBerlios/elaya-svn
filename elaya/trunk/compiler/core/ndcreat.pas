@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit NDCreat;
 interface
 uses largenum,streams,sysutils,stdobj,files,compbase,idlist,DSbLsDef,node,elatypes,formbase,progutil,asminfo,ddefinit,cmp_type,
-	hashing,linklist,types,elacons,cmp_base,elacfg,module,cdfills,params,error,curitem;
+	hashing,types,elacons,cmp_base,elacfg,module,error,curitem;
 	
 type
 	
@@ -67,14 +67,13 @@ type
 		function    GetWriteProc(ParNl:boolean;var ParItem,ParOwner:TDefinition):boolean;
 		function    AddUnit(const ParUnit:string;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
 		procedure   AutoLoadModule;
-		procedure   InitForwardList;virtual;
-		procedure   InitUnitUseList;virtual;
+		procedure   InitForwardList;
+		procedure   InitUnitUseList;
 		procedure   SetforwardList(ParList:TForwardList);
 		{Aanmaken code}
 		function  MakeLoadNodeByDef(ParSource : TFormulaDefinition;ParSourceContext : TDefinition;ParDestination : TFormulaDefinition;ParDestContext : TDefinition) : TNodeIdent;
 		function  MakeLoadNodeToDef(ParSourceNode : TFormulaNode;ParDestination : TFormulaDefinition;ParContext :TDefinition) : TFormulaNode;
 		function  MakeLoadNode(ParSource,ParDest : TFormulaNode) : TFormulaNode;
-		function  MakeLoadNodeByPtrDef(ParSource : TFormulaDefinition;ParSourceContext : TDefinition;ParDestination : TFormulaDefinition;ParDestContext : TDefinition):TNodeIDent;
 		
 		{Create new constants}
 		procedure   AddStringConst(ParName:TNameList;const PArStr:string);
@@ -98,7 +97,7 @@ type
 		procedure   EndEnum;
 		function    GetNewCompiler(const ParFileName:String):TCompiler_Base;
 		function    GetIntSizeByRange(const Pari1,ParI2:TNumber;var ParSize:TSize;var ParSign:boolean):boolean;
-		procedure   InitLoader;virtual;
+		procedure   InitLoader;
 		function    LoadUnit(ParLoader:TObjectStream;const ParUnit:string;ParLevel :TUnitLevel;ParPublic:boolean):TUnit;
 		procedure   Save;
 		procedure   ErrorText(ParError:TErrorType;const ParText:string);
@@ -108,7 +107,6 @@ type
 		procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
 		procedure   AddNodeListError(ParNode : TNodeList;ParError : TErrorType;const ParText : string);
 		procedure   AddNodeDefError(ParNode:TNodeIdent;ParError:TErrorType;ParDef : TDefinition);
-
 		destructor  Destroy;override;
 		function    CreateRecord:TType;
 		procedure   SetIsUnitFlag(ParIsUnitFlag:boolean);
@@ -165,9 +163,11 @@ type
 		procedure ProcessSingleOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParOperObj   : TRefNodeIdent);
 		procedure ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : string;ParNode : TRefNodeIdent);
 		function  AddNodeTONode(ParNode1 : TNodeIDent;var ParNode2:TNodeIdent):boolean;
-		function  CreateIntNode(ParNum : TNumber) : TNodeIdent;
+		function  CreateIntNode(ParNum : TNumber) : TNodeIdent;{TODO CreateNumberNode}
 		function  CreateIntNodeLong(ParNUm : cardinal) : TNodeIdent;
 		procedure SetNodePos(ParNode : TNodeIdent);
+		procedure SetDefinitionPos(ParDef : TDefinition);
+
 		procedure AddGlobalOnce(ParItem : TDefinition);
 		procedure AddGlobal(ParItem : TDefinition);
 		procedure DoInheritedOfProc(ParMention : TMN_Type;ParLevel : cardinal;const ParName : string;var ParNode : TFormulaNode);
@@ -370,37 +370,21 @@ begin
 	exit(MakeLoadNode(ParSourceNode,vlDestNode));
 end;
 
-
-function TNDCreator.MakeLoadNodeByPtrDef(ParSource : TFormulaDefinition;ParSourceContext : TDefinition;ParDestination : TFormulaDefinition;ParDestContext : TDefinition):TNodeIDent;
-var
-	vlSourceNode : TFormulaNode;
-	vlDestNode   : TFormulaNode;
-	vlPtrSource  : TFormulaNode;
-	vlType       : TFormulaNode;
-begin
-	vlSourceNode := TFormulaNode(ParSource.CreateReadNode(Self,ParSourceContext));
-	SetNodePos(vlSourceNode);
-	vlPtrSource  := TMacOption.Create(MCO_ValuePointer);
-	SetNodePos(vlPtrSource);
-	vlPtrSource.AddNode(vlSourceNode);
-	vlPtrSource.proces(self);{TODO remove casting =>proces can then also be removed}
-	vlType := TTypeNode.Create(vlPtrSource.GetType);
-	SetNodePos(vlType);
-	{Verr Ugly Hack: Typecasting hack for load to 'parameter second var'}
-	{'second var' can somtimes be a pseude autoptr.
-	But autoptr not good implemented =>Need cast to avoid errors}
-	vlDestNode  := TFormulaNode(ParDestination.CreateReadNode(self,ParDestContext));
-	SetNodePos(vlDestNode);
-	vlType.AddNode(vlDestNode);
-	exit(MakeLoadNode(vlPtrSource,vlType));
-end;
-
 function TNDCreator.MakeLoadNodeByDef(ParSource : TFormulaDefinition;ParSourceContext : TDefinition;ParDestination : TFormulaDefinition;ParDestContext : TDefinition) : TNodeIdent;
 var vlSourceNode : TFormulaNode;
 begin
 	vlSourceNode := TFormulaNode(ParSource.CreateReadNode(self,ParSourceContext));
 	SetNodePos(vlSourceNode);
 	exit(MakeLoadNodeToDef(vlSourceNode,ParDestination,ParDestContext));
+end;
+
+procedure  TNDCreator.SetDefinitionPos(ParDef : TDefinition);
+begin
+	if ParDef <> nil then begin
+		ParDef.fPos := fCOmpiler.pos;
+		ParDef.fLine := fCompiler.line;
+		ParDef.fCOl := fCompiler.col;
+	end;
 end;
 
 
@@ -435,7 +419,7 @@ begin
 	if not GetPtrInCurrentList(vlName,vlOwner,vlDef) then exit(CF_NotFound);
 	if not(vlDef is TRoutineCollection) then exit(CF_Other_Type);
 	vlDef.GetPtrByObject(vlName,TRoutine(ParRoutine),[],ParOwner,ParCB);
-if vlDef.fDefAccess <> AF_Public then exit(CF_Public)
+	if vlDef.fDefAccess <> AF_Public then exit(CF_Public)
 	else exit(CF_NotPublic);
 end;
 
@@ -907,7 +891,6 @@ begin
 end;
 
 
-
 procedure TNDCreator.AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
 var vlLine,vlCol,vlPos:Longint;
 begin
@@ -1268,6 +1251,7 @@ begin
 			end else begin
 				 vlVar := TVariable.Create(vlStr,ParType);
 			end;
+			SetDefinitionPos(vlVar);
 			vlVar.fDefAccess := AF_Current;
 			AddIdent(vlVar);
 			vlCurrent := TNameItem(vlCurrent.fNxt);

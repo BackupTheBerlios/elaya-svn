@@ -1,10 +1,7 @@
 COMPILER ELA
-USES confval,cmp_cons,error,module,linklist,types,stdobj,asminfo,
-     vars,display,elacons,formbase,macobj,cblkbase,
-     compbase,procs,elaTypes,node,extern,ddefinit,doperfun,
-     varbase,params,elacfg,progutil,classes,
-     nif,nlinenum,naddsub,execobj,exprdigi,
-     cmp_type,largenum;
+USES confval,error,types,stdobj,asminfo,vars,display,elacons,formbase,cblkbase,
+     compbase,procs,elaTypes,node,extern,ddefinit,doperfun,params,elacfg,progutil,classes,
+     nif,nlinenum,naddsub,execobj,exprdigi,largenum,blknodes,stmnodes;
 
 
 

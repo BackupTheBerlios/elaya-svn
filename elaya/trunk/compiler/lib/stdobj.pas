@@ -19,11 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit stdobj;
 interface
-uses  strings,largenum,progutil
-{$ifdef mem}
-,mem
-{$endif}
-;
+uses  strings,largenum,progutil;
 
 const
 	VT_Nothing = 1;
@@ -251,8 +247,8 @@ end;
 {$endif}
 
 {$ifdef malloc}
-function CMalloc(ParSize : longint):pointer;external 'libc.so' name 'malloc';
-function CFree(ParPtr: pointer):longint;external 'libc.so' name 'free';
+function CMalloc(ParSize : longint):pointer;cdecl;external 'libc.so' name 'malloc';
+function CFree(ParPtr: pointer):longint;cdecl;external 'libc.so' name 'free';
 {$endif}
 
 function int_malloc(ParSize : longint):pointer;

@@ -19,9 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit vars;
 interface
-uses cmp_type,varbase,Formbase,streams,elacons,compbase,types,asmcreat,progutil,stdobj,
-	display,error,elaTypes,pocobj,macObj,asmdata,elacfg,
-	node,ddefinit,asminfo,largenum,dsblsdef,varuse;
+uses varbase,Formbase,streams,elacons,compbase,types,asmcreat,progutil,stdobj,
+	display,elaTypes,macObj,asmdata,elacfg,node,ddefinit,asminfo,largenum,dsblsdef;
 	
 type
 	
@@ -30,6 +29,9 @@ type
 		voVal:TValue;
 	protected
 		property iVal : TValue read voVal write voVal;
+		procedure  CommonSetup;override;
+		procedure  Clear;override;
+
 	public
 		function   CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		procedure  SetValue(ParVal:TValue);
@@ -37,8 +39,6 @@ type
 		procedure  PrintDefinitionBody(ParDis : TDisplay);override;
 		procedure  PrintDefinitionType(ParDis : TDisplay);override;
 		function   Can(ParCan:TCan_Types):boolean;override;
-		procedure  CommonSetup;override;
-		procedure  Clear;override;
 		function   CreateReadNode(ParCre : TCreator;ParContext : TDefinition):TFormulaNode;override;
 		function  CreateDb(ParCre:TCreator):boolean;override;
 		function  LoadItem(parWrite:TObjectStream):boolean;override;

@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit objlist;
 interface
-uses error,simplist,stdobj;
+uses simplist,stdobj;
 const
 	Max_Item_Num=64;
 type

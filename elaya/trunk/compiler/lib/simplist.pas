@@ -75,7 +75,7 @@ type
 		function  DeleteLink(ParItem:TSMListItem):TSMListItem;
 		function  GetPtrByNum(ParNUm : cardinal) : TSMListItem;
 		procedure DeleteAll;
-		procedure  ClearList;virtual;
+		procedure  ClearList;
 		function  GetNumItems:longint;
 		function  IsEmpty:boolean;
 	end;

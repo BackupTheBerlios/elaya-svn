@@ -1,0 +1,373 @@
+unit;
+uses pstring,sys_int;
+
+public
+type
+	TDate=record
+		Day : long;
+		Month : long;
+		Year : long;
+	end;
+
+function GetDayOfWeek(const ParDate : TDate):long;
+function GetDayNumber(const ParDate : TDate):long;
+function DaysSindsBeginYear(const parDate : TDate):long;
+function DaysInMonth(ParMonth:long;ParYear : long):long;
+function IsLeapYear(ParYear : long):boolean;
+procedure NumberToDate(ParNumber : long;var ParDate : TDate);
+operator (const ParDate1 : TDate) - (const ParDate2 : TDate):longint;overload;
+operator (const ParDate : TDate) - (ParNum : longint): TDate;overload;
+operator (const ParDate1 : TDate) + (ParNUm  : longint):TDate;overload;
+operator (ParNUm  : longint)+(const ParDate1 : TDate) :TDate;overload;
+operator (const ParDate1 : TDate) >= (const ParDate2 : TDate) : boolean;overload;
+operator (const ParDate1 : TDate) <= (const ParDate2 : TDate) : boolean;overload;
+operator (const ParDate : TDate) between (const ParDate1 : TDate) and (const ParDate2 : TDate) : boolean;overload;
+operator (const ParDate1 : TDate) > (const ParDate2 : TDate) : boolean;overload;
+operator (const ParDate1 : TDate) < (const ParDate2 : TDate) : boolean;overload;
+operator (const ParDate1 : TDate) = (const ParDate2 : TDate) : boolean;overload;
+operator (const ParDate1 : TDate) <> (const ParDate2 : TDate) : boolean;overload;
+function DateToString(const ParDate : TDate;var ParDateText : string):boolean;overload;
+function DateToString(const ParDate : TDate;const ParFormat : string;var ParDateText : string):boolean;overload;
+function StringToDate(const ParDateText : string;const ParFormat : string;var ParDate : TDate):boolean;
+function IsValidDate(const ParDate:TDate) : boolean;
+function GetShortMonthName(ParMonthNo : long):string;
+
+end public
+
+type TDateInfo=record
+			vrMonthNames:array[1 to 12] of pstring;
+			vrShortMonthNames:array[1 to 12] of pstring;
+			vrDayNames : array[1 to 7] of pstring;
+         vrShortDayNames : array[1 to 7] of pstring;
+			vrDefaultFormat : pstring;
+		end;
+
+
+var
+		vlInfo : TDateInfo;
+
+
+function IsLeapYear(ParYear : long):boolean;
+begin
+	exit((ParYear mod 4 = 0) and ((ParYear mod 100 <> 0)  or (ParYear mod 400 =0)));
+end;
+
+function DaysInMonth(ParMonth:long;ParYear : long):long;
+var
+	vlDim : long;
+begin
+	vlDim := 30 + (ParMonth + (ParMonth div 8)) mod 2;
+	if ParMonth = 2 then begin
+		dec vlDim with 2;
+		if IsLeapYear(ParYear) then Inc vlDIm;
+	end;
+	exit(vlDim);
+end;
+
+function IsValidDate(const ParDate:TDate) : boolean;
+begin
+	if (ParDate.Month =0) or (ParDate.Month > 12) then exit(false);
+	if (ParDate.day=0) or (ParDate.Day >DaysInMonth(ParDate.Month,ParDate.year)) then exit(false);
+	exit(True);
+end;
+
+function DaysSindsBeginyear(const parDate : TDate):long;
+var
+	vlDsj : long;
+	vlMonth : long;
+begin
+	vlDsj := ParDate.Day -1;
+	vlMonth := ParDate.Month - 1;
+	if vlMonth > 0 then begin
+		vlDsj := vlDsj+vlMonth * 30  + (vlMonth +1+(vlMonth div 8)) div 2;
+		if vlMonth >=2 then begin
+			dec vlDsj with 2;
+			if IsLeapYear(ParDate.Year) then inc vlDsj;
+		end;
+	end;
+	exit(vlDsj);
+end;
+
+procedure NumberToDate(ParNumber : long;var ParDate : TDate);
+var
+	vlYear : long;	
+	vlNum : long;
+	vlRes : long;
+
+begin
+	ParDate.Day := 1;
+	ParDate.Month := 1;
+	ParDate.Year := ParNumber div 365 -1;
+	repeat
+		inc ParDate.Year;
+		vlNum := GetDayNumber(ParDate);
+	until vlNum > ParNumber;
+	dec(ParDate.Year);
+	vlRes := ParNumber - GetDayNumber(ParDate)+1;
+	ParDate.Month := 1;
+	repeat
+		vlNum := DaysInMonth(ParDate.month,ParDate.Year);
+		if vlNum > vlRes then break;
+		dec vlRes with vlNum;
+		inc ParDate.month ;
+	until false;	
+	ParDate.Day := vlRes;
+end;
+	
+	
+
+
+function GetDayNumber(const ParDate : TDate):long;
+var 
+	vlYear : long;
+begin
+	vlYear := ParDate.Year ;
+	vlYear := vlYear*365 +(vlYear div 4)  - (vlYear div 100) + (vlYear div 400) +DaysSindsBeginYear(ParDate);
+	exit(vlYear);
+end;
+
+function GetDayOfWeek(const ParDate : TDate):long;
+begin
+	exit((1+GetDayNumber(ParDate)) mod 7+1);
+end;
+
+operator (const ParDate1 : TDate) - (const ParDate2 : TDate):longint;overload;
+begin
+	exit(GetDayNumber(ParDate1) - GetDayNumber(ParDate2));
+end;
+
+operator (const ParDate : TDate) - (ParNum : longint): TDate;overload;
+begin
+	exit(ParDate+ (-ParNum));
+end;
+
+operator (const ParDate1 : TDate) + (ParNUm  : longint):TDate;overload;
+var
+	vlDate : TDate;
+	vlNum  : long;
+begin
+	vlNum := GetDayNumber(ParDate1) + ParNum;
+	NumberToDate(vlNum,vlDate);
+	exit(vlDate);
+end;
+
+operator (ParNUm  : longint)+(const ParDate1 : TDate) :TDate;overload;
+begin
+	exit(ParDate1 + ParNum);
+end;
+
+operator (const ParDate1 : TDate) >= (const ParDate2 : TDate) : boolean;overload;
+begin
+		if ParDate1.year < ParDate2.Year then exit(false);
+		if (ParDate1.Year = ParDate2.Year) and (ParDate1.month < parDate2.Month) then exit(false);
+      if (ParDate1.month = ParDate2.month) and (ParDate1.day < ParDate2.day) then  exit(false);
+		exit(true);
+end;
+
+operator (const ParDate1 : TDate) <= (const ParDate2 : TDate) : boolean;overload;
+begin
+		if ParDate1.year > ParDate2.Year then exit(false);
+		if (ParDate1.Year = ParDate2.Year) and (ParDate1.month > parDate2.Month) then exit(false);
+      if (ParDate1.month = ParDate2.month) and (ParDate1.day > ParDate2.day) then  exit(false);
+		exit(true);
+end;
+
+
+operator (const ParDate1 : TDate) > (const ParDate2 : TDate) : boolean;overload;
+begin
+		if ParDate1.year < ParDate2.Year then exit(false);
+		if (ParDate1.Year = ParDate2.Year) and (ParDate1.month < parDate2.Month) then exit(false);
+      if (ParDate1.month = ParDate2.month) and (ParDate1.day <= ParDate2.day) then  exit(false);
+		exit(true);
+end;
+
+operator (const ParDate1 : TDate) < (const ParDate2 : TDate) : boolean;overload;
+begin
+		if ParDate1.year > ParDate2.Year then exit(false);
+		if (ParDate1.Year = ParDate2.Year) and (ParDate1.month > parDate2.Month) then exit(false);
+      if (ParDate1.month = ParDate2.month) and (ParDate1.day >= ParDate2.day) then  exit(false);
+		exit(true);
+end;
+
+operator (const ParDate1 : TDate) = (const ParDate2 : TDate) : boolean;overload;
+begin
+	exit((ParDate1.year = ParDate2.year) and (ParDate1.month = ParDate2.month) and (ParDate1.day=ParDate2.day));
+end;
+
+operator (const ParDate1 : TDate) <> (const ParDate2 : TDate) : boolean;overload;
+begin
+	exit((ParDate1.year <> ParDate2.year) or (ParDate1.month <> ParDate2.month) or (ParDate1.day<>ParDate2.day));
+end;
+
+
+operator (const ParDate : TDate) between (const ParDate1 : TDate) and (const ParDate2 : TDate) : boolean;overload;
+begin
+	exit((ParDate >= ParDate1) and (ParDate<=ParDate2));
+end;
+
+function GetNextPart(const ParIn : string;var ParCnt : long;var ParStr  : string;var ParCmd : boolean):boolean;
+begin
+	ParStr.length := 0;
+	if ParCnt > ParIn.length then exit(true);
+	if (ParIn[ParCnt]='\') then begin
+			inc(ParCnt);
+			if ParCnt > ParIn.Length then exit(true);
+			ParStr :=  ParIn[ParCnt];
+			inc(ParCnt);
+			ParCmd := false;
+			exit(false);
+	end;
+   if(ParIn[ParCnt]='{') then begin
+		inc(ParCnt);
+		while(ParCnt <=ParIn.length) and (ParIn[ParCnt] <> '}') do begin
+			ParStr := ParStr + ParIn[ParCnt];
+			inc(ParCnt);
+		end;
+		inc(ParCnt);
+		ParCmd := true;
+		exit(false);
+	end;
+	ParStr := ParIn[ParCnt];
+	inc(ParCnt);
+	ParCmd := false;
+	exit(false);
+end;
+
+function ScanNumber(const ParStr : string;var ParCnt : long;var ParOut : long):boolean;
+begin
+   ParOut := 0;
+	if not(ParStr[ParCnt] between('0') and ('9')) then exit(true);
+	while (ParCNt <= ParStr.length) and (ParStr[ParCnt] between('0') and ('9')) do begin
+		ParOut := ParOut * 10 + (ParStr[ParCnt] as byte-48);
+		inc(ParCnt);
+	end;
+	exit(false);
+end;
+
+function StringToDate(const ParDateText : string;const ParFormat : string;var ParDate : TDate):boolean;
+var
+	vlCnt : long;
+	vlCnt2 : long;
+	vlPart : string;
+	vlNum : long;
+	vlCmd : boolean;
+begin
+	vlCnt := 1;
+	vlCnt2 := 1;
+	ParDate.Day:=1;
+	ParDate.month := 1;
+	ParDate.Year := 0;
+	while not(GetNextPart(ParFormat,vlCnt,vlPart,vlCmd)) do begin
+		if(vlCmd) then begin
+			if ScanNumber(ParDateText >> ParStr,vlCnt2 >> ParCnt,vlNum >> ParOut) then exit(true);
+			if(vlPart='mm') then begin
+				ParDate.month := vlNum;
+			end else if(vlPart='dd') then begin
+				ParDate.day := vlNum;
+			end else if(vlPart='yy') then begin
+				if(vlNum <50) then  begin
+					ParDate.year:=2000+vlNum;
+				end else begin
+					ParDate.year:=1900+vlNum;
+				end;
+         end else if(vlPart='yyyy') then begin
+					ParDate.year := vlNum;
+			end;
+		end else begin
+			if (vlPart.length <> 1) or (vlPart[1] <> ParDateText[vlCnt2]) then exit(true);
+			inc(vlCnt2);
+		end;
+	end;
+	exit( not(IsValidDate(ParDate)));
+end;
+
+function DateToString(const ParDate : TDate;var ParDateText : string):boolean;overload;
+begin
+	exit(DateToString(ParDate >> ParDate,SafeGetPString(vlInfo.vrDefaultFormat >> ParPString) >> ParFormat,ParDateText >> ParDateText));
+end;
+
+function DateToString(const ParDate : TDate;const ParFormat : string;var ParDateText : string):boolean;overload;
+var
+	vlCnt : long;
+	vlPart : string;
+	vlTxt : string;
+	vlCmd : boolean;
+begin
+	ParDateText.length := 0;
+	vlCnt := 1;
+	while not(GetNextPart(ParFormat,vlCnt,vlPart,vlCmd)) do begin
+		if(vlCmd) then begin
+			if vlPart='mm' then begin
+				vlTxt := IntToStr(ParDate.month);
+			end else if vlPart='dd' then begin
+				vlTxt := IntToStr(ParDate.day);
+			end else if vlPart='yy' then begin
+				vlTxt := IntToStr(ParDate.year mod 100);
+			end else if vlPart='yyyy' then begin
+				vlTxt := IntToStr(ParDate.year);
+			end else if vlPart='cc' then begin
+				vlTxt := IntToStr(ParDate.year div 100);
+			end else if vlPart='ms' then begin
+            vlTxt := GetShortMonthName(ParDate.Month);
+			end else begin
+				exit(true);
+			end;
+			ParDateText := ParDateText + vlTxt;
+		end else begin
+			ParDateText := ParDateText + vlPart;
+		end;
+	end;
+	exit(false);
+end;
+
+
+function GetShortMonthName(ParMonthNo : long):string;
+begin
+	if(ParMonthNo between(1) and (12)) then begin
+		exit(SafeGetPString(vlInfo.vrSHortMonthNames[ParMonthNo]));
+	end else begin
+		exit('');
+	end;
+end;
+
+procedure SetShortMonthName(ParMonthNo : long;const ParName : string);
+begin
+	if(ParMOnthNo between(1) and (12)) then begin
+         ChangePString(vlInfo.vrShortMonthNames[ParMonthNo],ParName);
+	end;
+end;
+
+procedure InitInfo;
+var
+	vlCnt : long;
+begin
+	count vlCnt from 1 to 12 do begin
+		vlInfo.vrMonthNames[vlCnt] := nil;
+		vlInfo.vrShortMonthNames[vlCnt] := nil;
+	end;
+	count vlCnt from 1 to 7 do begin
+		vlInfo.vrDayNames[vlCnt] := nil;
+		vlInfo.vrShortDayNames[vlCnt] := nil;
+	end;
+	vlInfo.vrDefaultFormat := nil;
+end;
+
+begin
+	InitInfo;
+	ChangePString('{dd}-{mm}-{yyyy}' >> ParText,vlInfo.vrDefaultFormat >> ParPString);
+	SetShortMonthName(1,'Jan');
+	SetShortMonthName(2,'Feb');
+	SetShortMonthName(3,'Mar');
+	SetShortMonthName(4,'Apr');
+	SetShortMonthName(5,'May');
+	SetShortMonthName(6,'Jun');
+	SetShortMonthName(7,'Jul');
+	SetShortMonthName(8,'Aug');
+	SetShortMonthName(9,'Sep');
+	SetShortMonthName(10,'Oct');
+	SetShortMonthName(11,'Nov');
+	SetShortMonthName(12,'Dec');
+end.
+
+
+

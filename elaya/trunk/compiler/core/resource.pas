@@ -20,8 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit Resource;
 interface
-uses largenum,asmdisp,i386cons,progutil,elatypes,linklist,elacons,cmp_base,cmp_type,
-	display,register,compbase,error,elacfg,routasm,stdobj,confval,simplist;
+uses largenum,asmdisp,i386cons,progutil,elatypes,elacons,cmp_base,cmp_type,display,register,compbase,error,elacfg,routasm,stdobj,confval,simplist;
 	
 type
 	TResource        = class;
@@ -134,7 +133,7 @@ type
 		procedure PushAll(ParCre:TInstCreator);
 		function  PushRes(ParCre:TInstCreator;ParRes:TResource;ParAfter:boolean):TStackRes;
 		procedure PopRes(ParCre:TInstCreator;PArStack:TStackRes;ParBy:TResource;ParAfter:boolean);
-		procedure SaveResParts(ParCre:TInstCreator;ParRes:TResource); virtual;
+		procedure SaveResParts(ParCre:TInstCreator;ParRes:TResource);
 		procedure ReleaseResource(ParRes : TResource);
 		function  GetUseFromResource(ParRes:TResource):TResourceUse;
 		
@@ -173,7 +172,7 @@ type
 		property iAlwaysStackFrame  : boolean          read voAlwaysStackFrame write voAlwaysStackFrame;
 	protected
 		procedure   COmmonSetup;override;
-
+		procedure clear;override;
 	public
 		property fAlwaysStackFrame  : boolean	       read voAlwaysStackFrame;
 		property fResourceUseList   : TResourceUseList read voResourceUseList;
@@ -236,7 +235,6 @@ type
 		
 		function    GetPrintRegisterRes:boolean;
 		constructor Create(const ParName:string;ParCompiler:TCompiler_Base;ParRoutine : TRoutineAsm);
-		procedure clear;override;
 		{ptr/offset}
 		function    GetOffsetOf(ParRes:TResource;ParSize : TSize;ParSign:boolean):TResource;
 		function    GuaranteeRegister(ParRes : Tresource):TRegisterRes;
@@ -304,12 +302,12 @@ type
 		property iLabelName : TString read voLabelName write voLabelName;
 	protected
 		procedure   Commonsetup;override;
+		procedure   Clear;override;
 
 	public
 		property GetLabelName : TString read voLabelName;
 		
 		constructor Create(const ParName:String;ParSize : TSize);
-		procedure   Clear;override;
 		function    IsSame(ParRes:TResource):boolean;override;
 		function    IsPart(ParRes:TResource):boolean;override;
 		function    IsUsing(parRes:TResource):boolean;override;
@@ -539,11 +537,11 @@ type
 		function  GetIdentByRes(ParRes:TResource;ParAccess:TAccess;var ParIdent:TFlag):boolean;
 		function  GetOpperSize:TSize;virtual;
 		function  GetPrintPosition( ParRes:TOperand;var ParPosition : TNormal):boolean;virtual;
-		procedure SetUseState(ParCre:TInstCreator); virtual;
+		procedure SetUseState(ParCre:TInstCreator);
 		procedure ResourceListFase(ParCre:TInstCreator);
 		procedure PreResourceListFase(ParCre:TInstCreator);virtual;
 		procedure AtResourceListFase(ParCre:TInstCreator  ;ParChange:TChangeList);virtual;
-		Procedure PostResourceListfase(ParCre:TInstCreator;ParChange:TChangeList);virtual;
+		Procedure PostResourceListfase(ParCre:TInstCreator;ParChange:TChangeList);
 		procedure Print(ParDis:TAsmDisplay);virtual;
 		procedure SaveResParts(ParCre:TInstCreator;ParRes:TResource;ParAccess:TAccessSet);
 		procedure HandleKeepContents(ParCre : TInstCreator;ParAcc : TAccess;ParRes : TResource;ParItem:TOperand);
@@ -1804,7 +1802,7 @@ begin
 		ParRes.ReplaceResource(vlRes);
 	end else if(ParRes.GetResCode = RT_ByPtr) and
 		(TByPtrRes(ParRes.fResource).GetPointer.fCode =RT_Stack) then begin
-		vlRes := ParCre.PopRes(TStackRes(TByPtrRes(ParRes.fResource).GetPointer),false);
+		vlRes := ParCre.PopRes(TStackRes(TByPtrRes(ParRes.fResource).GetPointer),false);{TIDI:dbg type or result GetPointer is not related to TSackRes}
 		ParCre.ChangeResource(TByPtrRes(ParRes.fResource).GetPointer,vlRes);
 		TByPtrRes(ParRes.fResource).SetPointer(TRegisterRes(vlres));
 	end;

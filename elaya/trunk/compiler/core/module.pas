@@ -70,6 +70,8 @@ type
 		property    iHash	: THashNumber read voHash write voHash;
 	protected
 		procedure   SetUnitLevel(ParUnitLevel:TUnitLevel);
+		procedure   Clear;override;
+		procedure   CommonSetup;override;
 
 	public
 		property    fLevel  : TUnitLevel  read voLevel write SetUnitLevel;
@@ -86,9 +88,7 @@ type
 		procedure   Print;
 		constructor Create(const ParName:string;ParState:TUnitLoadStates);
 		procedure   InitUnitDependenceList;
-		procedure   CommonSetup;override;
 		function    GetUnitDependenceList:TUnitDependenceList;
-		procedure   Clear;override;
 		function    AddDependence(ParUnit:TUnitUseItem;ParHash:THashNUmber):TErrorType;
 		function    GetDependenceByName(const ParName:string):TUnitDependenceitem;
 		function    IsNotdependent:boolean;
@@ -170,12 +170,16 @@ type
 		property  iGLobalList : TGlobalList read voGlobalList write voGlobalList;
 		property  iItemList   : TIdentList  read voItemList   write voItemList;
 		property  iCodeFileList:TCodeFileList read voCodeFileList write voCodeFileList;
-        property  iIsUnitFlag : boolean     read voIsUnitFlag write voIsUnitFlag;
+		property  iIsUnitFlag : boolean     read voIsUnitFlag write voIsUnitFlag;
+
+		procedure   CommonSetup;override;
+		procedure   Clear;override;
+		
 	public
 		property    fName         : TString       read voName;
 		property    fUnitFileName : TString       read voUnitFileName;
 		property    fItemList     : TIdentList    read voItemList;
-        property    fIsUnitFlag : boolean     read voIsUnitFlag write voIsUnitFlag;
+		property    fIsUnitFlag : boolean     read voIsUnitFlag write voIsUnitFlag;
 
 		
 		procedure   AddGlobalOnce(ParCre : TCreator;ParItem : TDefinition);
@@ -190,8 +194,6 @@ type
 		constructor LoadHeaderOnly(ParWrite:TObjectStream;var ParError : boolean);
 		procedure   GetNameStr(var ParName:string);
 		procedure   AddUnit(parUnit:TUnit);
-		procedure   CommonSetup;override;
-		procedure   Clear;override;
 		procedure   CreateSec(ParCompiler:TCompiler_Base);
 		function    GetHashing:Longint;
 		procedure   GetModuleName(var ParName:string);override;

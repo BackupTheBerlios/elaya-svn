@@ -19,8 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit extern;
 interface
-uses stdobj,streams,compbase,progutil,DSbLsDef,ddefinit,asmcreat,asmdata,elacons,elatypes,error,display,DIdentLs,
-elacfg;
+uses stdobj,streams,compbase,progutil,DSbLsDef,ddefinit,asmcreat,asmdata,elacons,display,DIdentLs;
 
 type   TExternalObject=class(TDefinition)
 	private

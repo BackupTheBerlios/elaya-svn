@@ -1,5 +1,5 @@
 {
-   $Id: glib.ela,v 1.1 2004/02/04 17:19:45 iddekingej Exp $
+   $Id: glib.pp,v 1.1.2.3 2000/09/09 18:42:52 peter Exp $
 
    GLIB - Library of useful routines for C programming
    Copyright (C) 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit nconvert;
 
 interface
-uses stdobj,node,elacons,formbase,macobj,pocobj,elatypes,compbase,error,display;
+uses varuse,stdobj,node,elacons,formbase,macobj,pocobj,compbase,error,display;
 
 type   TConvertnode=class(TFormulaNode)
 	end;
@@ -38,11 +38,17 @@ type   TConvertnode=class(TFormulaNode)
 		procedure   Print(ParDis:TDIsplay); override;
 		function    GetValue : TValue;override;
 		function    Can(ParCan : TCan_Types):boolean;override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+
 	end;
 	
 implementation
 
 {--( TLoadConvert )----------------------------------------------------------------}
+procedure TLoadConvert.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	iParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+end;
 
 
 function  TLoadConvert.Can(ParCan : TCan_Types):boolean;
@@ -75,16 +81,14 @@ end;
 
 function TLoadConvert.CreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var vlMac:TResultMac;
-	vlPoc:TLoadFor;
+	 vlPoc:TPocBase;
 begin
 	Case ParOpt of
 	MCO_Result: begin
 		vlMac := TResultMac.Create(iType.fSize,iType.GetSign);
-        ParCre.AddObject(vlMac);
+       ParCre.AddObject(vlMac);
 		vlMac.SetName(GetNewResNo);
-		vlPoc := TLoadFor.Create;
-		vlPoc.SetVar(1,GetPartByNum(1).CreateMac(MCO_Result,ParCre));
-		vlPoc.SetVar(mac_output,vlMac);
+		vlPoc := PArCre.MakeLoadPoc(vlMac,GetPartByNum(1).CreateMac(MCO_Result,ParCre));
 		ParCre.AddSec(vlPoc);
 		exit(vlMac);
 	end;

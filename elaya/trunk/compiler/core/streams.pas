@@ -132,7 +132,7 @@ public
 	function    GetFilePos:longint;
 	procedure   WriteDirect(parPos:Longint;var ParInfo;ParSize:cardinal);
 	procedure   ReadDirect(var ParInfo;ParSize:cardinal);
-	function    OpenFile(const ParName:string):boolean; virtual;
+	function    OpenFile(const ParName:string):boolean;
 	function    CheckType(ParType:byte):boolean;
 	function    WriteType(ParType:byte):boolean;
 	function    CreateFile(const ParName:string):boolean;
@@ -148,7 +148,7 @@ public
 	function    ReadString(var ParStr:string):boolean;
 	function    WriteToFile(const vBuf;ParSize:cardinal):boolean;
 	function    ReadFromFile(var vBuf;ParSize:cardinal;var ParRead:cardinal):boolean;
-	procedure   CloseFile; virtual;
+	procedure   CloseFile;
 	procedure   UpdateHashing(const ParBuf;ParSize:cardinal);
 	procedure   GetFileNameStr(var ParName:string);
 	procedure   AddPath(const ParDir : string);
@@ -183,9 +183,10 @@ private
 	voModuleItem : TModule;
 protected
 	property  iModuleItem : TModule read voModuleItem write voModuleItem;
+	procedure CommonSetup;override;
+
 public
 	property  fModuleItem : TModule read voModuleItem;
-	procedure CommonSetup;override;
 	procedure SetModuleItem(ParModuleBase : TModule);
 end;
 
@@ -471,7 +472,6 @@ begin
 end;
 
 constructor TStream.Create;
-var vlPath : string;
 begin
 	inherited Create;
 	iOpen    := false;

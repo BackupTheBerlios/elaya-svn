@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit Node;
 
 interface
-uses largenum,compbase,linklist,error,display,elaCons,pocobj,cmp_base,cmp_type,
-	macobj,progutil,elatypes,stdobj,lsStorag,objlist,varuse,strlist;
+uses largenum,compbase,linklist,error,display,elaCons,pocobj,cmp_type,
+	macobj,progutil,elatypes,stdobj,objlist,varuse,strlist;
 type
 	
 TConstantValidationProc=function(ParValue : TValue):TConstantValidation of object;
@@ -35,16 +35,16 @@ TNodeIdent  = class;
 TNodeList=class(TList)
 public
 	procedure Optimize(ParCre : TCreator);
-	function  AddNode(ParNode:TNodeIdent):boolean;virtual;
-	procedure Print(ParDis:TDisplay);virtual;
+	function  AddNode(ParNode:TNodeIdent):boolean;
+	procedure Print(ParDis:TDisplay);
 	function  HandleNode(ParCre:TSecCreator;ParNode:TNodeIdent):boolean;virtual;
 	function  CreateSec(ParCre:TSecCreator):boolean;virtual;
 	function  CreateMac(ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;virtual;
 	function  DeleteIfCan(ParCre : TCreator):boolean;
-	procedure ValidateAfter(ParCre : TCreator);virtual;
+	procedure ValidateAfter(ParCre : TCreator);
 	procedure AddNodeAt(ParAt,ParNode : TNodeIdent);
-	procedure SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList);
-	procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);virtual;
+	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 	procedure Proces(ParCre : TCreator);virtual;
 end;
 
@@ -60,7 +60,6 @@ protected
 	property iParts : TNodeList read voParts write voParts;
 	procedure CommonSetup;override;
 	property  iIdentCode : TNodeIdentCode read voIdentCode write voIdentCode;
-
 public
 	property fParts     : TNodeList read voParts;
 	property fCanDelete : boolean   read voCanDelete;
@@ -87,10 +86,11 @@ public
 	procedure ValidateAfter(ParCre : TCreator);virtual;
 	procedure ValidateConstant(ParCre :TCreator;ParProc : TConstantValidationProc);virtual;
 	procedure Optimize(ParCre : TCreator);virtual;
-	function  SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem :TVarUseItem) : TAccessStatus;virtual;
-	procedure ValidateVarUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList);
+	procedure DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus : TAccessStatus;ParItem : TDefinitionUseItemBase);
+	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);virtual;
 	procedure Proces(ParCre : TCreator);virtual;
 	procedure FinishNode(ParCre : TCreator;ParIsSec : boolean);
+
 	destructor Destroy;override;
    function  IsSubNodesSec:boolean;virtual;
 end;
@@ -142,7 +142,7 @@ public
 	procedure   MakeJumpFromCond(ParCond   : TMacBase);
 	function    SetLabelTrue(ParLabel:TLabelPoc):TLabelPoc;
 	function    SetLabelFalse(ParLabel:TLabelPoc):TLabelPoc;
-	function    SetbooleanLoad(ParMac:TMacBase;ParNum:cardinal):TLoadFor;
+	function    SetbooleanLoad(ParMac:TMacBase;ParNum:cardinal):TPocBase;
 	procedure   SwapLabels;
 	procedure   SetPoc(ParPoc:TSubPoc);
 	procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
@@ -158,14 +158,18 @@ end;
 TErrorNode=class(TNodeIdent)
 private
 	voMsg:TString;
+protected
+	procedure CommonSetup;override;
+
 public
 	procedure SetMessage(const ParMsg:string);
 	function  GetMessage:TString;
-	procedure CommonSetup;override;
 	constructor Create(const ParMsg:String);
 end;
 
 implementation
+
+uses asminfo;
 {------( TErrorNode )-------------------------------------------}
 
 
@@ -202,11 +206,14 @@ function  TSecCreator.MakeLoadPoc(ParTo,ParFrom : TMacBase) : TPocBase;
 var
 	vlLoad : TLoadFor;
 begin
-	if ParTo.fSize = 3 then runerror(1);
-	vlLoad := TLoadFor.Create;
-	vlLoad.SetVar(0,ParTo);
-	vlLoad.SetVar(1,ParFrom);
-	exit(vlLOad);
+	if (ParTo.fSize = 3) or (ParTO.fSize > GetAssemblerInfo.GetSystemSize) then begin
+		exit(TLsMovePoc.Create(ParFrom,ParTo,ParTo.fSize));
+	end else begin
+		vlLoad := TLoadFor.Create;
+		vlLoad.SetVar(0,ParTo);
+		vlLoad.SetVar(1,ParFrom);
+		exit(vlLOad);
+	end;
 end;
 
 function  TSecCreator.AddStringConstant(const ParStr : string):longint;
@@ -292,19 +299,17 @@ begin
 end;
 
 
-function TSecCreator.SetbooleanLoad(ParMac:TMacBase;ParNum:cardinal):TLoadFor;
-var   vlLod : TLoadFor;
+function TSecCreator.SetbooleanLoad(ParMac:TMacBase;ParNum:cardinal):TPocBase;
+var   vlLod : TPocBase;
 	vlMac : TMacBase;
 	vlLi  : TNumber;
 begin
-	vlLod := TLoadFor.create;
-	vlLod.SetVar(Mac_output,ParMac);
 	LoadLong(vlLi,ParNum);
 	vlMac := TNumberMac.create(ParMac.fSize,false,vlLi);
 	AddObject(vlMac);
-	vlLod.SetVar(1,vlMac);
+	vlLod := MakeLOadPoc(ParMac,vlMac);
 	AddSec(vlLod);
-	SetbooleanLoad := vlLod;
+	exit(vlLod);
 end;
 
 
@@ -607,14 +612,13 @@ begin
 	end;
 end;
 
-
-procedure TNodeLIst.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList);
+procedure TNodeList.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
 var
 	vlCurrent:TNodeIdent;
 begin
 	vlCurrent := TNodeIdent(fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.ValidateVarUse(ParCre,ParMode,ParUseList);
+		vlCurrent.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 		vlCurrent := TNodeIdent(vlCurrent.fNxt);
 	end;
 end;
@@ -644,35 +648,34 @@ begin
 	fParts.Proces(ParCre);
 end;
 
-procedure TNodeIdent.ValidateVarUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList  : TVarUseList);
-var vlStatus : TAccessStatus;
-	vlErr : TErrorType;
-	vlItem : TVarUseItem;
-	vlName : string;
+procedure TNodeIdent.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList  : TDefinitionUseList);
 begin
-		vlStatus := SetVarUseItem(ParCre,ParMode,ParUseList,vlItem);
+end;
+
+procedure TNodeIdent.DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus : TAccessStatus;ParItem : TDefinitionUseItemBase);
+
+var vlStatus : TAccessStatus;
+	 vlErr : TErrorType;
+	 vlItem : TDefinitionUseItemBase;
+	 vlName : string;
+begin
+		vlStatus :=ParStatus;
+		vlItem := ParItem;
 
 		if vlStatus <> AS_Normal then begin
 			vlErr := ERR_No_Error;
 			case vlStatus of
-            AS_NO_Write       : vlErr := Err_Read_Without_Write;
-			AS_MayBe_No_Write : vlErr := Err_Read_Some_without_Write;
-		    AS_NO_Read        : vlErr := Err_Write_Without_Read;
-			AS_Maybe_No_Read  : vlErr := Err_Write_Some_Without_Read;
+         	AS_NO_Write       : vlErr := Err_Read_Without_Write;
+				AS_MayBe_No_Write : vlErr := Err_Read_Some_without_Write;
+		   	AS_NO_Read        : vlErr := Err_Write_Without_Read;
+				AS_Maybe_No_Read  : vlErr := Err_Write_Some_Without_Read;
 			end;
-			EmptyString(vlName);
-			if vlItem <> nil then begin
-				vlName := vlItem.GetName;
-            end;
-			ParCre.AddNodeWarning(self,vlErr,vlName);
+			if vlErr <> ERR_No_Error then begin
+				EmptyString(vlName);
+				if vlItem <> nil then vlName := vlItem.GetName;
+				ParCre.AddNodeWarning(self,vlErr,vlName);
+			end;
 		end;
-end;
-
-function  TNodeIdent.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem :TVarUseItem) : TAccessStatus;
-begin
-	iParts.SetVarUseItem(ParCre,AM_Read,ParUseList);
-	ParItem := nil;
-	exit(AS_Normal);
 end;
 
 

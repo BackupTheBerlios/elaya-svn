@@ -21,7 +21,7 @@ unit params;
 
 interface
 
-uses varuse,strmbase,streams,cmp_type,ddefinit,didentls,compbase,formbase,node,error,elatypes,display,macobj,pocobj,elacons,
+uses ndcreat,varuse,strmbase,streams,cmp_type,ddefinit,didentls,compbase,formbase,node,error,elatypes,display,macobj,pocobj,elacons,
 	vars,stdobj,varbase,linklist,types,asminfo,frames,progutil;
 	
 type
@@ -32,7 +32,7 @@ type
 	public
 		function  GetAccessSize:TSize;virtual;
 		function  CreateDB(ParCre:TCreator):boolean; override;
-		procedure CreateCBInit(ParCre : TCreator;ParAt : TNodeIdent;ParContext : TDefinition);virtual;
+		procedure CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);virtual;
 	end;
 	TLocalVar=class(TProcVar)
 	protected
@@ -80,8 +80,6 @@ type
 		property    fNeedVar2       : boolean  read voNeedVar2;
 		property    fRefMainVar     : boolean  read voRefMainVar;
 		function    CheckParameterName(ParParam :TParameterVar;var PArDifText:string):boolean;
-		function    IsSameText(const PArStr : string):boolean;override;
-		function    IsSameText(const ParStr : TString):boolean;override;
 		function    IsAutomatic:boolean;virtual;
 		procedure   SetPosition(ParNo : cardinal);
 		
@@ -101,12 +99,12 @@ type
 		function   IsOptUnsave:boolean;override;
 		function   IsCompWithParamExprType(ParExact : boolean;ParType : TType):boolean;
 		function   IsCompWithParamExpr(ParExact : boolean;ParNode : TFormulaNode):boolean;
-		procedure AddToUseList(ParUse : TVarUseList);override;
-		procedure ProduceFrame(ParCre : TSecCreator;ParContext : TDefinition);virtual;
-		procedure InitParameter(ParOwner : TDefinition);virtual;
-   	procedure SetOffset(ParOffset :TOffset);
-		function  GetVar2Type : TTYpe;
-		procedure ProduceMappingCbInit(ParAt : TNodeIdent;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
+		function   CreateDefinitionUseItem: TDefinitionUseItemBase;override;
+		procedure  ProduceFrame(ParCre : TSecCreator;ParContext : TDefinition);
+		procedure  InitParameter(ParOwner : TDefinition);virtual;
+   	procedure  SetOffset(ParOffset :TOffset);
+		function   GetVar2Type : TTYpe;
+		procedure  ProduceMappingCbInit(ParAt : TNodeIdent;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
 
 	end;
 	
@@ -148,7 +146,7 @@ type
 		function    SaveItem(parStream:TObjectStream):boolean;override;
 		function    LoadItem(ParStream:TObjectStream):boolean;override;
 		function    IsSameParameter(ParParam : TParameterVar;ParType : TParamCompareOptions):boolean;override;
-		constructor create(const ParName:String;ParSourceContextLevel : cardinal;ParFrame,ParOther:TFrame;Partype:TType;ParVirtual : boolean);
+		constructor create(const ParName:String;ParSourceContextLevel : cardinal;ParFrame,ParOther:TFrame;Partype:TType;ParTranType : TParamTransferType;ParVirtual : boolean);
 		function    CreateAutomaticMac(ParContext : TDefinition;parCre:TSecCreator):TMacBase; override;
 		function    CreateAutomaticParamNode(ParContext,ParOrgOwner : TDefinition;ParCre : TCreator ; var ParTTL:TTLVarNode):TParamNode; override;
 		procedure   InitParameter(ParOwner : TDefinition);override;
@@ -161,12 +159,12 @@ type
 	TClassFrameParameter=class(TFrameParameter)
 	private
 		voMeta 	    : TDefinition;
-		voMetaFrame : TFrameVariable;
+		voMetaFrame  : TVarBase;
 		property iMeta : TDefinition read voMeta write voMeta;
-		property iMetaFrame : TFrameVariable read voMetaFrame write voMetaFrame;
+		property iMetaFrame : TVarBase read voMetaFrame write voMetaFrame;
 	public
-		property fMetaFrame : TFrameVariable read voMetaFrame;
-		constructor Create(const ParName : String;ParMeta : TDefinition;ParMetaFrame : TFrameVariable;ParFrame,ParOther : TFrame;ParType : TType;ParVirtual :boolean);
+		property fMetaFrame : TVarBase read voMetaFrame;
+		constructor Create(const ParName : String;ParMeta : TDefinition;ParMetaFrame : TVarBase;ParFrame,ParOther : TFrame;ParType : TType;ParTranType : TParamTransferType;ParVirtual : boolean);
 		procedure   InitParameter(ParOwner : TDefinition);override;
 		procedure   DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);override;
 		function    SaveItem(parStream:TObjectStream):boolean;override;
@@ -224,8 +222,8 @@ type
 		function    IsCallByName : boolean;
 		procedure   ValidateAfter(ParCre : TCreator);override;
 		function    IsCompWithType(ParType :TType):boolean;override;
-		function	CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
-		function  SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem :TVarUseItem) : TAccessStatus;override;
+		function	 CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
 		procedure ConvertNode(ParCre : TCreator);
 		function IsAutomatic : boolean;
 	end;
@@ -274,7 +272,7 @@ type
 
 		{ Code Generation}
 		
-		procedure CreateCBInits(ParCre : TCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+		procedure CreateCBInits(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
 		
 		{Parameter comparing}
 		function   IsSameParamType(ParLIst:TProcParList;ParType : TParamCompareOptions):boolean;
@@ -340,8 +338,8 @@ type
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
 		procedure   SetIsInherited;virtual;
 		procedure   ConnectToParent(ParCre : TCreator;ParParam : TParameterVar);virtual;
-		procedure   CreateCBInit(ParAt : TNodeIdent;PArCre : TCreator;ParContext : TDefinition);virtual;
-		procedure   Print(ParDis : TDisplay);virtual;
+		procedure   CreateCBInit(ParAt : TNodeIdent;PArCre : TNDCreator;ParContext : TDefinition);virtual;
+		procedure   Print(ParDis : TDisplay);
 		function    IsAutomatic : boolean; virtual;
 		procedure   GetMappingText(var ParText : string);virtual;
 		procedure   CheckParameterAddress(parCre : TCreator);virtual;
@@ -357,7 +355,7 @@ type
 		property iMacOption    : TMappingOption read voMacOption write voMacOption;
 	public
 		constructor Create(ParDef : TVarBase;ParContextLevel : cardinal;ParOrgOwner : TDefinition;ParOption:TMappingOption);
-		procedure   CreateCBInit(ParAt : TNodeIdent;PArCre : TCreator;ParContext : TDefinition);override;
+		procedure   CreateCBInit(ParAt : TNodeIdent;PArCre : TNDCreator;ParContext : TDefinition);override;
 		procedure   ConnectToParent(ParCre : TCreator;ParParam : TParameterVar);override;
 		function    SaveItem(parWrite:TObjectStream):boolean;override;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
@@ -406,7 +404,7 @@ type
 		function  IsSameKind(ParList : TProcParList) : boolean;
 		procedure ConnectToParent(ParCre : TCreator;ParParams : TProcParList;ParParent : TParameterMappingList);
 		procedure CheckParametersAddress(ParCre : TCreator);
-		procedure CreateCBinit(ParAt : TNodeIdent;ParCre : TCreator;ParDestContext : TDefinition);
+		procedure CreateCBinit(ParAt : TNodeIdent;ParCre : TNDCreator;ParDestContext : TDefinition);
 		function  IsSameMapping(ParMapping : TParameterMappingList) : boolean;
 		procedure Print(ParDis : TDIsplay);
 		constructor Create(ParOwner : TDefinition);
@@ -414,7 +412,7 @@ type
 	
 	
 implementation
-uses NDCreat,procs,cblkbase,classes,meta,execobj;
+uses procs,cblkbase,classes,meta,execobj;
 
 
 {----( TParameterMappingList )------------------------------------------------}
@@ -459,7 +457,7 @@ begin
 	exit((vlCurrent1 = nil) and (vlCurrent2 = nil));
 end;
 
-procedure TParameterMappingList.CreateCBinit(ParAt : TNodeIdent;ParCre : TCreator;ParDestContext : TDefinition);
+procedure TParameterMappingList.CreateCBinit(ParAt : TNodeIdent;ParCre : TNDCreator;ParDestContext : TDefinition);
 var vlCurrent : TParameterMappingItem;
 begin
 	if iParent <> nil then iParent.CreateCBInit(ParAt,ParCre,ParDestContext);
@@ -636,7 +634,7 @@ end;
 
 
 
-procedure TDefinitionParameterMappingItem.CreateCBInit(ParAt : TNodeIdent ; PArCre : TCreator;ParContext : TDefinition);
+procedure TDefinitionParameterMappingItem.CreateCBInit(ParAt : TNodeIdent ; PArCre : TNDCreator;ParContext : TDefinition);
 var
 	vlCOntext : TDefinition;
 	vlBase    : TRoutine;
@@ -783,7 +781,7 @@ begin
 	exit((ParMapping <> nil) and (ClassType = ParMapping.ClassType));
 end;
 
-procedure TParametermappingItem.CreateCBInit(ParAt : TNodeIdent;ParCre : TCreator;ParContext : TDefinition);
+procedure TParametermappingItem.CreateCBInit(ParAt : TNodeIdent;ParCre : TNDCreator;ParContext : TDefinition);
 begin
 end;
 
@@ -940,7 +938,6 @@ var vlParam : TParameterVar;
 	vlByName: boolean;
 	vlName  : string;
 	vlOwner  : TDefinition;
-	vlCurrent : TParamNode;
 begin
 	vlCnt    := 0;
 	vlParam  := nil;
@@ -1066,7 +1063,7 @@ begin
 end;
 
 
-procedure TProcParList.CreateCBInits(ParCre : TCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+procedure TProcParList.CreateCBInits(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
 var vlCurrent : TProcVar;
 begin
 	vlCurrent :=  TProcVar(fStart);
@@ -1396,7 +1393,6 @@ var
 	vlName : string;
 	vlVar  : TLocalVar;
 	vlAcc  : TDefAccess;
-   vlType : TType;
 begin
 	GetNewAnonName(vlName);
 	vlAcc :=TNDCreator(ParCre).fCurrentDefAccess;
@@ -1480,12 +1476,14 @@ var
 	vlName : string;
 	vlNewType : TDefinition;
 	vlParam  : TParameterVar;
+	vlNewMeta : TMeta;
 begin
 	vlNewType := ParNewOwner;
-	
+   vlNewMeta := nil;
 	while (vlNewType <> nil) and not(iType.IsParentof(vlNewType)) do vlNewType := vlNewType.GetRealOwner;
+   if(iMeta <> nil) then vlNewMeta := TClassType(vlNewType).fMeta;
 	GetTextStr(vlName);
-	vlParam := (TClassFrameParameter.Create(vlName,TClassType(vlNewType).fMeta,TClassType(vlNewType).fMetaPtr,ParFrame,TClassType(vlNewType).fFrame,TType(vlNewType),fIsVirtual));
+	vlParam := TClassFrameParameter.Create(vlName,vlNewMeta,TClassType(vlNewType).fMetaPtr,ParFrame,TClassType(vlNewType).fFrame,TType(vlNewType),fTranType,fIsVirtual);
 	vlParam.SetPosition(iSourcePosition);
 	vlParam.fRealPosition := iRealPosition;
 	vlParam.fIsInherited  := true;
@@ -1493,9 +1491,9 @@ begin
 	exit(vlParam);
 end;
 
-constructor TClassFrameParameter.Create(const ParName : String;ParMeta : TDefinition;ParMetaFrame : TFrameVariable;ParFrame,ParOther : TFrame;ParType : TType;ParVirtual :boolean);
+constructor TClassFrameParameter.Create(const ParName : String;ParMeta : TDefinition;ParMetaFrame : TVarBase;ParFrame,ParOther : TFrame;ParType : TType;ParTranType : TParamTransferType;ParVirtual :boolean);
 begin
-	inherited Create(ParName,1,ParFrame,ParOther,ParType,ParVirtual);
+	inherited Create(ParName,1,ParFrame,ParOther,ParType,ParTranType,ParVirtual);
 	iMeta 	   := ParMeta;
 	iMetaFrame := ParMetaFrame;
 end;
@@ -1509,7 +1507,7 @@ begin
 		if vlContext is TClassType then vlContext := TClassType(vlContext).fObject;
 	end;
 	iPushedFrame.AddAddressing(ParOwner,vlContext,ParOwner,self,false);
-	TMeta(iMeta).fMetaFrame.AddAddressing(vlContext,vlContext,vlContext,iMetaFrame,false);
+	if iMeta <> nil then TMeta(iMeta).fMetaFrame.AddAddressing(vlContext,vlContext,vlContext,iMetaFrame,false);
 end;
 
 procedure   TClassFrameParameter.DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);
@@ -1520,7 +1518,7 @@ begin
 	if(vlContext <> nil) then begin
 		if vlContext is TClassType then vlContext := TClassType(vlContext).fObject;
 	end;
-	TMeta(iMeta).PopAddressing(vlContext);
+	if iMeta <> nil then TMeta(iMeta).PopAddressing(vlContext);
 	iPushedFrame.PopAddressing(ParOwner);
 end;
 
@@ -1557,7 +1555,7 @@ end;
 {-----( TFixedFrameParam )----------------------------------------}
 constructor TFixedFrameParameter.create(const ParName:String;ParContext : TDefinition;ParFrame,ParOther:TFrame;Partype:TType;ParVirtual : boolean);
 begin
-	inherited Create(ParName,1,ParFrame,ParOther,ParType,ParVirtual);
+	inherited Create(ParName,1,ParFrame,ParOther,ParType,PV_Value,ParVirtual);
 	iContext := ParContext;
 end;
 
@@ -1638,9 +1636,9 @@ begin
 end;
 
 
-constructor TFrameParameter.create(const ParName : string;ParSourceContextLevel : cardinal;ParFrame,ParOther : TFrame;Partype : TType;ParVirtual : boolean);
+constructor TFrameParameter.create(const ParName : string;ParSourceContextLevel : cardinal;ParFrame,ParOther : TFrame;Partype : TType;ParTranType : TParamTransferType;ParVirtual : boolean);
 begin
-	inherited Create(ParName,ParSourceContextLevel,ParFrame,ParType,PV_Value,ParVirtual);
+	inherited Create(ParName,ParSourceContextLevel,ParFrame,ParType,ParTranType,ParVirtual);
 	iPushedFrame := ParOther;
 end;
 
@@ -1728,7 +1726,7 @@ begin
 		vlOrgOwner := TRoutine(vlOrgOwner.GetRoutineOwner);
 	end;
 	GetTextStr(vlName);
-	vlParam := TFrameParameter.Create(vlName,vlNewCl,ParFrame,iPushedFrame,fType,fIsVirtual);
+	vlParam := TFrameParameter.Create(vlName,vlNewCl,ParFrame,iPushedFrame,fType,fTranType,fIsVirtual);
 	vlParam.SetPosition(iSourcePosition);
 	vlParam.fRealPosition := iRealPosition;
 	vlParam.fIsInherited  := true;
@@ -1803,18 +1801,16 @@ begin
 end;
 
 
-function  TParamNode.SetVarUseItem(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TVarUseList;var ParItem :TVarUseItem) : TAccessStatus;
+procedure  TParamNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
 var
 	vlMode :TAccessMode;
 begin
-{Set var parameters according to VaruseList of routine}
-	ParItem := nil;
+{TODO:Set var parameters according to VaruseList of routine}
 	if(fParam <> nil) then begin
 		vlMode := AM_Read;
-		if fParam.fTranType =PV_Var then vlMode := AM_ReadWrite;
-		iParts.SetVarUseItem(ParCre,vlMode,ParUseList);
+		if fParam.fTranType =PV_Var then vlMode := AM_Silent_Read_Write;
+		iParts.ValidateDefinitionUse(ParCre,vlMode,ParUseList);
 	end;
-	exit(AS_Normal);
 end;
 
 function  TParamNode.IsCompWithType(ParType :TType):boolean;
@@ -2046,7 +2042,7 @@ end;
 {---( TProcVar )----------------------------------------------------}
 
 
-procedure TProcVar.CreateCBInit(ParCre : TCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+procedure TProcVar.CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
 begin
 end;
 
@@ -2119,7 +2115,7 @@ var
 begin
 	if iSecondVar <> nil then begin
          if iRefVar2 then begin
-				vlSource := TMacOption.Create(MCO_ValuePointer);
+				vlSource := TValuePointerNode.Create;
             vlSource.AddNode(ParSource);
 			end else begin
 				vlSource := ParSource;
@@ -2127,7 +2123,7 @@ begin
 			vlNode := TNDCreator(ParCre).MakeLoadNodeToDef(vlSource,fSecondVar,ParContext);
 			ParAt.AddNode(vlNode);
 	end else begin
-		{TODO Error}
+			ParSource.Destroy;{TODO:Chage system such that this is not nec. anymore}
 	end;
 end;
 
@@ -2166,30 +2162,26 @@ begin
 			vlMacD := iSecondVar.CreateMac(ParContext,MCO_Result,ParCre);
 
 			if iRefMainVar then begin
-				if not(iRefVar2) then vlMacS := TByPointerMac.create(GetSize,GetSign,vlMacS);
+				if not(iRefVar2) then begin
+					vlMacS := TByPointerMac.create(GetSize,GetSign,vlMacS);
+					ParCre.AddObject(vlMacS);
+				end;
 			end else begin
 				if iRefVar2 then runerror(200);{TODO fatal error}
 			end;
 
-			if(GetSize > GetAssemblerInfo.GetSystemSize) or (GetSize=3)   then begin
-				vlPoc := TLsMovePoc.Create(vlMacS,vlMacD,GetSize);
-			end else begin
-				vlLoad := TLoadFor.Create;
-				vlLoad.SetVar(0,vlMacD);
-				vlLoad.SetVar(1,vlMacS);
-				vlPoc := vlLoad;
-			end;
+			vlPoc := ParCre.MakeLoadPoc(vlMacD,vlMacS);
 			ParCre.AddSec(vlPoc);
 	end;
 end;
 
-procedure TParameterVar.AddToUseList(ParUse : TVarUseList);
+function TParameterVar.CreateDefinitionUseItem: TDefinitionUseItemBase;
 var
-	vlVarUse :TVarUseItem;
+	vlItem : TDefinitionUseItemBase;
 begin
-	vlVarUse := ParUse.AddItem(self);
-	vlVarUse.SetWrite;
-	if fTranType = PV_Var then vlVarUse.SetRead;
+	vlItem := inherited CreateDefinitionUseItem;
+	vlItem.SetDefault(fTranType = PV_Var);
+	exit(vlItem);
 end;
 
 function TParameterVar.IsCompWithParamExpr(ParExact : boolean;ParNode : TFormulaNode):boolean;
@@ -2298,19 +2290,6 @@ begin
 	iSourcePosition := ParNo;
 end;
 
-function  TParameterVar.IsSameText(const PArStr : string):boolean;
-begin
-	if inherited IsSameText(ParStr) then exit(true);
-	exit(false);
-end;
-
-function  TParameterVar.IsSameText(const ParStr : TString):boolean;
-begin
-	if inherited IsSameText(ParStr) then exit(true);
-	exit(false);
-end;
-
-
 
 procedure TParameterVar.DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);
 begin
@@ -2344,7 +2323,8 @@ var
 	vlNewOpt : TMacCreateOption;
 begin
 	if(ParOpt = MCO_Size) then begin
-		vlMac := CreateMac(ParContext,ParOpt,ParCre);
+		vlMac :=inherited
+ CreateMac(ParContext,ParOpt,ParCre);
 	end else begin
 		if iSecondVar = nil then begin
 			vlVar := iMainVar;

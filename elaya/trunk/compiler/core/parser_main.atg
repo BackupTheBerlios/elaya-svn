@@ -179,7 +179,7 @@ RVarDecl:"variable declaration"
 =
 (.
 	vlName := TNameList.Create;
-	 vlType := nil;
+	vlType := nil;
 .)
 RIdent<vlIdent>				      (. vlName.AddName(vlIdent);.)
 { "," RIdent <vlIdent>			      (. vlName.AddName(vlIdent);.)

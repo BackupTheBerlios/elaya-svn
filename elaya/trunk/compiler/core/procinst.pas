@@ -20,8 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit ProcInst;
 interface
-uses   largenum,  asmdisp,i386cons,compbase,progutil,linklist,resource,display,elacons,elatypes,Register,error,
-stdobj,cmp_type;
+uses   largenum,  asmdisp,i386cons,progutil,resource,display,elacons,elatypes,Register,error,stdobj,cmp_type;
 	
 type
 	
@@ -36,6 +35,7 @@ type
 		voName    : TString;
 		property iOperand : TString read voOperand write voOperand;
 		property iName    : TString read voName write voName;
+	protected
 		procedure clear;override;
 	public
 		constructor Create(const ParName,ParOperand : string);
@@ -45,12 +45,14 @@ type
 	TFormOperandList=class(TOperandList)
 	private
 		voIsSigned:boolean;
+	protected
+		procedure CommonSetup;override;
+
 	Public
 		procedure PreResourceListFase(ParCre:TInstCreator);override;
-		function  SetSigned:boolean;virtual;
+		function  SetSigned:boolean;
 		function  Getsigned:boolean;
-		procedure CommonSetup;override;
-		function  GetInstructionSize:TSize;virtual;
+		function  GetInstructionSize:TSize;
 		procedure CheckOperands(ParCre:TInstCreator;ParChange:TChangeList);virtual;
 		procedure AtResourceListFase(ParCre:TInstCreator;ParChange:TChangeList);override;
 	end;
@@ -82,7 +84,7 @@ type
 		property  fCanSwap : boolean read voCanSwap write voCanSwap;
 		function  GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;override;
 		function  MustSwap:boolean;virtual;
-		function  SwapParamOptimize:boolean;virtual;
+		function  SwapParamOptimize:boolean;
 		procedure Commonsetup;override;
 	end;
 	
@@ -141,12 +143,14 @@ type
 	private
 		voLabelName : TString;
 		property iLabelName : TString read voLabelName write voLabelName;
+	protected
+		procedure   CommonSetup;override;
+		procedure   clear;override;
+
 	public
 		property fLabelName : TString read voLabelName;
 		constructor Create(const ParName:string);
-		procedure   CommonSetup;override;
 		procedure   Print(ParDIs:TAsmDisplay);override;
-		procedure   clear;override;
 	end;
 	
 	TFormInst=class(TInstruction)
@@ -161,11 +165,12 @@ type
 		voOrgSize : TSize;
 		property iOrgSize : TSize       read voOrgSize write voOrgSize;
 		property iMovType : T386MovType read voMovType write voMovType;
+	protected
+		procedure CommonSetup;override;
 	public
 		procedure InitOperandList;override;
 		procedure InstructionFase(ParCre:TInstCreator);override;
 		procedure GetInstructionName(var ParName : string);override;
-		procedure COmmonSetup;override;
 	end;
 	
 	TSignExtendInstList=class(TFormOperandList)
@@ -184,9 +189,10 @@ type
 	private
 		voSize : TSize;
 		property iSize : TSize read voSize write voSize;
+	protected
+		procedure Commonsetup;override;
 	public
 		constructor create(ParSize : TSize);
-		procedure Commonsetup;override;
 		procedure InitOperandList;override;
 		procedure Print(ParDis : TAsmDisplay);override;
 	end;
@@ -202,7 +208,9 @@ type
 	end;
 	
 	TAddInst=class(TAddSubInst)
+	protected
 		procedure   CommonSetup;override;
+	public
 		procedure   GetInstructionName(var ParName : string);override;
 		
 	end;
@@ -227,22 +235,29 @@ type
 	end;
 
 	TMulInst=class(TTWoInst)
-		procedure   InitOperandList;override;
+	protected
 		procedure   CommonSetup;override;
+	public
+		procedure   InitOperandList;override;
 		procedure   GetInstructionName(var ParName : string);override;		
 	end;
 	
 	TDivInst=class(TTwoInst)
-		procedure   InitOperandList;override;
+	protected
 		procedure   CommonSetup;override;
+
+	public
+		procedure   InitOperandList;override;
 		procedure   GetInstructionName(var ParName : string);override;
 	end;
 	
 	TCmpInst=class(TTwoInst)
+	protected
+		procedure CommonSetup;override;
+
 	public
 		procedure GetInstructionName(var ParName : string);override;
 		procedure InitOperandList;override;
-		procedure CommonSetup;override;
 	end;
 	
 	TOrInst = class(TTwoInst)
@@ -266,9 +281,10 @@ type
 		voLabel:TLabelInst;
 	protected
 		property iLabel : TLabelInst  read voLabel write voLabel;
+		procedure   CommonSetup;override;
+
 	public
 		constructor Create(const ParLabel:TLabelInst);
-		procedure   CommonSetup;override;
 		procedure   GetInstructionName(var ParName : string);override;
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
@@ -286,12 +302,14 @@ type
 	TRetInst = class(TInstruction)
 	private
 		voRetSize : TSize;
+	protected
+		procedure CommoNSetup;override;
+
 	public
 		constructor Create(ParSize:TSize);
 		procedure Print(ParDis:TAsmDisplay);override;
 		procedure SetRetSize(ParSize:TSize);
 		function  GetRetSize:TSize;
-		procedure CommoNSetup;override;
 		procedure   GetInstructionName(var ParName : string);override;
 		
 	end;
@@ -300,20 +318,26 @@ type
 	end;
 	
 	TPushInst=class(TStackInst)
-		procedure InitOperandList;override;
+	protected
 		procedure CommonSetup;override;
+	public
+		procedure InitOperandList;override;
 		procedure GetInstructionName(var ParName : string);override;
 		
 	end;
 	
 	TPopInst=class(TStackInst)
+	protected
 		procedure CommonSetup;override;
+	public
 		procedure GetInstructionName(var ParName : string);override;
 	end;
 	
 	TLeaInst=class(TInstruction)
-		procedure InitOperandList;override;
+	protected
 		procedure CommonSetup;override;
+	public
+		procedure InitOperandList;override;
 		procedure GetInstructionName(var ParName : string);override;
 	end;
 	
@@ -358,23 +382,29 @@ type
 	end;
 	
 	TNegInst=class(TOneInst)
+	protected
 		procedure Commonsetup;override;
+	public
 		procedure GetInstructionName(var ParName : string);override;
 	end;
 	
 	TNotInst=class(TOneInst)
+	protected
 		procedure Commonsetup;override;
+	public
 		procedure GetInstructionName(var ParName : string);override;
 	end;
 	
 	TAsmInst=class(TInstruction)
 	private
 		voAsmText : pointer;
-		voSIze    : cardinal;
-		procedure SetAsmText(ParSize:cardinal;ParText:Pointer);
-		function  GetAsmText:Pointer;
-		function  GetSize:cardinal;
+		voSize    : cardinal;
+      property iAsmText : pointer read voAsmText write voAsmText;
+		property iSize : cardinal read voSize write voSize;
 	public
+		property fSize : cardinal read voSize;
+		property fAsmText : pointer read voAsmText;
+
 		constructor Create(ParSize : TSize;ParText:pointer);
 		procedure clear;override;
 		procedure ResetText;
@@ -449,51 +479,37 @@ end;
 
 procedure TAsmInst.Print(parDis:TAsmDisplay);
 begin
-	PARDIS.WriteRaw(voAsmText,GetSize);
+	PARDIS.WriteRaw(voAsmText,iSize);
 	ParDis.writeNl('');
 end;
 
 constructor TAsmInst.Create(ParSize : TSize;ParText:pointer);
 begin
 	inherited Create;
-	SetAsmText(parSize,ParText);
+	iAsmText := ParText;
+	iSize := ParSize;
 end;
 
 procedure TAsmInst.clear;
 begin
 	inherited Clear;
-	ResetText;
+	if iAsmText <> nil then FreeMem(voAsmText,iSize);
 end;
 
 procedure TAsmInst.ResetText;
 begin
-	if voAsmText <> nil then SetAsmText(0,nil);
+	if voAsmText <> nil then begin
+		Freemem(voAsmText,iSize);
+		iSize := 0;
+	end;
 end;
 
-
-procedure TAsmInst.SetAsmText(ParSize:Cardinal;ParText:Pointer);
-begin
-	if voAsmText <> nil then freemem(voAsmText,GetSize);
-	voAsmText := parText;
-	voSize := PArSize;
-	
-end;
-
-function  TAsmInst.GetAsmText:Pointer;
-begin
-	exit(voAsmText);
-end;
-
-function  TAsmInst.GetSize:cardinal;
-begin
-	GetSize := voSize;
-end;
 
 procedure TAsmInst.commonsetup;
 begin
 	inherited Commonsetup;
-	voAsmText := nil;
-	voSize := 0 ;
+	iAsmText := nil;
+	iSize := 0 ;
 	iIdentCode := (IC_386_AsmInst);
 end;
 

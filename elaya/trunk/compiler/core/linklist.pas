@@ -23,7 +23,7 @@ unit linklist;
 {$i-}
 
 interface
-uses   strmbase,streams,stdobj,progutil,elacons,elatypes,listbind;
+uses   strmbase,streams,stdobj,progutil,elacons;
 
 
 type
@@ -63,12 +63,13 @@ type
 		voTop   : TListItem;
 		property iStart  : TListItem read voStart write voStart;
 		property iTop    : TListItem read voTop   write voTop;
+	protected
+		procedure  Commonsetup;override;
+   	procedure  Clear;override;
 	public
 		property fStart : TListItem read voStart;
 		property fTop : TListItem read voTop;
-		destructor destroy;override;
 		
-		procedure  Commonsetup;override;
 		function   InsertAt(ParAt:TListItem;ParItem:TListItem):TListItem;
 		function   DeleteLink(ParItem:TListItem):TListItem;
 		procedure  DeleteAll;
@@ -246,9 +247,9 @@ begin
 	iStart := nil;
 end;
 
-destructor TList.destroy;
+procedure TList.Clear;
 begin
-	inherited destroy;
+	inherited Clear;
 	DeleteAll;
 end;
 

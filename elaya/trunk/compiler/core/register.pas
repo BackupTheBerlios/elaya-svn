@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit register;
 interface
-uses simplist,i386cons,linklist,elacons,progutil,elatypes,error,objects,cmp_type;
+uses simplist,elacons,progutil,elatypes,error,objects,cmp_type;
 	
 type
 	
@@ -38,6 +38,9 @@ type
 		property iMaximalSize : cardinal read voMaximalsize write voMaximalsize;
 		property iCode	      : cardinal read voCode	    write voCode;
 		property iLastUsed    : cardinal read voLastUsed    write voLastUsed;
+	protected
+		procedure   Commonsetup;override;
+
 	public
 		property  fCode     : cardinal read voCode;
 		property fLastUsed    : cardinal read voLastUsed    write voLastUsed;
@@ -49,7 +52,6 @@ type
 		procedure   DecUseCnt(ParBegin,ParEnd : cardinal);
 		procedure   SetState(ParBegin,ParEnd : cardinal;ParState : TREsourceState);
 		function    GetState(ParBegin,ParEnd : cardinal):TResourceState;
-		procedure   Commonsetup;override;
 		procedure   ResetState;
 	end;
 
@@ -84,6 +86,8 @@ protected
 	property  iHints         : TRegHints         read voHints	      write voHints;
 	property  iRegisterCode  : TNormal           read voRegisterCode  write voRegisterCode;
 	property  iMainRegister  : TRegister         read voMainRegister  write voMainRegister;
+	procedure   CommonSetup;override;
+
 public
 	property  fSize           : TSize     read voSize;
 	property  fMainRegister   : TRegister read voMainRegister;
@@ -107,7 +111,6 @@ public
 	procedure   SetOtherSize(ParLarger,ParSmall:TRegister);
 	function    IsPartOf(ParRegister:TRegister):boolean;
 	constructor Create(ParMaster : TRegisterMaster;ParRegisterCode:TNormal;ParSize : TSize;ParRegHints : TRegHints;ParCanDo : TAsmStorageCanDo;ParPartBegin,ParPartEnd : cardinal);
-	procedure   CommonSetup;override;
 	function    GetName:String;
 end;
 
@@ -121,11 +124,12 @@ private
 protected
 	property iUseCnt : cardinal read voUseCnt write voUseCnt;
 	property iStorageMasterList : TRegisterMasterList read voStorageMasterList write voStorageMasterList;
+	procedure COmmonsetup;override;
+	procedure Clear;override;
+
 public
 	procedure AddStorageMaster(ParCode,ParMinimalSize,ParMaximalSize : cardinal);
 	function  GeTRegisterMasterByCode(ParCode : cardinal):TRegisterMaster;
-	procedure COmmonsetup;override;
-	procedure Clear;override;
 	constructor Create(const ParRegInfo:Array of TRegisterInfo;const ParMaster:Array of TMasterInfo);
 	function  GetRegisterByCode(ParRegisterCode:TNormal):TRegister;
 	function  GetFreeRegister(ParSize:TSize):TRegister;

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit FormBase;
 interface
 uses  Largenum,streams,elacons,elatypes,error,Pocobj,MacObj,node,stdobj,asminfo,
-compbase,display,linklist,ProgUtil,DSbLsDef,ddefinit,confval;
+compbase,display,ProgUtil,DSbLsDef,ddefinit,confval,varuse;
 type
 	TFormulaNode=class;
 	TTypeClass=class of TType;
@@ -76,7 +76,6 @@ type
 		function    ValidateConstant(ParValue : TValue):TConstantValidation;virtual;
 		function    GetOrgType : TType;virtual;
 		function    IsLike(const ParTypeClass :TTypeClass):boolean;
-		procedure   AfterDef(ParCre : TCreator);virtual;
 		procedure   InitDotFrame(ParCre :TSecCreator;ParMac : TNodeIdent;ParContext : TDefinition);override;
 		procedure   DoneDotFrame;override;
 		function   CalculateSize : boolean;virtual;
@@ -84,6 +83,7 @@ type
     	{}
 		function   IsMinimum(ParValue : TValue):boolean;virtual;{TODO return YES,ERROR,FALSE}
 		function   IsMaximum(ParValue : TValue):boolean;virtual;{TODO 2 implement with other types inst of number}
+		function   CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;virtual;
 	end;
 	
 	TFormulaList=class(TNodeList)
@@ -139,7 +139,6 @@ type
 		function	CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;virtual;
 		
 		function    CAN(ParCan:TCan_Types):boolean;virtual;
-		function    CreateOperSec:TPocBase;virtual;
 		function    GetType:TType;virtual;
 		function    GetOrgType:TType;virtual;
 		function    GetSize:TSize;
@@ -158,11 +157,11 @@ type
 		function    CanCastTo(ParType : TType):boolean;
 		function    ConvertNodeType(ParType : TType;ParCre : TCreator;var Parnode : TFormulaNode):boolean;virtual;
 		function    IsLikeType(const ParTypeClass : TTypeClass) : boolean;
-		procedure   DetermenComplexity;virtual;
+		procedure   DetermenComplexity;
 		procedure   OptimizeCpx;
 		procedure  Optimize(ParCre : TCreator);override;
 		function   Optimize1(ParCre : TCreator):boolean;virtual;
-		function   OptimizeForm(ParCre :TCreator;var ParRepl : TFormulaNode):boolean;virtual;
+		function   OptimizeForm(ParCre :TCreator;var ParRepl : TFormulaNode):boolean;
 		function   IsOptUnsave:boolean;virtual;
 		procedure InitDotFrame(ParCre : TSecCreator);virtual;
 		procedure DoneDotFrame;virtual;
@@ -174,7 +173,11 @@ type
 		function   RecordReadCheck : boolean;
 		procedure Proces(ParCre :TCreator);override;
     	function CanSec:boolean;virtual;
-  		procedure Validatepre(ParCre : TCreator;ParIsSec : boolean);override;
+  		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);virtual;
+
+		function  GetDefinition : TDefinition;virtual;
 end;
 
 	TErrorFormulaNode=class(TFormulaNode)
@@ -245,12 +248,40 @@ end;
 	var
 		vlByPtr : TFormulaNode;
 	begin
-		vlByPtr := TMacOption.Create(MCO_ValuePointer); 
+		vlByPtr := TValuePointerNode.Create;
 		vlByPtr.AddNode(CreateReadNode(ParCre,ParParent));
 		exit(vlByPtr);
 	end;
 	
 	{--------(TFormulaNode )--------------------------------------}
+
+	function  TFormulaNode.GetDefinition : TDefinition;
+	begin
+		exit(nil);
+	end;
+
+	procedure TFormulaNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	var
+		vlList : TDefinitionUseList;
+		vlUse  : TDefinitionUseItemBase;
+		vlDef  : TDefinition;
+	begin
+			vlList := ParUseList;
+  			if iRecord <> nil then begin
+				vlDef := iRecord.GetDefinition;
+				if vlDef = nil then exit;
+				vlUse := ParUseList.GetOrAddUseItem(vlDef);
+				if vlUse = nil then fatal(	FAT_no_du_list_from_context,'');
+				vlList := vlUse.GetSubList;
+				if vlList = nil then vlList := ParUseList;{TODO hack because of strings}
+			end;
+		   ValidateFormulaDefinitionUse(ParCre,ParMode,vlList);
+	end;
+
+	procedure TFormulaNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	begin
+			inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+	end;
 
 	procedure TFormulaNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 	begin
@@ -314,7 +345,7 @@ end;
 	function  TFormulaNode.CreateObjectPointerOfNode(ParCre : TCreator) : TFormulaNode;
 	begin
 		if not  Can([CAN_Pointer]) then TNDCreator(ParCre).AddNodeError(self,Err_Cant_Get_Expr_Pointer,'');
-		exit(TPOinterOfNode.Create(self,nil));
+		exit(TObjectPointerNode.Create(self,nil));
 	end;
 	
 	procedure TFormulaNode.DoneDotFrame;
@@ -460,8 +491,7 @@ function    TFormulaNode.CreateMac(ParOption : TMacCreateOption;ParCre : TSecCre
 var
 	vlMac : TMacBase;
 begin
-
-	if (iRecord <> nil) and (ParOption <> MCO_Size) then iRecord.InitDotFrame(ParCre);
+	if (iRecord <> nil) and (ParOption <> MCO_Size) then	iRecord.InitDotFrame(ParCre);
 	vlMac := DoCreateMac(ParOption,ParCre);
 	if (iRecord <> nil) and (ParOption <> MCO_Size) then iRecord.DoneDotFrame;
 	exit(vlMac);
@@ -531,12 +561,6 @@ function    TFormulaNode.IsCompByIdentCode(ParCode : TIdentCode):boolean;
 begin
 	IsCompByIdentcode := false;
 	if GetType <> nil then 	IsCompByIdentCode := GetType.IsCompByIdentCode(ParCode);
-end;
-
-
-function TFormulaNode.CreateOperSec:TPocBase;
-begin
-	CreateOperSec := nil;
 end;
 
 
@@ -653,6 +677,11 @@ end;
 
 {----( TType )---------------------------------------------------}
 
+function TType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+begin
+	exit(TDefinitionUseItem.Create(ParVar));
+end;
+
 
 function TType.IsMinimum(ParValue : TValue):boolean;
 begin
@@ -697,9 +726,6 @@ begin
 end;
 
 
-procedure TType.AfterDef(ParCre : TCreator);
-begin
-end;
 
 function TType.IsLike(const ParTypeClass :TTypeClass):boolean;
 var vlType: TType;

@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit ela_user;
 interface
-uses frames,largenum,confnode,progutil,module,linklist,compbase,initstrm,cmp_base,stdobj,cblkbase,
-error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,blknodes,
-cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,vars,varbase,elacons,procs,classes,exprdigi,stmnodes;
+uses largenum,confnode,progutil,module,compbase,initstrm,cmp_base,stdobj,cblkbase,
+error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,
+cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,elacons,procs,classes,exprdigi,stmnodes;
 	
 type	TEla_User=class(TCompiler_Base)
 	private
@@ -45,6 +45,8 @@ type	TEla_User=class(TCompiler_Base)
 	procedure VirtualizeRoutine(ParCurrentMeta : TMeta;ParOVMOdes : TOVMOdes;ParRoutine : TRoutine);
 	
 public
+	procedure  SetDefinitionPos(ParDef : TDefinition);
+
 	function  ProcessOperator(const ParParameters  : array of TNodeIdent;
 						      var   ParPrvPar      : TNodeIdent;
 							  const ParOperStr     : string;
@@ -130,7 +132,7 @@ public
 	procedure DoIdentObject(ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type;const ParIdent : string);
 	procedure DoInheritedOfMain(ParLevel : cardinal;var ParDigi : TIdentHookDigiItem);
 	function  CalculationStatusToError(ParCs :TCalculationStatus):boolean;
-	function  CreateClassType(const ParName : string;const ParParent : string;ParVirtual : TVirtualMode;ParInCompleet ,ParIsolate: boolean):  TClassType;
+	function  CreateClassType(const ParName : string;const ParParent : string;ParVirtual : TVirtualMode;ParInCompleet ,ParIsolate,ParOfValue: boolean):  TClassType;
 	procedure HandleRoutineDotName(const ParName : string);
 	function  CreateCDTor(const ParName : string;ParAccess : TDefAccess;ParCDFlag : boolean) : TRoutine;
 	procedure OverrideClass(ParOther : TDefinition;ParClass : TClassTYpe;ParMeta : TMeta);
@@ -277,7 +279,7 @@ begin
 	ParClass.InitVirtualMeta(ParMeta.AddVirtualRoutine(ParClass.fMeta));
 end;
 
-function  TEla_user.CreateClassType(const ParName : string;const ParParent : String;ParVirtual : TVirtualMode;ParInCompleet,ParIsolate : boolean): TClassType;
+function  TEla_user.CreateClassType(const ParName : string;const ParParent : String;ParVirtual : TVirtualMode;ParInCompleet,ParIsolate,ParOfValue : boolean): TClassType;
 var
 	vlParent : TClassType;
 	vlType   : TCLassType;
@@ -304,7 +306,7 @@ var
 		exit(false);
 	end;
 
-begin
+begin{TODO.MUST Check if Parent is same type}
 	vlType := nil;
 	vlFoundIncompleet := false;
 	if length(ParParent) <> 0 then begin
@@ -324,7 +326,11 @@ begin
 	if not(ParInCompleet) then vlFoundIncompleet := FindInCompleet(ParName,vlType);
 
 	if not vlFoundInCompleet then begin
-		vlType   := TClassType.Create(vlParent,ParInCompleet);
+		if ParOfValue then begin
+			vlType := TValueClassType.Create(vlParent,ParInCompleet);
+		end else begin
+			vlType := TObjectClassType.Create(vlParent,ParInCompleet);
+		end;
 		fNDCreator.AddType(ParName,vlType);
 	end else begin
 		vlType.fParent := vlParent;
@@ -474,6 +480,11 @@ begin
 	end;
 end;
 
+
+procedure  TEla_user.SetDefinitionPos(ParDef : TDefinition);
+begin
+	fNDCreator.SetDefinitionPos(ParDef);
+end;
 
 
 

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit cblkbase;
 interface
-uses confval,meta,objlist,largenum, vars,strmbase,linklist,elacfg,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata, error,
-	varuse,progutil,params,elatypes,node,elacons,pocobj,stdobj,didentls,macobj,formbase,ddefinit,dsblsdef,types,varbase,asminfo;
+uses confval,meta,objlist,largenum,strmbase,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata,
+	varuse,progutil,params,node,elacons,pocobj,stdobj,macobj,formbase,varbase,asminfo,elatypes,error,elacfg,ddefinit;
 	
 type
 	
@@ -51,6 +51,9 @@ type
 			property  iHasNeverStackFrame : boolean       read voHasNeverStackFrame write voHasNeverStackFrame;
 			property  iHasOwnFramePtr     : boolean       read voHasOwnFramePtr     write voHasOwnFramePtr;
 			property  iObjectList         : TObjectList   read voObjectList          write voObjectLIst;
+			procedure   Clear;override;
+   		procedure   Commonsetup;override;
+
 		public
 			property  fObjectList         : TObjectList   read voObjectList;
 			property  fHasNeverStackFrame : boolean   read voHasNeverStackFrame     write voHasNeverStackFrame;
@@ -62,8 +65,6 @@ type
 			property  fName               : TString   read voName;
 			constructor Create(const ParName : String;ParCDeclFlag : boolean;ParOwnerPoc : TRoutinePoc;ParRoutine : TRoutine;ParParameterFrame,ParLocalframe : TFrame;ParlocalSize,ParParamSize : TSize);
 			
-			procedure   Clear;override;
-   			procedure   Commonsetup;override;
 			
 			function  CreateInst(ParCre:TInstCreator):boolean;override;
 			procedure Print(ParDis:TDisplay);override;
@@ -73,7 +74,7 @@ type
 			function  Optimize : boolean;override;
 		end;
 		
-		
+
 		
 		TCallNode=class(TFormulaNode)
 		private
@@ -99,6 +100,8 @@ type
 			property  iParCnt      : cardinal   read voParCnt     write voParcnt;
 			property  iIsProcessed : boolean    read voIsProcessed write voIsProcessed;
 			procedure SetType(parType : TTYpe);
+			procedure   CommonSetuP;override;
+			procedure   Clear;override;
 			
 		public
 			property    fRoutineItem : TRoutine read voRoutineItem ;
@@ -106,7 +109,9 @@ type
 			property    fParCnt      : cardinal read voParCnt;
 			property    fType        : TType      read voType        write voType;
 			property    fFrame       : TFrame     read voFrame      write voFrame;
-			
+
+
+			procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
 			procedure   SetName(const ParName : string);
 			constructor Create(const ParName : string);
 			procedure   SetRoutineItem(ParCre : TNDCreator;PArProc:TRoutine;ParContext :TDefinition);
@@ -118,7 +123,6 @@ type
 			function    GetType:TType;override;
 			function    AddNode(ParNode:TNodeIdent):boolean;override;
 			function    AddNodeAndName(ParNode:TNodeIdent;const ParName : string):boolean;
-			procedure   CommonSetuP;override;
 			function    DoCreateSec(ParCre:TSecCreator):boolean;override;
 			function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 			procedure   PrintNode(ParDis:TDisplay);override;
@@ -126,7 +130,6 @@ type
 			procedure   GetNameStr(var ParName:string);
 			procedure   SetParameters(ParContext : TDefinition;ParCre:TNDCreator;ParCB : TRoutine);
 			procedure   SoftEmptyParameters;
-			procedure   Clear;override;
 			function    GetParamByName(const ParName : string):TParamNode;
 			function    IsOverloaded : boolean;
 			procedure    Optimize(ParCre : TCreator);override;
@@ -155,6 +158,8 @@ type
 			procedure   PrintNode(ParDis:TDisplay);override;
 			procedure   DoneRoutine(ParCre : TSecCreator);
 		   function  IsSubNodesSec:boolean;override;
+			procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+
 		end;
 		
 		
@@ -197,6 +202,8 @@ type
 			property  iStatements        : TRoutineNode           read voStatements         write voStatements;
 			procedure ValidateOverrideVirtTest(ParCre : TNDCreator; ParOther : TRoutine);virtual;
 			procedure  CreateInitCode(ParCre :TNDCreator);
+		{seperation}
+			function   CreateSeperationRoutine(ParCre : TNDCreator) : TRoutine;virtual;
 
 		public
 			property   fRelativeLevel      : cardinal        read voRelativeLevel     write voRelativeLevel;
@@ -244,12 +251,11 @@ type
 			{Is/Copare}
 			function   IsSameAsForward(ParCB : TDefinition;var ParText : string):boolean;override;
 			function   IsSameRoutine(ParProc:TRoutine;ParType : TParamCompareOptions):boolean;virtual;
-			function   IsSameTypeByNode(ParNode:TCallNode):boolean;virtual;
+			function   IsSameTypeByNode(ParNode:TCallNode):boolean;
 			function   IsSameForFind(ParProc :TRoutine):boolean;
 			function   IsPropertyProcComp(ParWrite : boolean;ParTYpe : TType) :boolean;
 
 			{seperation}
-			function   CreateSeperationRoutine(ParCre : TNDCreator) : TRoutine;virtual;
 			procedure  SeperateInitAndMain(ParCre : TNDCreator;var ParNewCB : TRoutine);
 			procedure  PostMangledName(var ParName:string);override;
 			function   SaveItem(ParStream:TObjectStream):boolean;override;
@@ -316,9 +322,9 @@ type
 			function   GetRTLParameter:TRTLParameter;
 			function   CreateAutomaticParameterNodes(ParContext : TDefinition;ParCre:TNDCreator;ParList:TCallNodeList):TTLVarNode;
 			procedure  AddAutomaticParameters(ParParentContext : TDefinition;ParCre : TNDCreator);virtual;
-			procedure  PreProcessParameterList(ParParentContext,ParOtherOwner : TDefinition;ParCre:TNDCreator);virtual;
+			procedure  PreProcessParameterList(ParParentContext,ParOtherOwner : TDefinition;ParCre:TNDCreator);
 			{comparision}
-			function   IsSameParamType(ParParam:TProcParList;ParType:TParamCompareOptions):boolean;virtual;
+			function   IsSameParamType(ParParam:TProcParList;ParType:TParamCompareOptions):boolean;
 			function   GetParamByNum(ParNum : cardinal):TParameterVar;
 			procedure  CheckIsInheritedComp(ParCre : TCreator;ParCB : TRoutine;ParHasMain : boolean);virtual;
 			procedure  ValidateCanOverrideByComp(ParCre :TNDCreator;const ParOther : TRoutine);virtual;
@@ -361,12 +367,13 @@ type
 		private
 			voMeta : TMeta;
 			property iMeta : TMeta read voMeta write voMeta;
+		protected
+			procedure   Commonsetup; override;
 		public
 			procedure   DoneVariable(ParOwner : TDefinition;ParFrame : TFrame);override;
 			procedure   InitVariable(ParOwner ,ParContext: TDefinition;PArFrame : TFrame);override;
 			constructor Create(const ParName : String;ParFrame:TFrame;ParOffset : TOffset;ParMeta : TMeta;ParType:TType);
-			procedure   CreateCBInit(ParCre : TCreator;ParAt : TNodeIdent;ParContext : TDefinition);override;
-			procedure   Commonsetup; override;
+			procedure   CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);override;
 			function    SaveItem(ParStream:TObjectStream):boolean;override;
 			function    LoadItem(ParStream:TObjectStream):boolean;override;
 		end;
@@ -400,7 +407,7 @@ type
 		iIdentCode := IC_LOcalFrameVar;
 	end;
 	
-	procedure TLocalMetaVar.CreateCBInit(ParCre : TCreator;ParAt : TNodeIdent;ParContext : TDefinition);
+	procedure TLocalMetaVar.CreateCBInit(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
 	var
 		vlByPtr : TFormulaNode;
 	begin
@@ -1424,7 +1431,7 @@ type
 			if self <> vlRoutine.GetRealOwner then begin
 				vlParameter := TFixedFrameParameter.Create(vlNestName,self,vlRoutine.fParameterFrame,fLocalFrame,vLPtrType,vlVirtual);
 			end else begin
-				vlParameter := TFrameParameter.Create(vlNestName,1,vlRoutine.fParameterFrame,fLocalFrame,vlPtrType,vlVirtual);
+				vlParameter := TFrameParameter.Create(vlNestName,1,vlRoutine.fParameterFrame,fLocalFrame,vlPtrType,PV_Value,vlVirtual);
 			end;
 			vlRoutine.AddParam(vlParameter);
 			vlNestMeta := fMeta;
@@ -1448,7 +1455,7 @@ type
 				if self <> vlRoutine.GetRealOwner then begin
 					vlParameter := TFixedFrameParameter.Create(vlNestName,self,vlRoutine.fParameterFrame,fLocalFrame,vLPtrType,vlVirtual);
 				end else begin
-					vlParameter := TFrameParameter.Create(vlMetaName,1,vlRoutine.fParameterFrame,vlNestMeta.fMetaFrame,vlPtrType,vlVirtual);
+					vlParameter := TFrameParameter.Create(vlMetaName,1,vlRoutine.fParameterFrame,vlNestMeta.fMetaFrame,vlPtrType,PV_Value,vlVirtual);
 				end;
 				vlRoutine.AddParam(vlParameter);
 			end;
@@ -1649,16 +1656,16 @@ type
 	procedure  TRoutine.ProducePoc(ParCre : TCreator);
 	var vlCre  : TSecCreator;
 		vlName : string;
-		vlList : TVarUseList;
+		vlList : TDefinitionUseList;
 	begin
 		if iStatements = nil then exit;
 
 		vlCre := TAsmCreator(ParCre).fSecCre;
 
 		if GetConfigValues.fVarUseCheck then begin
-			vlList := TVarUseList.Create(self);
+			vlList := TDefinitionUseList.Create(self);
 			GetParList.AddItemsToUseList(vlList);
-			iStatements.ValidateVarUse(vlCre,AM_Read,vlList);
+			iStatements.ValidateDefinitionUse(vlCre,AM_Execute,vlList);
 			vlList.CheckUnused(vlCre);
 			vlList.Destroy;
 		end;
@@ -1908,7 +1915,13 @@ type
 	end;
 	
 	{----( TRoutineNode )--------------------------------------------}
-	
+
+
+	procedure TROutineNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	begin
+		iParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+	end;
+
 	function  TROutineNode.IsSubNodesSec:boolean;
 	begin
 		exit(true);
@@ -1995,12 +2008,17 @@ type
 	end;
 	
 	{-----( TCallNode )-------------------------------------------}
+	procedure TCallNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	begin
+			inherited ValidateFormulaDefinitionUse(ParCre,AM_Execute,ParUseList);
+			fParts.ValidateDefinitionUse(ParCre,AM_Nothing,ParUseList);
+			if iCallAddress <> nil then iCallAddress.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
+	end;
 
 
 
     procedure TCallNOde.proces(ParCre : TCreator);
 	var
-      vlLocal : TType;
 	vlDef        : TRoutine;
 	vlOwner      : TRoutine;
 	vlCur        : TRoutineCollection;
@@ -2059,8 +2077,10 @@ procedure TCallNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 var
 	vlNOde : TParamNode;
 	vlName : string;
-	vlDef  : TRoutine;
 	vlCurrent : TParamNode;
+	vlNumberOfDefPar  : cardinal;
+	vlNumberOfUsedPar : cardinal;
+	vlError : TErrorType;
 begin
 	inherited ValidatePre(ParCre,ParIsSec);
 	vlNode := TParamNode(fParts.fStart);
@@ -2081,18 +2101,38 @@ begin
 
 		vlNode := TParamNode(vlNode.fNxt);
 	end;
-	vlDef := iRoutineItem;         {TODO:check if vldef is a routine}
-	if (vlDef <> nil) then begin
-		fRoutineItem.BeforeCall(TNDCreator(ParCre));{Move to validatepre?}
-		if (GetPartByNum(1) <> nil) and (not vlDef.IsSameTypeByNode(self)) then	begin
+	if iRoutineItem <> nil then begin
+		if iCallAddress <> nil then begin
+			if (iCallAddress is TFormulaNode) and ( TFormulaNode(iCallAddress).GetType <> nil) then begin
+				if TFormulaNode(iCallAddress).GetType  is TRoutineType then begin
+					if (iRoutineItem.GetRealOwner is TRoutine) and not(RTM_Isolate in fRoutineItem.fRoutineModes) then begin
+						TNDCreator(ParCre).AddNodeError(self,Err_Cant_Execute,'');
+					end;
+				end;
+			end;
+		end;
+
+		iRoutineItem.BeforeCall(TNDCreator(ParCre));
+		if (GetPartByNum(1) <> nil) and (not iRoutineItem.IsSameTypeByNode(self)) then	begin
 			GetNameStr(vlName);
 			TNDCreator(ParCre).AddNodeError(self,Err_invalid_parameters,vlName);
 		end;
-		if vlDef is TConstructor then begin
+		if iRoutineItem is TConstructor then begin
 			if iRecord <> nil then begin
-         	if not iRecord.Can([Can_Type]) then TNDCreator(ParCre).AddNodeError(self,Err_Not_A_Class_Method,'');
+  		       if not iRecord.Can([Can_Type]) then TNDCreator(ParCre).AddNodeError(self,Err_Not_A_Class_Method,'');
 			end;
 		end;
+		if not(iIsPtrOf) then begin
+			vlNumberOfDefPar  := iRoutineItem.GetNumberOfParameters;
+			vlNumberOfUsedPar := iParts.GetNumItems;
+			if vlNumberofDefPar <>  vlNumberOfUSedPar then begin
+				iRoutineItem.GetTextStr(vlName);
+				vlError := Err_Too_Many_Parameters;
+				if vlNumberOfDefPar > vlNumberOfUsedPar then vlError := Err_Param_Expected;
+				TNDCreator(ParCre).AddNodeError(self,vlError,'to '+vlName+' requires '+IntToStr(vlNumberOfDefPar) +' parameters instead of '+IntTOStr(vlNUmberOfUsedPar));
+			end;
+		end;
+
 	end;
 end;
 
@@ -2110,24 +2150,21 @@ end;
 		vlType := TRoutineType.create(false,iRoutineItem,vlIsMethod);
 		GetNameStr(vlName);
 		vlType.SetText('Ptr to '+vlName);
-		exit(TPointerOfNode.Create(self,vlType));
+		iIsPtrOf :=true;
+		exit(TObjectPointerNode.Create(self,vlType));
 	end;
 
 
 	procedure TCallNode.Optimize(ParCre : TCreator);
 	begin
 		inherited Optimize(ParCre);
-		if iCallAddress <> nil then begin
-			iCallAddress.Optimize(ParCre);{should be optimizethisnode}
-		end;
+		if iCallAddress <> nil then iCallAddress.Optimize(ParCre);{should be optimizethisnode}
 	end;
 	
 	procedure  TCallNode.ValidateAfter(ParCre : TCreator);
 	begin
 		inherited ValidateAfter(ParCre);
-		if iCallAddress <>nil then begin
-			iCallAddress.ValidateAfter(ParCre);
-		end;
+		if iCallAddress <>nil then 	iCallAddress.ValidateAfter(ParCre);
 	end;
 	
 	
@@ -2324,7 +2361,7 @@ end;
 					vlMac := TMethodPtrMac.Create(vlObject,vlMac,GetAssemblerInfo.GetSystemSize);
 					ParCre.AddObject(vlMac);
 				end else begin
-					writeln('self not found in',iRoutineItem.GetErrorName);
+					writeln('self not found in',iRoutineItem.GetErrorName);{TODO fatal error}
 					runerror(1);
 				end;
 			end;
@@ -2380,28 +2417,16 @@ function TCallNode.CreateCallSec(ParCre:TSecCreator):TCallPoc;
 var vlCall            : TCallPoc;
 	vlCallGroup1      : TCallMetaPoc;
 	vlCallGroup2      : TCallMetaPoc;
-	vlNumberOfDefPar  : cardinal;
-	vlNumberOfUsedPar : cardinal;
-	vlName            :string;
 	vlMac  			  : TMacBase;
 	vlType			  : TType;
 begin
-	vlNumberOfDefPar  := iRoutineItem.GetNumberOfParameters;
-	vlNumberOfUsedPar := iParts.GetNumItems;
-	iRoutineItem.GetTextStr(vlName);
-	if vlNumberofDefPar < vlNumberOfUSedPar then begin
-		ParCre.AddNodeError(self,Err_Too_Many_Parameters,'to '+vlName+' requires '+IntToStr(vlNumberOfDefPar) +' parameters instead of '+IntTOStr(vlNUmberOfUsedPar));
-	end;
-	if vlNumberOfDefPar > vlNumberOfUsedPar then begin
-		ParCre.AddNodeError(self,Err_Param_Expected,'to '+vlName+' requires '+IntToStr(vlNumberOfDefPar) +' parameters instead of '+IntTOStr(vlNUmberOfUsedPar));
-	end;
 	vlcallGroup1 := TCallMetaPoc.Create;
 	vlCallGroup2 := TCallMetaPoc.Create;
 	vlCallGroup1.fGroupEnd := vlCallGroup2;
 	vlcallGroup2.fGroupBegin := vlCallGroup1;
 	ParCre.AddSec(vlCallGroup1);
 	CreatePartsSec(Parcre);
-    vlMac := iCallAddress.CreateMac(MCO_Result,ParCre);
+   vlMac := iCallAddress.CreateMac(MCO_Result,ParCre);
 	if iCallAddress is TFormulaNode then begin
 		vlType := TFormulaNode(iCallAddress).GetType;
 		if (vlType is TRoutineType) and (TRoutineType(vlType).fOfObject) then begin

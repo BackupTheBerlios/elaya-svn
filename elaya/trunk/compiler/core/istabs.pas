@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit istabs;
 interface
-uses progutil,compbase,i386cons,procinst,asmdisp,stdobj,resource,elacons;
+uses progutil,i386cons,procinst,asmdisp,stdobj,resource,elacons;
 
 const
 stab_Procedure = 36;
@@ -58,10 +58,11 @@ type
 		property  fCode2:cardinal read voCode2 write voCode2;
 		property  iText : TString read voText write voText;
 		procedure PrintLastArg(ParDis : TAsmDisplay);virtual;
+		procedure  clear;override;
+
 	public
 		constructor create(ParType:cardinal;ParText:string;ParCode1,ParCode2:cardinal);
 		procedure Print(ParDis:TAsmDisplay);override;
-		procedure  clear;override;
 	end;
 
 	TProcedureStab=class(TStabs)
@@ -74,9 +75,9 @@ type
 	protected
 		procedure PrintLastArg(ParDis:TAsmDisplay);override;
 		procedure Commonsetup;override;
+		procedure Clear;override;
 
 	public
-		procedure Clear;override;
 		constructor Create(const ParName,ParParentName:string;const ParMangled:string;ParLine:cardinal);
 	end;
 	
@@ -89,9 +90,10 @@ type
 		procedure SetProcedureName(const ParStr:string);
 	protected
 		procedure PrintLastArg(ParDis:TAsmDisplay);override;
-	public
 		procedure   Clear;override;
 		procedure   Commonsetup;override;
+
+	public
 		constructor Create(ParLineNo:Cardinal;ParLabel:TLabelInst;const PArProc:String);
 	end;
 	

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit DDefinit ;
 interface
-uses varuse,streams,cmp_type,elacons,progutil,linklist,compbase,hashing,display,node,stdobj,elatypes,error,asmdata;
+uses varuse,streams,cmp_type,elacons,progutil,compbase,hashing,display,node,stdobj,elatypes,error,asmdata;
 type
 	TDefinition=class(TBaseDefinition)
 	private
@@ -42,7 +42,8 @@ type
 		property     fDefault    : TDefaultTypeCode read voDefault;
 		property     fOwner      : TDefinition      read voOwner     write voOwner;
 		property     fDefAccess  : TDefAccess       read voDefAccess write voDefAccess;
-		property     fIdentCOde   :TIdentCode       read voIdentCode;
+		property     fIdentCOde  : TIdentCode       read voIdentCode;
+
 		
 		function     IsAsmGlobal : boolean;
 		function     MustSaveItem : boolean;
@@ -122,8 +123,9 @@ type
 		procedure   DoneDotFrame;virtual;
 		function    HasOwner(ParIdent : TDefinition) : boolean;
 		function    IsSameIdentCode(ParIdent:TDefinition):boolean;
-      procedure   AddToUseList(ParUse : TVarUseList);virtual;
-		function  NeedReadableRecord : boolean;virtual;
+      procedure   AddToUseList(ParUse : TDefinitionUseList);virtual;
+		function    CreateDefinitionUseItem : TDefinitionUseItemBase;virtual;
+		function    NeedReadableRecord : boolean;virtual;
 
 	end;
 
@@ -135,6 +137,12 @@ uses asminfo,asmcreat,ndcreat;
 
 {-----( TDefinition )-------------------------------------------------------------------}
 
+function  TDefinition.CreateDefinitionUseItem : TDefinitionUseItemBase;
+begin
+	exit(TDefinitionUseItem.Create(self));
+end;
+
+
 function  TDefinition.NeedReadableRecord : boolean;
 begin
 	exit(true);
@@ -145,8 +153,9 @@ begin
 	exit(false);
 end;
 
-procedure TDefinition.AddToUseList(ParUse : TVarUseList);
+procedure TDefinition.AddToUseList(ParUse : TDefinitionUseList);
 begin
+	ParUse.InsertAt(nil,CreateDefinitionUseItem);
 end;
 
 function TDefinition.IsSameIdentCode(ParIdent:TDefinition):boolean;
@@ -577,6 +586,9 @@ begin
 	SetHashNext(nil);
 	fDefAccess := AF_Current;
 	fOwner     := nil;
+	iLine      := 0;
+	iCol       := 0;
+	iPos       := 0;
 	iAllwaysSave     := false;
 	iIdentCode       := IC_Unkown;
 end;

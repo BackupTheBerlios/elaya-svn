@@ -22,7 +22,7 @@ unit InitStrm;
 
 
 interface
-uses  ddefinit,meta,classes,elacons,streams,frames,Module,procs,types,vars,varbase,params,doperfun,cdfills,extern,cblkbase,globlist;
+uses  meta,classes,elacons,streams,frames,Module,procs,types,vars,varbase,params,doperfun,cdfills,extern,cblkbase,globlist;
 
 procedure InitStreams;
 procedure DoneStreams;
@@ -72,7 +72,8 @@ begin
 	AddObjectToStreamList(longint(IC_NormalMapping),TNormalParameterMappingItem);
 	AddObjectToStreamList(longint(IC_LocalFrameVar),TLocalMetaVar);
 	AddObjectToStreamList(longint(IC_GlobalItem),TGlobalItem);
-	AddObjectToStreamList(longint(IC_ClassType),TClassType);
+	AddObjectToStreamList(longint(IC_ObjectClassType),TObjectClassType);
+	AddObjectToStreamList(longint(IC_ValueClassType),TValueClassType);
 	AddObjectToStreamList(Longint(IC_ClassFrameParameter),TClassFrameParameter);
 	AddObjectToStreamList(longint(IC_Constructor),TConstructor);
 	AddObjectToStreamList(longint(IC_Destructor),TDestructor);
@@ -84,6 +85,7 @@ begin
 	AddObjectToStreamList(longint(IC_EnumCons),TEnumCons);
 	AddObjectToStreamList(longint(IC_BooleanType),TBooleanType);
 	AddObjectToStreamList(longint(IC_EnumCollection),TEnumCollection);
+	AddObjectToStreamList(longint(IC_ConstantVariable),TConstantVariable);
 end;
 
 procedure DoneStreams;

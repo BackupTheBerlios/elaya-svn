@@ -83,7 +83,7 @@ CONST
 ,16,16,16,16);
 
 const
-    noSym=20;
+    noSym=21;
 
 
 function TCFG_Scanner.Comment: boolean;
@@ -112,13 +112,13 @@ var vlStr:string;
 begin
       GetName(bp0,nextlen,vlStr);
       case byte(vlStr[1]) of
-            67:   if vlStr ='CONST' then ParSym := 4;
-            68:   if vlStr ='DIV' then ParSym := 5;
-            69:   if vlStr ='END' then ParSym := 6;
-            70:   if vlStr ='FAIL' then ParSym := 7;
-            83:   if vlStr ='SECTION' then ParSym := 8;
-            86:   if vlStr ='VAR' then ParSym := 9;
-            87:   if vlStr ='WRITE' then ParSym := 10;
+            67:   if vlStr ='CONST' then ParSym := 5;
+            68:   if vlStr ='DIV' then ParSym := 6;
+            69:   if vlStr ='END' then ParSym := 7;
+            70:   if vlStr ='FAIL' then ParSym := 8;
+            83:   if vlStr ='SECTION' then ParSym := 9;
+            86:   if vlStr ='VAR' then ParSym := 10;
+            87:   if vlStr ='WRITE' then ParSym := 11;
       end;
 end;
 
@@ -182,23 +182,23 @@ begin
                               end;
                         end;
                    5:   begin
-                              ParSym := 11;
-                              exit;
-                        end;
-                   6:   begin
                               ParSym := 12;
                               exit;
                         end;
-                   7:   begin
+                   6:   begin
                               ParSym := 13;
                               exit;
                         end;
-                   8:   begin
+                   7:   begin
                               ParSym := 14;
                               exit;
                         end;
-                   9:   begin
+                   8:   begin
                               ParSym := 15;
+                              exit;
+                        end;
+                   9:   begin
+                              ParSym := 16;
                               exit;
                         end;
                   10:   case ch of
@@ -209,19 +209,19 @@ begin
                               end;
                         end;
                   11:   begin
-                              ParSym := 16;
-                              exit;
-                        end;
-                  12:   begin
                               ParSym := 17;
                               exit;
                         end;
-                  13:   begin
+                  12:   begin
                               ParSym := 18;
                               exit;
                         end;
-                  14:   begin
+                  13:   begin
                               ParSym := 19;
+                              exit;
+                        end;
+                  14:   begin
+                              ParSym := 20;
                               exit;
                         end;
                     15: begin

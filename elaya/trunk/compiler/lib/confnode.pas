@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit confnode;
 
 interface
-uses confdef,sysutils,stdobj,progutil,simplist,cfg_error;
+uses confdef,sysutils,stdobj,progutil,simplist;
 type
 	TOperatorCode=(
 	OC_None,

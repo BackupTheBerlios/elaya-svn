@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit ela_comp;
 
 interface
-uses cmp_cons,elacfg,confval,progutil,stdobj,options,error,elap,elacons,elatypes,cmp_base,cmp_type;
+uses cmp_cons,elacfg,confval,progutil,stdobj,options,error,elap,elacons,cmp_base,cmp_type;
 type
 	TElaCompiler=class(TEla_Parser)
 	public
@@ -32,6 +32,9 @@ type
 		voCompTime    : cardinal;
 		voPrvErrLine  : longint;
 		voPrvErrCol   : longint;
+	protected
+		procedure   Commonsetup;override;
+	public
 		property iPrvErrCol   : longint read voPrvErrCol  write voPrvErrCol;
 		property iPrvErrLine  : longint read voPrvErrLine write voPrverrLine;
 		property fSaveTime    : cardinal read voSaveTime  write voSaveTime;
@@ -40,7 +43,6 @@ type
 		property fSaveTicksHi : cardinal read voSaveTicksHi write voSaveTicksHi;
 		property fCompTicksLo : cardinal read voCompTicksLo write voCompTicksLo;
 		property fCompTicksHi : cardinal read voCompTicksHi write voCompTicksHi;
-	public
 		procedure   GetConfigFileName(var ParName : string);override;
 		PROCEDURE   PrintErr (const ParLine : STRING;  ParCol: INTEGER);
 		procedure   GetErrorDescr(ParErr : TErrorType;var ParText:string);
@@ -57,7 +59,6 @@ type
 		procedure   PostParse;override;
 		procedure   WhenError;override;
 		procedure   WhenSuccess;override;
-		procedure   Commonsetup;override;
 		procedure   CalculateTimes;
 	end;
 	

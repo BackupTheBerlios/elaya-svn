@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit cmp_base;
 
 interface
-uses largenum,cmp_cons,simplist,cmp_type,stdobj,progutil,scanbuf,dynset,files,buffers;
+uses largenum,cmp_cons,simplist,cmp_type,stdobj,progutil,scanbuf,dynset,{files,}buffers;
 const   minErrDist  = 5;
 	Size_BUffered_Read = 65000;
 

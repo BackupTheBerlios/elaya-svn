@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit Asmcreat;
 interface
-uses AsmDisp,i386cons,display,progutil,compbase,linklist,stdobj,elatypes,node,
-elacons,error,idlist,asmdata,elacfg,extAppl,cmp_base,DIdentLs,confval,cmp_type  ;
+uses AsmDisp,i386cons,display,progutil,compbase,stdobj,elatypes,node,
+elacons,error,asmdata,elacfg,extAppl,cmp_base,DIdentLs,confval,cmp_type  ;
 type
 	
 	TAsmCreator=class(TCreator)

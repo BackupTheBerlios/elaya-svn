@@ -20,11 +20,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit routasm;
 interface
-uses asmdisp,elacfg,confval,objlist,compbase,progutil,elacons,stdobj,simplist;
+uses asmdisp,elacfg,confval,objlist, progutil,elacons,stdobj,simplist;
 type
 
 	TInstructionList=class(TSMList)
-		procedure print(ParDis:TAsmDisplay);virtual;
+		procedure print(ParDis:TAsmDisplay);
 	end;
 
 

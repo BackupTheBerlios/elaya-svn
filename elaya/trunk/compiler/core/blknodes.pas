@@ -1,6 +1,6 @@
 unit blknodes;
 interface
-uses stmnodes,display,node,pocObj;
+uses display,node,pocObj,varuse;
 type
 
 TBlockNode=class(TNodeIdent)
@@ -8,9 +8,15 @@ TBlockNode=class(TNodeIdent)
 		procedure Print(ParDis : TDisplay);override;
 		function CreateSec(ParCre : TSecCreator):boolean;override;
 	   function  IsSubNodesSec:boolean;override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
 
 	end;
 implementation
+
+procedure TBlockNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+begin
+	fParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+end;
 
 function TBlockNode.IsSubNodesSec:boolean;
 begin
@@ -24,7 +30,7 @@ begin
 	vlLabel := ParCre.fLeaveLabel;
 	ParCre.fLeaveLabel := nil;
 	fParts.CreateSec(ParCre);
-	if ParCre.fLeaveLabel <> nil then begin writeln('xxx');ParCre.AddSec(ParCre.fLeaveLabel);end;
+	if ParCre.fLeaveLabel <> nil then ParCre.AddSec(ParCre.fLeaveLabel);
 	ParCre.fLeaveLabel := vlLabel;
 	exit(false);
 end;

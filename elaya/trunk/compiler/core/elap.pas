@@ -7,12 +7,9 @@ UNIT ELAP;
 
 Interface
 
-Uses dynset,cmp_base,confval,cmp_cons,error,module,linklist,types,stdobj,asminfo,
-     vars,display,elacons,formbase,macobj,cblkbase,
-     compbase,procs,elaTypes,node,extern,ddefinit,doperfun,
-     varbase,params,elacfg,progutil,classes,
-     nif,nlinenum,naddsub,execobj,exprdigi,
-     cmp_type,largenum,blknodes,stmnodes, ELAS,ELA_cons,ELA_user;
+Uses dynset,cmp_base,confval,error,types,stdobj,asminfo,vars,display,elacons,formbase,cblkbase,
+     compbase,procs,elaTypes,node,extern,ddefinit,doperfun,params,elacfg,progutil,classes,
+     nif,nlinenum,naddsub,execobj,exprdigi,largenum,blknodes,stmnodes, ELAS,ELA_cons,ELA_user;
 
 Type
 TELA_Parser=class(TELA_scanner)
@@ -118,6 +115,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _IWrite;
       Procedure _IWhere;
       Procedure _IVirtual;
+      Procedure _IValue;
       Procedure _IUnion;
       Procedure _IUntil;
       Procedure _IType;
@@ -191,6 +189,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _IAs;
       Procedure _IArray;
       Procedure _IAnd;
+      Procedure _IAll;
       Procedure _IAbstract;
       Procedure _RBlockOfCode ( ParNode : TNodeIdent);
       Procedure _RRoutine;
@@ -269,7 +268,7 @@ begin
       
       begin
               vlLocal := nil; ;
-            if (GetSym = 66) then begin
+            if (GetSym = 67) then begin
                   _ROwner( vlLocal);
             end;
             _RIdentObject( TRoutine(vlLocal),vlDef,vlDigi,vlMention);
@@ -278,10 +277,10 @@ begin
             ParDigi.fLocal := vlLocal;
              SetDigiPos(ParDigi);
             ;
-            if (GetSym = 101) then begin
+            if (GetSym = 103) then begin
                   _RParameters( ParDigi);
             end;
-            if (GetSym = 94) then begin
+            if (GetSym = 96) then begin
                   _RShortDRoutine( TRoutineCollection(vlDef),ParDigi);
             end;
       end;
@@ -303,14 +302,14 @@ begin
             vlPrn   := nil;
             CreateShortSubCB(ParRoutine,vlName,vlRoutine,vlError);
             ;
-            if (GetSym = 101) then begin
+            if (GetSym = 103) then begin
                   _RParamDef( vlRoutine);
             end;
              
             if not vlError then vlPrn := ProcessShortSubCb(vlRoutine);
             ;
             Expect(10);
-            if (GetSym = 19) then begin
+            if (GetSym = 20) then begin
                   _RBlockOfCode( vlPrn);
             end
              else if vgDynSet[1].isSet(GetSym) then begin
@@ -324,7 +323,7 @@ begin
                   ;
             end
             else begin
-                  SynError(120);
+                  SynError(122);
             end;
             ;Expect(8);
              
@@ -341,7 +340,7 @@ begin
           vlName : string;
       
       begin
-            Expect(101);
+            Expect(103);
             _RParam( vlExpr,vlName);
               ParList.AddItem(vlExpr,vlName); ;
             WHILE (GetSym = 9) do begin
@@ -349,7 +348,7 @@ begin
                   _RParam( vlExpr,vlName);
                     ParList.AddItem(vlExpr,vlName); ;
             end;
-            Expect(102);
+            Expect(104);
       end;
       
       Procedure TELA_Parser._RIdentObject ( ParLocal :TRoutine;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type);
@@ -379,11 +378,11 @@ begin
              vlOut   := nil;
             ;
             _IInherited;
-            WHILE (GetSym = 51) do begin
+            WHILE (GetSym = 52) do begin
                   _IInherited;
                     inc(vlLevel); ;
             end;
-            if (GetSym = 61) then begin
+            if (GetSym = 62) then begin
                   _IOf;
                   _IMain;
                     DoInheritedOfMain(vlLevel,vlOut); ;
@@ -396,12 +395,12 @@ begin
                   	vlOut.fInheritLevel := vlLevel;
                   
                   ;
-                  if (GetSym = 101) then begin
+                  if (GetSym = 103) then begin
                         _RParameters( vlOut);
                   end;
             end
             else begin
-                  SynError(121);
+                  SynError(123);
             end;
             ; 
             ParDigi := vlOut;
@@ -416,7 +415,7 @@ begin
       begin
               vlNum := 1;;
             _IOwner;
-            WHILE (GetSym = 66) do begin
+            WHILE (GetSym = 67) do begin
                   _IOwner;
                     inc(vlNum) ;
             end;
@@ -485,10 +484,10 @@ begin
             ParDigi := nil;
             ;
             case GetSym of
-                  1, 66 : begin
+                  1, 67 : begin
                         _RIdentMention( TIdentHookDigiItem(ParDigi));
                   end;
-                  51 : begin
+                  52 : begin
                         _RInherited( TIdentHookDigiItem(ParDigi));
                   end;
                   3..5 : begin
@@ -503,32 +502,32 @@ begin
                         _RText( vlPst);
                           ParDigi := TStringDigiItem.Create(vlPst);;
                   end;
-                  57 : begin
+                  58 : begin
                         _INil;
                           ParDigi := TNilDigiItem.Create ;
                   end;
-                  59 : begin
+                  60 : begin
                         _INot;
                             LexName(vlName); ;
-                        Expect(101);
+                        Expect(103);
                         _RExprDigi( vlExpr);
-                        Expect(102);
+                        Expect(104);
                           ParDigi := TSingleOperatorDigiItem.Create(vlExpr,vlName,TNotNode); ;
                   end;
-                  82 : begin
+                  83 : begin
                         _ISizeOf;
-                        Expect(101);
+                        Expect(103);
                         _RExprDigi( vlExpr);
-                        Expect(102);
+                        Expect(104);
                           ParDigi := TSizeOfDigiItem.Create(vlExpr);;
                   end;
-                  101 : begin
+                  103 : begin
                         Get;
                         _RExprDigi( ParDigi);
-                        Expect(102);
+                        Expect(104);
                   end;
                   else begin
-                        SynError(122);
+                        SynError(124);
                   end;
             end;
              
@@ -548,18 +547,18 @@ begin
       
       begin
             _RFact( vlDigi);
-            WHILE (GetSym in [7 , 107 , 115 , 117]) do begin
-                  if (GetSym = 117) then begin
+            WHILE (GetSym in [7 , 109 , 117 , 119]) do begin
+                  if (GetSym = 119) then begin
                         Get;
                          
                         vlOut := HandleDeReference(vlDigi);
                         vlDigi := vlOut;
                         ;
-                        if (GetSym = 101) then begin
+                        if (GetSym = 103) then begin
                               _RParameters( vlOut);
                         end;
                   end
-                   else if (GetSym = 107) then begin
+                   else if (GetSym = 109) then begin
                         Get;
                          
                         vlIndex := TArrayDigiItem.Create(vlDigi);
@@ -573,7 +572,7 @@ begin
                               _RExpr( vlNode2);
                                 vlIndex.AddIndexItem(vlNode2);;
                         end;
-                        Expect(108);
+                        Expect(110);
                   end
                    else if (GetSym = 7) then begin
                         Get;
@@ -582,10 +581,10 @@ begin
                         		vlDotOper := HandleDotOperator(vlDigi,vlIdent);
                         		vlDigi := vlDotOper;
                         	;
-                        if (GetSym = 101) then begin
+                        if (GetSym = 103) then begin
                               _RParameters( vlDotOper.fField);
                         end;
-                        if (GetSym = 94) then begin
+                        if (GetSym = 96) then begin
                                
                               		vlDotOper.HandleRfi(fNDCreator);
                               		fNDCreator.AddCurrentDefinitionEx(vlDotOper.GetRecordType,false,true);
@@ -607,7 +606,7 @@ begin
                               _RText( vlIdent);
                         end
                         else begin
-                              SynError(123);
+                              SynError(125);
                         end;
                         ; 
                         vlDigi := THashOperatorDigiItem.Create(vlDigi,TStringDIgiItem.Create(vlIdent),'#',nil);
@@ -629,7 +628,7 @@ begin
              
             	vlPtr := false;
             ;
-            if (GetSym = 116) then begin
+            if (GetSym = 118) then begin
                   Get;
                     vlPtr := true; ;
             end;
@@ -651,7 +650,7 @@ begin
       
       begin
             _RSimpelOper( vlDigi);
-            WHILE (GetSym = 15) do begin
+            WHILE (GetSym = 16) do begin
                   _IAs;
                   _RDefIdentObj( vlDef,false);
                     vlDigi := TCastDigiItem.Create(vlDigi,vlDef);
@@ -674,8 +673,8 @@ begin
             				vlNeg     := false;
                          vlOperator := nil;
             			;
-            if (GetSym in [103 , 104]) then begin
-                  if (GetSym = 103) then begin
+            if (GetSym in [105 , 106]) then begin
+                  if (GetSym = 105) then begin
                         Get;
                   end
                    else begin
@@ -693,12 +692,12 @@ begin
             						SetDigiPos(vlDigi1);
             					end;
             			;
-            WHILE (GetSym in [33 , 55 , 105]) do begin
-                  if (GetSym = 105) then begin
+            WHILE (GetSym in [34 , 56 , 107]) do begin
+                  if (GetSym = 107) then begin
                         Get;
                            vlOperator := TMulNode;;
                   end
-                   else if (GetSym = 33) then begin
+                   else if (GetSym = 34) then begin
                         _IDiv;
                            vlOperator := TDivNode; ;
                   end
@@ -710,8 +709,8 @@ begin
                   				LexName(vlName);
                   				vlNeg := false;
                   			;
-                  if (GetSym in [103 , 104]) then begin
-                        if (GetSym = 103) then begin
+                  if (GetSym in [105 , 106]) then begin
+                        if (GetSym = 105) then begin
                               Get;
                         end
                          else begin
@@ -744,8 +743,8 @@ begin
       
       begin
             _RTerm( vlDigi1);
-            WHILE (GetSym in [78 , 79]) do begin
-                  if (GetSym = 78) then begin
+            WHILE (GetSym in [79 , 80]) do begin
+                  if (GetSym = 79) then begin
                         _IShr;
                           vlOperator := TShrNode; ;
                   end
@@ -772,8 +771,8 @@ begin
       
       begin
             _RShrShl( vlDigi1);
-            WHILE (GetSym in [103 , 104]) do begin
-                  if (GetSym = 104) then begin
+            WHILE (GetSym in [105 , 106]) do begin
+                  if (GetSym = 106) then begin
                         Get;
                          vlOperator := TSubNode;;
                   end
@@ -802,7 +801,7 @@ begin
       
       begin
             _RAdd( vlDigi1);
-            WHILE (GetSym = 13) do begin
+            WHILE (GetSym = 14) do begin
                   _IAnd;
                     LexName(vlName); ;
                   _RAdd( vlDigi2);
@@ -826,8 +825,8 @@ begin
       
       begin
             _RLogicAnd( vlDigi1);
-            WHILE (GetSym in [63 , 100]) do begin
-                  if (GetSym = 63) then begin
+            WHILE (GetSym in [64 , 102]) do begin
+                  if (GetSym = 64) then begin
                         _IOr;
                           vlOperator := TOrNode; ;
                   end
@@ -857,23 +856,23 @@ begin
             _RLogic( vlDigiL);
             WHILE vgDynSet[3].isSet(GetSym) do begin
                   case GetSym of
-                        110 : begin
+                        112 : begin
                               Get;
                                 vlCode := IC_Bigger;   ;
                         end;
-                        111 : begin
+                        113 : begin
                               Get;
                                 vlCode := IC_BiggerEq; ;
                         end;
-                        113 : begin
+                        115 : begin
                               Get;
                                 vlCode := IC_Lower;    ;
                         end;
-                        112 : begin
+                        114 : begin
                               Get;
                                 vlcode := IC_LowerEq;  ;
                         end;
-                        106 : begin
+                        108 : begin
                               Get;
                                 vlCode := IC_Eq;	  ;
                         end;
@@ -947,16 +946,16 @@ begin
       begin
             _RIdentOper( vlI1);
               ParExpr := vlI1; ;
-            if (GetSym = 21) then begin
+            if (GetSym = 22) then begin
                   _IBetween;
                    LexName(vlName);;
-                  Expect(101);
+                  Expect(103);
                   _RIdentOper( vlI2);
-                  Expect(102);
+                  Expect(104);
                   _IAnd;
-                  Expect(101);
+                  Expect(103);
                   _RIdentOper( vlI3);
-                  Expect(102);
+                  Expect(104);
                    
                   ParExpr := TBetweenOperatorDigiItem.Create(vlI1,vlI2,vlI3,vlName);
                   SetDigiPos(ParExpr);
@@ -975,7 +974,7 @@ begin
             ParExp := nil;
             ;
             _RExprDigi( vlDigiL);
-            if (GetSym = 109) then begin
+            if (GetSym = 111) then begin
                   Get;
                     LexName(vlName); ;
                   _RExprDigi( vlDigiR);
@@ -984,14 +983,14 @@ begin
                   	if vlDigiR <> nil then vlDigiR.Destroy;
                   ;
             end
-             else if (GetSym in [8 , 36]) then begin
+             else if (GetSym in [8 , 37]) then begin
                    
                   if vlDigiL <> nil then ParExp :=TFormulaNode(vlDigiL.CreateExecuteNode(fNDCreator));
-                  if (ParExp = nil) then ErrorText(Err_Cant_Execute,'?');
+                  if (ParExp = nil) then ErrorText(Err_Cant_Execute,'');
                   ;
             end
             else begin
-                  SynError(124);
+                  SynError(126);
             end;
             ; 
             if vlDigiL <> nil then vlDigiL.Destroy;
@@ -1011,7 +1010,7 @@ begin
             _IUntil;
             _RFormula( vlCond);
              
-            TRepeatNode(ParNode).SetCond(fNDCreator,vlCond);
+            TRepeatNode(ParNode).SetCond(vlCond);
             fNDCreator.EndNode;
             ;
       end;
@@ -1027,13 +1026,13 @@ begin
             _RFormula( vlCond);
              
             ParNode := TIfNode.Create;
-            TIfNode(ParNode).SetCond(fNDCreator,vlCond);
+            TIfNode(ParNode).SetCond(vlCond);
             vlThen := TThenElseNode.Create(True);
             ParNode.AddNode(vlThen);
             ;
             _IThen;
             _RCode( vlThen);
-            if (GetSym = 36) then begin
+            if (GetSym = 37) then begin
                   _IElse;
                    
                   vlThen := TThenElseNode.Create(False);
@@ -1053,14 +1052,14 @@ begin
               vlNode := (TForNode.Create); ;
             _IFor;
             _RFormula( vlExpr);
-              vlNode.SetBegin(fNDCreator,vlExpr); ;
+              vlNode.SetBegin(vlExpr); ;
             _IUntil;
             _RFormula( vlExpr);
              
             vlNode.SetEnd(vlExpr);
             fNDCreator.AddCurrentNode(vlNode);
             ;
-            if (GetSym = 34) then begin
+            if (GetSym = 35) then begin
                   _IDo;
                   _RCode( vlNode);
             end;
@@ -1102,40 +1101,51 @@ begin
             ;
             _ICount;
             _RFormula( vlN1);
-               vlNode.SetCount(fNDCreator,vlN1); ;
-            _IFrom;
-            _RFormula( vlN2);
-               vlNode.SetBegin(fNDCreator,vlN2); ;
-            if (GetSym in [35 , 85]) then begin
-                  if (GetSym = 85) then begin
-                        _ITo;
-                           vlUp := true; ;
-                  end
-                   else begin
-                        _IDownTo;
-                           vlUp := false; ;
-                  end
-                  ;   vlNode.Setup(vlUp); ;
+               vlNode.SetCount(vlN1); ;
+            if (GetSym = 13) then begin
+                  _IAll;
+                  _IOf;
                   _RFormula( vlN3);
-                     vlNode.SetEnd(fNDCreator,vlN3); ;
+                    vlNode.SetAllOf(vlN3); ;
+            end
+             else if (GetSym = 46) then begin
+                  _IFrom;
+                  _RFormula( vlN2);
+                     vlNode.SetBegin(vlN2); ;
+                  if (GetSym in [36 , 86]) then begin
+                        if (GetSym = 86) then begin
+                              _ITo;
+                                 vlUp := true; ;
+                        end
+                         else begin
+                              _IDownTo;
+                                 vlUp := false; ;
+                        end
+                        ;   vlNode.Setup(vlUp); ;
+                        _RFormula( vlN3);
+                           vlNode.SetEnd(vlN3); ;
+                  end;
+                  if (GetSym = 85) then begin
+                        _IStep;
+                        _RFormula( vlN4);
+                  end;
+                   
+                  if vlN4 = nil then vlN4 := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
+                  vlNode.SetStep(vlN4);
+                  ;
+            end
+            else begin
+                  SynError(127);
             end;
-            if (GetSym = 84) then begin
-                  _IStep;
-                  _RFormula( vlN4);
-            end;
-             
-            if vlN4 = nil then vlN4 := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
-            vlNode.SetStep(fNDCreator,vlN4);
-            fNDCreator.AddCurrentNode(vlNode);
-            ;
-            if (GetSym = 88) then begin
+            ;if (GetSym = 89) then begin
                   _IUntil;
                   _RExpr( vlEndCondition);
-                   
-                  	vlNode.SetEndCondition(fNDCreator,vlEndCondition);
-                  ;
+                   	vlNode.SetEndCondition(vlEndCondition);;
             end;
-            if (GetSym = 34) then begin
+             
+            fNDCreator.AddCurrentNode(vlNode);
+            ;
+            if (GetSym = 35) then begin
                   _IDo;
                   _RCode( vlNode);
             end;
@@ -1161,50 +1171,50 @@ begin
              end;
             ;
             case GetSym of
-                  1..6, 51, 57, 59, 66, 82, 101, 103..104, 116 : begin
+                  1..6, 52, 58, 60, 67, 83, 103, 105..106, 118 : begin
                         _RLoad( TFormulaNode(vlNode));
                   end;
-                  16 : begin
+                  17 : begin
                         _RAsmBlock( vlNode);
                   end;
-                  22 : begin
+                  23 : begin
                         _RBreak( vlNode);
                   end;
-                  28 : begin
+                  29 : begin
                         _RContinue( vlNode);
                   end;
-                  44 : begin
+                  45 : begin
                         _RFor( vlNode);
                   end;
-                  29 : begin
+                  30 : begin
                         _RCount( vlNode);
                   end;
-                  98 : begin
+                  100 : begin
                         _RWhile( vlNode);
                   end;
-                  48 : begin
+                  49 : begin
                         _RIf( vlNode);
                   end;
-                  76 : begin
+                  77 : begin
                         _RRepeat( vlNode);
                   end;
-                  40 : begin
+                  41 : begin
                         _RExit( vlNode);
                   end;
-                  30, 49 : begin
+                  31, 50 : begin
                         _RIncDec( vlNode);
                   end;
-                  19 : begin
+                  20 : begin
                         _RCodes( ParNode);
                   end;
-                  42 : begin
+                  43 : begin
                         _RLeave( ParNode);
                   end;
-                  95..96 : begin
+                  97..98 : begin
                         _RWrite( ParNode);
                   end;
                   else begin
-                        SynError(125);
+                        SynError(128);
                   end;
             end;
              
@@ -1222,7 +1232,7 @@ begin
             _RFormula( vlCond);
              
             ParNode := TWhileNode.Create;
-            TWhileNode(ParNode).SetCond(fNDCreator,vlCond);
+            TWhileNode(ParNode).SetCond(vlCond);
             fNDCreator.AddCurrentNode(ParNode);
             ;
             _IDo;
@@ -1240,10 +1250,10 @@ begin
             vlExp := nil;
             ;
             _IExit;
-            if (GetSym = 101) then begin
+            if (GetSym = 103) then begin
                   Get;
                   _RFormula( vlExp);
-                  Expect(102);
+                  Expect(104);
             end;
              
             ParNode := CreateExitNode(vlExp);
@@ -1267,27 +1277,27 @@ begin
              
             vlValueNode := nil;
             ;
-            if (GetSym = 49) then begin
+            if (GetSym = 50) then begin
                   _IInc;
                     vlIncFlag := true; ;
             end
-             else if (GetSym = 30) then begin
+             else if (GetSym = 31) then begin
                   _IDec;
                     vlIncFlag := false;;
             end
             else begin
-                  SynError(126);
+                  SynError(129);
             end;
             ;_RFormula( vlIncrNode);
-            if (GetSym = 99) then begin
+            if (GetSym = 101) then begin
                   _IWith;
                   _RFormula( vlValueNode);
             end
-             else if (GetSym in [8 , 36]) then begin
+             else if (GetSym in [8 , 37]) then begin
                     vlValueNode := TFormulaNode(fNDCreator.CreateIntNodeLong(1)); ;
             end
             else begin
-                  SynError(127);
+                  SynError(130);
             end;
             ; ParNode := TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode);;
       end;
@@ -1296,7 +1306,7 @@ begin
       begin
               EmptyString(ParName); ;
             _RExpr( ParExpr);
-            if (GetSym = 118) then begin
+            if (GetSym = 120) then begin
                   Get;
                   _RIdent( ParName);
             end;
@@ -1318,19 +1328,19 @@ begin
             vlWritelnFlag := false;
             vlNl          := nil;
             ;
-            if (GetSym = 95) then begin
+            if (GetSym = 97) then begin
                   _IWrite;
             end
-             else if (GetSym = 96) then begin
+             else if (GetSym = 98) then begin
                   _IWriteln;
                    
                   vlWritelnFlag := true;
                   ;
             end
             else begin
-                  SynError(128);
+                  SynError(131);
             end;
-            ;if (GetSym = 101) then begin
+            ;if (GetSym = 103) then begin
                    
                   fNDCreator.GetWriteProc(false,vlRoutine,vlOwner);
                   ;
@@ -1342,7 +1352,7 @@ begin
                         _RParam( vlExpr,vlName);
                           HandleWriteStatement(vlExpr,vlName,vlRoutine,vlOwner,ParNode); ;
                   end;
-                  Expect(102);
+                  Expect(104);
             end;
              
             if vlWritelnFlag then begin
@@ -1395,50 +1405,50 @@ begin
             vlHasMain  := false;
             vlIsAbstract := false;
             ;
-            if (GetSym = 67) then begin
+            if (GetSym = 68) then begin
                   _RProcedureHead( vlDef,vlHasses);
             end
-             else if (GetSym = 46) then begin
+             else if (GetSym = 47) then begin
                   _RFunctionHead( vlDef,vlHasses);
             end
-             else if (GetSym in [27 , 32]) then begin
+             else if (GetSym in [28 , 33]) then begin
                   _RConstructorHead( vlDef,vlHasses);
             end
-             else if (GetSym = 62) then begin
+             else if (GetSym = 63) then begin
                   _ROperatorHead( vlDef);
                     vlHasses := 0; ;
             end
             else begin
-                  SynError(129);
+                  SynError(132);
             end;
             ;  ParLevel := vlHasses + 1; ;
-            if (GetSym in [50 , 77]) then begin
-                  if (GetSym = 77) then begin
+            if (GetSym in [51 , 78]) then begin
+                  if (GetSym = 78) then begin
                         _IRoot;
                         Expect(8);
                           vlRootCb := true ;
                   end
                    else begin
                         _IInherit;
-                        if (GetSym = 43) then begin
+                        if (GetSym = 44) then begin
                               _IFinal;
                                 vlInhFinal := true ;
                         end;
                         _RIdent( vlParentName);
                           vlInherit := true; ;
-                        if (GetSym = 101) then begin
+                        if (GetSym = 103) then begin
                               _RParameterMapping( vlDef);
                         end;
                         Expect(8);
                   end
                   ;end;
-            if (GetSym in [43 , 65 , 93]) then begin
-                  if (GetSym = 93) then begin
+            if (GetSym in [44 , 66 , 95]) then begin
+                  if (GetSym = 95) then begin
                         _IVirtual;
                         Expect(8);
                           vlVirtual := Vir_Virtual; ;
                   end
-                   else if (GetSym = 65) then begin
+                   else if (GetSym = 66) then begin
                         _IOverride;
                         Expect(8);
                           vlVirtual := Vir_override;;
@@ -1449,18 +1459,18 @@ begin
                           vlVirtual := VIR_Final;;
                   end
                   ;end;
-            if (GetSym = 52) then begin
+            if (GetSym = 53) then begin
                   _IIsolate;
                   Expect(8);
                     vlIsolate := true;;
             end;
-            if (GetSym = 64) then begin
+            if (GetSym = 65) then begin
                   _IOverload;
-                  if (GetSym = 56) then begin
+                  if (GetSym = 57) then begin
                         _IName;
                           vlOverload := OVL_Name;;
                   end
-                   else if (GetSym = 39) then begin
+                   else if (GetSym = 40) then begin
                         _IExact;
                           vlOverload := OVL_Exact; ;
                   end
@@ -1468,7 +1478,7 @@ begin
                           vlOverload := OVL_Type; ;
                   end
                   else begin
-                        SynError(130);
+                        SynError(133);
                   end;
                   ;Expect(8);
             end;
@@ -1477,7 +1487,7 @@ begin
                   Expect(8);
                     vlIsAbstract := true; ;
             end;
-            if (GetSym = 31) then begin
+            if (GetSym = 32) then begin
                   _IDefault;
                     vlDef.SetDefault(DT_Routine); ;
                   Expect(8);
@@ -1488,7 +1498,7 @@ begin
             	if (ParForward) and (vlDef <> nil) then vlDef.SignalForwardDefined;
             	ParRoutine := ProcessRoutineItem(vlDef,vlIsolate,vlROotCb,vlInhFinal,vlInherit,vlParentName,vlVirtual,vlOverload,vlIsAbstract);
             ;
-            if (GetSym = 47) then begin
+            if (GetSym = 48) then begin
                   _IHas;
                    
                   if ParRoutine <> nil then begin
@@ -1502,27 +1512,27 @@ begin
                   ;
                   WHILE vgDynSet[5].isSet(GetSym) do begin
                         case GetSym of
-                              71 : begin
+                              72 : begin
                                     _IPrivate;
                                       fNDCreator.fCurrentDefAccess := AF_Private;   ;
                               end;
-                              70 : begin
+                              71 : begin
                                     _IProtected;
                                       fNDCreator.fCurrentDefAccess := AF_Protected; ;
                               end;
-                              69 : begin
+                              70 : begin
                                     _RProperty;
                               end;
-                              26 : begin
+                              27 : begin
                                     _RConstant;
                               end;
-                              92 : begin
+                              94 : begin
                                     _RVarBlock;
                               end;
-                              87 : begin
+                              88 : begin
                                     _RTypeBlock;
                               end;
-                              27, 32, 46, 62, 67 : begin
+                              28, 33, 47, 63, 68 : begin
                                     _RRoutineForward;
                               end;
                                else begin
@@ -1553,13 +1563,13 @@ begin
       
       Procedure TELA_Parser._RParameterMapping ( var ParRoutine :TRoutine);
       begin
-            Expect(101);
+            Expect(103);
             _RParameterMappingItem( ParRoutine);
             WHILE (GetSym = 9) do begin
                   Get;
                   _RParameterMappingItem( ParRoutine);
             end;
-            Expect(102);
+            Expect(104);
       end;
       
       Procedure TELA_Parser._RParameterMappingItem ( ParRoutine :TRoutine);
@@ -1570,18 +1580,18 @@ begin
       vlMode : TMappingOption;
       
       begin
-            if (GetSym in [1 , 116]) then begin
+            if (GetSym in [1 , 118]) then begin
                    
                   	vlMode  := MO_Result;
                   ;
-                  if (GetSym = 116) then begin
+                  if (GetSym = 118) then begin
                         Get;
                           vlMode := MO_ObjectPointer; ;
                         _RIdent( vlName);
                   end
                    else begin
                         _RIdent( vlName);
-                        if (GetSym = 117) then begin
+                        if (GetSym = 119) then begin
                               Get;
                                 vlMode := MO_ByPointer; (*Todo:vlMode =>MO_Result zijn *);
                         end;
@@ -1593,7 +1603,7 @@ begin
                     if ParRoutine <> nil then ParRoutine.AddConstantParameterMapping(fNDCreator,vlVal); ;
             end
             else begin
-                  SynError(131);
+                  SynError(134);
             end;
             ;end;
       
@@ -1635,14 +1645,14 @@ begin
             ParRoutine       := vlFun;
             vlType           := nil;
             ;
-            if (GetSym = 101) then begin
+            if (GetSym = 103) then begin
                   _RParamDef( vlFun);
             end;
             Expect(10);
             _RRoutineType( vlType);
             Expect(8);
               vlFun.SetFunType(fNDCreator,vlType); ;
-            if (GetSym = 23) then begin
+            if (GetSym = 24) then begin
                   _ICDecl;
                   Expect(8);
                     vlFun.SetRoutineModes([RTM_CDecl],true);;
@@ -1657,24 +1667,24 @@ begin
       vlCDFlag : boolean;
       
       begin
-            if (GetSym = 27) then begin
+            if (GetSym = 28) then begin
                   _IConstructor;
                     vlCdFlag := true; ;
             end
-             else if (GetSym = 32) then begin
+             else if (GetSym = 33) then begin
                   _IDestructor;
                     vlCdFlag := false; ;
             end
             else begin
-                  SynError(132);
+                  SynError(135);
             end;
             ;_RRoutineName( vlIdent,vlAccess,ParHasses);
               ParRoutine:= CreateCDtor(vlIdent,vlAccess,vlCdFlag); ;
-            if (GetSym = 101) then begin
+            if (GetSym = 103) then begin
                   _RParamDef( ParRoutine);
             end;
             Expect(8);
-            if (GetSym = 23) then begin
+            if (GetSym = 24) then begin
                   _ICDecl;
                   Expect(8);
                     ParRoutine.SetRoutineModes([RTM_CDecl],true); ;
@@ -1697,8 +1707,8 @@ begin
             					TOperatorFunction(ParRoutine) := TOperatorFunction.Create('');
             					EmptyString(vlName);
             				;
-            if (GetSym in [59 , 104]) then begin
-                  if (GetSym = 59) then begin
+            if (GetSym in [60 , 106]) then begin
+                  if (GetSym = 60) then begin
                         _INot;
                   end
                    else begin
@@ -1710,40 +1720,34 @@ begin
                   				;
                   _ROperParDef( ParRoutine);
             end
-             else if (GetSym = 101) then begin
+             else if (GetSym = 103) then begin
                   _ROperParDef( ParRoutine);
                   case GetSym of
-                        103 : begin
-                              Get;
-                        end;
-                        104 : begin
-                              Get;
-                        end;
                         105 : begin
                               Get;
-                        end;
-                        33 : begin
-                              _IDiv;
-                        end;
-                        100 : begin
-                              _IXor;
-                        end;
-                        55 : begin
-                              _IMod;
-                        end;
-                        63 : begin
-                              _IOr;
-                        end;
-                        13 : begin
-                              _IAnd;
                         end;
                         106 : begin
                               Get;
                         end;
-                        110 : begin
+                        107 : begin
                               Get;
                         end;
-                        111 : begin
+                        34 : begin
+                              _IDiv;
+                        end;
+                        102 : begin
+                              _IXor;
+                        end;
+                        56 : begin
+                              _IMod;
+                        end;
+                        64 : begin
+                              _IOr;
+                        end;
+                        14 : begin
+                              _IAnd;
+                        end;
+                        108 : begin
                               Get;
                         end;
                         112 : begin
@@ -1755,26 +1759,32 @@ begin
                         114 : begin
                               Get;
                         end;
-                        109 : begin
-                              Get;
-                        end;
-                        21 : begin
-                              _IBetween;
-                        end;
                         115 : begin
                               Get;
                         end;
-                        79 : begin
+                        116 : begin
+                              Get;
+                        end;
+                        111 : begin
+                              Get;
+                        end;
+                        22 : begin
+                              _IBetween;
+                        end;
+                        117 : begin
+                              Get;
+                        end;
+                        80 : begin
                               _IShl;
                         end;
-                        78 : begin
+                        79 : begin
                               _IShr;
                         end;
                         1 : begin
                               Get;
                         end;
                         else begin
-                              SynError(133);
+                              SynError(136);
                         end;
                   end;
                    
@@ -1782,7 +1792,7 @@ begin
                   			   		ParRoutine.SetText(vlName);
                   				;
                   _ROperParDef( ParRoutine);
-                  if (GetSym = 95) then begin
+                  if (GetSym = 97) then begin
                         _IWrite;
                         _ROperParDef( ParRoutine);
                          
@@ -1790,7 +1800,7 @@ begin
                         					if vlName <> '#' then ErrorText(Err_Not_Expected,'WRITE');
                         				;
                   end;
-                  if (GetSym = 13) then begin
+                  if (GetSym = 14) then begin
                         _IAnd;
                         _ROperParDef( ParRoutine);
                          
@@ -1799,7 +1809,7 @@ begin
                   end;
             end
             else begin
-                  SynError(134);
+                  SynError(137);
             end;
             ;if (GetSym = 10) then begin
                   Get;
@@ -1814,7 +1824,7 @@ begin
              
             if (vlName <> ':=') and ((vlName <> '#') or not(vlWrite))  and not(vlHasReturn) then SemError(err_Must_Return_Value);
             ;
-            if (GetSym = 23) then begin
+            if (GetSym = 24) then begin
                   _ICDecl;
                   Expect(8);
                     ParRoutine.SetRoutineModes([RTM_CDecl],true); ;
@@ -1836,9 +1846,9 @@ begin
             vlVar   := false;
             vlName  := TNameList.Create;
             ;
-            Expect(101);
-            if (GetSym in [26 , 92]) then begin
-                  if (GetSym = 26) then begin
+            Expect(103);
+            if (GetSym in [27 , 94]) then begin
+                  if (GetSym = 27) then begin
                         _IConst;
                           vlCOnst := TRUE; ;
                   end
@@ -1851,7 +1861,7 @@ begin
               vlName.AddName(vlIdent); ;
             Expect(10);
             _RRoutineType( vlType);
-            Expect(102);
+            Expect(104);
              
             ParRoutine.AddParam(fNDCreator,vlName,vlType,vlVar,vlConst,false);
             vlName.Destroy;
@@ -1871,11 +1881,11 @@ begin
             ParRoutine := TProcedureObj.Create(vlIdent);
             ParRoutine.fDefAccess := vlAccess;
             ;
-            if (GetSym = 101) then begin
+            if (GetSym = 103) then begin
                   _RParamDef( ParRoutine);
             end;
             Expect(8);
-            if (GetSym = 23) then begin
+            if (GetSym = 24) then begin
                   _ICDecl;
                   Expect(8);
                     ParRoutine.SetRoutineModes([RTM_Cdecl],true);;
@@ -1893,7 +1903,7 @@ begin
             	ParAccess := AF_Current;
             ;
             _RRoutineDotName( vlName,ParHasses);
-            if (GetSym = 47) then begin
+            if (GetSym = 48) then begin
                   _IHas;
                    
                   HandleHasClause(vlName);
@@ -1907,8 +1917,8 @@ begin
                         ;
                         _IHas;
                   end;
-                  if (GetSym in [70 , 71]) then begin
-                        if (GetSym = 70) then begin
+                  if (GetSym in [71 , 72]) then begin
+                        if (GetSym = 71) then begin
                               _IProtected;
                                 ParAccess := AF_Protected; ;
                         end
@@ -1918,7 +1928,7 @@ begin
                         end
                         ;_RIdent( vlName);
                   end
-                   else if (GetSym in [8 , 10 , 101]) then begin
+                   else if (GetSym in [8 , 10 , 103]) then begin
                          
                         if(ParHasses > 1) then begin
                         	EndIdent;
@@ -1928,7 +1938,7 @@ begin
                         ;
                   end
                   else begin
-                        SynError(135);
+                        SynError(138);
                   end;
                   ;end;
               ParName := vlName; ;
@@ -1967,12 +1977,12 @@ begin
             vlConst   := false;
             vlType    := nil;
             ;
-            if (GetSym = 93) then begin
+            if (GetSym = 95) then begin
                   _IVirtual;
                     vlVirtual := true ;
             end;
-            if (GetSym in [26 , 92]) then begin
-                  if (GetSym = 92) then begin
+            if (GetSym in [27 , 94]) then begin
+                  if (GetSym = 94) then begin
                         _IVar;
                           vlVar   := true;;
                   end
@@ -2020,14 +2030,14 @@ begin
             		AddIdent(vlProperty);
             	;
             _IBegin;
-            WHILE (GetSym in [70 , 71 , 72 , 74 , 95]) do begin
+            WHILE (GetSym in [71 , 72 , 73 , 75 , 97]) do begin
                     vlAcc := AF_Public ;
-                  if (GetSym in [70 , 71 , 72]) then begin
-                        if (GetSym = 72) then begin
+                  if (GetSym in [71 , 72 , 73]) then begin
+                        if (GetSym = 73) then begin
                               _IPublic;
                                 vlAcc := AF_Public; ;
                         end
-                         else if (GetSym = 71) then begin
+                         else if (GetSym = 72) then begin
                               _IPrivate;
                                 vlAcc := AF_private; ;
                         end
@@ -2036,16 +2046,16 @@ begin
                                 vlAcc := AF_Protected; ;
                         end
                         ;end;
-                  if (GetSym = 74) then begin
+                  if (GetSym = 75) then begin
                         _IRead;
                           vlPropertyType := PT_Read; ;
                   end
-                   else if (GetSym = 95) then begin
+                   else if (GetSym = 97) then begin
                         _IWrite;
                           vlPropertyType := PT_Write; ;
                   end
                   else begin
-                        SynError(136);
+                        SynError(139);
                   end;
                   ;_RIdent( vlName);
                   Expect(8);
@@ -2064,19 +2074,21 @@ begin
       	vlPrvAccess  : TDefAccess;
       	vlVirtual    : TVirtualMode;
       	vlIsolate    : boolean;
+      	vlOfValue    : boolean;
       
       begin
              
             EmptyString(vlParent);
             vlVirtual := VIR_None;
             vlIsolate := false;
+            vlOfValue := false;
             ;
-            if (GetSym = 52) then begin
+            if (GetSym = 53) then begin
                   _IIsolate;
                     vlIsolate := true;;
             end;
-            if (GetSym in [65 , 93]) then begin
-                  if (GetSym = 93) then begin
+            if (GetSym in [66 , 95]) then begin
+                  if (GetSym = 95) then begin
                         _IVirtual;
                           vlVirtual := VIR_Virtual; ;
                   end
@@ -2086,40 +2098,45 @@ begin
                   end
                   ;end;
             _IClass;
+            if (GetSym = 62) then begin
+                  _IOf;
+                  _IValue;
+                    vlOfValue := true; ;
+            end;
             if vgDynSet[8].isSet(GetSym) then begin
-                  if (GetSym = 50) then begin
+                  if (GetSym = 51) then begin
                         _IInherit;
                         _RIdent( vlParent);
                   end;
                    
-                  ParType := CreateClassType(ParName,vlParent,vlVirtual,false,vlIsolate);
+                  ParType := CreateClassType(ParName,vlParent,vlVirtual,false,vlIsolate,vlOfValue);
                   vlPrvAccess := fNDCreator.fCurrentDefAccess;
                   fNDCreator.fCurrentDefAccess := AF_Private;
                   ;
                   WHILE vgDynSet[9].isSet(GetSym) do begin
                         case GetSym of
-                              71 : begin
+                              72 : begin
                                     _IPrivate;
                                       fNDCreator.fCurrentDefAccess := AF_Private; ;
                               end;
-                              70 : begin
+                              71 : begin
                                     _IProtected;
                                       fNDCreator.fCurrentDefAccess := AF_Protected; ;
                               end;
-                              72 : begin
+                              73 : begin
                                     _IPublic;
                                       fNDCreator.fCurrentDefAccess := AF_Public; ;
                               end;
-                              69 : begin
+                              70 : begin
                                     _RProperty;
                               end;
-                              87 : begin
+                              88 : begin
                                     _RTypeBlock;
                               end;
-                              92 : begin
+                              94 : begin
                                     _RVarBlock;
                               end;
-                              26 : begin
+                              27 : begin
                                     _RConstant;
                               end;
                                else begin
@@ -2136,11 +2153,11 @@ begin
             end
              else if (GetSym = 8) then begin
                    
-                  ParType := CreateClassType(ParName,vlParent,vlVirtual,true,vlIsolate);
+                  ParType := CreateClassType(ParName,vlParent,vlVirtual,true,vlIsolate,vlOfValue);
                   ;
             end
             else begin
-                  SynError(137);
+                  SynError(140);
             end;
             ;end;
       
@@ -2158,11 +2175,11 @@ begin
             vLDefType  := DT_Nothing;
             vlAdded    := false;
             ;
-            Expect(106);
-            if (GetSym = 31) then begin
+            Expect(108);
+            if (GetSym = 32) then begin
                   _IDefault;
                     vlDefType := DT_Default; ;
-                  if (GetSym = 54) then begin
+                  if (GetSym = 55) then begin
                         _IMetaType;
                           vlDefType := DT_Meta; ;
                   end;
@@ -2170,7 +2187,7 @@ begin
             if vgDynSet[10].isSet(GetSym) then begin
                   if vgDynSet[11].isSet(GetSym) then begin
                         case GetSym of
-                              58 : begin
+                              59 : begin
                                     _ROrdDecl( vlType);
                                       HandleDefaultType(vlDefType,DT_Number,[DT_Number,DT_Boolean]) ;
                               end;
@@ -2178,54 +2195,54 @@ begin
                                     _RTypeAs( vlType);
                                       HandleDefaultType(vlDefType,DT_Default,[]); ;
                               end;
-                              97 : begin
+                              99 : begin
                                     _RVoidTypeDecl( vlType);
                                       HandleDefaultType(vlDefType,DT_Void,[DT_Void]); ;
                               end;
-                              24 : begin
+                              25 : begin
                                     _RCharDecl( vlType);
                                       HandleDefaultType(vlDefType,DT_Char,[DT_Char]); ;
                               end;
-                              38 : begin
+                              39 : begin
                                     _REnum( vlType);
                                       HandleDefaultType(vlDefType,DT_Default,[DT_Boolean]); ;
                               end;
-                              73 : begin
+                              74 : begin
                                     _RPtrTypeDecl( vlType,true );
                                      
                                              if vlDefType = DT_Meta then vlDefType := DT_Ptr_Meta;
                                     							 HandleDefaultType(vlDefType,DT_Pointer,[DT_Asciiz,DT_Ptr_Meta,DT_Pointer]);
                                           				 ;
                               end;
-                              83 : begin
+                              84 : begin
                                     _RStringTypeDecl( TStringType(vlType));
                                       HandleDefaultType(vlDefType,DT_String,[DT_String]); ;
                               end;
-                              17 : begin
+                              18 : begin
                                     _RAsciizDecl( vlType);
                                       HandleDefaultType(vlDefType,DT_Asciiz,[DT_Asciiz]); ;
                               end;
-                              89 : begin
+                              90 : begin
                                     _RUnion( vltype);
                                       HandleDefaultType(vlDefType,DT_Default,[]); ;
                               end;
-                              25, 52, 65, 93 : begin
+                              26, 53, 66, 95 : begin
                                     _RClassType( vlIdent,vlType);
                                      
                                                 vlAdded :=true;
                                     							 HandleDefaultType(vlDefType,DT_Default,[]);
                                              ;
                               end;
-                              75 : begin
+                              76 : begin
                                     _RRecord( vlType);
                                       HandleDefaultType(vlDefType,DT_Default,[DT_Meta]);;
                               end;
                               else begin
-                                    SynError(138);
+                                    SynError(141);
                               end;
                         end;
                   end
-                   else if (GetSym = 20) then begin
+                   else if (GetSym = 21) then begin
                         _RBooleanType( vlType);
                           HandleDefaultType(vlDefType,DT_Boolean,[DT_Boolean]); ;
                   end
@@ -2235,17 +2252,16 @@ begin
                   end
                   ;Expect(8);
             end
-             else if (GetSym in [46 , 60 , 67]) then begin
+             else if (GetSym in [47 , 61 , 68]) then begin
                   _RRoutineTypeDecl( vlType);
                     HandleDefaultType(vlDefType,DT_Default,[]); ;
             end
             else begin
-                  SynError(139);
+                  SynError(142);
             end;
             ; 
             if not vlAdded then fNDCreator.AddType(vlIdent,vlType);
             if vlType <> nil then begin
-            vlType.AfterDef(fNDCreator);
              if (vlDefType <> DT_Nothing) then begin
             	vlType.SetDefault(vlDefType);
             	fNDCreator.AddToDefault(vlType);
@@ -2267,9 +2283,9 @@ begin
             ParType   := nil;
             ;
             _RH_Type( vlType2);
-            if (GetSym = 80) then begin
+            if (GetSym = 81) then begin
                   _ISize;
-                  Expect(106);
+                  Expect(108);
                   _RDirectCardinal( vlSize);
                    
                   			if vlType2 <> nil then begin
@@ -2285,29 +2301,29 @@ begin
       begin
               ParType := nil;;
             case GetSym of
-                  14 : begin
+                  15 : begin
                         _RArrayTypeDef( ParType);
                   end;
-                  58 : begin
+                  59 : begin
                         _ROrdDecl( ParType);
                   end;
-                  17 : begin
+                  18 : begin
                         _RAsciizDecl( ParType);
                   end;
-                  83 : begin
+                  84 : begin
                         _RStringTypeDecl( TStringType(ParType));
                   end;
-                  73 : begin
+                  74 : begin
                         _RPtrTypeDecl( ParType,false );
                   end;
-                  75 : begin
+                  76 : begin
                         _RRecord( ParType);
                   end;
-                  89 : begin
+                  90 : begin
                         _RUnion( ParType);
                   end;
                   else begin
-                        SynError(140);
+                        SynError(143);
                   end;
             end;
               AddAnonItem(ParType); ;
@@ -2323,7 +2339,7 @@ begin
       begin
               vlConstFlag := false ; ;
             _IPtr;
-            if (GetSym = 26) then begin
+            if (GetSym = 27) then begin
                   _IConst;
                     vlConstFlag := true; ;
             end;
@@ -2336,7 +2352,7 @@ begin
                     ParType := CreatePointerType(vlName,ParCanForward,vlCOnstFlag);;
             end
             else begin
-                  SynError(141);
+                  SynError(144);
             end;
             ;end;
       
@@ -2348,7 +2364,7 @@ begin
       begin
             _ICharType;
             _ISize;
-            Expect(106);
+            Expect(108);
             _RDirectCardinal( vlSize);
              
             if not (vlSIze in [1,2,4]) then SemError(Err_Illegal_Type_Size);
@@ -2372,13 +2388,13 @@ begin
             fNDCreator.AddCurrentDefinition(ParRoutine);
             vlVirCheck := false;
             ;
-            Expect(101);
+            Expect(103);
             _RParamVarDef( ParRoutine,vlVirCheck);
             WHILE (GetSym = 8) do begin
                   Get;
                   _RParamVarDef( ParRoutine,vlVirCheck);
             end;
-            Expect(102);
+            Expect(104);
                if ParRoutine <> nil then EndIdent; ;
       end;
       
@@ -2394,21 +2410,21 @@ begin
             vlRoutine  := nil;
             vlOfObject := false;
             ;
-            if (GetSym = 60) then begin
+            if (GetSym = 61) then begin
                   _IObject;
                     vlOfObject := true; ;
             end;
-            if (GetSym = 67) then begin
+            if (GetSym = 68) then begin
                   _IProcedure;
                     vlRoutine := TProcedureObj.Create(''); ;
-                  if (GetSym = 101) then begin
+                  if (GetSym = 103) then begin
                         _RParamDef( vlRoutine);
                   end;
             end
-             else if (GetSym = 46) then begin
+             else if (GetSym = 47) then begin
                   _IFunction;
                     vlRoutine := TFunction.Create(''); ;
-                  if (GetSym = 101) then begin
+                  if (GetSym = 103) then begin
                         _RParamDef( vlRoutine);
                   end;
                   Expect(10);
@@ -2416,10 +2432,10 @@ begin
                     TFunction(vlRoutine).SetFunType(fNDCreator,vlType); ;
             end
             else begin
-                  SynError(142);
+                  SynError(145);
             end;
             ;Expect(8);
-            if (GetSym = 23) then begin
+            if (GetSym = 24) then begin
                   _ICDecl;
                     vlRoutine.SetRoutineModes([RTM_Cdecl],true);;
                   Expect(8);
@@ -2445,12 +2461,12 @@ begin
       begin
              vlSign := false; ;
             _INumber;
-            if (GetSym = 81) then begin
+            if (GetSym = 82) then begin
                   _ISigned;
                     vlSign := true; ;
             end;
             _ISize;
-            Expect(106);
+            Expect(108);
             _RDirectCardinal( vlSize);
              
             if not (vlSIze in [1,2,4]) then SemError(Err_Illegal_Type_Size);
@@ -2478,23 +2494,23 @@ begin
             EmptyString(vlLengthVarName);
             ;
             _IString;
-            if (GetSym = 61) then begin
+            if (GetSym = 62) then begin
                   _IOf;
                   _RH_Type( vlType);
             end;
-            if (GetSym = 92) then begin
+            if (GetSym = 94) then begin
                   _IVar;
                   _RIdent( vlLengthVarName);
                   Expect(10);
                   _RH_Type( vlLengthVarType);
             end;
-            if (GetSym = 31) then begin
+            if (GetSym = 32) then begin
                   _IDefault;
                     vlHasDefaultSize := true ;
             end;
-            if (GetSym = 80) then begin
+            if (GetSym = 81) then begin
                   _ISize;
-                  Expect(106);
+                  Expect(108);
                   _RDirectCardinal( vlSize);
                     vlHasSize := true ;
             end;
@@ -2510,7 +2526,7 @@ begin
       begin
             _IAsciiz;
             _ISize;
-            Expect(106);
+            Expect(108);
             _RDirectCardinal( vlSize);
              
             vlType := fNDCreator.GetDefaultChar;
@@ -2551,12 +2567,12 @@ begin
       begin
             _IBooleanType;
             _ISize;
-            Expect(106);
+            Expect(108);
             _RDirectCardinal( vlSize);
              
             	ParType := CreateBooleanType(vlSIze);
             ;
-            Expect(101);
+            Expect(103);
             _RIdent( vlName);
              
             				 vlVal := TBoolean.Create(true);
@@ -2570,7 +2586,7 @@ begin
             					fNDCreator.AddConstant(vlName,vlVal,ParType);
                 	vlVal.Destroy;
             				;
-            Expect(102);
+            Expect(104);
       end;
       
       Procedure TELA_Parser._REnum ( var ParType:TType);
@@ -2607,7 +2623,7 @@ begin
       
       begin
             _RIdent( vlIdent);
-            if (GetSym = 109) then begin
+            if (GetSym = 111) then begin
                   Get;
                   _RDirectNumber( ParVal);
             end;
@@ -2624,14 +2640,14 @@ begin
             if (GetSym = 1) then begin
                   _RH_Type( ParType);
             end
-             else if (GetSym in [17 , 58 , 73 , 83]) then begin
-                  if (GetSym = 17) then begin
+             else if (GetSym in [18 , 59 , 74 , 84]) then begin
+                  if (GetSym = 18) then begin
                         _RAsciizDecl( ParType);
                   end
-                   else if (GetSym = 58) then begin
+                   else if (GetSym = 59) then begin
                         _ROrdDecl( ParType);
                   end
-                   else if (GetSym = 73) then begin
+                   else if (GetSym = 74) then begin
                         _RPtrTypeDecl( ParType,false );
                   end
                    else begin
@@ -2640,7 +2656,7 @@ begin
                   ;  AddAnonItem(ParType); ;
             end
             else begin
-                  SynError(143);
+                  SynError(146);
             end;
             ;end;
       
@@ -2654,7 +2670,7 @@ begin
       
       begin
             _IArray;
-            Expect(107);
+            Expect(109);
             _RArrayRangeDef( vlLo,vlHi);
              vlAr := TArrayType.Create(vlLo,vlHi);;
             WHILE (GetSym = 9) do begin
@@ -2662,7 +2678,7 @@ begin
                   _RArrayRangeDef( vlLo,vlHi);
                     vlAr.AddType(TArrayType.Create(vlLO,vlHi)); ;
             end;
-            Expect(108);
+            Expect(110);
             _IOf;
             _RRoutineType( vltype);
              
@@ -2693,9 +2709,9 @@ begin
              vlValid := true;
              vlNeg   := false;
             ;
-            if (GetSym in [3 , 4 , 5 , 103 , 104]) then begin
-                  if (GetSym in [103 , 104]) then begin
-                        if (GetSym = 104) then begin
+            if (GetSym in [3 , 4 , 5 , 105 , 106]) then begin
+                  if (GetSym in [105 , 106]) then begin
+                        if (GetSym = 106) then begin
                               Get;
                                 vlNeg := true; ;
                         end
@@ -2711,7 +2727,7 @@ begin
                   	if not vlValid then SemError(Err_int_Invalid_Number);
                   ;
             end
-             else if (GetSym = 24) then begin
+             else if (GetSym = 25) then begin
                   _RCharConst( ParVal);
             end
              else if (GetSym in [2 , 6]) then begin
@@ -2719,7 +2735,7 @@ begin
                      ParVal := TString.Create(vlStr); ;
             end
             else begin
-                  SynError(144);
+                  SynError(147);
             end;
             ; 
             if ParVal = nil then begin
@@ -2745,7 +2761,7 @@ begin
                   _RIdent( vlIdent);
                     vlNameList.AddName(vlIdent);;
             end;
-            Expect(106);
+            Expect(108);
             _RDirectExpr( vlVal);
              
             if vlVal.fType = VT_String then begin
@@ -2786,7 +2802,7 @@ begin
       	vlStr : string;
       
       begin
-            if (GetSym = 24) then begin
+            if (GetSym = 25) then begin
                   _RCharConst( ParValue);
             end
              else if (GetSym in [2 , 6]) then begin
@@ -2796,26 +2812,26 @@ begin
                   ;
             end
             else begin
-                  SynError(145);
+                  SynError(148);
             end;
             ;end;
       
       Procedure TELA_Parser._RConstantStringFact ( var ParString : TString);
       begin
               ParString := nil; ;
-            if (GetSym in [2 , 6 , 24]) then begin
+            if (GetSym in [2 , 6 , 25]) then begin
                   _RConstantStringValue( ParString);
             end
              else if (GetSym = 1) then begin
                   _RConstantStringIdent( ParString);
             end
-             else if (GetSym = 101) then begin
+             else if (GetSym = 103) then begin
                   Get;
                   _RConstantStringExpr( ParString);
-                  Expect(102);
+                  Expect(104);
             end
             else begin
-                  SynError(146);
+                  SynError(149);
             end;
             ;end;
       
@@ -2826,7 +2842,7 @@ begin
       
       begin
             _RConstantStringFact( ParString);
-            WHILE (GetSym = 103) do begin
+            WHILE (GetSym = 105) do begin
                   Get;
                   _RConstantStringFact( vlValue);
                    
@@ -2894,7 +2910,7 @@ begin
                   if ParVal = nil then ParVal := (TLongint.Create(1));
                   ;
             end
-             else if (GetSym = 24) then begin
+             else if (GetSym = 25) then begin
                   _RCharConst( ParVal);
             end
              else if (GetSym in [2 , 6]) then begin
@@ -2902,7 +2918,7 @@ begin
                      ParVal := TString.Create(vlStr); ;
             end
             else begin
-                  SynError(147);
+                  SynError(150);
             end;
             ; 
             if ParVal = nil then begin
@@ -2923,30 +2939,30 @@ begin
             if vgDynSet[13].isSet(GetSym) then begin
                   _RNum_Or_Const( ParVal,ParInvalid);
             end
-             else if (GetSym = 101) then begin
+             else if (GetSym = 103) then begin
                   Get;
                   _RDirectLogic( ParVal,ParInValid);
-                  Expect(102);
+                  Expect(104);
             end
-             else if (GetSym = 57) then begin
+             else if (GetSym = 58) then begin
                   _INil;
                    
                   	ParVal := TPointer.Create;
                       TPointer(ParVal).SetPointer(0);
                   ;
             end
-             else if (GetSym = 59) then begin
+             else if (GetSym = 60) then begin
                   _INot;
-                  Expect(101);
+                  Expect(103);
                   _RDirectLogic( ParVal,ParInvalid);
-                  Expect(102);
+                  Expect(104);
                     if CalculationStatusToError(ParVal.NotVal) then ParInvalid := true; ;
             end
-             else if (GetSym = 82) then begin
+             else if (GetSym = 83) then begin
                   _ISizeOf;
-                  Expect(101);
+                  Expect(103);
                   _RH_Type( vlType);
-                  Expect(102);
+                  Expect(104);
                    
                   	if vlType <> nil then begin
                   		vlNum := vlType.fSize
@@ -2958,7 +2974,7 @@ begin
                   ;
             end
             else begin
-                  SynError(148);
+                  SynError(151);
             end;
             ;  if ParVal = nil then ParVal := (TLongint.Create(1));;
       end;
@@ -2970,8 +2986,8 @@ begin
       
       begin
               vlNeg := false;;
-            WHILE (GetSym in [103 , 104]) do begin
-                  if (GetSym = 104) then begin
+            WHILE (GetSym in [105 , 106]) do begin
+                  if (GetSym = 106) then begin
                         Get;
                           vlNeg := true; ;
                   end
@@ -2989,13 +3005,13 @@ begin
         var vlVal:TValue;   
       begin
             _RDirectNeg( ParVal,ParInValid);
-            WHILE (GetSym in [33 , 55 , 105]) do begin
-                  if (GetSym = 105) then begin
+            WHILE (GetSym in [34 , 56 , 107]) do begin
+                  if (GetSym = 107) then begin
                         Get;
                         _RDirectNeg( vlval,ParInValid);
                           ParInValid := ParInValid or CalculationStatusToError(ParVal.Mul(vlVal)); ;
                   end
-                   else if (GetSym = 33) then begin
+                   else if (GetSym = 34) then begin
                         _IDiv;
                         _RDirectNeg( vlVal,ParInValid);
                           ParInValid := ParInValid or CalculationStatusToError(ParVal.DivVal(vlVal)); ;
@@ -3016,18 +3032,18 @@ begin
       
       begin
             _RDirectMul( ParVal,ParInValid);
-            WHILE (GetSym in [78 , 79 , 103 , 104]) do begin
-                  if (GetSym = 103) then begin
+            WHILE (GetSym in [79 , 80 , 105 , 106]) do begin
+                  if (GetSym = 105) then begin
                         Get;
                         _RDirectMul( vlVal,ParInValid);
                           ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Add(vlVal)); ;
                   end
-                   else if (GetSym = 104) then begin
+                   else if (GetSym = 106) then begin
                         Get;
                         _RDirectMul( vlval,ParInValid);
                           ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Sub(vlVal)); ;
                   end
-                   else if (GetSym = 79) then begin
+                   else if (GetSym = 80) then begin
                         _IShl;
                         _RDirectMul( vlVal,ParInValid);
                           ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ShiftLeft(vlVal)); ;
@@ -3048,13 +3064,13 @@ begin
       
       begin
             _RDirectAdd( ParVal,ParInvalid);
-            WHILE (GetSym in [13 , 63 , 100]) do begin
-                  if (GetSym = 13) then begin
+            WHILE (GetSym in [14 , 64 , 102]) do begin
+                  if (GetSym = 14) then begin
                         _IAnd;
                         _RDirectAdd( vlVal,ParInvalid);
                           ParInvalid := ParInvalid or CalculationStatusToError(ParVal.AndVal(vlVal)); ;
                   end
-                   else if (GetSym = 63) then begin
+                   else if (GetSym = 64) then begin
                         _IOr;
                         _RDirectAdd( vlVal,ParInvalid);
                           ParInvalid := ParInvalid or CalculationStatusToError(ParVal.OrVal(vlVal)); ;
@@ -3075,9 +3091,9 @@ begin
       
       begin
             _ICharType;
-            Expect(101);
+            Expect(103);
             _RDirectNumber( vlNumber);
-            Expect(102);
+            Expect(104);
              
             if not(LargeInIntRange(vlNumber,0,255)) then SemError(Err_Num_Out_Of_range);
             ParValue := TString.Create(chr(vlNumber.vrNumber));
@@ -3114,405 +3130,415 @@ begin
       
       Procedure TELA_Parser._IXor;
       begin
-            Expect(100);
+            Expect(102);
       end;
       
       Procedure TELA_Parser._IWith;
       begin
-            Expect(99);
+            Expect(101);
       end;
       
       Procedure TELA_Parser._IWhile;
       begin
-            Expect(98);
+            Expect(100);
       end;
       
       Procedure TELA_Parser._IVoidType;
       begin
-            Expect(97);
+            Expect(99);
       end;
       
       Procedure TELA_Parser._IWriteln;
       begin
-            Expect(96);
+            Expect(98);
       end;
       
       Procedure TELA_Parser._IWrite;
       begin
-            Expect(95);
+            Expect(97);
       end;
       
       Procedure TELA_Parser._IWhere;
       begin
-            Expect(94);
+            Expect(96);
       end;
       
       Procedure TELA_Parser._IVirtual;
+      begin
+            Expect(95);
+      end;
+      
+      Procedure TELA_Parser._IValue;
       begin
             Expect(93);
       end;
       
       Procedure TELA_Parser._IUnion;
       begin
-            Expect(89);
+            Expect(90);
       end;
       
       Procedure TELA_Parser._IUntil;
       begin
-            Expect(88);
+            Expect(89);
       end;
       
       Procedure TELA_Parser._IType;
       begin
-            Expect(87);
+            Expect(88);
       end;
       
       Procedure TELA_Parser._IThen;
       begin
-            Expect(86);
+            Expect(87);
       end;
       
       Procedure TELA_Parser._ITo;
       begin
-            Expect(85);
+            Expect(86);
       end;
       
       Procedure TELA_Parser._IStep;
       begin
-            Expect(84);
+            Expect(85);
       end;
       
       Procedure TELA_Parser._IString;
       begin
-            Expect(83);
+            Expect(84);
       end;
       
       Procedure TELA_Parser._ISizeOf;
       begin
-            Expect(82);
+            Expect(83);
       end;
       
       Procedure TELA_Parser._ISigned;
       begin
-            Expect(81);
+            Expect(82);
       end;
       
       Procedure TELA_Parser._ISize;
       begin
-            Expect(80);
+            Expect(81);
       end;
       
       Procedure TELA_Parser._IShl;
       begin
-            Expect(79);
+            Expect(80);
       end;
       
       Procedure TELA_Parser._IShr;
       begin
-            Expect(78);
+            Expect(79);
       end;
       
       Procedure TELA_Parser._IRoot;
       begin
-            Expect(77);
+            Expect(78);
       end;
       
       Procedure TELA_Parser._IRepeat;
       begin
-            Expect(76);
+            Expect(77);
       end;
       
       Procedure TELA_Parser._IRecord;
       begin
-            Expect(75);
+            Expect(76);
       end;
       
       Procedure TELA_Parser._IRead;
       begin
-            Expect(74);
+            Expect(75);
       end;
       
       Procedure TELA_Parser._IPtr;
       begin
-            Expect(73);
+            Expect(74);
       end;
       
       Procedure TELA_Parser._IPrivate;
       begin
-            Expect(71);
+            Expect(72);
       end;
       
       Procedure TELA_Parser._IProtected;
       begin
-            Expect(70);
+            Expect(71);
       end;
       
       Procedure TELA_Parser._IProperty;
       begin
-            Expect(69);
+            Expect(70);
       end;
       
       Procedure TELA_Parser._IProcedure;
       begin
-            Expect(67);
+            Expect(68);
       end;
       
       Procedure TELA_Parser._IOwner;
       begin
-            Expect(66);
+            Expect(67);
       end;
       
       Procedure TELA_Parser._IOverride;
       begin
-            Expect(65);
+            Expect(66);
       end;
       
       Procedure TELA_Parser._IOverload;
       begin
-            Expect(64);
+            Expect(65);
       end;
       
       Procedure TELA_Parser._IOr;
       begin
-            Expect(63);
+            Expect(64);
       end;
       
       Procedure TELA_Parser._IOperator;
       begin
-            Expect(62);
+            Expect(63);
       end;
       
       Procedure TELA_Parser._IOf;
       begin
-            Expect(61);
+            Expect(62);
       end;
       
       Procedure TELA_Parser._IObject;
       begin
-            Expect(60);
+            Expect(61);
       end;
       
       Procedure TELA_Parser._INot;
       begin
-            Expect(59);
+            Expect(60);
       end;
       
       Procedure TELA_Parser._INumber;
       begin
-            Expect(58);
+            Expect(59);
       end;
       
       Procedure TELA_Parser._INil;
       begin
-            Expect(57);
+            Expect(58);
       end;
       
       Procedure TELA_Parser._IName;
       begin
-            Expect(56);
+            Expect(57);
       end;
       
       Procedure TELA_Parser._IMod;
       begin
-            Expect(55);
+            Expect(56);
       end;
       
       Procedure TELA_Parser._IMetaType;
       begin
-            Expect(54);
+            Expect(55);
       end;
       
       Procedure TELA_Parser._IMain;
       begin
-            Expect(53);
+            Expect(54);
       end;
       
       Procedure TELA_Parser._IIsolate;
       begin
-            Expect(52);
+            Expect(53);
       end;
       
       Procedure TELA_Parser._IInherited;
       begin
-            Expect(51);
+            Expect(52);
       end;
       
       Procedure TELA_Parser._IInherit;
       begin
-            Expect(50);
+            Expect(51);
       end;
       
       Procedure TELA_Parser._IInc;
       begin
-            Expect(49);
+            Expect(50);
       end;
       
       Procedure TELA_Parser._IIf;
       begin
-            Expect(48);
+            Expect(49);
       end;
       
       Procedure TELA_Parser._IHas;
       begin
-            Expect(47);
+            Expect(48);
       end;
       
       Procedure TELA_Parser._IFunction;
       begin
-            Expect(46);
+            Expect(47);
       end;
       
       Procedure TELA_Parser._IFrom;
       begin
-            Expect(45);
+            Expect(46);
       end;
       
       Procedure TELA_Parser._IFor;
       begin
-            Expect(44);
+            Expect(45);
       end;
       
       Procedure TELA_Parser._IFinal;
       begin
-            Expect(43);
+            Expect(44);
       end;
       
       Procedure TELA_Parser._ILeave;
       begin
-            Expect(42);
+            Expect(43);
       end;
       
       Procedure TELA_Parser._IExternal;
       begin
-            Expect(41);
+            Expect(42);
       end;
       
       Procedure TELA_Parser._IExit;
       begin
-            Expect(40);
+            Expect(41);
       end;
       
       Procedure TELA_Parser._IExact;
       begin
-            Expect(39);
+            Expect(40);
       end;
       
       Procedure TELA_Parser._IEnum;
       begin
-            Expect(38);
+            Expect(39);
       end;
       
       Procedure TELA_Parser._IElse;
       begin
-            Expect(36);
+            Expect(37);
       end;
       
       Procedure TELA_Parser._IDownTo;
       begin
-            Expect(35);
+            Expect(36);
       end;
       
       Procedure TELA_Parser._IDo;
       begin
-            Expect(34);
+            Expect(35);
       end;
       
       Procedure TELA_Parser._IDiv;
       begin
-            Expect(33);
+            Expect(34);
       end;
       
       Procedure TELA_Parser._IDestructor;
       begin
-            Expect(32);
+            Expect(33);
       end;
       
       Procedure TELA_Parser._IDefault;
       begin
-            Expect(31);
+            Expect(32);
       end;
       
       Procedure TELA_Parser._IDec;
       begin
-            Expect(30);
+            Expect(31);
       end;
       
       Procedure TELA_Parser._ICount;
       begin
-            Expect(29);
+            Expect(30);
       end;
       
       Procedure TELA_Parser._IContinue;
       begin
-            Expect(28);
+            Expect(29);
       end;
       
       Procedure TELA_Parser._IConstructor;
       begin
-            Expect(27);
+            Expect(28);
       end;
       
       Procedure TELA_Parser._IConst;
       begin
-            Expect(26);
+            Expect(27);
       end;
       
       Procedure TELA_Parser._IClass;
       begin
-            Expect(25);
+            Expect(26);
       end;
       
       Procedure TELA_Parser._ICharType;
       begin
-            Expect(24);
+            Expect(25);
       end;
       
       Procedure TELA_Parser._IBreak;
       begin
-            Expect(22);
+            Expect(23);
       end;
       
       Procedure TELA_Parser._IBetween;
       begin
-            Expect(21);
+            Expect(22);
       end;
       
       Procedure TELA_Parser._IBooleanType;
       begin
-            Expect(20);
+            Expect(21);
       end;
       
       Procedure TELA_Parser._IBegin;
       begin
-            Expect(19);
+            Expect(20);
       end;
       
       Procedure TELA_Parser._IAt;
       begin
-            Expect(18);
+            Expect(19);
       end;
       
       Procedure TELA_Parser._IAsciiz;
       begin
-            Expect(17);
+            Expect(18);
       end;
       
       Procedure TELA_Parser._IAsm;
       begin
-            Expect(16);
+            Expect(17);
       end;
       
       Procedure TELA_Parser._IAs;
       begin
-            Expect(15);
+            Expect(16);
       end;
       
       Procedure TELA_Parser._IArray;
       begin
-            Expect(14);
+            Expect(15);
       end;
       
       Procedure TELA_Parser._IAnd;
+      begin
+            Expect(14);
+      end;
+      
+      Procedure TELA_Parser._IAll;
       begin
             Expect(13);
       end;
@@ -3551,21 +3577,21 @@ begin
             ;
             WHILE vgDynSet[14].isSet(GetSym) do begin
                   case GetSym of
-                        71 : begin
+                        72 : begin
                               _IPrivate;
                                fNDCreator.fCurrentDefAccess := AF_Private; ;
                         end;
-                        70 : begin
+                        71 : begin
                               _IProtected;
                                fNDCreator.fCUrrentDefAccess := AF_Protected; ;
                         end;
-                        69 : begin
+                        70 : begin
                               _RProperty;
                         end;
-                        92 : begin
+                        94 : begin
                               _RVarBlock;
                         end;
-                        87 : begin
+                        88 : begin
                               _RTypeBlock;
                         end;
                          else begin
@@ -3573,7 +3599,7 @@ begin
                         end;
                   end;
             end;
-            if (GetSym = 19) then begin
+            if (GetSym = 20) then begin
                    
                   vlRoutine.PreBlockOfCode(fNDCreator);
                   vlMainCb := vlRoutine.fPhysicalAddress;
@@ -3589,12 +3615,12 @@ begin
                   if Rtm_Abstract in vlRoutine.fRoutineModes then  ErrorDef(Err_No_Main_For_Abstr_fun,vlroutine);
                   ;
             end
-             else if (GetSym = 37) then begin
+             else if (GetSym = 38) then begin
                     vlroutine.PreNoMain(fNDCreator); ;
                   _IEnd;
             end
             else begin
-                  SynError(149);
+                  SynError(152);
             end;
             ;Expect(8);
              
@@ -3610,7 +3636,7 @@ begin
       
       Procedure TELA_Parser._IEnd;
       begin
-            Expect(37);
+            Expect(38);
       end;
       
       Procedure TELA_Parser._RRoutineForward;
@@ -3678,7 +3704,7 @@ begin
             		end;
             		if(vlExType <> nil) then vlExType.Destroy;
             	;
-            if (GetSym = 18) then begin
+            if (GetSym = 19) then begin
                   _IAt;
                   _RDirectCardinal( vlAt);
                     vlHasAt := true; ;
@@ -3688,7 +3714,7 @@ begin
             			vlExt := CreateExternalInterface(vlName,vlType,vlHasAt,vlAt);
             		;
             if vgDynSet[15].isSet(GetSym) then begin
-                  if (GetSym = 23) then begin
+                  if (GetSym = 24) then begin
                         _ICDecl;
                           vlCDecl := true;;
                   end
@@ -3710,8 +3736,8 @@ begin
                         			;
                   end
                   ;end;
-            WHILE (GetSym in [46 , 67]) do begin
-                  if (GetSym = 67) then begin
+            WHILE (GetSym in [47 , 68]) do begin
+                  if (GetSym = 68) then begin
                         _RProcedureHead( vlRoutine,vlHasses);
                   end
                    else begin
@@ -3743,7 +3769,7 @@ begin
                   _RAlign;
             end
             else begin
-                  SynError(150);
+                  SynError(153);
             end;
             ;WHILE (GetSym in [1 , 12]) do begin
                   if (GetSym = 1) then begin
@@ -3758,12 +3784,12 @@ begin
       
       Procedure TELA_Parser._ICDecl;
       begin
-            Expect(23);
+            Expect(24);
       end;
       
       Procedure TELA_Parser._IPublic;
       begin
-            Expect(72);
+            Expect(73);
       end;
       
       Procedure TELA_Parser._ELA;
@@ -3779,10 +3805,10 @@ begin
               vlHasPublic := false;
               fNDCreator.AutoLoadModule;
             ;
-            if (GetSym in [68 , 90]) then begin
+            if (GetSym in [69 , 91]) then begin
                   _RMod_Type;
             end;
-            if (GetSym = 91) then begin
+            if (GetSym = 92) then begin
                   _RUseBlock;
             end;
              
@@ -3792,10 +3818,10 @@ begin
             Bind;
             if not successful then exit;
             ;
-            WHILE (GetSym = 72) do begin
+            WHILE (GetSym = 73) do begin
                   _IPublic;
                     vlSetMang := false; ;
-                  if (GetSym = 23) then begin
+                  if (GetSym = 24) then begin
                         _ICDecl;
                           vlSetMang := true;   ;
                   end;
@@ -3806,16 +3832,16 @@ begin
                   fNDCreator.fCUrrentDefAccess := AF_Public;
                   ;
                   WHILE vgDynSet[16].isSet(GetSym) do begin
-                        if (GetSym = 87) then begin
+                        if (GetSym = 88) then begin
                               _RTypeBlock;
                         end
-                         else if (GetSym = 92) then begin
+                         else if (GetSym = 94) then begin
                               _RVarBlock;
                         end
-                         else if (GetSym = 41) then begin
+                         else if (GetSym = 42) then begin
                               _RExternal;
                         end
-                         else if (GetSym = 26) then begin
+                         else if (GetSym = 27) then begin
                               _RConstant;
                         end
                          else begin
@@ -3833,16 +3859,16 @@ begin
             if fNDCreator.GetIsUnitFlag and not(vlHasPublic) then SemError(Err_Unit_Must_Have_Pubs);
             ;
             WHILE vgDynSet[16].isSet(GetSym) do begin
-                  if (GetSym = 87) then begin
+                  if (GetSym = 88) then begin
                         _RTypeBlock;
                   end
-                   else if (GetSym = 92) then begin
+                   else if (GetSym = 94) then begin
                         _RVarBlock;
                   end
-                   else if (GetSym in [27 , 32 , 46 , 62 , 67]) then begin
+                   else if (GetSym in [28 , 33 , 47 , 63 , 68]) then begin
                         _RRoutine;
                   end
-                   else if (GetSym = 41) then begin
+                   else if (GetSym = 42) then begin
                         _RExternal;
                   end
                    else begin
@@ -3857,15 +3883,15 @@ begin
             fNDCreator.AddCurrentDefinition(vlRoutine);
             vlPrn   := TRoutineNode.Create(vlRoutine);
             ;
-            if (GetSym = 19) then begin
+            if (GetSym = 20) then begin
                   _RBlockOfCode( vlPrn);
             end
-             else if (GetSym = 37) then begin
+             else if (GetSym = 38) then begin
                   _IEnd;
                     if (not fNDCreator.GetIsUnitFlag) then SemError(Err_Program_Needs_Main); ;
             end
             else begin
-                  SynError(151);
+                  SynError(154);
             end;
             ;Expect(7);
              
@@ -3879,32 +3905,32 @@ begin
       
       Procedure TELA_Parser._IProgram;
       begin
-            Expect(68);
+            Expect(69);
       end;
       
       Procedure TELA_Parser._IUnit;
       begin
-            Expect(90);
+            Expect(91);
       end;
       
       Procedure TELA_Parser._RMod_Type;
       begin
-            if (GetSym = 90) then begin
+            if (GetSym = 91) then begin
                   _IUnit;
                      fNDCreator.SetIsUnitFlag(true); ;
             end
-             else if (GetSym = 68) then begin
+             else if (GetSym = 69) then begin
                   _IProgram;
             end
             else begin
-                  SynError(152);
+                  SynError(155);
             end;
             ;Expect(8);
       end;
       
       Procedure TELA_Parser._IVar;
       begin
-            Expect(92);
+            Expect(94);
       end;
       
       Procedure TELA_Parser._RVarBlock;
@@ -3934,12 +3960,12 @@ begin
                   end
                   ;Expect(8);
             end
-             else if (GetSym in [46 , 60 , 67]) then begin
+             else if (GetSym in [47 , 61 , 68]) then begin
                   _RRoutineTypeDecl( ParType);
                     AddAnonItem(ParType); ;
             end
             else begin
-                  SynError(153);
+                  SynError(156);
             end;
             ;end;
       
@@ -3953,7 +3979,7 @@ begin
       begin
              
             vlName := TNameList.Create;
-             vlType := nil;
+            vlType := nil;
             ;
             _RIdent( vlIdent);
               vlName.AddName(vlIdent);;
@@ -3972,7 +3998,7 @@ begin
       
       Procedure TELA_Parser._IUses;
       begin
-            Expect(91);
+            Expect(92);
       end;
       
       Procedure TELA_Parser._RUseBlock;
@@ -4078,7 +4104,7 @@ begin
                   _RHex_Number( ParNum,ParValid);
             end
             else begin
-                  SynError(154);
+                  SynError(157);
             end;
             ;end;
       
@@ -4136,7 +4162,7 @@ begin
                   _RConfigVar( ParString);
             end
             else begin
-                  SynError(155);
+                  SynError(158);
             end;
             ;end;
       
@@ -4168,7 +4194,7 @@ begin
       
       procedure TELA_Parser.Parse;
       begin
-            MaxT :=119;
+            MaxT :=121;
             SetupCompiler;
              Get;
             _ELA;
@@ -4189,181 +4215,184 @@ begin
                   		10: ParErr :='":" expected';
                   		11: ParErr :='"ABSTRACT" expected';
                   		12: ParErr :='"ALIGN" expected';
-                  		13: ParErr :='"AND" expected';
-                  		14: ParErr :='"ARRAY" expected';
-                  		15: ParErr :='"AS" expected';
-                  		16: ParErr :='"ASM" expected';
-                  		17: ParErr :='"ASCIIZ" expected';
-                  		18: ParErr :='"AT" expected';
-                  		19: ParErr :='"BEGIN" expected';
-                  		20: ParErr :='"BOOLEANTYPE" expected';
-                  		21: ParErr :='"BETWEEN" expected';
-                  		22: ParErr :='"BREAK" expected';
-                  		23: ParErr :='"CDECL" expected';
-                  		24: ParErr :='"CHARTYPE" expected';
-                  		25: ParErr :='"CLASS" expected';
-                  		26: ParErr :='"CONST" expected';
-                  		27: ParErr :='"CONSTRUCTOR" expected';
-                  		28: ParErr :='"CONTINUE" expected';
-                  		29: ParErr :='"COUNT" expected';
-                  		30: ParErr :='"DEC" expected';
-                  		31: ParErr :='"DEFAULT" expected';
-                  		32: ParErr :='"DESTRUCTOR" expected';
-                  		33: ParErr :='"DIV" expected';
-                  		34: ParErr :='"DO" expected';
-                  		35: ParErr :='"DOWNTO" expected';
-                  		36: ParErr :='"ELSE" expected';
-                  		37: ParErr :='"END" expected';
-                  		38: ParErr :='"ENUM" expected';
-                  		39: ParErr :='"EXACT" expected';
-                  		40: ParErr :='"EXIT" expected';
-                  		41: ParErr :='"EXTERNAL" expected';
-                  		42: ParErr :='"LEAVE" expected';
-                  		43: ParErr :='"FINAL" expected';
-                  		44: ParErr :='"FOR" expected';
-                  		45: ParErr :='"FROM" expected';
-                  		46: ParErr :='"FUNCTION" expected';
-                  		47: ParErr :='"HAS" expected';
-                  		48: ParErr :='"IF" expected';
-                  		49: ParErr :='"INC" expected';
-                  		50: ParErr :='"INHERIT" expected';
-                  		51: ParErr :='"INHERITED" expected';
-                  		52: ParErr :='"ISOLATE" expected';
-                  		53: ParErr :='"MAIN" expected';
-                  		54: ParErr :='"METATYPE" expected';
-                  		55: ParErr :='"MOD" expected';
-                  		56: ParErr :='"NAME" expected';
-                  		57: ParErr :='"NIL" expected';
-                  		58: ParErr :='"NUMBER" expected';
-                  		59: ParErr :='"NOT" expected';
-                  		60: ParErr :='"OBJECT" expected';
-                  		61: ParErr :='"OF" expected';
-                  		62: ParErr :='"OPERATOR" expected';
-                  		63: ParErr :='"OR" expected';
-                  		64: ParErr :='"OVERLOAD" expected';
-                  		65: ParErr :='"OVERRIDE" expected';
-                  		66: ParErr :='"OWNER" expected';
-                  		67: ParErr :='"PROCEDURE" expected';
-                  		68: ParErr :='"PROGRAM" expected';
-                  		69: ParErr :='"PROPERTY" expected';
-                  		70: ParErr :='"PROTECTED" expected';
-                  		71: ParErr :='"PRIVATE" expected';
-                  		72: ParErr :='"PUBLIC" expected';
-                  		73: ParErr :='"PTR" expected';
-                  		74: ParErr :='"READ" expected';
-                  		75: ParErr :='"RECORD" expected';
-                  		76: ParErr :='"REPEAT" expected';
-                  		77: ParErr :='"ROOT" expected';
-                  		78: ParErr :='"SHR" expected';
-                  		79: ParErr :='"SHL" expected';
-                  		80: ParErr :='"SIZE" expected';
-                  		81: ParErr :='"SIGNED" expected';
-                  		82: ParErr :='"SIZEOF" expected';
-                  		83: ParErr :='"STRING" expected';
-                  		84: ParErr :='"STEP" expected';
-                  		85: ParErr :='"TO" expected';
-                  		86: ParErr :='"THEN" expected';
-                  		87: ParErr :='"TYPE" expected';
-                  		88: ParErr :='"UNTIL" expected';
-                  		89: ParErr :='"UNION" expected';
-                  		90: ParErr :='"UNIT" expected';
-                  		91: ParErr :='"USES" expected';
-                  		92: ParErr :='"VAR" expected';
-                  		93: ParErr :='"VIRTUAL" expected';
-                  		94: ParErr :='"WHERE" expected';
-                  		95: ParErr :='"WRITE" expected';
-                  		96: ParErr :='"WRITELN" expected';
-                  		97: ParErr :='"VOIDTYPE" expected';
-                  		98: ParErr :='"WHILE" expected';
-                  		99: ParErr :='"WITH" expected';
-                  		100: ParErr :='"XOR" expected';
-                  		101: ParErr :='"(" expected';
-                  		102: ParErr :='")" expected';
-                  		103: ParErr :='"+" expected';
-                  		104: ParErr :='"-" expected';
-                  		105: ParErr :='"*" expected';
-                  		106: ParErr :='"=" expected';
-                  		107: ParErr :='"[" expected';
-                  		108: ParErr :='"]" expected';
-                  		109: ParErr :='":=" expected';
-                  		110: ParErr :='">" expected';
-                  		111: ParErr :='">=" expected';
-                  		112: ParErr :='"<=" expected';
-                  		113: ParErr :='"<" expected';
-                  		114: ParErr :='"<>" expected';
-                  		115: ParErr :='"#" expected';
-                  		116: ParErr :='"@" expected';
-                  		117: ParErr :='"^" expected';
-                  		118: ParErr :='">>" expected';
-                  		119: ParErr :='not expected';
-                  		120: ParErr :='Invalid short nested Routine:"BEGIN","@","-","+","(","SIZEOF'
+                  		13: ParErr :='"ALL" expected';
+                  		14: ParErr :='"AND" expected';
+                  		15: ParErr :='"ARRAY" expected';
+                  		16: ParErr :='"AS" expected';
+                  		17: ParErr :='"ASM" expected';
+                  		18: ParErr :='"ASCIIZ" expected';
+                  		19: ParErr :='"AT" expected';
+                  		20: ParErr :='"BEGIN" expected';
+                  		21: ParErr :='"BOOLEANTYPE" expected';
+                  		22: ParErr :='"BETWEEN" expected';
+                  		23: ParErr :='"BREAK" expected';
+                  		24: ParErr :='"CDECL" expected';
+                  		25: ParErr :='"CHARTYPE" expected';
+                  		26: ParErr :='"CLASS" expected';
+                  		27: ParErr :='"CONST" expected';
+                  		28: ParErr :='"CONSTRUCTOR" expected';
+                  		29: ParErr :='"CONTINUE" expected';
+                  		30: ParErr :='"COUNT" expected';
+                  		31: ParErr :='"DEC" expected';
+                  		32: ParErr :='"DEFAULT" expected';
+                  		33: ParErr :='"DESTRUCTOR" expected';
+                  		34: ParErr :='"DIV" expected';
+                  		35: ParErr :='"DO" expected';
+                  		36: ParErr :='"DOWNTO" expected';
+                  		37: ParErr :='"ELSE" expected';
+                  		38: ParErr :='"END" expected';
+                  		39: ParErr :='"ENUM" expected';
+                  		40: ParErr :='"EXACT" expected';
+                  		41: ParErr :='"EXIT" expected';
+                  		42: ParErr :='"EXTERNAL" expected';
+                  		43: ParErr :='"LEAVE" expected';
+                  		44: ParErr :='"FINAL" expected';
+                  		45: ParErr :='"FOR" expected';
+                  		46: ParErr :='"FROM" expected';
+                  		47: ParErr :='"FUNCTION" expected';
+                  		48: ParErr :='"HAS" expected';
+                  		49: ParErr :='"IF" expected';
+                  		50: ParErr :='"INC" expected';
+                  		51: ParErr :='"INHERIT" expected';
+                  		52: ParErr :='"INHERITED" expected';
+                  		53: ParErr :='"ISOLATE" expected';
+                  		54: ParErr :='"MAIN" expected';
+                  		55: ParErr :='"METATYPE" expected';
+                  		56: ParErr :='"MOD" expected';
+                  		57: ParErr :='"NAME" expected';
+                  		58: ParErr :='"NIL" expected';
+                  		59: ParErr :='"NUMBER" expected';
+                  		60: ParErr :='"NOT" expected';
+                  		61: ParErr :='"OBJECT" expected';
+                  		62: ParErr :='"OF" expected';
+                  		63: ParErr :='"OPERATOR" expected';
+                  		64: ParErr :='"OR" expected';
+                  		65: ParErr :='"OVERLOAD" expected';
+                  		66: ParErr :='"OVERRIDE" expected';
+                  		67: ParErr :='"OWNER" expected';
+                  		68: ParErr :='"PROCEDURE" expected';
+                  		69: ParErr :='"PROGRAM" expected';
+                  		70: ParErr :='"PROPERTY" expected';
+                  		71: ParErr :='"PROTECTED" expected';
+                  		72: ParErr :='"PRIVATE" expected';
+                  		73: ParErr :='"PUBLIC" expected';
+                  		74: ParErr :='"PTR" expected';
+                  		75: ParErr :='"READ" expected';
+                  		76: ParErr :='"RECORD" expected';
+                  		77: ParErr :='"REPEAT" expected';
+                  		78: ParErr :='"ROOT" expected';
+                  		79: ParErr :='"SHR" expected';
+                  		80: ParErr :='"SHL" expected';
+                  		81: ParErr :='"SIZE" expected';
+                  		82: ParErr :='"SIGNED" expected';
+                  		83: ParErr :='"SIZEOF" expected';
+                  		84: ParErr :='"STRING" expected';
+                  		85: ParErr :='"STEP" expected';
+                  		86: ParErr :='"TO" expected';
+                  		87: ParErr :='"THEN" expected';
+                  		88: ParErr :='"TYPE" expected';
+                  		89: ParErr :='"UNTIL" expected';
+                  		90: ParErr :='"UNION" expected';
+                  		91: ParErr :='"UNIT" expected';
+                  		92: ParErr :='"USES" expected';
+                  		93: ParErr :='"VALUE" expected';
+                  		94: ParErr :='"VAR" expected';
+                  		95: ParErr :='"VIRTUAL" expected';
+                  		96: ParErr :='"WHERE" expected';
+                  		97: ParErr :='"WRITE" expected';
+                  		98: ParErr :='"WRITELN" expected';
+                  		99: ParErr :='"VOIDTYPE" expected';
+                  		100: ParErr :='"WHILE" expected';
+                  		101: ParErr :='"WITH" expected';
+                  		102: ParErr :='"XOR" expected';
+                  		103: ParErr :='"(" expected';
+                  		104: ParErr :='")" expected';
+                  		105: ParErr :='"+" expected';
+                  		106: ParErr :='"-" expected';
+                  		107: ParErr :='"*" expected';
+                  		108: ParErr :='"=" expected';
+                  		109: ParErr :='"[" expected';
+                  		110: ParErr :='"]" expected';
+                  		111: ParErr :='":=" expected';
+                  		112: ParErr :='">" expected';
+                  		113: ParErr :='">=" expected';
+                  		114: ParErr :='"<=" expected';
+                  		115: ParErr :='"<" expected';
+                  		116: ParErr :='"<>" expected';
+                  		117: ParErr :='"#" expected';
+                  		118: ParErr :='"@" expected';
+                  		119: ParErr :='"^" expected';
+                  		120: ParErr :='">>" expected';
+                  		121: ParErr :='not expected';
+                  		122: ParErr :='Invalid short nested Routine:"BEGIN","@","-","+","(","SIZEOF'
                   			+'","OWNER","NOT","NIL","INHERITED","&",binary number ,hexidec'
                   			+'imal number,integer number,string,identifier expected';
-                  		121: ParErr :='Invalid inherited:"OF",identifier expected';
-                  		122: ParErr :='Invalid formula:"OWNER",identifier,"INHERITED",binary number'
+                  		123: ParErr :='Invalid inherited:"OF",identifier expected';
+                  		124: ParErr :='Invalid formula:"OWNER",identifier,"INHERITED",binary number'
                   			+' ,hexidecimal number,integer number,"&",string,"NIL","NOT","'
                   			+'SIZEOF","(" expected';
-                  		123: ParErr :='Invalid expression:identifier,"&",string expected';
-                  		124: ParErr :='Invalid syntax:":=","ELSE",";" expected';
-                  		125: ParErr :='Invalid code item:"@","-","+","(","SIZEOF","OWNER","NOT","NI'
+                  		125: ParErr :='Invalid expression:identifier,"&",string expected';
+                  		126: ParErr :='Invalid syntax:":=","ELSE",";" expected';
+                  		127: ParErr :='Invalid count statement:"ALL","FROM" expected';
+                  		128: ParErr :='Invalid code item:"@","-","+","(","SIZEOF","OWNER","NOT","NI'
                   			+'L","INHERITED","&",binary number ,hexidecimal number,integer'
                   			+' number,string,identifier,"ASM","BREAK","CONTINUE" etc... ex'
                   			+'pected';
-                  		126: ParErr :='Invalid increment/decrement statement:"INC","DEC" expected';
-                  		127: ParErr :='Invalid increment/decrement statement:"WITH","ELSE",";" expe'
+                  		129: ParErr :='Invalid increment/decrement statement:"INC","DEC" expected';
+                  		130: ParErr :='Invalid increment/decrement statement:"WITH","ELSE",";" expe'
                   			+'cted';
-                  		128: ParErr :='Invalid write statement:"WRITE","WRITELN" expected';
-                  		129: ParErr :='Invalid routine header:"PROCEDURE","FUNCTION","DESTRUCTOR","'
+                  		131: ParErr :='Invalid write statement:"WRITE","WRITELN" expected';
+                  		132: ParErr :='Invalid routine header:"PROCEDURE","FUNCTION","DESTRUCTOR","'
                   			+'CONSTRUCTOR","OPERATOR" expected';
-                  		130: ParErr :='Invalid routine header:"NAME","EXACT",";" expected';
-                  		131: ParErr :='Invalid parameter mapping item:"@",identifier,"-","+","CHART'
+                  		133: ParErr :='Invalid routine header:"NAME","EXACT",";" expected';
+                  		134: ParErr :='Invalid parameter mapping item:"@",identifier,"-","+","CHART'
                   			+'YPE","&",binary number ,hexidecimal number,integer number,st'
                   			+'ring expected';
-                  		132: ParErr :='Invalid routine header:"CONSTRUCTOR","DESTRUCTOR" expected';
-                  		133: ParErr :='Invalid operator header:"+","-","*","DIV","XOR","MOD","OR","'
+                  		135: ParErr :='Invalid routine header:"CONSTRUCTOR","DESTRUCTOR" expected';
+                  		136: ParErr :='Invalid operator header:"+","-","*","DIV","XOR","MOD","OR","'
                   			+'AND","=",">",">=","<=","<","<>",":=","BETWEEN","#","SHL","SH'
                   			+'R",identifier expected';
-                  		134: ParErr :='Invalid operator header:"-","NOT","(" expected';
-                  		135: ParErr :='Invalid routine name:"PRIVATE","PROTECTED","(",":",";" expec'
+                  		137: ParErr :='Invalid operator header:"-","NOT","(" expected';
+                  		138: ParErr :='Invalid routine name:"PRIVATE","PROTECTED","(",":",";" expec'
                   			+'ted';
-                  		136: ParErr :='Invalid property definition:"READ","WRITE" expected';
-                  		137: ParErr :='Invalid class definition:"VAR","TYPE","PUBLIC","PRIVATE","PR'
+                  		139: ParErr :='Invalid property definition:"READ","WRITE" expected';
+                  		140: ParErr :='Invalid class definition:"VAR","TYPE","PUBLIC","PRIVATE","PR'
                   			+'OTECTED","PROPERTY","PROCEDURE","OPERATOR","INHERIT","FUNCTI'
                   			+'ON","END","DESTRUCTOR","CONSTRUCTOR","CONST",";" expected';
-                  		138: ParErr :='Invalid type declaration:"NUMBER",identifier,"VOIDTYPE","CHA'
+                  		141: ParErr :='Invalid type declaration:"NUMBER",identifier,"VOIDTYPE","CHA'
                   			+'RTYPE","ENUM","PTR","STRING","ASCIIZ","UNION","VIRTUAL","OVE'
                   			+'RRIDE","ISOLATE","CLASS","RECORD" expected';
-                  		139: ParErr :='Invalid type declaration:"VOIDTYPE","VIRTUAL","UNION","STRIN'
+                  		142: ParErr :='Invalid type declaration:"VOIDTYPE","VIRTUAL","UNION","STRIN'
                   			+'G","RECORD","PTR","OVERRIDE","NUMBER","ISOLATE","ENUM","CLAS'
                   			+'S","CHARTYPE","BOOLEANTYPE","ASCIIZ","ARRAY",identifier etc.'
                   			+'.. expected';
-                  		140: ParErr :='Invalid RAnonymousType:"ARRAY","NUMBER","ASCIIZ","STRING","P'
-                  			+'TR","RECORD","UNION" expected';
-                  		141: ParErr :='Invalid RPtrTypeDecl:"UNION","STRING","RECORD","PTR","NUMBER'
-                  			+'","ASCIIZ","ARRAY",identifier expected';
-                  		142: ParErr :='Invalid type definition:"PROCEDURE","FUNCTION" expected';
-                  		143: ParErr :='Invalid type:identifier,"STRING","PTR","NUMBER","ASCIIZ" exp'
+                  		143: ParErr :='Invalid type declaration:"ARRAY","NUMBER","ASCIIZ","STRING",'
+                  			+'"PTR","RECORD","UNION" expected';
+                  		144: ParErr :='Invalid pointer type declaration:"UNION","STRING","RECORD","'
+                  			+'PTR","NUMBER","ASCIIZ","ARRAY",identifier expected';
+                  		145: ParErr :='Invalid type definition:"PROCEDURE","FUNCTION" expected';
+                  		146: ParErr :='Invalid type:identifier,"STRING","PTR","NUMBER","ASCIIZ" exp'
                   			+'ected';
-                  		144: ParErr :='Invalid identifier:"-","+",binary number ,hexidecimal number'
+                  		147: ParErr :='Invalid identifier:"-","+",binary number ,hexidecimal number'
                   			+',integer number,"CHARTYPE","&",string expected';
-                  		145: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
-                  		146: ParErr :='Invalid string constant:"CHARTYPE","&",string,identifier,"("'
+                  		148: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
+                  		149: ParErr :='Invalid string constant:"CHARTYPE","&",string,identifier,"("'
                   			+' expected';
-                  		147: ParErr :='Invalid identifier:binary number ,hexidecimal number,integer'
+                  		150: ParErr :='Invalid identifier:binary number ,hexidecimal number,integer'
                   			+' number,identifier,"CHARTYPE","&",string expected';
-                  		148: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
+                  		151: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
                   			+'mber,integer number,string,identifier,"(","NIL","NOT","SIZEO'
                   			+'F" expected';
-                  		149: ParErr :='Invalid routine:"BEGIN","END" expected';
-                  		150: ParErr :='Invalid type declaration:identifier,"ALIGN" expected';
-                  		151: ParErr :='Invalid program definition:"BEGIN","END" expected';
-                  		152: ParErr :='Invalid module type specification:"UNIT","PROGRAM" expected';
-                  		153: ParErr :='Invalid type definition:"UNION","STRING","RECORD","PTR","NUM'
+                  		152: ParErr :='Invalid routine:"BEGIN","END" expected';
+                  		153: ParErr :='Invalid type declaration:identifier,"ALIGN" expected';
+                  		154: ParErr :='Invalid program definition:"BEGIN","END" expected';
+                  		155: ParErr :='Invalid module type specification:"UNIT","PROGRAM" expected';
+                  		156: ParErr :='Invalid type definition:"UNION","STRING","RECORD","PTR","NUM'
                   			+'BER","ASCIIZ","ARRAY",identifier,"PROCEDURE","OBJECT","FUNCT'
                   			+'ION" expected';
-                  		154: ParErr :='Invalid number:integer number,binary number ,hexidecimal num'
+                  		157: ParErr :='Invalid number:integer number,binary number ,hexidecimal num'
                   			+'ber expected';
-                  		155: ParErr :='Invalid string:string,"&" expected';
+                  		158: ParErr :='Invalid string:string,"&" expected';
             end;
       end;
       
@@ -4375,23 +4404,23 @@ begin
       
       const
       vgSetFill0:ARRAY[1..1] of cardinal=(0);
-      vgSetFill1:ARRAY[1..15] of cardinal=(1,2,3,4,5,6,51,57,59,66,82,101,103,104,116);
-      vgSetFill2:ARRAY[1..6] of cardinal=(1,27,32,46,62,67);
-      vgSetFill3:ARRAY[1..6] of cardinal=(106,110,111,112,113,114);
-      vgSetFill4:ARRAY[1..30] of cardinal=(1,2,3,4,5,6,16,19,22,28,29,30,40,42,44,48,49,51,57,59,66,76,82,95,96,98,101,103,104,116);
-      vgSetFill5:ARRAY[1..12] of cardinal=(26,27,32,46,53,62,67,69,70,71,87,92);
-      vgSetFill6:ARRAY[1..8] of cardinal=(2,3,4,5,6,24,103,104);
-      vgSetFill7:ARRAY[1..118] of cardinal=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119);
-      vgSetFill8:ARRAY[1..14] of cardinal=(26,27,32,37,46,50,62,67,69,70,71,72,87,92);
-      vgSetFill9:ARRAY[1..12] of cardinal=(26,27,32,46,62,67,69,70,71,72,87,92);
-      vgSetFill10:ARRAY[1..16] of cardinal=(1,14,17,20,24,25,38,52,58,65,73,75,83,89,93,97);
-      vgSetFill11:ARRAY[1..14] of cardinal=(1,17,24,25,38,52,58,65,73,75,83,89,93,97);
-      vgSetFill12:ARRAY[1..7] of cardinal=(14,17,58,73,75,83,89);
-      vgSetFill13:ARRAY[1..7] of cardinal=(1,2,3,4,5,6,24);
-      vgSetFill14:ARRAY[1..10] of cardinal=(27,32,46,62,67,69,70,71,87,92);
-      vgSetFill15:ARRAY[1..6] of cardinal=(1,2,6,23,24,101);
-      vgSetFill16:ARRAY[1..9] of cardinal=(26,27,32,41,46,62,67,87,92);
-      vgSetFill17:ARRAY[1..8] of cardinal=(1,14,17,58,73,75,83,89);
+      vgSetFill1:ARRAY[1..15] of cardinal=(1,2,3,4,5,6,52,58,60,67,83,103,105,106,118);
+      vgSetFill2:ARRAY[1..6] of cardinal=(1,28,33,47,63,68);
+      vgSetFill3:ARRAY[1..6] of cardinal=(108,112,113,114,115,116);
+      vgSetFill4:ARRAY[1..30] of cardinal=(1,2,3,4,5,6,17,20,23,29,30,31,41,43,45,49,50,52,58,60,67,77,83,97,98,100,103,105,106,118);
+      vgSetFill5:ARRAY[1..12] of cardinal=(27,28,33,47,54,63,68,70,71,72,88,94);
+      vgSetFill6:ARRAY[1..8] of cardinal=(2,3,4,5,6,25,105,106);
+      vgSetFill7:ARRAY[1..120] of cardinal=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121);
+      vgSetFill8:ARRAY[1..14] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,88,94);
+      vgSetFill9:ARRAY[1..12] of cardinal=(27,28,33,47,63,68,70,71,72,73,88,94);
+      vgSetFill10:ARRAY[1..16] of cardinal=(1,15,18,21,25,26,39,53,59,66,74,76,84,90,95,99);
+      vgSetFill11:ARRAY[1..14] of cardinal=(1,18,25,26,39,53,59,66,74,76,84,90,95,99);
+      vgSetFill12:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
+      vgSetFill13:ARRAY[1..7] of cardinal=(1,2,3,4,5,6,25);
+      vgSetFill14:ARRAY[1..10] of cardinal=(28,33,47,63,68,70,71,72,88,94);
+      vgSetFill15:ARRAY[1..6] of cardinal=(1,2,6,24,25,103);
+      vgSetFill16:ARRAY[1..9] of cardinal=(27,28,33,42,47,63,68,88,94);
+      vgSetFill17:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
       
       
       procedure TELA_Parser.Commonsetup;
@@ -4400,7 +4429,7 @@ begin
             inherited Commonsetup;
             iCase := false;
             
-            MaxT := 119;
+            MaxT := 121;
             CreateDynSet(vgDynSet);
             if fOwnDynset then begin
                   vgDynSet[0].SetByArray(vgSetFill0);

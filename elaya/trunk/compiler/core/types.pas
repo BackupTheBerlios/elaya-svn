@@ -22,7 +22,7 @@ unit types;
 
 interface
 uses frames,largenum,varbase,strmbase,streams,compbase,linklist,display,error,elacons,stdobj,ddefinit,
-elatypes,pocobj,macobj,node,formbase,progutil,asminfo,cmp_type,elacfg,simplist;
+elatypes,pocobj,macobj,node,formbase,progutil,asminfo,cmp_type,elacfg,simplist,varuse;
 	
 type
 	
@@ -68,7 +68,7 @@ type
 		constructor Create(Partype:TType;ParSize :TSize);
 		function    GetSecSize : TSize;
 		function    GetOrgSecType : TType;
-		procedure   SetType(ParType:TType);virtual;
+		procedure   SetType(ParType:TType);
 		function    SaveType(ParStream:TObjectStream):boolean;virtual;
 		function    LoadType(ParStream:TObjectStream):boolean;virtual;
 		function    SaveItem(ParStream:TObjectStream):boolean;override;
@@ -116,7 +116,8 @@ type
 		procedure   Clear;override;
 
 	public
-		
+
+		function    GetIndexVar : TVariable;
 		function    GetIndexType : TType;
 		function    GetFirstOffset : TOffset;override;
 		function    Can(ParCan : TCan_Types) : boolean;override;
@@ -235,6 +236,8 @@ type
 		function CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;override;
 		function   IsMinimum(ParValue : TValue):boolean;override;
 		function   IsMaximum(ParValue : TValue):boolean;override;
+		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;override;
+
 	end;
 	
 	TPtrType=class(TSecType)
@@ -293,6 +296,8 @@ type
 	private
 		voBindList:TForwardBindList;
 		property iBindList : TForwardBindList read voBindList write voBindList;
+
+	protected
 		procedure   commonsetup;override;
 		procedure   Clear;override;
 
@@ -320,6 +325,7 @@ type
 		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
 		procedure DoneDotFrame;override;
 	end;
+
 	
 	TUnionType =class(TVarStructType)
 		function  AddIdent(ParItem:TDefinition):TErrorType;override;
@@ -331,12 +337,15 @@ type
 		function  AddIdent(ParItem:TDefinition):TErrorTYpe;override;
 		procedure CommonSetup;override;
 		procedure Print(ParDis:TDisplay);override;
+		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;override;
+
 	end;
 
 
 	TBooleanType=class(TType)
 	protected
 		procedure CommonSetup;override;
+	public
 		function  GetSign : boolean;override;
 	end;
 
@@ -385,6 +394,7 @@ end;
 
 
 {---( TVarStructType )----------------------------------------------}
+
 
 procedure TVarStructTYpe.DoneDotFrame;
 begin
@@ -481,6 +491,14 @@ end;
 
 {------( TRecordType )--------------------------------------------------}
 
+function TRecordType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+var
+	vlItem : TStructDefinitionUseItem;
+begin
+	vlItem := TStructDefinitionUseItem.Create(ParVar);
+	fParts.AddItemsToUseList(vlItem.fSubList);
+   exit(vlItem);
+end;
 
 
 procedure TRecordType.CommonSetup;
@@ -1325,6 +1343,11 @@ begin
 end;
 
 
+function TStringType.GetIndexVar : TVariable;
+begin
+	if iParts = nil then	exit(nil);
+	exit(TVariable(iParts.fStart));
+end;
 
 function    TStringType.GetIndexTypeMax : cardinal;
 var
@@ -1341,8 +1364,7 @@ end;
 function    TStringType.GetIndexType : TType;
 var vlVar : TVariable;
 begin
-	if iParts  = nil then exit(nil);
-	vlVar := TVariable(iParts.fStart);
+	vlVar :=GetIndexVar;
 	if (vlVar <> nil) and (vlVar is TVariable) then begin
 		exit(vlVar.fType);
 	end else begin
@@ -1570,6 +1592,12 @@ begin
 end;
 
 {-----( TTypeAs )----------------------------------------------------}
+
+
+function TTypeAs.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+begin
+	exit(fType.CreateVarOfTypeUse(Parvar));
+end;
 
 
 function TTypeAs.IsMinimum(ParValue : TValue):boolean;

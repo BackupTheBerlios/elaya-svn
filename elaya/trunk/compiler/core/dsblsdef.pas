@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit DSbLsDef;
 interface
-uses varuse,streams,stdobj,cmp_type,linklist,CompBase,elatypes,display,elacons,ddefault,ddefinit,error,hashing,didentls;
+uses streams,stdobj,cmp_type,elatypes,display,elacons,ddefinit,error,hashing,didentls;
 type
 	
 	TSublistDef = class(TDefinition)

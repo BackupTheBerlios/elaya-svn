@@ -46,7 +46,7 @@ section
 	Assembler_Path               := '/usr/bin/as';
 	Linker_Path		     := '/usr/bin/ld';
 	Is_Elf_target		:= 'N' ;
-	Auto_Load     := 'core;sys;classes;memory';
+	Auto_Load     := 'core;strings;sys;classes;memory';
 END;
 
 

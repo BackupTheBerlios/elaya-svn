@@ -64,8 +64,10 @@ type
 	
 	
 	TX86AttAssemblerInfo=class(TX86AssemblerInfo)
-	public
+	protected
 		procedure Commonsetup;override;
+
+	public
 		function  HasIntelDirection:boolean;override;
 		procedure GetRegisterByCode(ParCode:TNormal;var ParName:string);override;
 		procedure GetInstruction(var ParInstruction:string;ParDesSize,ParSrcSize:TSize);override;
@@ -91,8 +93,11 @@ type
 	end;
 	
 	TNasmAssemblerInfo=class(TX86IntelAssemblerInfo)
-		function  CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;override;
+	protected
 		procedure Commonsetup;override;
+
+	public
+		function  CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;override;
 		function  GetGlobalText(const ParName:string):string;override;
 		function  CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;override;
 		
@@ -711,8 +716,8 @@ var vlRes   : TResource;
 begin
 	vlCall := TCallPoc(ParPoc);
 	vlInst :=TCallInst.create;
-	vlInst.AddOperand(vlCall.GetTargetMac.CreateInstRes(ParCre),in_in_1);
-	vlOut := vlCall.GetReturnVar;
+	vlInst.AddOperand(vlCall.fTargetMac.CreateInstRes(ParCre),in_in_1);
+	vlOut := vlCall.fReturnVar;
 	ParCre.DeleteUnUsedUse;
 	if (vlOut <> nil)  then begin
 		vlRes := vlOut.CreateInstRes(ParCre);
@@ -722,7 +727,7 @@ begin
 	end;
 	ParCre.AddInstAfterCur(vlInst);
 	vlInst.InstructionFase(ParCre);
-	if vlCall.GetCDecl then ParCre.AddSpAdd(vlCall.GetParamSize,false);
+	if vlCall.fCDecl then ParCre.AddSpAdd(vlCall.fParamSize,false);
 end;
 
 

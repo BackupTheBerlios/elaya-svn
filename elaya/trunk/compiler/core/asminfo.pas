@@ -20,8 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit AsmInfo;
 interface
-uses asmdisp,display,extappl,stdObj,elacons,error,elatypes,progutil,
-	resource,procinst,pocobj,macobj,compbase,cmp_type,register;
+uses asmdisp,display,extappl,stdObj,elacons,error,elatypes,progutil,resource,pocobj,cmp_type,register;
 	
 type
 	

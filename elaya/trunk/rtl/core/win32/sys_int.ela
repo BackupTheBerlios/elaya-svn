@@ -1,7 +1,7 @@
 {a
 }
 unit;
-uses win32procs,win32types,core;
+uses win32procs,win32types,core,strings;
 public
 type TLength=len_t;
 

@@ -1,5 +1,5 @@
 #
-#   $Id: cprt21.as,v 1.1 2004/02/04 17:19:45 iddekingej Exp $
+#   $Id: cprt21.as,v 1.1 1999/05/03 21:29:36 peter Exp $
 #   This file is part of the Free Pascal run time library.
 #   Copyright (c) 1993,97 by Michael Van Canneyt and Peter Vreman
 #   members of the Free Pascal development team.

@@ -18,7 +18,7 @@
 }
 
 unit;
-uses core,sys_int;
+uses strings,core,sys_int;
 
 public
 
@@ -250,7 +250,6 @@ end;
 
 procedure PutNl; default;
 begin
-
 	Put(crlf);
 end;
 

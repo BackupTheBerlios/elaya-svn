@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 	unit classes;
 interface
-uses meta,varbase,elacfg,confval,cmp_type,elatypes,params,strmbase,macobj,
+uses meta,varbase,elacfg,confval,elatypes,params,strmbase,macobj,
 	node,frames,elacons,compbase,cblkbase,types,display,formbase,streams,
 	asminfo,error,ddefinit,ndcreat,procs,largenum,stdobj,asmcreat,asmdata,
 	linklist;
@@ -61,15 +61,16 @@ type
 		voMetaFrame : TFrame;
 		voObject    : TObjectRepresentor;
 		voIncompleet: boolean;
+		voOfValue   : boolean;
 	protected
-		property iParent    : TClassType         read voParent    write voParent;
-		property iMeta      : TClassMeta         read voMeta      write voMeta;
-		property iFrame     : TFrame             read voFrame     write voFrame;
-		property iMetaPtr   : TFrameVariable     read voMetaPtr   write voMetaPtr;
-		property iMetaFrame : TFrame             read voMetaFrame write voMetaFrame;
-		property iObject    : TObjectRepresentor read voObject    write voObject;
-		property iIncompleet: boolean			 read voIncompleet write voIncompleet;
-
+		property iParent    : TClassType         read voParent     write voParent;
+		property iMeta      : TClassMeta         read voMeta       write voMeta;
+		property iFrame     : TFrame             read voFrame      write voFrame;
+		property iMetaPtr   : TFrameVariable     read voMetaPtr    write voMetaPtr;
+		property iMetaFrame : TFrame             read voMetaFrame  write voMetaFrame;
+		property iObject    : TObjectRepresentor read voObject     write voObject;
+		property iIncompleet: boolean			     read voIncompleet write voIncompleet;
+		property iOfValue   : boolean            read voOfValue    write voOfValue;
 		procedure SetParent(ParType : TClassTYpe);
 	protected
 		procedure Commonsetup;override;
@@ -91,7 +92,6 @@ type
 		function  GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
 		function  Can(ParCan : TCan_Types):boolean;override;
 		procedure DoneDotFrame;override;
-		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
 		procedure DoneClassDotFrame;
 		procedure InitClassDotFrame(ParCre : TSecCreator;ParContext : TDefinition);
 		function  CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
@@ -116,6 +116,21 @@ type
 		function  IsIsolated : boolean;override;
 		procedure InitVirtualMeta(ParVmtItem : TVmtItem);
 		procedure PrintDefinitionBody(ParDis : TDisplay);override;
+	end;
+
+	TValueClassType=class(TClassType)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);override;
+		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
+   end;
+
+	TObjectClassType=class(TClassType)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
 	end;
 	
 	TObjectRepresentor=class(TVariable)
@@ -589,6 +604,66 @@ begin
 	end;
 end;
 
+{---( TObjectClassType )---------------------------------------------------------------------------}
+
+procedure TObjectClassType.Commonsetup;
+begin
+	iOfValue := false;
+	inherited Commonsetup;
+	iIdentCode := IC_ObjectClassType;
+end;
+
+procedure  TObjectClassType.InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);
+var
+	vlMac : TMacBase;
+begin
+	vlMac := ParNode.CreateMac(MCO_Result,ParCre);
+	iFrame.AddAddressing(self,self,vlMac,true);
+	if not IsVirtual then iMetaFrame.AddAddressing(self,self,iMeta.CreateMac(self,ParContext,MCO_ValuePointer,ParCre),true);
+	iMeta.AddAddressing(self,iMetaPtr,false);
+end;
+
+
+{---( TValueClassType )----------------------------------------------------------------------------}
+
+procedure TValueClassType.Commonsetup;
+begin
+	iOfValue := true;
+	inherited Commonsetup;
+	iIdentCode := IC_ValueClassType;
+end;
+
+procedure TValueClassType.AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);
+var
+	vlParameter : TFrameParameter;
+	vlRoutine   : TRoutine;
+	vlPtrType   : TType;
+begin
+	vlRoutine := TRoutine(ParNested);
+	if not vlRoutine.IsInheritedInHyr(self) then begin
+		vlPtrType := TNDCReator(ParCre).GetCheckDefaultType(DT_Pointer,0,false,'pointer');
+		vlParameter := TFrameParameter.Create(Name_MetaPtr,1,vlRoutine.fParameterFrame,fMeta.fMetaframe,vlPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
+		vlRoutine.AddParam(vlParameter);
+		vlParameter := TClassFrameParameter.Create(Name_Self,nil,nil,vlRoutine.fParameterFrame,fFrame,self,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
+		vlRoutine.AddParam(vlParameter);
+	end;
+end;
+
+
+procedure  TValueClassType.InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);
+var
+	vlMac : TMacBase;
+	vlOfs  : TMemOfsMac;
+begin
+	vlMac := ParNode.CreateMac(MCO_Result,ParCre);
+   vlOfs := TMemOfsMac.Create;
+	vlOfs.SetSourceMac(vlMac);
+	ParCre.AddObject(vlOfs);
+	iFrame.AddAddressing(self,self,vlOfs,true);
+	if not IsVirtual then iMetaFrame.AddAddressing(self,self,iMeta.CreateMac(self,ParContext,MCO_ValuePointer,ParCre),true);
+	iMeta.AddAddressing(self,iMeta.CreateMac(ParContext,ParContext,MCO_ValuePointer,ParCre),true);
+end;
+
 
 {---( TClassType )---------------------------------------------------------------------------------}
 
@@ -639,13 +714,13 @@ end;
 
 function TClassType.CanWriteWith(ParExact : boolean;ParType : TType):boolean;
 var
-	vlType  : TClassType;
+	vlType  : TType;
 	vlPtr   : TPtrType;
 begin
 	if ParType = nil then exit(false);
-	vlType := TClassType(ParType.GetOrgType);
+	vlType := ParType.GetOrgType;
 	if(vlType is TClassType) then begin
-		while((vlType <> nil) and (vlType <> self)) do vlType := vlType.fParent;
+		while((vlType <> nil) and (vlType <> self)) do vlType := TClassType(vlType).fParent;
 		exit(vlType<> nil);
 	end else if TType(vlType) is TPtrType then begin
 		vlPtr := TPtrType(vLType);
@@ -762,9 +837,11 @@ begin
 	iMeta.fDefAccess := AF_Public;
 	if(iParent = nil) then begin
 		vlMfType := TNDCReator(ParCre).GetCheckDefaultType(DT_Pointer,0,false,'pointer');
-		iMetaPtr := TFrameVariable(CreateVar(ParCre,Name_Meta,vlMfType));
-		iMetaPtr.fDefAccess := AF_Public;
-		AddIdent(iMetaptr);
+		if not(iOfValue) then begin
+			iMetaPtr := TFrameVariable(CreateVar(ParCre,Name_Meta,vlMfType));
+			iMetaPtr.fDefAccess := AF_Public;
+			AddIdent(iMetaptr);
+		end;
 	end else begin
 		iMetaPtr := iParent.iMetaPtr;
 	end;
@@ -773,17 +850,27 @@ end;
 procedure TClassType.AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);
 var
 	vlParameter : TFrameParameter;
+	vlParameterMeta : TFrameParameter;
 	vlRoutine   : TRoutine;
 	vlPtrType   : TType;
+	vlTranType  : TParamTransferType;
+	vlPtr       : TVarBase;
+	vlMeta      : TMeta;
+	vlFrame     : TFrame;
 begin
 	vlRoutine := TRoutine(ParNested);
 	if not vlRoutine.IsInheritedInHyr(self) then begin
 		if(ParNested is TConstructor) then begin
 			vlPtrType := TNDCReator(ParCre).GetCheckDefaultType(DT_Pointer,0,false,'pointer');
-			vlParameter := TFramePArameter.Create(Name_MetaPtr,1,vlRoutine.fParameterFrame,iMetaFrame,vlPtrType,RTM_extended in vlRoutine.fRoutineModes);
-			vlRoutine.AddParam(vlParameter);
+         vlFrame := iMetaFrame;
+			vlParameterMeta := TFrameParameter.Create(Name_MetaPtr,1,vlRoutine.fParameterFrame,vlFrame,vlPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
+
+			vlRoutine.AddParam(vlParameterMeta);
 		end;
-		vlParameter := TClassFrameParameter.Create(Name_Self,fMeta,iMetaPtr,vlRoutine.fParameterFrame,fFrame,self,RTM_extended in vlRoutine.fRoutineModes);{TODO}
+		vlPtr      := iMetaPtr;
+		vlTranType := PV_Value;
+		vlMeta     := fMeta;
+		vlParameter := TClassFrameParameter.Create(Name_Self,vlMeta,vlPtr,vlRoutine.fParameterFrame,fFrame,self,vlTranType,RTM_extended in vlRoutine.fRoutineModes);
 		vlRoutine.AddParam(vlParameter);
 	end;
 end;
@@ -849,6 +936,7 @@ begin
 	vlRes := vlSize mod vlAll;
 	if vlRes <> 0 then vlSize := vlSIze + vlAll - vlRes;
 	iFrame.GetNewOffset(vlSize);
+	if iOfValue then iSize := iFrame.fFrameSize;
 	exit(vlVar);
 end;
 
@@ -870,16 +958,6 @@ begin
 	iFrame.PopAddressing(self);
 end;
 
-
-procedure  TClassType.InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);
-var
-	vlMac : TMacBase;
-begin
-	vlMac := ParNode.CreateMac(MCO_Result,ParCre);
-	iFrame.AddAddressing(self,self,vlMac,true);
-	if not IsVirtual then iMetaFrame.AddAddressing(self,self,iMeta.CreateMac(self,ParContext,MCO_ValuePointer,ParCre),true);
-	iMeta.AddAddressing(self,iMetaPtr,false);
-end;
 
 
 procedure TClassType.DoneClassDotFrame;
@@ -925,9 +1003,13 @@ begin
 	ParDis.writenl('END');
 end;
 
-constructor TClassTYpe.Create(ParParent : TClassType;ParInCompleet : boolean);
+constructor TClassTYpe.Create(ParParent : TClassType;ParInCompleet:boolean);
+var
+	vlSize : TSize;
 begin
-	inherited Create(GetAssemblerInfo.GetSystemSize);
+	vlSize := GetAssemblerInfo.GetSystemSize;
+	if(iOfValue) then vlSize := 0;
+	inherited Create(vlSize);
 	iInCompleet := ParInCompleet;
 	if not(ParInCompleet) then SetParent(ParParent);
 end;
@@ -946,6 +1028,7 @@ begin
 		if ParStream.WritePi(iMetaFrame) then exit(true);
 	end;
 	if ParStream.Writepi(iMetaPtr) then exit(true);
+	if ParStream.WriteBoolean(iOfValue) then exit(true);
 	if iObject.SaveItem(ParStream) then exit(true);
 	exit(false);
 end;
@@ -953,6 +1036,7 @@ end;
 function TClassType.LoadItem(ParStream : TObjectStream) : boolean;
 var
 	vlHasParent : boolean;
+	vlOfValue   : boolean;
 begin
 	iFrame.Destroy;
 	iObject.Destroy;
@@ -967,6 +1051,8 @@ begin
 		if CreateObject(ParStream,voMetaFrame) <> STS_OK then exit(true);
 	end;
 	if ParStream.ReadPi(voMetaPtr) then exit(true);
+	if ParStream.ReadBoolean(vlOfValue) then exit(true);
+	iOfValue := vlOfValue;
 	if CreateObject(ParStream,voObject) <> STS_OK then exit(true);
 	iMeta.InitVirtual(self,iMeta.fVmtItem);
 	exit(false);
@@ -1113,7 +1199,7 @@ begin
 	ParCre.SetNodePos(vlComp);
 	vlIf := TIfNode.Create;
 	ParCre.SetNodePos(vlIf);
-	vlIf.SetCond(ParCre,vlComp);
+	vlIf.SetCond(vlComp);
 	vlThenElse := TThenElseNode.Create(true);
 	ParCre.SetNodePos(vlThenElse);
 	vlIf.AddNode(vlThenElse);

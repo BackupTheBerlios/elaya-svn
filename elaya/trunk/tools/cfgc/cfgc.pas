@@ -71,8 +71,9 @@ end;
 function TVarValuesList.AddVar(const ParName, ParValue : string):boolean;
 var vlDummy : string;
 begin
-     if GetValueByName(ParName,vlDummy) then exit(true);
-     insertAt(nil,TVarValueItem.Create(ParName,ParValue));
+   	if GetValueByName(ParName,vlDummy) then exit(true);
+	insertAt(nil,TVarValueItem.Create(ParName,ParValue));
+	exit(false);
 end;
 
 function TVarValuesList.GetValueByName(const ParName : string;var ParValue :string):boolean;

@@ -1,5 +1,5 @@
 unit;
-uses core,sys_int,linux;
+uses core,sys_int,linux,strings;
 
 public
 

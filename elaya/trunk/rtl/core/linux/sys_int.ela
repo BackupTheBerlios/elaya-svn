@@ -17,7 +17,7 @@
 }
 
 unit;
-uses core,linux;
+uses core,linux,strings;
 
 
 public

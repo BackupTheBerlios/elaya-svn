@@ -8,7 +8,10 @@ include ../../Makefile.inc
 
 
 
-all:	oth_$(rtl_target) debug native eel cgi 
+all:	oth_$(rtl_target) debug native eel cgi math
+
+math:
+	$(MAKE) all -C math
 
 debug:
 	$(MAKE) all -C debug

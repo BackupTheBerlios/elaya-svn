@@ -30,8 +30,8 @@ type TValue=class inherit TRoot
 		private
 			var
 				voSize   : long;
-				voString : pasc;
-         	procedure SetStringPtr(ParAsc : PAsc;ParSize : long);
+				voString : PString;
+         	procedure SetStringPtr(ParAsc : PString);
 			protected
 				procedure commonsetup;override;
 				procedure clear;override;
@@ -54,7 +54,7 @@ type TValue=class inherit TRoot
 				private write voSize;
 			end;
 
-			property StringValue : Pasc;
+			property StringValue : PString;
 			begin
 				public read voString;
 				private write voString;
@@ -99,11 +99,10 @@ end;
 
 {---( TString )-------------------------------------------------------------------}
 
-procedure TString.SetStringPtr(ParAsc : PAsc;ParSize : long);
+procedure TString.SetStringPtr(ParAsc : PString);
 begin
 	if StringValue <> nil then FreeMem(StringValue);
 	StringValue := ParAsc;
-	StringSIze := ParSIze;
 end;
 
 
@@ -124,29 +123,21 @@ end;
 function TString.Add(const ParString : string):boolean;override;overload;
 var
 	vlLength : long;
-	vlPtr    : Pasc;
+	vlPtr    : PString;
 begin
 	vlLength := StringSize + ParString.length;
 	vlPtr := reservemem(vlLength+1);
-	move(StringValue,vlPtr,StringSize);
-	move(@ParString[1],vlPtr + StringSize,ParString.Length+1);
-   SetStringPtr(vlPtr,vlLength);
+	vlPtr^ := voString^ + ParString;
+   SetStringPtr(vlPtr);
 end;
 
 function TString.Add(ParValue : TValue) : boolean; override;overload;
 var
-	vlStr : string;
-	vlLength : long;
-	vlPtr : PAsc;
 	vlVal : TString;
 begin
 	if ParValue.ValueType = vt_string then begin
 		vlVal := ParValue as TString;
-      vlLength := StringSize + vlVal.StringSize;
-		vlPtr := reservemem(vlLength+1);
-		move(StringValue,vlPtr,StringSize);
-		move(vlVal.StringValue,vlPtr + StringSIze,vlVal.StringSize + 1);
-		SetStringPtr(vlPtr,vlLength);
+		Add(vlVal.StringValue^);
 		exit(false);
 	end;
 	exit(true);
@@ -155,22 +146,22 @@ end;
 
 procedure TString.SetString(const ParStr : string);overload;
 var
-	vlPtr : PAsc;
+	vlPtr : PString;
 begin
 	vlPtr := reservemem(ParStr.length+1);
 	vlPtr^ := ParStr;
-	SetStringPtr(vlPtr,ParStr.length);
+	SetStringPtr(vlPtr);
 end;
 
 procedure TString.SetString(const ParStr : Asc);overload;
 var
-	vlPtr : PAsc;
+	vlPtr : PString;
 	vlLength : long;
 begin
 	vlLength := AsciizLength(ParStr);
 	vlPtr := ReserveMem(vlLength+1);
-	move(@ParStr,vlPtr,vlLength + 1);
-	SetStringPtr(vlPtr,vlLength);
+	vlPtr^ := ParStr;
+	SetStringPtr(vlPtr);
 end;
 
 procedure TString.clear;override;

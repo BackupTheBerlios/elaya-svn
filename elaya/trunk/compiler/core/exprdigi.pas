@@ -47,6 +47,7 @@ type
 		function CreateWriteNode(ParCre : TNDCreator;ParFrom : TDigiItem):TFormulaNode;virtual;
 		function CreateDotWriteNode(ParCre : TNDCreator;ParLeft : TFormulaNode;ParFrom : TDigiItem):TFormulaNode;virtual;
 		function CreateExecuteNode(ParCre : TNDCreator) : TNodeIdent;virtual;
+		function CreateObjectPointerOfNode(ParCre : TNDCreator) : TFormulaNode;
 		procedure SetNodePos(ParNode : TNodeIdent);
 	end;
 
@@ -60,6 +61,7 @@ type
 		property iNode   : TFormulaNode read voNode write voNode;
 		property iIsUSed : boolean read voIsUsed write voIsUsed;
 		procedure Commonsetup;override;
+		procedure Clear;override;
 
 	public
 		property fNode   : TFormulaNode read voNode write voNode;
@@ -67,7 +69,6 @@ type
 		function Can(ParCan : TCan_Types) : boolean;
 		function GetType : TType;
 		function CreateReadNode(ParCre : TNDCreator) : TFormulaNode;override;
-		procedure Clear;override;
 		constructor Create(ParNode : TFormulaNode);
 	end;
 
@@ -459,21 +460,10 @@ end;
 function TPointerOfDigiItem.CreateReadNode(ParCre : TNDCreator) : TFormulaNode;
 var
 	vlNode : TFormulaNode;
-	vlExpr : TFormulaNode;
 begin
-	vlExpr := nil;
-	if iExprL <> nil then begin
-		vlNode := iExprL.CreateReadNode(ParCre); {TODO : CreateValuePointer of(hernoem classe)}
-		if vlNode <> nil then begin
-			vlExpr := vlNode.CreateObjectPointerOfNode(ParCre);
-			if(vlExpr = nil) then begin
-				vlNode.Destroy;
-			end else begin
-				SetNodePos(vlExpr);
-			end;
-		end;
-	end;
-	exit(vlExpr);
+	vlNode := nil;
+	if iExprL <> nil then vlNode := iExprL.CreateObjectPointerOfNode(ParCre); {TODO : CreateValuePointer of(hernoem classe)}
+	exit(vlNode);
 end;
 
 
@@ -532,7 +522,7 @@ begin
 	vlNode := nil;
 	if iExprL <> nil then begin
 		vlExpr := iExprL.CreateReadNode(ParCre);
-		vlNode := TMacOption.Create(MCO_Size);
+		vlNode := TSizeOfNode.Create;
 		vlNode.AddNode(vlExpr);
 		SetNodePos(vlNode);
 	end;
@@ -804,7 +794,6 @@ end;
 {---( TIdentDigiItem )----------------------------------------------------------}
 
 
-
 procedure TIdentDIgiItem.PreCreate(ParCre : TNDCreator);
 begin
 end;
@@ -1022,6 +1011,24 @@ begin
 	iPos  := 0;
 end;
 
+function TDigiItem.CreateObjectPointerOfNode(ParCre : TNDCreator) : TFormulaNode;
+var
+	vlNode : TFormulaNode;
+	vlExpr : TFormulaNode;
+begin
+	vlNode := CreateReadNode(ParCre); {TODO : CreateValuePointer of(hernoem classe)}
+	vlExpr := nil;
+	if vlNode <> nil then begin
+		vlExpr := vlNode.CreateObjectPointerOfNode(ParCre);
+		if(vlExpr = nil) then begin
+			vlNode.Destroy;
+		end else begin
+			SetNodePos(vlExpr);
+		end;
+	end;
+	exit(vlExpr);
+end;
+
 function TDigiItem.CreateExecuteNode(ParCre : TNDCreator) : TNodeIdent;
 begin
 	exit(CreateReadNode(ParCre));
@@ -1154,6 +1161,7 @@ function TIdentHookDigiItem.IsSameParameters(ParPar : TProcParList;ParExact : bo
 begin
 	exit(iList.IsSameParameters(ParPar,parExact));
 end;
+
 
 function TIdentHookDigiItem.CreateReadNode(ParCre : TNDCreator) : TFormulaNode;
 var
