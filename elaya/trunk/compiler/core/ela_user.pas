@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit ela_user;
 interface
-uses largenum,confnode,progutil,module,compbase,initstrm,cmp_base,stdobj,cblkbase,
+uses doperfun,largenum,confnode,progutil,module,compbase,initstrm,cmp_base,stdobj,cblkbase,
 error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,
 cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,elacons,procs,classes,exprdigi,stmnodes;
 	
@@ -47,7 +47,7 @@ type	TEla_User=class(TCompiler_Base)
 public
 	procedure  SetDefinitionPos(ParDef : TDefinition);
 
-	function  ProcessOperator(const ParParameters  : array of TNodeIdent;
+	function  ProcessOperator(const ParParameters  : array of TRoot;
 						      var   ParPrvPar      : TNodeIdent;
 							  const ParOperStr     : string;
 							  ParError : boolean):TOperatorProcessResult;
@@ -1160,8 +1160,7 @@ begin
 end;
 
 
-
-function  TEla_USer.ProcessOperator(const ParParameters     : array of TNodeIdent;
+function  TEla_USer.ProcessOperator(const ParParameters     : array of TRoot;
 									var ParPrvPar    : TNodeIdent;
 									const ParOperStr : string;
 									ParError : boolean):TOperatorProcessResult;
@@ -1169,20 +1168,45 @@ var
 	vlCallNode : TCallNode;
 	vlResult   : TOperatorProcessResult;
 	vlCnt      :cardinal;
+   vlDef  : TRoutine;
+	vlOwner : TDefinition;
+	vlError  : TErrorTYpe;
+	vlIsOperator :boolean;
 begin
 	for vlCnt := 0 to high(ParParameters) do begin
-		if ParParameters[vlCnt] <> nil then ParParameters[vlCnt].Proces(fNDCreator);
+		if ParParameters[vlCnt] <> nil then TNodeIdent(ParParameters[vlCnt]).Proces(fNDCreator);
 	end;
-	vlCallNode := TCallNode.Create(ParOperStr);
-    fNDCreator.SetNodePos(vlCallNode);
+{	vlCallNode := TCallNode.Create(ParOperStr);
+   fNDCreator.SetNodePos(vlCallNode);
 	vlCallNode.AddNodes(ParParameters);
-	vlResult :=  fNDCreator.ProcessOperatorNode(vlCallNode,ParError);
-	if vlResult = OPr_Ok  then begin
-		SetNodePos(vlCallNode);
-		ParPrvPar := vlCallNode;
+	fNDCreator.GetPtrByObject(ParOperStr,vlCallNode,vlOwner,vlDef); }
+	fNDCreator.GetPtrByArray(ParOperStr,ParParameters,vlOwner,vlDef);
+	vlIsOperator := false;
+	vlError := Err_No_Error;
+	vlResult := Opr_Not_Found;
+	if vlDef = nil then begin
+		if ParError then vlError := Err_Unkown_Ident;
+	end else if not(vlDef is TOperatorFunction) then begin
+		if ParError then vlError := Err_Not_A_Operator;
+	end else if not vlDef.IsSameParamByNodesArray(ParParameters,false){  not vlDef.IsSameTypeByNode(vlCallNode)} then begin
+      if ParError then vlError := Err_Incompatible_Types;
 	end else begin
-		vlCallNode.SoftEmptyParameters;
-		vlCallNode.Destroy;
+		vlCallNode := TCallNode.Create(ParOperstr);
+
+		fNDCreator.SetNodePos(vlCallNode);
+		for vlCnt := 0 to high(ParParameters) do vlCallNode.AddNodes(TNodeIdent(ParParameters[vlCnt]));
+
+		vlCallNode.SetRoutineItem(fNDCreator,vlDef,vlOwner);
+		vlResult := Opr_Ok;
+		ParPrvPar := vlCallNode;
+	end;
+	if vlResult <> Opr_Ok then  begin
+		if vlError <> Err_No_Error then begin
+			fNDCreator.AddNodeError(vlCallNode,vlError,ParOperStr);
+			vlResult := Opr_Error;
+		end;
+{		vlCallNode.SoftEmptyParameters;
+		vlCallNode.Destroy;           }
 	end;
 	exit(vlResult);
 end;

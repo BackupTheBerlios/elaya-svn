@@ -1,4 +1,4 @@
-{    Elaya, the compiler fo;r the elasya langu;age
+{
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web  : www.elaya.org
 
@@ -93,6 +93,8 @@ type
 		function   GetByDefinition(ParDef :TRoutine):TRoutine;
 		function   GetByDefinition(ParDef :TRoutine;ParType : TParamCompareOptions):TRoutine;
 		function   GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function   GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+
 		procedure  PrintDefinitionHeader(ParDis:TDisplay);override;
 		procedure  PrintDefinitionBody(ParDis:TDisplay);override;
 		procedure  PrintDefinitionType(ParDis:TDisplay);override;
@@ -423,6 +425,30 @@ end;
 note:owner parameter moet nog afgehandeld worden;
 Mapping kan kijkt alleen in de routines in niet in de sub routines!
 }
+
+
+function TROutineCOllection.GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+var
+	vlCurrent : TRoutine;
+begin
+	if not IsSameText(ParName) then exit(OFS_Different);
+	ParOwner := fOwner;
+	if not IsOverloaded then begin
+		ParResult := GetFirstRoutine;
+		exit(OFS_Same);
+	end;
+	vlCurrent := GetFirstRoutine;
+	while vlCurrent <> nil do begin
+		if vlCurrent.IsSameParamByNodesArray(ParArray,RTM_Exact_Overload in vlCurrent.fRoutineModes) then break;
+		vlCurrent := TROutine(vlCurrent.fNxt);
+	end;
+	ParResult := vlCurrent;
+   if(vlCUrrent <> nil) then begin
+		exit(OFS_Same);
+	end else begin
+		exit(OFS_Different);
+	end;
+end;
 
 function  TRoutineCollection.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var

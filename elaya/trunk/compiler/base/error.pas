@@ -338,6 +338,7 @@ const
 	FAT_Node_Is_NULL            = 4098;
 	Fat_Combine_Wrong_Type_du   = 4099;
 	FAT_no_du_list_from_context = 4100;
+	FAT_Wrong_Class_Type        = 4101;
 	procedure GetError(ParErrorNo:TErrorTYpe;var ParMsg:string);
 	procedure Fatal(ParError:TErrorType;const ParRes:string);
 	procedure Fatal(PArError:TErrorTYpe;const ParArray:array of const);
@@ -449,6 +450,7 @@ begin
 	FAT_Node_Is_NULL				  : vlMsg := 'Node is null';
 	FAT_Combine_Wrong_Type_DU    : vlMsg := 'Try to combine wrong type of definitionuse items';
 	FAT_no_du_list_from_context  : vlMsg := 'No definition-use list returned for context';
+	FAT_Wrong_Class_Type         : vlMsg := 'Wrong classtype';
 	else writeln('Unkown fatal error '+IntToStr(ParError));
 	end;
 	writeln(vlMsg);

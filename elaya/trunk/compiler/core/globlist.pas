@@ -41,7 +41,7 @@ type TGlobalItem=class(TListItem)
 	private
 		voHashing : THashing;
 		property iHashing : THashing read voHashing write voHashing;
-		
+
 	public
 		
 		function    ExistsIdent(ParDef : TDefinition):boolean;

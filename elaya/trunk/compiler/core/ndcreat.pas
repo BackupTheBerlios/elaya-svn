@@ -118,7 +118,6 @@ type
 		procedure   ProcessUseClause;
 		procedure   CreateSec;
 		procedure   AddRoutineItem(ParCode:TDefinition);
-		function  ProcessOperatorNode(ParNode : TNodeIdent;ParError : boolean) : TOperatorProcessResult;
 		function    GetCurrentUnitLevelAccess :TDefAccess;
 		procedure   CheckAccessLevel(ParItem : TDefinition);
 		function    AddStringConst(const ParName : string;const ParStr : string) : TDefinition;
@@ -126,6 +125,8 @@ type
 		procedure   SetCurrentDefModes(ParModes : TDefinitionModes;ParOn : boolean);
 		{get}
 		function    GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+
 		function    GetPtr(const ParName:string):TDefinition;
 		function    GetIdentByName(const ParName : string;var ParOwner,ParItem : TDefinition):boolean;
 		function    GetCheckitem(const ParName:string):TDefinition;
@@ -156,7 +157,7 @@ type
 		function  FindRoutineByDef(ParRoutine:TDefinition;var ParOwner,ParCB:TDefinition):TCFoundResult;
 		{Node function}
 		function   GetPointerCons(ParPtr:pointer):TNodeIdent;
-		function  ProcessOperator(const ParParameters  : array of TNodeIdent;var   ParPrvPar      : TNodeIdent;const ParOperStr     : string;ParError : boolean):TOperatorProcessResult;
+		function  ProcessOperator(const ParParameters  : array of TRoot;var   ParPrvPar      : TNodeIdent;const ParOperStr     : string;ParError : boolean):TOperatorProcessResult;
 
 		procedure ProcessBetweenOperator( ParO1,ParO2,ParO3    : TNodeIdent; var ParPrvPar: TNodeIdent;const ParOprStr    : String);
 		procedure ProcessCompOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParCode	     : TIdentCode);
@@ -170,7 +171,6 @@ type
 
 		procedure AddGlobalOnce(ParItem : TDefinition);
 		procedure AddGlobal(ParItem : TDefinition);
-		procedure DoInheritedOfProc(ParMention : TMN_Type;ParLevel : cardinal;const ParName : string;var ParNode : TFormulaNode);
 	end;
 	
 	
@@ -211,46 +211,6 @@ begin
 
 end;
 
-
-procedure TNDCreator.DoInheritedOfProc(ParMention : TMN_Type;ParLevel : cardinal;const ParName : string;var ParNode : TFormulaNode);
-var
-	vlCode  : TRoutine;
-	vlOwner : TDefinition;
-	vlType  : TType;
-	vlOwner2     : TDefinition;
-	vlOrgRoutine : TRoutine;
-	vlOrgOwner   : TDefinition;
-	vlLevel      : cardinal;
-begin
-	GetPtrByObject(ParName,ParNode,vlOrgOwner,TDefinition(vlOrgRoutine));
-	vlOwner2 := vlOrgOwner;
-	if vlOrgRoutine = nil then begin
-		ErrorText(Err_Unkown_Ident,ParName);
-		ParNode := nil;
-		exit;
-	end;
-	vlLevel := ParLevel;
-	while (vlLevel >0) and (vlOrgOwner <> nil) do begin
-		vlOrgOwner := vlOrgOwner.GetParent;
-		dec(vlLevel);
-	end;
-	if (vlOrgOwner = nil) then begin
-		SemError(Err_Has_No_parent);
-		ParNode.Destroy;
-		ParNode := nil;
-		exit;
-	end else if (ParMention=MT_Call)  then begin
-		vlOrgOwner.GetPtrByObject(ParName,ParNode,[SO_Local],vlOwner,TDefinition(vlCode));
-		if vlCode = nil then begin
-			ErrorText(Err_unkown_ident,ParName);
-		end else if ParNode is TCallNode then begin
-			if vlCOde.HasAbstracts  then  ErrorText(Err_Abstract_Routine,ParName);
-			vlType := GetCheckDefaultType(dt_pointer,size_dontcare,false,'pointer');
-			TCallNode(ParNode).SetRoutineItem(self,vlCode,vlOwner2);
-			TCallNode(ParNode).SetCallAddress(self,TLabelNode.Create(vlCode,vlType));
-		end;
-	end;
-end;
 
 procedure TNDCreator.AddGlobalOnce(ParItem : TDefinition);
 begin
@@ -326,7 +286,7 @@ begin
 end;
 
 
-function  TNDCreator.ProcessOperator(const ParParameters  : array of TNodeIdent;var   ParPrvPar      : TNodeIdent;const ParOperStr     : string;ParError : boolean):TOperatorProcessResult;
+function  TNDCreator.ProcessOperator(const ParParameters  : array of TRoot;var   ParPrvPar      : TNodeIdent;const ParOperStr     : string;ParError : boolean):TOperatorProcessResult;
 begin
 	exit(TELa_user(fCompiler).ProcessOperator(ParParameters,ParPrvPar,ParOperStr,ParError));
 end;
@@ -469,36 +429,6 @@ begin
 	exit(iCurrentItemList.GetNodeByType(TLoopCBNode));
 end;
 
-function  TNDCreator.ProcessOperatorNode(ParNode : TNodeIdent;ParError : boolean):TOperatorProcessResult;
-var vlDef  : TRoutine;
-	vlName : string;
-	vlOwner : TDefinition;
-	vlResult : boolean;
-	vlError  : TErrorTYpe;
-begin
-	TCallNode(ParNode).GetNameStr(vlName);
-	GetPtrByObject(vlName,ParNode,vlOwner,vlDef);
-	vlResult := false;
-	vlError := Err_No_Error;
-	if vlDef = nil then begin
-		if ParError then vlError := Err_Unkown_Ident;
-	end else if not(vlDef is TOperatorFunction) then begin
-		if ParError then vlError := Err_Not_A_Operator;
-	end else if (not vlDef.IsSameTypeByNode(TCallNode(ParNode))) then begin
-        if ParError then vlError := Err_Incompatible_Types;
-	end else begin
-		TCallNode(ParNode).SetRoutineItem(self,vlDef,vlOwner);
-		vlResult := true;
-	end;
-	if vlResult then begin
-		exit(Opr_Ok);
-	end else if vlError <> Err_No_Error then begin
-		AddNodeError(ParNode,vlError,vlName);
-		exit(Opr_Error);
-	end else begin
-		exit(Opr_Not_Found);
-	end;
-end;
 
 procedure TNDCreator.AddRoutineItem(ParCode:TDefinition);
 var vlRoutine : TRoutineCollection;
@@ -969,6 +899,19 @@ begin
 	end;
 	exit(vlState);
 end;
+
+function TNDCreator.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+var vlState : TObjectFindState;
+begin
+	vlState := fCurrentItemList.GetPtrByArray(ParName,ParArray,ParOwner,ParResult);
+	if vlState = OFS_Different then begin
+		vlState := iCollection.GetPtrByArray(ParName,ParArray,ParOwner,ParResult);
+
+	end;
+	exit(vlState);
+end;
+
+
 
 function TNDCreator.GetIdentByName(const ParName :string;var ParOwner,ParItem : TDefinition):boolean;
 begin

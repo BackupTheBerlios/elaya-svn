@@ -1,4 +1,4 @@
-{
+{                                                                                                                                                                          5;3~
     Elaya, the compiler for the elasya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
@@ -98,6 +98,7 @@ type
 		function GetClassSize : TSize;
 		function GetParent : TDefinition;override;
 		function CreateReadNode(parCre:TCreator;ParContext : TDefinition):TFormulaNode;override;
+		function GetPtrByArray(const ParName : string;const ParArray  : array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 		function GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 		procedure FinishClass;
 		function CanWriteWith(ParExact : boolean;ParType : TType):boolean;override;
@@ -163,6 +164,7 @@ type
 		function GetParent : TObjectRepresentor;override;
 		function GetAccessLevelTo(ParOther : TDefinition) : TDefAccess;override;
         function GetPtrByName(const ParName:string;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;override;
+		function GetPtrByArray(const ParName : string;const ParArray :array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 		function GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
 	end;
 	
@@ -537,6 +539,22 @@ begin
 	exit(vlFlag);
 end;
 
+
+function TObjectRepresentor.GetPtrByArray(const ParName : string;const ParArray :array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+var
+	vlFlag : TObjectFindState;
+begin
+	ParOwner := nil;
+	ParResult:= nil;
+	vlFlag   := OFS_Different;
+	if fType <> nil then begin
+		vlFlag := (fType.GetPtrByArray(ParName,ParArray,ParOption,ParOwner,ParResult));
+	end;
+	if fType = parOwner then ParOwner := self;
+	exit(vlFlag);
+end;
+
+
 function TObjectRepresentor.GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;
 var
 	vlFlag : TObjectFindState;
@@ -884,6 +902,42 @@ end;
 function TClassType.MustNameAddAsOwner:boolean;
 begin
 	exit(true);
+end;
+
+
+
+function TClassTYpe.GetPtrByArray(const ParName:string;const ParArray : array of TRoot;ParOption  : TSearchOptions;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+var	vlCurrent : TClassType;
+	vlState   : TObjectFindState;
+begin
+	vlState := inherited GetPtrByArray(ParName,Pararray,ParOption,ParOwner,ParResult);
+	if(ParOwner = fParent) then ParOwner := self;
+	if(SO_Current_List in ParOption) then begin
+		if (ParOwner <> nil) and  (ParOwner = self) then ParOwner := iObject;
+	end;
+	if vlState <> OFS_Different then exit(vlState);
+	if ParResult = nil then begin
+		vlCurrent := fParent;
+		while (vlCurrent <> nil) do begin
+			vlState := vlCurrent.GetPtrByArray(ParName,ParArray,ParOption - [SO_Current_List] ,ParOwner,ParResult);
+			if (ParResult <> nil) then begin
+			if(vlState = OFS_Same) and (((SO_Local in ParOption) and (ParResult.fDefAccess <> AF_Private))
+			or (ParResult.fDefAccess = AF_Public))   then begin
+					
+					if(ParOwner = vlCurrent) then ParOwner := self;
+					if(SO_Current_List in ParOption) then begin
+						if (ParOwner <> nil) and (ParOwner = vlCurrent.fObject) or (ParOwner = self) then ParOwner := iObject;
+					end;
+					exit(vlState);
+				end;
+				vlState:= OFS_Different;
+				break;
+			end;
+			vlCurrent := vlCurrent.fParent;
+		end;
+	end;
+	ParResult := nil;
+	exit(vlState);
 end;
 
 

@@ -947,7 +947,7 @@ var
 begin
 	if (ParNode <> nil) and (iItem <> nil) then begin
 		iItem.GetTextStr(vlName);
-		TCallNode(ParNode).SetName(vlName);
+		TCallNode(ParNode).SetRoutineName(vlName);
 		TCallNode(ParNode).SetRoutineItem(ParCre,TRoutine(iItem),iOwner);
 	end;
 end;
@@ -1213,48 +1213,74 @@ end;
 
 function TIdentHookDigiItem.ProcessNode(ParCre : TNDCreator;ParNode : TformulaNode) : TFormulaNode;
 var
-	vlByName  : boolean;
-	vlParCnt  : cardinal;
-	vlCurrent : THookDigiItem;
-	vlName    : string;
-	vlNode    : TFormulaNode;
-	vlForm 	  : boolean;
-	vlMention: TMN_Type;
-	vlCall    : TCallNode;
-	vlDestroy : TDefinition;
+	vlByName     : boolean;
+	vlParCnt     : cardinal;
+	vlCurrent    : THookDigiItem;
+	vlName       : string;
+	vlNode       : TFormulaNode;
+	vlCall       : TCallNode;
+	vlDestroy    : TDefinition;
+	vlIsCallNode : boolean;
+	vlCode       : TRoutine;
+	vlOwner      : TDefinition;
+	vlType       : TType;
+	vlOwner2     : TDefinition;
+	vlOrgRoutine : TRoutine;
+	vlOrgOwner   : TDefinition;
+	vlLevel      : cardinal;
 begin
 	if parNode = nil then exit(nil);
 	vlCurrent := THookDigiItem(iList.FStart);
 	SetNodePos(ParNode);
 	vlByName := false;
-	vlMention := MT_Other;
-	if(ParNode is TCallNode) then vlMention := MT_Call
-	else if (vlCurrent <> nil) then ParCre.AddNodeError(ParNode,Err_Symbol_Not_Expected,'(');
+	vlIsCallNode := (ParNode is TCallNode);
+	if not(vlIsCallNode) and (vlCurrent <> nil) then ParCre.AddNodeError(ParNode,Err_Symbol_Not_Expected,'(');
 
 	if vlCurrent <> nil then vlByName := vlCurrent.HasName;
-	vlForm := vlByName  and (vlMention = MT_Call);
 	vlParCnt := 0;
 	while (vlCurrent <> nil) do begin
 		inc(vlParCnt);
 		vlNode := vlCurrent.CreateReadNode(ParCre);
-		if vlCurrent.HasName then begin
-			if (vlMention <> MT_Call) then ParCre.AddNodeError(vlNode,Err_Symbol_Not_Expected,'>>');
-			if not(vlByName)  then ParCre.AddNodeError(vlNode,Err_Must_Not_Pass_By_Name,'Parameter '+IntToStr(vlParCnt));
+		if(vlByName) then begin
+			if not(vlCurrent.HasName) then ParCre.AddNodeError(vlNode,Err_Must_Pass_By_name,'Parameter '+IntToStr(vlParCnt));
+			if not vlIsCallNode then begin
+				 ParCre.AddNodeError(vlNode,Err_Symbol_Not_Expected,'>>');
+             ParNode.AddNode(vlNode);
+			end else begin
+				vlCurrent.GetName(vlName);
+				TCallNode(ParNode).AddNodeAndName(vlNode,vlName);
+			end;
 		end else begin
-			if vlByName then ParCre.AddNodeError(vlNode,Err_Must_Pass_By_name,'Parameter '+IntToStr(vlParCnt));
-		end;
-		if vlForm then begin
-			vlCurrent.GetName(vlName);
-			TCallNode(ParNode).AddNodeAndName(vlNode,vlName);
-		end else begin
+ 			if vlCurrent.HasName  then ParCre.AddNodeError(vlNode,Err_Must_Not_Pass_By_Name,'Parameter '+IntToStr(vlParCnt));
 			ParNode.AddNode(vlNode);
 		end;
 		vlCurrent := THookDigiItem(vlCurrent.fNxt);
 	end;
-	if (ParNode is TCallNode) then begin
+	if vlIsCallNode then begin
 		if(iInheritLevel <> 0) then begin
-			TCallNode(ParNode).fName.GetString(vlName);
-			ParCre.DoInheritedOfProc(MT_CALL,iInheritLevel,vlName,ParNode);
+			TCallNode(ParNode).GetRoutineNameStr(vlName);
+			ParCre.GetPtrByObject(vlName,ParNode,vlOrgOwner,TDefinition(vlOrgRoutine));
+			vlOwner2 := vlOrgOwner;
+			if vlOrgRoutine <> nil then begin
+				vlLevel := iInheritLevel;
+				while (vlLevel >0) and (vlOrgOwner <> nil) do begin
+					vlOrgOwner := vlOrgOwner.GetParent;
+					dec(vlLevel);
+				end;
+				if (vlOrgOwner = nil) then begin
+					ParCre.SemError(Err_Has_No_parent);
+				end else  begin
+					vlOrgOwner.GetPtrByObject(vlName,ParNode,[SO_Local],vlOwner,TDefinition(vlCode));
+					if vlCode = nil then begin
+						ParCre.ErrorText(Err_unkown_ident,vlName);
+					end else begin
+						if vlCOde.HasAbstracts  then  ParCre.ErrorText(Err_Abstract_Routine,vlName);
+						vlType := ParCre.GetCheckDefaultType(dt_pointer,size_dontcare,false,'pointer');
+						TCallNode(ParNode).SetRoutineItem(ParCre,vlCode,vlOwner2);
+						TCallNode(ParNode).SetCallAddress(ParCre,TLabelNode.Create(vlCode,vlType));
+					end;
+				end;
+			end;
 		end else begin
 			if iShort <> nil then iShort.ProcessNode(ParCre,ParNode);
 {TODO IsDistructor?=>TCallNode.Afterall os}

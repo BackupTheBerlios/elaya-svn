@@ -141,7 +141,7 @@ public
 	procedure   MakeJumpFromCond(ParCond   : TMacBase);
 	function    SetLabelTrue(ParLabel:TLabelPoc):TLabelPoc;
 	function    SetLabelFalse(ParLabel:TLabelPoc):TLabelPoc;
-	function    SetbooleanLoad(ParMac:TMacBase;ParNum:cardinal):TPocBase;
+	function    SetbooleanLoad(ParMac:TMacBase;ParNum:longint):TPocBase;
 	procedure   SwapLabels;
 	procedure   SetPoc(ParPoc:TSubPoc);
 	procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
@@ -298,7 +298,7 @@ begin
 end;
 
 
-function TSecCreator.SetbooleanLoad(ParMac:TMacBase;ParNum:cardinal):TPocBase;
+function TSecCreator.SetbooleanLoad(ParMac:TMacBase;ParNum:longint):TPocBase;
 var   vlLod : TPocBase;
 	vlMac : TMacBase;
 	vlLi  : TNumber;

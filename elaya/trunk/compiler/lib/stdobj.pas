@@ -54,6 +54,7 @@ TRoot=class(TBRoot)
 	{$endif}
 end;
 
+
 TValue=class(TRoot)
 private
 	voType : cardinal;

@@ -725,7 +725,6 @@ TLoadUnitState=(Lus_Ok,Lus_Failed,Lus_Not_Found);
 TReserveMode=(RSM_Release_On_Use,
 RSM_Long_Reservation);
 
-
 implementation
 begin
 	LoadInt(Min_LOngint,-2147483647);

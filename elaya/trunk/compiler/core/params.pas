@@ -229,7 +229,7 @@ type
 		function	 CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
 		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 		procedure ConvertNode(ParCre : TCreator);
-		function IsAutomatic : boolean;
+		function  IsAutomatic : boolean;
 	end;
 	
 
@@ -279,6 +279,7 @@ type
 		procedure CreateCBInits(ParCre : TNDCreator;ParAt : TNodeIdent;ParContext : TDefinition);
 		
 		{Parameter comparing}
+	   function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
 		function   IsSameParamType(ParLIst:TProcParList;ParType : TParamCompareOptions):boolean;
 		function   IsPropertyProcComp(ParTYpe : TType) :boolean;
 		
@@ -1001,6 +1002,27 @@ end;
 
 
 {---( TProcParList )---------------------------------------------------}
+
+
+function TProcParList.IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
+var
+	vlParam : TParameterVar;
+	vlCnt   : cardinal;
+	vlNode : TFormulaNode;
+begin
+	vlParam := nil;
+	vlCnt :=0  ;
+	vlParam := GetNextNormalParameter(vlParam);
+	while (vLCnt <= high(ParNodes)) and (vlParam<> nil) do begin
+		vlNode := TFormulaNode(ParNodes[vlCnt]);
+		if vlNode = nil then break;
+		if not(vlNode is TFormulaNode) then break;
+		if not(vlParam.IsCompWithParamExpr(ParExact,vlNode)) then break;
+		inc(vlCnt);
+		vlParam := GetNextNormalParameter(vlParam);
+	end;
+	exit((vlParam = nil) and (vlCnt > high(ParNodes)));
+end;
 
 
 procedure  TProcParList.InitParameters(ParDef : TDefinition);

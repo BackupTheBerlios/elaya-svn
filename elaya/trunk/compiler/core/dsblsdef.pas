@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elaya language
+{    Elaya, the compiler for the elaya language                                   Root                                                                                                                              j
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -46,6 +46,7 @@ type
 		procedure   AddGlobalsToHashing(ParHash:THashing);override;
 		function    GetPtrByName(const ParName:string;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
 		function    GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;ParOption :TSearchOptions;var PArOwner,ParResult : TDefinition) : TObjectFindState;override;
 		function    HasGlobalParts : boolean;override;
 	end;
 	
@@ -73,6 +74,23 @@ begin
 		if iParts <> nil then begin
 			
 			if (iParts.GetPtrByObject(ParName,ParObject,ParOwner,ParResult)<> Ofs_Different) then begin
+				if ParOwner = nil then ParOwner := self;
+				exit(OFS_Same);
+			end;
+		end;
+	end;
+	ParResult := nil;
+	ParOwner := nil;
+	exit(Ofs_Different);
+end;
+
+function TSubListDef.GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+begin
+	
+	if  iParts.fGlobal or not(SO_Global in ParOption) then begin
+		if iParts <> nil then begin
+			
+			if (iParts.GetPtrByArray(ParName,ParArray,ParOwner,ParResult)<> Ofs_Different) then begin
 				if ParOwner = nil then ParOwner := self;
 				exit(OFS_Same);
 			end;

@@ -168,7 +168,7 @@ end;
 
 function GetEnvByNum(ParNo : long;var ParVal:string):boolean;
 var
-    vlAsc  :PAsc;
+    vlAsc  :Ptr Asc255;
     vlRes  : boolean;
 begin
 	vlAsc := int_GetEnvByNo(ParNo);

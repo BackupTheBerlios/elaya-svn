@@ -57,14 +57,13 @@ type
 			
 		public
 			property    fRoutineItem : TRoutine read voRoutineItem ;
-			property    fName        : TString  read voName;
 			property    fParCnt      : cardinal read voParCnt;
 			property    fType        : TType      read voType        write voType;
 			property    fFrame       : TFrame     read voFrame      write voFrame;
 
 
 			procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
-			procedure   SetName(const ParName : string);
+			procedure   SetRoutineName(const ParName : string);
 			constructor Create(const ParName : string);
 			procedure   SetRoutineItem(ParCre : TNDCreator;PArProc:TRoutine;ParContext :TDefinition);
 			function    IsCallByName : boolean;
@@ -79,7 +78,7 @@ type
 			function    DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 			procedure   PrintNode(ParDis:TDisplay);override;
 			procedure   InitParts;override;
-			procedure   GetNameStr(var ParName:string);
+			procedure   GetRoutineNameStr(var ParName:string);
 			procedure   SetParameters(ParContext : TDefinition;ParCre:TNDCreator;ParCB : TRoutine);
 			procedure   SoftEmptyParameters;
 			function    GetParamByName(const ParName : string):TParamNode;
@@ -188,6 +187,8 @@ type
 			function   GetPtrByName(const ParName:string;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
 			function   GetPtrInCurrentList(const ParName : string;var ParOwner,Paritem :TDefinition):boolean;override;
 			function    GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+ 			function    GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+
 			function   GetPtrByObjectInCurrentList(const ParName:string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult :TDefinition):TObjectFIndState;
 			function    SearchOwner:boolean;override;
 			
@@ -199,6 +200,7 @@ type
 			function   IsSameTypeByNode(ParNode:TCallNode):boolean;
 			function   IsSameForFind(ParProc :TRoutine):boolean;
 			function   IsPropertyProcComp(ParWrite : boolean;ParTYpe : TType) :boolean;
+  			function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;override;
 
 			{seperation}
 			procedure  PostMangledName(var ParName:string);override;
@@ -625,7 +627,13 @@ type
 			end;
 		end;
 	end;
-	
+
+
+  function   TRoutine.IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
+  begin
+  		exit(GetParList.IsSameParamByNodesArray(ParNodes,ParExact));
+  end;
+
 	function   TRoutine.GetParList : TProcParList;
 	begin
 		exit(TProcParList(iParts));
@@ -872,7 +880,7 @@ type
 	end;
 
 	function  TRoutine.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
-	var	vlCurrent : TRoutine;
+	var vlCurrent : TRoutine;
 		vlState   : TObjectFindState;
 	begin
 		vlState := inherited GetPtrByObject(ParName,ParObject,ParOption,ParOwner,ParResult);
@@ -898,7 +906,37 @@ type
 		
 		exit(vlState);
 	end;
-	
+
+	function TRoutine.GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+	var vlCurrent : TRoutine;
+		vlState   : TObjectFindState;
+	begin
+		vlState := inherited GetPtrByArray(ParName,ParArray,ParOption,ParOwner,ParResult);
+		if vlState <> OFS_Different then exit(vlState);
+		if ParResult = nil then begin
+			vlCurrent := fParent;
+			while (vlCurrent <> nil) do begin
+				vlState := vlCurrent.GetPtrByArray(ParName,ParArray,ParOption,ParOwner,ParResult);
+				if (ParResult <> nil) then begin
+				if(vlState = OFS_Same) and (((SO_Local in ParOption) and (ParResult.fDefAccess <> AF_Private))
+				or (ParResult.fDefAccess = AF_Public))   then begin
+						
+						if(ParOwner = vlCurrent) then ParOwner := self;
+						exit(vlState);
+					end;
+					vlState:= OFS_Different;
+					break;
+				end;
+				vlCurrent := vlCurrent.fParent;
+			end;
+		end;
+		ParResult := nil;
+		
+		exit(vlState);
+	end;
+
+
+
 	procedure  TRoutine.ShareLocalFrame(ParCB : TRoutine);
 	var vlLocalFrame : TFrame;
 		vlParameterFrame : TFrame;
@@ -1083,10 +1121,8 @@ type
 	var vlProc     : TRoutineNode;
 		vlPrn      : TRoutineNode;
 		vlCall     : TCallNode;
-		vlPhysical : TRoutine;
-		vlName     :string;
+     	vlName     :string;
 	begin
-		vlPhysical := nil;
 		ParNewCB   := nil;
 		vlProc   := TRoutineNode.Create(self);
 		iStatements := vlProc;
@@ -1097,19 +1133,15 @@ type
 		ParNewCB.fDefAccess := AF_Protected;
 		ParNewCB.SetRoutineStates([RTS_HasNeverStackFrame,RTS_IsDefined],true);
 		ParNewCb.fStatements := vlPrn;
-		vlPhysical := ParNewCB;
-		iPhysicalAddress   := vlPhysical;
+		iPhysicalAddress   :=ParNewCb;
 		CreatePreCode(ParCre);
 		CreateVarCBInits(TNDCreator(ParCre),vlProc,self);
 		if iParameterMapping <> nil then iParameterMapping.CreateCBInit(vlProc,ParCre,self);
 		ParNewCb.GetTextName(vlName);
 		vlCall   := TCallNode.Create(vlName);
-		vlCall.SetRoutineItem(ParCre,vlPhysical,self);
+		vlCall.SetRoutineItem(ParCre,ParNewCB,self);
 		vlProc.AddNode(vlCall);
 		CreatePostCode(ParCre);
-		if (vlPhysical = nil) and (RTS_Require_Main in fRoutineStates) then begin
-			TNDCreator(ParCre).ErrorDef(Err_Rtn_Requires_Main,self);
-		end;
 		iStatements.FinishNode(ParCre,true);
 		SetRoutineStates([RTS_HasNoMain],false);
 		CheckIsInheritedComp(ParCre,iParent,true);
@@ -1855,7 +1887,7 @@ type
 			vlOwner := nil;
    		vlDef := fRoutineItem;
 			if vlDef= nil then begin
-				GetNameStr(vlName);
+				GetRoutineNameStr(vlName);
 				if fRecord <> nil then begin
 					if fRecord.GetType <> nil then begin
 						fRecord.GetType.GetPtrByObject(vlName,self,[SO_Local],vlOwner,vlDef);
@@ -1939,7 +1971,7 @@ begin
 
 		iRoutineItem.BeforeCall(TNDCreator(ParCre));
 		if (GetPartByNum(1) <> nil) and (not iRoutineItem.IsSameTypeByNode(self)) then	begin
-			GetNameStr(vlName);
+			GetRoutineNameStr(vlName);
 			TNDCreator(ParCre).AddNodeError(self,Err_invalid_parameters,vlName);
 		end;
 		if iRoutineItem is TConstructor then begin
@@ -1973,7 +2005,7 @@ end;
 		if iRoutineItem = nil then exit(nil);
 		vlIsMethod := iRoutineItem.IsMethod;
 		vlType := TRoutineType.create(false,iRoutineItem,vlIsMethod);
-		GetNameStr(vlName);
+		GetRoutineNameStr(vlName);
 		vlType.SetText('Ptr to '+vlName);
 		iIsPtrOf :=true;
 		exit(TObjectPointerNode.Create(self,vlType));
@@ -2007,12 +2039,12 @@ end;
 		iType := ParTYpe ;
 	end;
 	
-	procedure TCallNode.SetName(const ParName : string);
+	procedure TCallNode.SetRoutineName(const ParName : string);
 	begin
 		if iName <> nil then iName.Destroy;
 		iName := TString.Create(ParName);
 	end;
-	
+
 	constructor TCallNode.Create(const ParName : string);
 	begin
 		inherited Create;
@@ -2060,7 +2092,7 @@ end;
 		end;
 	end;
 	
-	procedure   TCallNode.GetNameStr(var ParName:string);
+	procedure   TCallNode.GetRoutineNameStr(var ParName:string);
 	begin
 		iName.GetString(ParName);
 	end;

@@ -59,6 +59,7 @@ type
 		function  GetPtrByName(const ParName:string;var ParOwner,ParItem :TDefinition):boolean;
 		function  GetDefault(ParDefault : TDefaultTypeCode;ParSIze:TSize;ParSign:boolean):TDefinition;
 		function  GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 		procedure AddCurrentNode(ParItem : TCurrentNodeItem);
 		procedure PopCurrentNode;
 		function  GetNodeByType(ParType :TRefRoot) : TNodeIdent;
@@ -95,6 +96,8 @@ type
 		function    GetPtr(const ParName:string;var ParOwner, ParItem : TDefinition):boolean;
 		function    GetDefault(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
 		function    GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+
 		procedure   AddCurrentNode(ParItem : TCurrentNodeItem);
 		procedure   PopCurrentNode;
 		function    GetNodeByType(ParType :TRefRoot) : TNodeIdent;
@@ -184,6 +187,12 @@ procedure   TCurrentDefinitionItem.commonsetup;
 begin
 	inherited Commonsetup;
 	iNodes     := TCurrentNodeList.Create;
+end;
+
+
+function  TCurrentDefinitionItem.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+begin
+   exit(iDefinition.GetPtrByArray(ParName,ParArray,[SO_Local,SO_Current_List],ParOwner,ParResult));
 end;
 
 
@@ -346,12 +355,28 @@ end;
 
 
 
+
+
 function  TCurrentDefinitionList.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var vlCurrent : TCurrentDefinitionItem;
 begin
 	vlCurrent := TCurrentDefinitionItem(fStart);
 	while vlCurrent <> nil do begin
 		if vlCurrent.GetPtrByObject(ParName,ParObject,ParOwner,ParResult) <> OFS_Different  then exit(OFS_Same);
+		if vlCurrent.fIsolated then break;
+		vlCurrent := TCurrentDefinitionItem(vlCurrent.fNxt);
+	end;
+	ParResult := nil;
+	ParOwner := nil;
+	exit(Ofs_Different);
+end;
+
+function  TCurrentDefinitionList.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+var vlCurrent : TCurrentDefinitionItem;
+begin
+	vlCurrent := TCurrentDefinitionItem(fStart);
+	while vlCurrent <> nil do begin
+		if vlCurrent.GetPtrByArray(ParName,ParArray,ParOwner,ParResult) <> OFS_Different  then exit(OFS_Same);
 		if vlCurrent.fIsolated then break;
 		vlCurrent := TCurrentDefinitionItem(vlCurrent.fNxt);
 	end;

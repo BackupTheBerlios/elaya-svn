@@ -88,6 +88,8 @@ type
 		{get}
 		function 	 GetRealOwner:TDefinition;virtual;
 		function     GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;virtual;
+		function     GetPtrByArray(const ParName : string;const ParArray:array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;virtual;
+
 		function     GetAccessTo(ParDef : TDefinition): TDefAccess;
 		function     GetUnitLevelAccess : TDefAccess;
 		procedure    GetDisplayName(var ParName :string);virtual;
@@ -127,6 +129,7 @@ type
 		function    CreateDefinitionUseItem : TUseItem;virtual;
 		function    NeedReadableRecord : boolean;virtual;
 		function    AssumeInitDU(ParIdent : TDefinition):boolean;virtual;
+	   function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;virtual;
 	end;
 
 	TRefDefinition=class of TDefinition;
@@ -136,6 +139,11 @@ implementation
 uses asminfo,asmcreat,ndcreat;
 
 {-----( TDefinition )-------------------------------------------------------------------}
+
+function TDefinition.IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
+begin
+	exit(false);
+end;
 
 function TDefinition.AssumeInitDU(ParIdent : TDefinition):boolean;
 begin
@@ -372,6 +380,13 @@ begin
 		vlOwner := vlOwner.GetRealOwner;
 	end;
 	exit(vlDef);
+end;
+
+function TDefinition.GetPtrByArray(const ParName : string;const ParArray:array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+begin
+	ParResult := nil;
+   ParOwner  := nil;
+   exit(ofs_Different);
 end;
 
 

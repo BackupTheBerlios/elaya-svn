@@ -17,40 +17,86 @@
 
 # Directories where compiled files go, change is as you wish
 
+function help()
+{
+	echo "configure options:"
+	echo "-p <host>   where host is win32 or linux"
+	echo "-t <target> where target is win32 or linux"
+	echo "-a <aspath> path to as assembler (including name of as)"
+	echo "-h          this help info"
+	exit
+}
+
+function check_has_errno()
+{
+	cd build_files
+	if fpc errno.pas 1>errno.out.1 2>errno.out.2;
+	then lhas_errno=1;
+	else lhas_errno=0;
+	fi
+	cd ..
+	return $lhas_errno
+}
+
 if test $HOME = "/"; then HOME=`pwd`;fi;
+vlHost=""
+case $OSTYPE in
+	"linux-gnu" ) vlHost="linux";;
+	"cygwin" ) vlHost="win32";;
+esac
+vlTarget=$vlHost
+vlAsPath=""  
 
+while getopts ":hp:t:a:" vlOption
+do
+	case $vlOption in
+	p ) $vlHost=$OPTARG;;
+	t ) $vlTarget=$OPTARG;;
+	a ) $vlAsPath=$OPTARG;;
+	* ) echo " Unsupported option";exit;;
+esac
+done
+if(test $vlHost = ""); then
+	echo "Host platform unkown, use -h option to set host platform";
+fi
+echo "Host platform = $vlHost"
+echo "Target        = $vlTarget"
+echo "Assembler path= $vlAsPath"
 
-source param.$1
+source param.$vlHost
+
+check_has_errno
+has_errno=$?
+echo "Has errno     = $has_errno"
 
 Dir_Program=$HOME/bin/elaya/bin
 Dir_Cpl_Lib=$HOME/bin/lib
 Dir_Ela_Rtl=$HOME/bin/elaya/lib
 
-
-
 #set to y when compiling win32 and linux under linux.
 #compile linux under win32 supported, but the
 #build system can't handle it.
 Can_Cross_Compile='y'
-
 #fpc and ela options
 
 Fpc="ppc386"
 ela="$Dir_Program/ela"
 eladep="$Dir_Program/eladep"
 
-Opt_Fpc="-XD -a -O2g -Ci- -Ch1000000  -S2c  -vrwen"
+Opt_Fpc="-dmalloc -a -O2g -Ci- -gl -Ch1000000  -S2c  -vrwen -Ratt"
+Fpc_Opt_Unit_Path="/home/jeroen/fpc/"
 
 
+# Main Program1
 
-# Main Program
-
-echo Dir_Program=$Dir_Program>Values.tpl
+echo Fpc_Opt_Unit_Path=$Fpc_Opt_Unit_Path>Values.tpl
 echo Dir_Cpl_Lib=$Dir_Cpl_Lib>>Values.tpl
+echo Dir_Program=$Dir_Program>>Values.tpl
 echo Dir_linux_Rtl=$Dir_Ela_Rtl/linux>>Values.tpl
 echo Dir_win32_Rtl=$Dir_Ela_Rtl/win32>>Values.tpl
 echo Dir_Ela_Rtl_Base=$Dir_Ela_Rtl>>Values.tpl
-echo Host_Type=linux>>Values.tpl
+echo Os_Host=$vlHost>>Values.tpl
+echo Os_Target=$vlTarget>>Values.tpl
 echo Opt_Fpc=$Opt_Fpc>>Values.tpl
 echo Fpc=$Fpc>>Values.tpl
 echo ELA=$ela>>Values.tpl
@@ -71,6 +117,8 @@ echo win32_auto_load=$win32_auto_load>>Values.tpl
 echo pp_unit_ext=$pp_unit_ext>>Values.tpl
 echo eladep=$eladep>>Values.tpl
 echo exe_ext=$exe_ext>>Values.tpl
+
+
 mkdir -p $Dir_Program
 mkdir -p $Dir_Cpl_Lib
 mkdir -p $Dir_Ela_Rtl

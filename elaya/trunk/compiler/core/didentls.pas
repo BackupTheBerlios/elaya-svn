@@ -62,6 +62,7 @@ type
 		procedure  commonsetup;override;
 		procedure  AddToHashing;
 		procedure AddItemsToUseList(ParUse : TUseList);virtual;
+		function GetPtrByArray(const ParName : string;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 
 	end;
 	
@@ -287,6 +288,24 @@ begin
 			exit(OFS_Same);
 		end;
 		exit(vlDef.GetPtrByObject(ParName,ParObject,[SO_Global],ParOwner,ParResult));
+	end;
+	ParResult := nil;
+	exit(Ofs_Different);
+end;
+
+function TIdentList.GetPtrByArray(const ParName : string;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+var vlDef : TDefinition;
+	vlOwner : TDefinition;
+	vlName  :string;
+begin
+	ParOwner := nil;
+	if  GetPtrByName(ParName,vlOwner,vlDef) then begin
+		if vlDef.IsSameParamByNodesArray(ParArray,false) then begin
+			ParResult := vlDef;
+			vlDef.GetTextStr(vlName);
+			exit(OFS_Same);
+		end;
+		exit(vlDef.GetPtrByArray(ParName,ParArray,[SO_Global],ParOwner,ParResult));
 	end;
 	ParResult := nil;
 	exit(Ofs_Different);

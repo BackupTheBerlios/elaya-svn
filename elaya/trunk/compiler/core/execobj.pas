@@ -1217,7 +1217,7 @@ begin
 		if TCallNode(vlNode).fParCnt <> 0 then TNDCreator(ParCre).AddNodeError(vlNode,Err_No_Parameters_Expected,'');
 		if TCallNode(vlNode).IsOverloaded  then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Adr_Overl,'');
 		vlType := TRoutineType.create(false,TCallNode(vlNode).fRoutineItem,false);
-		TCallNode(vlNode).GetNameStr(vlName);
+		TCallNode(vlNode).GetRoutineNameStr(vlName);
 		vlType.SetText('Ptr to '+vlName);{TODO Check if there is a messup of MCO_VALUEPOINTER or MCO_OBJECTPOINTER}
 	end else begin
 		vlType := TFormulaNode(vlNode).GetType;
