@@ -3557,7 +3557,7 @@ begin
             _RCodes( vlNode);
              
             AddNodeToNode(ParNode,vlNode);
-            if vlNode <> nil then vlNode.FinishNode(fNDCreator,true);
+            if ParNode <> nil then ParNode.FinishNode(fNDCreator,true);
             ;
       end;
       

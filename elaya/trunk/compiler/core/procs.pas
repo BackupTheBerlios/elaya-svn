@@ -147,6 +147,8 @@ type
 		procedure CreateInitProc(ParCre:TSecCreator);override;
 		function  LoadItem(ParStr:TObjectStream):boolean;override;
 		function  SaveItem(ParStr:TObjectStream):boolean;override;
+		function  AssumeInitDU(ParIdent : TDefinition):boolean;override;
+
 	end;
 	
 	TRoutineType=class(TType)
@@ -708,6 +710,12 @@ end;
 
 
 {-----( TStartupProc )----------------------------------------}
+
+function TStartUpProc.AssumeInitDU(ParIdent : TDefinition):boolean;
+begin
+	if (ParIdent.GetRealOwner = nil) then exit(false);
+	exit(inherited AssumeInitDu(ParIdent));
+end;
 
 
 

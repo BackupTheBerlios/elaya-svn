@@ -126,7 +126,7 @@ type
       procedure   AddToUseList(ParUse : TDefinitionUseList);virtual;
 		function    CreateDefinitionUseItem : TDefinitionUseItemBase;virtual;
 		function    NeedReadableRecord : boolean;virtual;
-
+		function    AssumeInitDU(ParIdent : TDefinition):boolean;virtual;
 	end;
 
 	TRefDefinition=class of TDefinition;
@@ -136,6 +136,11 @@ implementation
 uses asminfo,asmcreat,ndcreat;
 
 {-----( TDefinition )-------------------------------------------------------------------}
+
+function TDefinition.AssumeInitDU(ParIdent : TDefinition):boolean;
+begin
+	exit(ParIdent.GetRealOwner <> self);
+end;
 
 function  TDefinition.CreateDefinitionUseItem : TDefinitionUseItemBase;
 begin

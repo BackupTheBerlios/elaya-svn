@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elasya lan5;3~5;3~guage
+{  5~  Elaya, the compiler for the elasya lan5;3~5;3~guage
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -24,7 +24,7 @@ type
 {TODO AM_WRITE_READ en AM_READ_WRITE}
 TVarUseMode=(VM_Not,VM_Sometimes,VM_Used);
 TAccessStatus=(AS_Normal,AS_No_Read,AS_Maybe_No_Read,AS_No_Write,AS_Maybe_No_Write,AC_Ident_Not_Found);
-TAccessMode = (AM_Read,AM_ReadWrite,AM_Write,AM_Nothing,AM_Execute,AM_SizeOf,AM_PointerOf,AM_Silent_Read_Write);
+TAccessMode = (AM_Read,AM_ReadWrite,AM_Write,AM_Nothing,AM_Execute,AM_SizeOf,AM_PointerOf,AM_Silent_Read_Write,AM_Silent_Write_Read);
 {TODO Instead of using TDefinitionUseList everywhere, use a sort of  TDefinitionUseItem}
 TDefinitionUseList=class;
 TDefinitionUseItemBase=class(TSMListItem)
@@ -47,6 +47,7 @@ TDefinitionUseItemBase=class(TSMListItem)
 				procedure SetLike(ParItem : TDefinitionUseItemBase);virtual;abstract;
 				function GetName : string;
 				function SetAccess(ParMode : TAccessMode):TAccessStatus;virtual;abstract;
+				procedure AssumeIsWriten;
 				procedure SetDefault(ParRead :boolean);virtual;abstract;
 				function IsUnused:boolean;virtual;abstract;
 				procedure SetToSometimes;virtual;abstract;
@@ -252,7 +253,6 @@ var
 	vlName  : string;
 begin
 	if IsUnused then begin
-   	vlName := iDefinition.GetErrorName;
       if(iContext <> nil) then begin
       	vlOwner := iContext.GetName+'.'
 		end else begin
@@ -260,7 +260,7 @@ begin
       end;
 		vlDef := iDefinition;
 		if(iContext <> nil) then vlDef := iContext.fDefinition;
-		ParCre.AddDefinitionWarning(vlDef,ERR_Variable_Not_Used,vlName+'/'+vlOwner+GetName);
+		ParCre.AddDefinitionWarning(vlDef,ERR_Variable_Not_Used,vlOwner+GetName);
 	end else begin
 		iSubList.CheckUnUsed(ParCre);
 	end;
@@ -457,6 +457,9 @@ begin
 		vlItem := TDefinition(ParDefinition).CreateDefinitionUseItem;{TODO remove casting}
 		AddItem(vlItem);
 	end;
+	if(iOwner <> nil) and (TDefinition(iOwner).AssumeInitDu(TDefinition(ParDefinition))) then begin {TODO remove casting}
+		vlItem.AssumeIsWriten;
+	end;
    exit(vlItem);
 end;
 
@@ -476,6 +479,10 @@ end;
 
 {---------------------( TDefinitionUseItemBase )------------------------------------------}
 
+procedure TDefinitionUseItemBase.AssumeIsWriten;
+begin
+	SetAccess(AM_Silent_Write_Read);
+end;
 
 procedure TDefinitionUseItemBase.Commonsetup;
 begin
@@ -535,6 +542,10 @@ begin
 	case ParMode of
 		AM_Read      : vlStatus := SetRead;
 		AM_Write     : vlStatus := SetWrite;
+		AM_Silent_Write_Read:begin
+			SetWrite;
+			SetRead;
+		end;
 		AM_Silent_Read_Write:begin
 			SetRead;
          SetWrite;
@@ -556,16 +567,10 @@ end;
 
 procedure TDefinitionUseItem.CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition);
 var
-	vlName : string;
    vlOwner : string;
 	vlDef   : TBaseDefinition;
 begin
     if IsUnUsed then begin
-		if ParOwner <> nil then begin
-			vlName := ParOwner.GetErrorName;
-		end else begin
-			EmptyString(vlName);
-		end;
       if(iContext <> nil) then begin
       	vlOwner := iContext.GetName+'.'
 		end else begin
@@ -573,7 +578,7 @@ begin
       end;
 		vlDef := iDefinition;
 		if(iContext <> nil) then vlDef := iContext.fDefinition;
-		ParCre.AddDefinitionWarning(vlDef,ERR_Variable_Not_Used,vlName+'/'+vlOwner+GetName);
+		ParCre.AddDefinitionWarning(vlDef,ERR_Variable_Not_Used,vlOwner+GetName);
 	end;
 end;
 
