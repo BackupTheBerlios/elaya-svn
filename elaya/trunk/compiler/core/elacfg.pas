@@ -42,7 +42,6 @@ type
 		
 		property  fAlign           : TSize   read voAlign;
 		property  fIsElfTarget     : boolean read voIsElfTarget;
-		procedure GetOutputObjectPath(var ParPath:string);
 		procedure GetAssemblerOptions(var ParOptions : string);
 		procedure GetLinkerOptions(var ParOptions:string);
 		function  GetLinkerPAth:TString;
@@ -98,12 +97,6 @@ procedure TElaConfig.GetAssemblerOptions(var ParOptions : string);
 begin
 	EmptyString(ParOptions);
 	GetVarValue(CONF_Assembler_Options,ParOptions);
-end;
-
-procedure TElaConfig.GetOutputObjectPath(var ParPath:string);
-begin
-	EmptyString(ParPath);
-	GetVarValue(CONF_Output_Object_Path,ParPath);	
 end;
 
 function TElaConfig.GetObjectPath(var ParOut:String):boolean;
@@ -255,6 +248,7 @@ var vlAsmProg      : string;
 	vlFileName      : string;
 	vlHostOs	       : string;
 	vlTargetOs      : string;
+	vlOutPath       : string;
 begin
 	if ParCfg.fRunAssembler then vlCheck := 'Y' else vlCheck := 'N';
 	ParCfg.GetInputFileStr(vlFileName);
@@ -293,6 +287,7 @@ begin
 	end;
 end;
 SetAlwaysStackFrame(true);
+if GetVarValue(conf_output_object_path,vlOutPath) then ParCfg.SetOutputObjectPath(vlOutPath,cl_Conf);
 if GetVarUpperBool(conf_Always_Stack_Frame,vlBool) then SetAlwaysStackFrame(vlBool);
 if GetVarUpperBool(CONF_Run_Assembler,vlBool) then ParCfg.SetRunAssembler(vlBool,CL_Conf);
 if GetVarUpperBool(CONF_Can_Use_Dll,vlBool) then ParCfg.SetCanUseDll(vlBool,CL_Conf);

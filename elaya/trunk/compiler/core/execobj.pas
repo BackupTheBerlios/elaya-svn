@@ -856,6 +856,7 @@ var
 	vlNode : TFormulaNode;
    vlErr  : boolean;
 begin
+	writeln('VALIDATE');
 	inherited ValidateAfter(ParCre);
    vlErr := false;
    if iNode <> nil then begin
@@ -870,6 +871,7 @@ begin
 			end;
 			if vlErr then  TNDCreator(ParCre).AddNodeDefError(iNode,err_Cant_Array_Index_type,vlType);
 			if vlType is TSecType then vlType := TSecType(vlType).GetOrgSecType;
+			writeln(vlNode.classname);
 			if not vlNode.IsCompByIdentCode(IC_Number) then  TNDCreator(ParCre).AddNodeDefError(vlNode,Err_Integer_Type_Expr_Exp,vlNode.GetType);
 			vlNode := (vlNode.fNxt) as TFormulaNode;
 		end;

@@ -475,7 +475,7 @@ begin
 	if GetOptionValues.fConfigFIle    = nil then begin
 		GetOptionValues.GetTargetOsStr(vlTarget);
 		if length(vlTarget) = 0 then vlTarget:=DEF_Operating_System;
-		GetOptionValues.SetConfigFIle('ela'+vlTarget+'.cfg',cl_Options);
+		GetOptionValues.SetConfigFIle(CNF_Default_Config_File,cl_Options);
 	end;
 end;
 

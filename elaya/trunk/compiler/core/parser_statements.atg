@@ -312,7 +312,11 @@ RBlockOfCode<ParNode : TSubListStatementNode>
 =
 RCodes<vlNode>
 (.
-	ParNode.AddNode(vlNode);
+	if ParNode <> nil then begin
+		ParNode.AddNode(vlNode);
+	end else begin
+		vlNode.Destroy;
+	end;
 .)
 .
 

@@ -1146,8 +1146,11 @@ end;
 
 
 procedure THookDigiList.AddItem(ParNode : TFormulaNode;const ParName : string);
+var
+	vlItem : THookDigiItem;
 begin
-	insertAtTop(THookDigiItem.Create(ParNode,ParName));
+	vlItem := THookDigiItem.Create(ParNode,ParName);
+	insertAtTop(vlItem);
 end;
 
 {----( TIdentHookDigiItem )---------------------------------------------------------------}
@@ -1171,6 +1174,7 @@ var
 begin
 	if(iItem = nil) then exit(nil);
 	vlIdent := iItem.CreateReadNode(ParCre);
+
 	if vlIdent = nil then exit(nil);
 	exit(ProcessNode(ParCre,vlIdent));
 end;
@@ -1243,18 +1247,17 @@ begin
 	while (vlCurrent <> nil) do begin
 		inc(vlParCnt);
 		vlNode := vlCurrent.CreateReadNode(ParCre);
-		if(vlByName) then begin
-			if not(vlCurrent.HasName) then ParCre.AddNodeError(vlNode,Err_Must_Pass_By_name,'Parameter '+IntToStr(vlParCnt));
+		if vlNode <> nil then begin
 			if not vlIsCallNode then begin
-				ParCre.AddNodeError(vlNode,Err_Symbol_Not_Expected,'>>');
 				vlNode.Destroy;
-			end else begin
+			end else if vlByName then begin
+				if not(vlCurrent.HasName) then ParCre.AddNodeError(vlNode,Err_Must_Pass_By_name,'Parameter '+IntToStr(vlParCnt));
 				vlCurrent.GetName(vlName);
 				TCallNode(ParNode).AddNodeAndName(vlNode,vlName);
+			end else begin
+ 				if vlCurrent.HasName  then ParCre.AddNodeError(vlNode,Err_Must_Not_Pass_By_Name,'Parameter '+IntToStr(vlParCnt));
+				TCallNode(ParNode).AddNode(vlNode);
 			end;
-		end else begin
- 			if vlCurrent.HasName  then ParCre.AddNodeError(vlNode,Err_Must_Not_Pass_By_Name,'Parameter '+IntToStr(vlParCnt));
-			TCallNode(ParNode).AddNode(vlNode);
 		end;
 		vlCurrent := THookDigiItem(vlCurrent.fNxt);
 	end;
@@ -1294,7 +1297,6 @@ begin
 			end;
 		end;
 	end;
-	
 	exit(ParNode);
 end;
 

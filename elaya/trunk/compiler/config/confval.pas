@@ -443,6 +443,7 @@ begin
 	iInputFile          := nil;
 	iHostOs             := TString.Create(DEF_Operating_System);
 	iTargetOs           := nil;
+	iOutputObjectPath   := nil;
 	iRunAssembler       := true;
 	iAssemblerType      := AT_X86ATT;
 	iOptimizeModes      := [];
@@ -465,6 +466,7 @@ begin
 	if iInputFile  <> nil then iInputFile.Destroy;
 	if iTargetOs   <> nil then iTargetOs.Destroy;
 	if iHostOs     <> nil then iHostOs.Destroy;
+	if iOutputObjectPath <> nil then iOutputObjectPath.Destroy;
 end;
 
 begin

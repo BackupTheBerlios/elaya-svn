@@ -911,7 +911,7 @@ var vlWriter   : TObjectStream;
 begin
 	vlWriter   := TObjectStream.Create;
 	iUnitFileName.GetString(vlUnitName);
-	GetConfig.GetOutputObjectPath(vlObjPath);
+	GetConfigValues.GetOutputObjectPath(vlObjPath);
 	CombinePath(vlObjPath,vlUnitName,vlStr);
 	Save := Err_No_Error;
 	if vlWriter.CreateFile(vlStr) then begin

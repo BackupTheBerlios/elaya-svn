@@ -679,7 +679,7 @@ CNF_Assem_Ext              = '.asm';
 CNF_Object_Ext             = '.obj';
 CNF_Unit_Ext               = '.emd';
 CNF_Source_Ext             = '.ela';
-
+CNF_Default_Config_File    = 'ela.cfg';
 
 CNF_Unit_Startup           = '$STARTUP';
 CNF_General_MOVE           = '_SYS$MOVE';

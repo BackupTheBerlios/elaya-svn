@@ -34,6 +34,7 @@ type
 		function   CreateValuePointerNode(ParCre : TCreator;ParParent :TDefinition):TFormulaNode;virtual;
 		function   CreateWriteDotNode(ParCre : TCreator;ParLeft,ParSource : TFormulaNode;ParOwner : TDefinition) : TFormulaNode;virtual;
 		function   CreatePropertyWriteDotNode(ParCre : TCreator;ParLeft,ParSource : TFormulaNode;ParOwner : TDefinition) : TFormulaNode;virtual;
+		function   CreateExecuteNode(ParCre:TCreator;ParParent : TDefinition):TNodeIdent;override;
 
 	end;
 
@@ -368,6 +369,11 @@ end;
 	begin
 		vlByPtr := TValuePointerNode.Create(CreateReadNode(ParCre,ParParent));
 		exit(vlByPtr);
+	end;
+
+	function  TFormulaDefinition.CreateExecuteNode(ParCre:TCreator;ParParent : TDefinition):TNodeIdent;
+   begin
+		exit(CreateReadNode(ParCre,ParParent));
 	end;
 	
 	{--------(TFormulaNode )--------------------------------------}

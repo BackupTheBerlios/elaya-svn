@@ -3637,7 +3637,11 @@ begin
       begin
             _RCodes( vlNode);
              
-            ParNode.AddNode(vlNode);
+            if ParNode <> nil then begin
+            	ParNode.AddNode(vlNode);
+            end else begin
+            	vlNode.Destroy;
+            end;
             ;
       end;
       
@@ -3698,7 +3702,7 @@ begin
                    
                   if vlMainCb <> nil then vlMainCB.CreatePostCode(fNDCreator);
                   if Rtm_Abstract in vlRoutine.fRoutineModes then  ErrorDef(Err_No_Main_For_Abstr_fun,vlroutine);
-                  vlMainCb.FinishNode(fNDCreator);
+                  if vlMainCb <> nil then vlMainCb.FinishNode(fNDCreator);
                   ;
             end
              else if (GetSym = 38) then begin
