@@ -97,7 +97,8 @@ type
 		nextLen    : Longint;      {length of lookahead symbol}
 		nextPos    : Longint;      {file position of lookahead symbol}
 		lastCh     : Char;
-		MaxT	: cardinal;
+		MaxT				 : cardinal;
+
 private
 	voErrorList        : TErrorList;
 	voInputLen         : longint;

@@ -3700,6 +3700,7 @@ begin
                    
                   if vlMainCb <> nil then vlMainCB.CreatePostCode(fNDCreator);
                   if Rtm_Abstract in vlRoutine.fRoutineModes then  ErrorDef(Err_No_Main_For_Abstr_fun,vlroutine);
+                  vlMainCb.FinishNode(fNDCreator);
                   ;
             end
              else if (GetSym = 38) then begin
@@ -3712,10 +3713,9 @@ begin
             ;Expect(8);
              
             
-            vlMainCb.fStatements.FinishNode(fNDCreator,true);
             if vlRoutine <> nil then begin
             	 vlRoutine.SetIsDefined;
-            	if (vlRoutine.fStatements <> nil) and (vlMainCb <> vlRoutine) then vlRoutine.fStatements.FinishNode(fNDCreator,true);
+            	if (vlRoutine.fStatements <> nil) and (vlMainCb <> vlRoutine) then vlRoutine.FinishNode(fNDCreator);
             end;
             fNDCreator.fCurrentDefAccess := vlPrvDefAccess;
             fNDCreator.EndIdentNum(vlLevel);

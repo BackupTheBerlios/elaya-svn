@@ -496,7 +496,7 @@ end;
 	
 	procedure  TFormulaNode.Optimize(ParCre : TCreator);
 	begin
-		Optimize1(ParCre);
+	   repeat until not Optimize1(ParCre);
 		OptimizeCpx;
 	end;
 	

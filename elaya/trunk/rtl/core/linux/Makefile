@@ -23,8 +23,11 @@ inc_path=../../..
 include $(inc_path)/Makefile.ela
 
 all_as:$(rtl_out)/inter.o
+
 clean_as:
 	rm -f $(rtl_out)/inter.o
+
+	as errno_var.as -o$(rtl_out)/errno_var.o
 
 $(rtl_out)/inter.o: inter.as
 	as inter.as -o$(rtl_out)/inter.o

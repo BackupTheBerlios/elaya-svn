@@ -230,10 +230,11 @@ type
       procedure   Proces(ParCre : TCreator);override;
 		procedure   ValidateAfter(ParCre : TCreator);override;
 		function    IsCompWithType(ParType :TType):boolean;override;
-		function	 CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
-		procedure ConvertNode(ParCre : TCreator);
-		function  IsAutomatic : boolean;
+		function	   CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
+		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
+		procedure   ConvertNode(ParCre : TCreator);
+		procedure   Optimize(ParCre : TCreator) ;override;
+		function    IsAutomatic : boolean;
 	end;
 	
 
@@ -2006,6 +2007,14 @@ begin
 	SetParam(ParParam);
 	inherited create;
 end;
+
+
+procedure TParamNode.Optimize(ParCre : TCreator) ;
+begin
+	iNode.Optimize(ParCre);
+	inherited Optimize(ParCre);
+end;
+
 
 function TParamNode.GetType:TType;
 begin

@@ -223,7 +223,8 @@ type
 			function   GetLocalSize : TSize;
 			procedure  BeforeCall(ParCre : TNDCreator);
 			{mode}
-			function  HasAbstracts:boolean;override;
+         procedure  FinishNode(ParCre : TNDCreator);
+			 function  HasAbstracts:boolean;override;
 			function   IsVirtual : boolean;
 			function   CanInherit : boolean;
 			function   SignalCPublic : boolean;override;
@@ -382,6 +383,13 @@ type
 	
 
 	{---( TRoutine )-------------------------------------------------}
+
+
+
+	procedure  TRoutine.FinishNode(ParCre : TNDCreator);
+   begin
+   		if fStatements <> nil then fStatements.FinishNode(ParCre,true);
+	end;
 
 
     function TRoutine.IsMethod : boolean;

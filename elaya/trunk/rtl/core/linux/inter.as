@@ -31,11 +31,7 @@ main:
 	call _exit
 
 
-	.globl inter_geterrno
-	.symver errno,errno@GLIBC_2.0
-inter_geterrno:
-	mov errno,%eax
-	ret
+
 
 	.globl inter_getenvp
 inter_getenvp:
@@ -51,6 +47,15 @@ inter_getargc:
 inter_getargp:
 	mov ElayaArgp,%eax
 	ret
+
+.globl 	inter_geterrno
+
+inter_geterrno:
+	call __errno_location
+	movl (%eax),%eax
+	ret
+
+
 
 .section .data
 

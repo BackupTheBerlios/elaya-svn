@@ -66,6 +66,7 @@ function  TLoadConvert.GetValue : TValue;
 var vlNode : TFOrmulaNode;
 begin
 	vlNode := TFormulaNode(iParts.fStart);
+	writeln('3)',vlNode.ClassName);
 	if vlNode <> nil then exit(vlNode.GetValue)
 	else exit(nil);
 end;

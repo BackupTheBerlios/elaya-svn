@@ -132,6 +132,8 @@ type
 		function  Can(ParCan:TCan_Types):boolean;override;
 		function  GetPartByNum(ParNum:cardinal):TNodeIdent;
 		function  DoCreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+		function  Optimize1(ParCre : TCreator):boolean;override;
+		procedure OptimizeCpx;override;
    end;
 
 	TSingelOperatorNode=class(TOperatorNode)
@@ -151,6 +153,7 @@ type
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
 		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
+		procedure Optimize(ParCre : TCreator);override;
 	end;
 	TSingelOperatorNodeclass=class of TSingelOperatorNode;
 
@@ -486,6 +489,13 @@ uses cblkbase;
 
 {---( TSingelOperatorNode )------------------------------------------------------}
 
+
+
+procedure TSingelOperatorNode.Optimize(ParCre : TCreator);
+begin
+	if iNode <> nil then iNode.Optimize(ParCre);
+	inherited Optimize(ParCre);
+end;
 
 function TSingelOperatorNode.GetType : TType;
 begin
@@ -2314,6 +2324,24 @@ end;
 
 {---( TSubListOperatorNode )-------------------------------------}
 
+
+	procedure TSubListOperatorNode.OptimizeCpx;
+	begin
+		DetermenComplexity;
+		if om_complexity in TFormulaList(iParts).fOptimizeMethods then TFormulaList(iParts).OptimizeCpx;
+	end;
+
+
+	function TSublistOperatorNode.Optimize1(ParCre : TCreator):boolean;
+	var
+		vlOpt : boolean;
+	begin
+		vlOpt := iParts.Optimize1(ParCre);
+		if inherited Optimize1(ParCre) then vlOpt := true;
+		exit(vlOpt);
+	end;
+
+
 procedure TSubListOperatorNode.COmmonsetup;
 begin
 	InitParts;
@@ -2335,6 +2363,7 @@ end;
 procedure TSublistOperatorNode.Optimize(ParCre :TCreator);
 begin
 	iParts.Optimize(ParCre);
+	inherited Optimize(ParCre);
 	iParts.Proces(ParCre);
 end;
 
