@@ -1,0 +1,91 @@
+unit;
+uses tgraphics,interface,twidget,tgc;
+
+public
+ type
+	TPixmap=class inherit TGraphics
+	private
+	var
+		voW : long;
+		voH : long;
+		voDepth : long;
+		voHandleObj : TInterface.TPixmapHandle;
+      function GetHandle : TInterface.PPixmapHandle;
+	public
+		property W : Long;
+		begin
+			private write voW;
+			public read voW;
+		end;
+
+		property H : long;
+		begin
+			private write voH;
+			public read voH;
+		end;
+
+		property Depth : long;
+		begin
+			private write voDepth;
+			public read voDepth;
+		end;
+
+		property Handle : TInterface.PPixmapHandle;
+		begin
+			public read GetHandle;
+		end;
+
+		property HandleObj : TInterface.TPixmapHandle;
+		begin
+			private read voHandleObj;
+			private write voHandleObj;
+		end;
+
+      constructor Create(ParWidth,ParHeight,ParDepth : long);overload;
+		constructor Create(ParWidget : TWidget;const ParFileName : string);overload;
+		procedure Paint(ParGC : TGC;ParX,ParY : long);
+	end;
+
+end public
+
+function TPixmap.GetHandle : TInterface.PPixmapHandle;
+begin
+	exit(@voHandleObj);
+end;
+
+constructor TPixmap.Create(ParWidth,ParHeight,ParDepth : long);overload;
+begin
+	inherited Create;
+	Depth := ParDepth;
+	H := ParHeight;
+	W := ParWidth;
+	vgInterface.CreatePixmap(ParWidth,ParHeight,ParDepth,Handle);
+end;
+
+
+
+constructor TPixmap.Create(ParWidget : TWidget;const ParFileName : string);overload;
+var
+	vlDepth : long;
+	vlW : long;
+	vlH : long;
+	vlHandle : TInterface.PWidgetHandle;
+begin
+	inherited Create;
+	vlHandle := nil;
+	if ParWidget <> nil then vlHandle := ParWidget.Handle;
+	vgInterface.LoadPixmap(vlHandle,ParFilename,Handle,vlW,vlH,vlDepth);
+	W := vlW;
+	H := vlH;
+	Depth := vlDepth;
+	writeln(W,' ',H,' ',Depth);
+end;
+
+procedure TPixmap.Paint(ParGC : TGC;ParX,ParY : long);
+begin
+	vgInterface.DrawPixmap(ParGc.Handle,Handle,ParX,ParY);
+end;
+
+
+end.
+

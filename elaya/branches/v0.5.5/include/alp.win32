@@ -1,0 +1,10 @@
+core:
+sys_int:
+win32op:
+win32types:
+win32procs:
+win32gui:
+classes:
+sys:
+memory:
+*:sys,core,classes

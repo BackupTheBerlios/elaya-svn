@@ -1,0 +1,114 @@
+
+unit;
+uses twidget,interface,guitypes,tpixmap;
+public
+
+type
+		TButton=class;
+		TButtonPressedEvent = object procedure(ParWidget : TButton);
+		TButtonReleasedEvent= object procedure(ParWidget : TButton);
+      {TODO label color}
+		TButton=class inherit TWidget
+		private
+		var
+			voButtonPressed  : TButtonPressedEvent;
+			voButtonReleased : TButtonReleasedEvent;
+			voPixmap         : TPixmap;
+
+		protected
+			procedure Commonsetup;override;
+			procedure InitWidget;override;
+			procedure SetLabelColor(const ParColor : TColor);
+			procedure SetPixmap(ParPixmap : TPixmap);
+		public
+			property ButtonPressed : TButtonPressedEvent;
+			begin
+				public read voButtonPressed;
+				public write voButtonPressed;
+			end;
+
+			property ButtonReleased : TButtonReleasedEvent;
+			begin
+				public read voButtonReleased;
+				public write voButtonReleased;
+			end;
+
+			property LabelColor  : TColor;
+			begin
+				public write SetLabelColor;
+			end;
+
+			property Pixmap : TPixmap;
+			begin
+				private read voPixmap;
+				private write voPixmap;
+				public  write SetPixmap;
+			end;
+
+			procedure HandleEvent(var ParEvent: TEvent);override;
+			procedure SizeToPixmap(ParDeltaX,ParDeltaY : longint);{TODO center image allways}
+		end;
+
+end public
+
+procedure TButton.SizeToPixmap(ParDeltaX,ParDeltaY : longint);
+begin
+	if pixmap <> nil then begin
+   	W := pixmap.w + parDeltaX;
+		H := Pixmap.h + ParDeltaY;
+		writeln(W,'x',H);
+	end;
+end;
+
+
+procedure TButton.SetPixmap(ParPixmap : TPixmap);
+begin
+	Pixmap  := ParPixmap;
+	if realised then begin
+		vgInterface.SetButtonPixmap(Handle,voPixmap.Handle);
+	end;
+end;
+
+procedure TButton.SetLabelColor(const ParColor : TColor);
+begin
+	vgInterface.SetFgColor(Handle,ParColor);
+end;
+
+procedure TButton.Commonsetup;override;
+begin
+	inherited Commonsetup;
+	ButtonReleased := nil;
+	ButtonPressed := nil;
+	Pixmap        := nil;
+end;
+
+procedure TButton.HandleEvent(var ParEvent : TEvent);override;
+begin
+	if ParEvent.base.vrType = EK_MouseButtonPressed then begin
+		if ButtonPressed <> nil then ButtonPressed^(self);
+	end else if ParEvent.base.vrType = EK_MouseButtonReleased then begin
+		if ButtonReleased <> nil then ButtonReleased^(self);
+	end else begin
+		inherited HandleEvent(ParEvent);
+   end;
+end;
+
+procedure TButton.InitWidget;override;
+var
+	vlHandle : TInterface.PWIdgetHandle;
+begin
+
+	if Parent <> nil then begin
+		vlHandle := Parent.Handle;
+	end else begin
+		vlHandle := nil;
+	end;
+
+	vgInterface.CreateInterButton(X,y,W,H,vlHandle,handle,Title);
+   if Pixmap <> nil then begin
+		vgInterface.SetButtonPixmap(Handle,Pixmap.Handle);
+	end;
+end;
+
+
+end.

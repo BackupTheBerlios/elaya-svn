@@ -1,0 +1,836 @@
+{   Edol, Elaya dynamic operating system library for linux.
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    Email : iddekingej@lycos.com
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but whereOUT ANY WARRANTY; whereout even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along where this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1
+}
+unit;
+
+uses dlib;
+
+   public
+
+     type
+           TFormAction=enum
+                  FA_Put;
+                  FA_Post;
+           end;
+
+           TButtonTypes=enum
+                BT_Submit;
+                BT_Reset;
+                BT_Button;
+           end;
+
+
+
+      procedure HtmlOutput;
+       inherit EBase;
+	   abstract;
+       has
+         protected
+			procedure Output(ParCH : char);virtual;overload;
+            procedure Output(const ParStr : str255);virtual; overload;
+            procedure Output(ParInt : longint);virtual;overload;
+            procedure OutputValue(const ParName,ParValue : string);overload;
+            procedure OutputValue(const ParName : string;ParValue : longint);overload;
+            procedure AutoValue(const ParName,ParValue:string);
+       end;
+       
+      procedure SendHtmlDocument;
+        inherit HtmlOutput;
+        has
+          protected
+                procedure  InBodyTag;virtual;
+                procedure DoOutput(const ParStr : string);virtual;overload;
+                procedure DoOutput(ParInt : longint);virtual;overload;
+                procedure nl;
+                function  BoldString(const ParStr : string):string;
+                function  ItalicString(const ParStr : string):string;
+                function JSevOnDblClick : string;virtual;
+                function JSevOnKeyDown : string;virtual;
+                function JSevOnKeyPress : string;virtual;
+                procedure PrintBody;virtual;
+                function JSevOnClick:string; virtual;
+                function JSevOnKeyUp : string;virtual;
+                function JSevOnMouseDown : string;virtual;
+                function JSevOnMouseUp : string;virtual;
+                main;
+                
+                procedure PrintTag;
+                  inherit HtmlOutput;
+                  has
+                    protected
+                       procedure Output(const ParStr : string);override;overload;
+                       procedure Output(ParInt : longint);override;overload;
+                  end;
+
+                procedure PrintSimpleTag(virtual const ParOpener : string);
+                  inherit PrintTag;
+                  has
+                    protected
+                      procedure PrintTagBody;virtual;
+					main;
+                  end;
+                  
+                procedure PrintSETag(virtual const ParOpener : string);
+                  inherit PrintSimpleTag(ParOpener);
+                  has
+                    protected
+                     function GetTagName : string;virtual;
+                     procedure PrintBody;virtual;
+                     main;
+                  end;
+
+                procedure PrintBreak;inherit PrintSimpleTag('BR');
+                procedure PrintRuler;inherit PrintSimpleTag('HR');
+                procedure PrintParagraph;inherit PrintSimpleTag('P');
+                procedure PrintTableRow;
+                  inherit PrintSeTag('TR');
+                  has
+                    protected
+                      procedure CellTag;virtual;
+                      procedure PrintCell(const ParCell : string);virtual;
+                      function  Cell(ParCol : long) : string;virtual;
+                      procedure InCell(ParCol : long);virtual;
+                      function  RowEnd : boolean;virtual;
+                      procedure PrintBody;override;
+                  end;
+
+                procedure PrintTable;
+                  inherit PrintSeTag('TABLE');
+                  has
+					private
+						var
+							vlRow : long;
+                    protected
+                      function  Row:long;
+                      function TableRowEnd : boolean; virtual;
+                      function  TableEnd : boolean;virtual;
+                      function  Caption : string;  virtual;
+                      function  TableWidth : string;virtual;
+                      function  BorderWidth:long;  virtual;
+                      function  TableCell(ParCol,ParRow : long) : string;  virtual;
+                      function  CellBgColor : string;virtual;
+                      procedure TableTag;virtual;
+                      procedure TableCellTag;virtual;
+                      procedure RowTag;virtual;
+                      function  PreRow:boolean;virtual;
+                      procedure PrintTagBody;override;
+                      procedure PrintBody;override;
+
+                      Procedure PrintTableRow;
+                         inherit PrintTableRow;virtual;
+                         has
+                           protected
+                            procedure CellTag;override;
+                            function  RowEnd:boolean;override;
+                            function Cell(ParCol : long):string; override;
+
+                         end;
+
+                  end;
+                  procedure PrintLink(const ParPage : string);
+                          inherit PrintSETag('a');
+                          has
+                           protected
+                               procedure PrintBody; override;
+                               function JSevOnKeyDown:string;virtual;
+                               function JSevOnMouseOver:string;  virtual;
+                               function JSevOnMouseOut : string; virtual;
+                               function JSevOnClick:string;virtual;
+                               function JSEvOnDblClick:string;virtual;
+                               function Target : string;virtual;
+                               procedure PrintTagBody;override;
+                  end;
+                  procedure PrintTextLink(const ParPage,ParText:string);inherit PrintLink(ParPage);
+                    has
+                      protected
+                        procedure PrintBody;override;
+                  end;
+
+                 procedure PrintHtmlHeader;
+                   root;virtual;
+                   has
+                      protected
+						main;
+                         procedure PrintMetaTag(virtual const ParName,ParContent : string);
+                           inherit PrintSimpleTag('META');
+                           has
+                             protected
+                                procedure PrintTagBody;override;
+								main;
+                           end;
+
+                   end;
+
+                 procedure PrintForm(const ParSubmitUrl : string);inherit PrintSeTag('FORM');
+                    has
+                      protected
+                           function Action  :TFormAction;virtual;
+                           procedure FormBody;virtual;
+                           procedure BeginForm;virtual;
+                           procedure EndForm;virtual;
+                           function JSevOnSubmit:string;virtual;
+                           procedure PrintTagBody;override;
+                           procedure PrintBody;override;
+
+                           procedure PrintInputElement(virtual const  ParName,ParType,ParValue:string);
+                             inherit PrintSimpleTag('input');
+                             has
+                               protected
+                               procedure PrintTagBody;override;
+                             end;
+                           procedure PrintHidden(virtual const ParName,ParValue : string);inherit PrintInputElement(ParName,'hidden',ParValue);has end;
+                           procedure PrintButtonBase(virtual const ParName,ParType,ParValue:string);
+                             inherit PrintInputElement(ParName,ParType,ParValue);
+                             has
+                               protected
+                                 function JSevOnClick:string;virtual;
+                                 procedure PrintTagBody;override;
+                            end;
+                           procedure PrintButton(virtual const  ParName,ParValue:string);inherit PrintButtonBase(ParName,'button',ParValue);has end;
+                           procedure PrintReset(virtual const ParName,ParValue: string);inherit PrintButtonBase(ParName,'reset',ParValue);has end;
+                           procedure PrintSubmit(virtual const ParName,ParValue:string);inherit PrintButtonBase(ParName,'submit',ParValue);has end;
+                           procedure PrintText(virtual const ParName,ParValue : string;virtual ParSize:long);
+                             inherit PrintInputElement(ParName,'text',ParValue);
+                             has
+                               protected
+                                 function JSevOnBlur:string;virtual;
+                                 function JSevOnSelect:string;virtual;
+                                 function JSevOnChange:string;virtual;
+                                 function JSevOnFocus:string;virtual;
+                                 procedure PrintTagBody;override;
+                             end;
+                    end;
+                    procedure PrintImage(const ParUrl : string;virtual const ParName : string);
+                      inherit PrintSimpleTag('IMG');
+                      has
+                          protected
+                             function JSevOnAbort:string;virtual;
+                             function JSevOnError:string;virtual;
+                             function JSevOnKeyDown:string;virtual;
+                             function JSevOnKeyPress:string;virtual;
+                             function JSevOnKeyUp:string;virtual;
+                             function JSevOnLoad:string;virtual;
+                             procedure PrintTagBody;override;
+                      end;
+                    procedure PrintImageLink( const ParLink : string;virtual const ParImage:string);
+                      inherit PrintLink(ParLink);
+                      has
+                        protected
+                          procedure PrintImage(const ParUrl : string;virtual const ParName : string);
+                            inherit PrintImage(ParUrl,ParName);
+                            virtual;
+							has
+							end;
+                          function ImageName : string;virtual;
+                          procedure PrintBody;override;
+
+                      end;
+
+
+        end;
+
+
+   end public
+
+
+
+
+
+	procedure HtmlOutput has protected Output(ParCh : char);virtual;overload;
+	begin
+		writeln(ParCh);
+	end;
+
+    procedure HtmlOutput has protected Output(const ParStr : str255);virtual; overload;
+    begin
+               writeln(ParStr);
+    end;
+
+    procedure HtmlOutput has protected Output(ParInt : longint);virtual;overload;
+    begin
+              Output(IntToStr(ParInt));
+    end;
+     
+     procedure HtmlOutput has protected OutputValue(const ParName,ParValue : string);overload;
+     begin
+           Output(ParName);
+           Output('="');
+           Output(ParValue);
+           Output('" ');
+     end;
+
+     procedure HtmlOutput has protected OutputValue(const ParName : string;ParValue : longint);overload;
+     begin
+           Output(ParName);
+           Output('=');
+           Output(ParValue);
+           Output(' ');
+     end;
+         
+     procedure HtmlOutput has protected AutoValue(const ParName,ParValue:string);
+     begin
+            if  ParValue <> '' then Output(' '+ParName+'='+39 as char+ParValue+39 as char+' ');
+     end;
+
+
+{--( SendHtmlDocument )------------------------------------------------------------------------}
+
+
+
+   
+     
+
+     procedure SendHtmlDocument has protected DoOutput(const ParStr : string);virtual;overload;
+     begin
+               Output(ParStr);
+     end;
+
+     procedure SendHtmlDocument has protected DoOutput(ParInt : longint);virtual;overload;
+     begin
+              Output(ParInt);
+     end;
+
+     procedure SendHtmlDocument has protected nl;
+     var vlStr:string;
+     begin
+          vlStr[1] := 10 as char;
+          vlStr.length := 1;
+          Output(vlStr);
+     end;
+     
+
+     function SendHtmlDocument has protected  BoldString(const ParStr : string):string;
+     begin
+          exit('<b>'+ParStr+'</b>');
+     end;
+
+     function SendHtmlDocument has protected ItalicString(const ParStr : string):string;
+     begin
+          exit('<i>'+ParStr+'</i>');
+     end;
+
+
+
+{SendHtmlDocument/PrintTag}
+
+            procedure SendHtmlDocument has  PrintTag has protected Output(const ParStr : string);override;overload;
+            begin
+                      DoOutput(ParStr);
+            end;
+        
+            procedure SendHtmlDocument has  PrintTag has protected Output(ParInt : longint);override;overload;
+            begin
+                     DoOutput(ParInt);
+            end;
+
+
+
+      procedure SendHtmlDocument has  PrintSimpleTag has protected PrintTagBody;virtual;
+      begin
+      end;
+
+      procedure SendHtmlDocument has protected PrintSimpleTag(virtual const ParOpener : string);inherit PrintTag;
+     var vlStr:String;
+     begin
+          Output('<'+ParOpener+' ');
+          PrintTagBody;
+          Output('>');
+     end;
+          
+
+     procedure SendHtmlDocument has protected PrintSETag(virtual const ParOpener : string);inherit PrintSimpleTag(ParOpener);
+     protected
+          function GetTagName : string;virtual;
+          begin
+               exit('');
+          end;
+          
+          procedure PrintBody;virtual;
+          begin
+               AutoValue('name',GetTagName);
+          end;
+
+     begin
+          inherited Of main;
+          PrintBody;
+          Output('</'+ParOpener+'>');  nl;
+     end;
+
+
+       procedure SendHtmlDocument has protected PrintBreak;inherit PrintSimpleTag('BR');end;
+       procedure SendHtmlDocument has protected PrintRuler;inherit PrintSimpleTag('HR');end;
+       procedure SendHtmlDocument has protected PrintParagraph;inherit PrintSimpleTag('P');end;
+
+
+
+             procedure SendHtmlDocument has  PrintTableRow has protected CellTag;virtual;
+             begin
+             end;
+             
+             procedure SendHtmlDocument has PrintTableRow has protected PrintCell(const ParCell : string);virtual;
+             begin
+                  Output('<TD ');
+                  CellTag;
+                  Output('>');
+                  Output(ParCell);
+                  Output('</TD>');
+             end;
+
+             function SendHtmlDocument has  PrintTableRow has protected Cell(ParCol : long) : string;virtual;
+             begin
+                  exit('');
+             end;
+
+             procedure SendHtmlDocument has PrintTableRow has protected InCell(ParCol : long);virtual;
+             begin
+                  PrintCell(Cell(ParCol));
+             end;
+
+             function SendHtmlDocument has  PrintTableRow has  protected RowEnd : boolean;virtual;
+             begin
+                  exit(true);
+             end;
+
+             procedure SendHtmlDocument has PrintTableRow has protected PrintBody;override;
+             var vlCol : long;
+             begin
+                  vlCol := 1;
+                  while not(RowEnd) do begin
+                        InCell(vlCol);
+                        inc(vlCol);
+                  end;
+             end;
+
+
+
+{SendHtml/PrintTable}
+
+
+
+            function SendHtmlDocument has   printtable has protected Row:long;
+            begin
+                exit(vlRow);
+             end;
+
+             function SendHtmlDocument has printtable  has protected TableRowEnd : boolean; virtual;
+             begin
+                 exit(true);
+             end;
+
+             function SendHtmlDocument has printtable has protected TableEnd : boolean;virtual;
+             begin
+                  exit(true);
+             end;
+
+             function SendHtmlDocument has printtable  has protected Caption : string;  virtual;
+             begin
+                  exit('');
+             end;
+
+             function SendHtmlDocument has printtable  has protected TableWidth : string;virtual;
+             begin
+                  exit('');
+              end;
+      
+             function SendHtmlDocument has printtable  has protected  BorderWidth:long;  virtual;
+             begin
+                  exit(0);
+             end;
+
+             function SendHtmlDocument has printtable  has protected TableCell(ParCol,ParRow : long) : string;  virtual;
+             begin
+                 exit('');
+             end;
+
+
+              function SendHtmlDocument has printtable  has protected  CellBgColor : string;virtual;
+              begin
+                  exit('');
+              end;
+
+              procedure SendHtmlDocument has printtable  has protected  TableTag;virtual;
+              begin
+                   OutputValue('border',BorderWidth);
+                   AutoValue('width',TableWidth);
+              end;
+
+              procedure SendHtmlDocument has printtable  has protected TableCellTag;virtual;
+              begin
+                   AutoValue('bgcolor',CellBgColor);
+              end;
+
+              procedure SendHtmlDocument has printtable  has protected RowTag;virtual;
+              begin
+              end;
+
+              function SendHtmlDocument has printtable  has protected PreRow:boolean;virtual;
+              begin
+              end;
+
+              procedure SendHtmlDocument has printtable  has protected PrintTagBody;override;
+              begin
+                   inherited PrintTagBody;
+                   TableTag;
+              end;
+
+
+                  procedure SendHtmlDocument has printtable  has PrintTablerow has protected CellTag;override;
+                  begin
+                       TableCellTag;
+                  end;
+
+                  function SendHtmlDocument has printtable  has PrintTablerow has protected Cell(ParCol : long):string; override;
+                  begin
+                       exit(TableCell(vlRow,ParCol));
+                  end;
+
+                  function SendHtmlDocument has printtable  has PrintTablerow  has protected  RowEnd:boolean;override;
+                  begin
+                       exit(TableRowEnd);
+                  end;
+
+
+              procedure SendHtmlDocument has printtable  has protected  PrintBody;override;
+              begin
+                   vlRow := 1;
+                   nl;
+                   if (Caption)<>'' then Output('<CAPTION>'+Caption+'</CAPTION>');
+                   while not(TableEnd) do begin
+                         PrintTableRow;
+                         inc(vlRow);
+                   end;
+              end;
+
+{------( PrintLink )------------------------------------------------------}
+  
+     procedure SendHtmlDocument has printlink has protected PrintBody; override;
+     begin
+          Output('link');
+     end;
+
+     function SendHtmlDocument has printlink has protected JSevOnKeyDown:string;virtual;
+     begin
+          exit('');
+     end;
+
+     function SendHtmlDocument has printlink has protected JSevOnMouseOver:string;  virtual;
+     begin
+        exit('');
+     end;
+
+     function SendHtmlDocument has printlink has protected JSevOnMouseOut : string; virtual;
+     begin
+        exit('');
+     end;
+
+     function SendHtmlDocument has printlink has protected JSevOnClick:string;virtual;
+     begin
+          exit('');
+     end;
+
+     function SendHtmlDocument has printlink has protected JSEvOnDblClick:string;virtual;
+     begin
+          exit('');
+     end;
+     
+
+     function SendHtmlDocument has printlink has protected Target : string;virtual;
+     begin
+          exit('');
+     end;
+
+     procedure SendHtmlDocument has printlink has protected PrintTagBody;override;
+     begin
+          AutoValue('href',ParPage);
+          AutoValue('onMouseOver',JSevOnMouseOver);
+          AutoValue('onMouseOut',JSevOnMouseOut);
+          AutoValue('target',Target);
+          AutoValue('onKeyDown',JSevOnKeyDown);
+          AutoValue('onClick',JSevOnClick);
+          AutoValue('onDblClick',jsevOnDblClick);
+     end;
+
+
+
+
+{---------( TextLink )------------------------------------------------------------------}
+
+      procedure SendHtmlDocument has  PrintTextLink has protected PrintBody;override;
+      begin
+           Output(ParText);
+      end;
+      
+
+
+
+{----( Image )--------------------------------------------------------------------------}
+
+   function SendHtmlDocument has printimage has protected JSevOnAbort:string;virtual;
+   begin
+        exit('');
+   end;
+
+   function SendHtmlDocument has printimage has protected JSevOnError:string;virtual;
+   begin
+        exit('');
+   end;
+
+   function SendHtmlDocument has printimage has protected JSevOnKeyDown:string;virtual;
+   begin
+        exit('');
+   end;
+
+
+   function SendHtmlDocument has printimage has protected JSevOnKeyPress:string;virtual;
+   begin
+        exit('');
+   end;
+
+   function SendHtmlDocument has printimage has protected JSevOnKeyUp:string;virtual;
+   begin
+        exit('');
+   end;
+
+   function SendHtmlDocument has printimage has protected JSevOnLoad:string;virtual;
+   begin
+        exit('');
+   end;
+
+   procedure  SendHtmlDocument has printimage has protected PrintTagBody;override;
+   begin
+        inherited PrintTagBody;
+        AutoValue('name',ParName);
+        OutputValue('src',ParUrl);
+        AutoValue('onAbort',JSevOnAbort);
+        AutoValue('onError',JSevOnError);
+        AutoValue('onKeyDown',JSevOnKeyDown);
+        AutoValue('onKeyPress',JSevOnKeyPress);
+        AutoValue('onKeyUp)',JSevOnKeyUp);
+   end;
+
+
+
+{---( ImageLink )----------------------------------------------------------------------}
+
+
+
+
+{				 SendHtmlDocument}
+       function  SendHtmlDocument has  PrintImagelink has protected ImageName : string;virtual;
+       begin
+            exit('');
+       end;
+
+       procedure  SendHtmlDocument has PrintImageLink has protected PrintBody;override;
+       begin
+            PrintImage(ParImage,ImageName);
+       end;
+
+
+
+{---( Base )----------------------------------------------------------------------------}
+
+
+  procedure SendHtmlDocument has  protected PrintHtmlHeader; root;virtual;
+  protected
+  
+            procedure PrintMetaTag(virtual const ParName,ParContent : string);inherit PrintSimpleTag('META');
+            protected
+                     procedure PrintTagBody;override;
+                     begin
+                          OutputValue('NAME',ParName);
+                          OutputValue('CONTENT',ParContent);
+                     end;
+
+            begin
+                 inherited of main;
+                 nl;
+            end;
+            
+  begin
+  end;
+  
+
+  procedure  SendHtmlDocument has  protected  InBodyTag;virtual;
+  begin
+  end;
+
+  procedure SendHtmlDocument has protected PrintBody;virtual;
+  begin
+  end;
+
+
+  function  SendHtmlDocument has  protected  JSevOnClick:string; virtual;
+  begin
+       exit('');
+  end;
+
+  function  SendHtmlDocument has  protected JSevOnDblClick : string;virtual;
+  begin
+       exit('');
+  end;
+
+  function  SendHtmlDocument has  protected JSevOnKeyDown : string;virtual;
+  begin
+       exit('');
+  end;
+
+  function  SendHtmlDocument has  protected JSevOnKeyPress : string;virtual;
+  begin
+       exit('');
+  end;
+
+  function  SendHtmlDocument has  protected JSevOnKeyUp : string;virtual;
+  begin
+       exit('');
+  end;
+
+  function  SendHtmlDocument has  protected JSevOnMouseDown : string;virtual;
+  begin
+       exit('');
+  end;
+
+  function  SendHtmlDocument has  protected JSevOnMouseUp : string;virtual;
+  begin
+       exit('');
+  end;
+
+procedure SendHtmlDocument;inherit htmloutput;
+begin
+     Output('<HTML>');nl;
+     PrintHtmlHeader;
+     Output('<BODY ');
+     InBodyTag;
+     AutoValue('onClick',JSevOnClick);
+     AutoValue('onDblClick',JSevOnDblClick);
+     AutoValue('onKeyDown',JSevOnKeyDown);
+     AutoValue('onKeyPress',JSevOnKeyPress);
+     AutoValue('onKeyUp',JSevOnKeyUp);
+     AutoValue('onMouseDown',JSevOnMouseDown);
+     AutoValue('OnMouseUp',JSevOnMouseUp);
+     Output('>');nl;
+     PrintBody;
+     Output('</BODY>');
+     Output('</HTML>');
+end;
+
+{--( SendHtmlDocument/PrintForm )-----------------------------------------------------------------------}
+
+
+     function SendHtmlDocument has PrintForm  has protected Action  :TFormAction;virtual;
+     begin
+          exit(fa_put);
+     end;
+
+     procedure SendHtmlDocument has PrintForm  has protected FormBody;virtual;
+     begin
+     end;
+
+     procedure SendHtmlDocument has PrintForm  has protected BeginForm;virtual;
+     begin
+     end;
+
+     procedure SendHtmlDocument has PrintForm  has protected EndForm;virtual;
+     begin
+     end;
+
+
+
+
+               procedure SendHtmlDocument has PrintForm has PrintInputElement has protected PrintTagBody;override;
+               begin
+                    inherited PrintTagBody;
+                    OutputValue('type',ParType);
+                    AutoValue('name',ParName);
+                    AutoValue('value',ParValue);
+               end;
+
+     
+              function SendHtmlDocument has PrintForm  has PrintButtonBase has protected JSevOnClick:string;virtual;
+              begin
+                   exit('');
+              end;
+              
+              procedure SendHtmlDocument has PrintForm  has PrintButtonBase has protected PrintTagBody;override;
+              begin
+                   inherited PrintTagBody;
+                   AutoValue('onClick',JsEvOnClick);
+              end;
+     
+
+          function SendHtmlDocument has PrintForm  has PrintText has protected JSevOnBlur:string;virtual;
+          begin
+               exit('');
+          end;
+
+          function SendHtmlDocument has PrintForm  has PrintText has protected JSevOnSelect:string;virtual;
+          begin
+               exit('');
+          end;
+
+          function SendHtmlDocument has PrintForm  has PrintText has protected JSevOnChange:string;virtual;
+          begin
+               exit('');
+          end;
+
+          function SendHtmlDocument has PrintForm  has PrintText has protected JSevOnFocus:string;virtual;
+          begin
+               exit('');
+          end;
+
+
+          procedure SendHtmlDocument has PrintForm  has PrintText has protected PrintTagBody;override;
+          begin
+               inherited PrintTagBody;
+               OutputValue('size',ParSize);
+               AutoValue('onSelect',JSevOnSelect);
+               AutoValue('onBlur',JSevOnBlur);
+               AutoValue('onChange',JSevOnChange);
+               AutoValue('onFocus',JSevOnFocus);
+          end;
+
+     function SendHtmlDocument has PrintForm  has protected  JSevOnSubmit:string;virtual;
+     begin
+          exit('');
+     end;
+
+     procedure SendHtmlDocument has PrintForm  has protected  PrintTagBody;override;
+     var
+        vlMethod : string;
+     begin
+       inherited PrintTagBody;
+       vlMethod :='post';
+       if action= FA_Put then  vlMethod:='put';
+       OutputValue('action',ParSubmitUrl);
+       OutputValue('method',vlMethod);
+       AutoValue('onSubmit',JSevOnSubmit);
+    end;
+
+    procedure SendHtmlDocument has PrintForm  has protected PrintBody;override;
+    begin
+         BeginForm;
+         FormBody;
+         EndForm;
+    end;
+
+end.
+  
+
+
+

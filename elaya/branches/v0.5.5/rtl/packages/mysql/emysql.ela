@@ -1,0 +1,82 @@
+{   Mysql unit for the  Elaya, the compiler for the elaya language
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    emaill : iddekingej@lycos.com
+    web    : www.elaya.org
+    
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+uses mysql;
+
+public
+
+      function EMySql_Connect(ParMySql:PMySql;const ParHost,ParUser,ParPassword:string):boolean;
+      function EMySql_Select_Db(ParMySql: PMySql;const ParDbName : string):boolean;
+      function EMySql_Query(ParMySql : PMySql;const ParQuery : string):boolean;
+      function EMySql_List_Tables(ParMySql : PMysql;const ParWild : string;var ParRes : PMySql_Res):boolean;
+      function EMySql_List_Fields(ParMySql : PMySql;const ParTable,ParWild : string;var ParRes : PMySql_Res):boolean;
+end public
+
+function EMySql_List_Fields(ParMySql : PMySql;const ParTable,ParWild : string;var ParRes : PMySql_Res):boolean;
+var vlTable : Asc255;
+    vlWild  : Asc255;
+begin
+     vlTable := ParTable;
+     vlWild  := ParWild;
+     ParRes := MySql_List_Fields(ParMySql,@vlTable,@vlWild);
+     exit(ParRes = nil);
+end;
+
+function EMySql_List_Tables(ParMySql : PMysql;const ParWild : string; var ParRes : PMySql_Res):boolean;
+var
+   vlWild : Asc255;
+begin
+     vlWild := ParWild;
+     ParRes := MySql_List_Tables(ParMySql,@vlWild);
+     exit(ParRes = nil);
+end;
+
+function EMySql_Connect(ParMySql:PMySql;const ParHost,ParUser,ParPassword:string):boolean;
+var vlHost : Asc255;
+    vlUser : Asc255;
+    vlPass : Asc255;
+begin
+     vlHost := ParHost;
+     vlUser := ParUser;
+     vlPass := ParPassword;
+     exit(MySql_Connect(ParMySql,@vlHost,@vlUser,@vlPass) = nil);
+end;
+
+
+function EMySql_Select_Db(ParMySql: PMySql;const ParDbName : string):boolean;
+var
+   vlDBName : Asc255;
+begin
+     vlDBName := ParDbName;
+     exit(MySql_Select_DB(ParMySql,@vlDBName)<0);
+end;
+
+function EMySql_Query(ParMySql : PMySql;const ParQuery : string):boolean;
+var vlQuery : Asc255;
+begin
+     vlQuery := ParQuery;
+     exit(MySql_Query(ParMySql,@vlQuery)<0);
+end;
+
+var vlMy : PMySql;
+    vlRes:PMySql_Res;
+end.
+

@@ -1,0 +1,9 @@
+{ example/unit02.ela
+  belongs to unit01.ela}
+
+uses unit01;
+
+
+begin
+     PrintOtherHello('Check');
+end;

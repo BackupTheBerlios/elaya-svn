@@ -1,0 +1,62 @@
+unit;
+public
+
+const
+	DalErr_None=0;
+	DalErr_No_Interface=1;
+
+type
+	TDalDBConnection=record
+		Native_Error : long;
+		Dal_Error    : long;
+   	private_data : pointer;
+	end;
+
+	TDalConnectRoutine=function(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
+	TDalCloseRoutine=function(var ParConnection : TDalDBConnection):boolean;
+
+ TDalInterface=record
+	DbConnect : TDalConnectRoutine;
+	DbClose   : TDalCloseRoutine;
+ end;
+
+	procedure SetDalInterface(var ParInterface : TDalInterface);
+	function	DalConnect(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
+	function DalClose(var ParConnection : TDalDBConnection):boolean;
+
+end public
+
+var
+	DalInterface : TDalInterface;
+
+function DalClose(var ParConnection : TDalDBConnection):boolean;
+begin
+	if DalInterface.DbClose <> nil then begin
+		exit(DalInterface.DbClose^(ParConnection));
+	end;
+	ParConnection.Native_Error := 0;
+	ParConnection.Dal_Error := DalErr_No_Interface;
+   exit(true);
+end;
+
+function	DalConnect(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
+begin
+   if DalInterface.DBConnect <> nil then begin
+		writeln('Host=',ParHost);
+		exit(DalInterface.DbConnect^(ParConnection,ParHost,ParDb,ParUser,ParPw));
+	end;
+	ParConnection.Native_Error := 0;
+	ParConnection.Dal_Error := DalErr_No_Interface;
+   exit(true);
+end;
+
+procedure SetDalInterface(var ParInterface : TDalInterface);
+begin
+	DalInterface := ParInterface;
+end;
+
+
+begin
+	DalInterface.DbConnect := nil;
+	DalInterface.DbClose := nil;
+end.

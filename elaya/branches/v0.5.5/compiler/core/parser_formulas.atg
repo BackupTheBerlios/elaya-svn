@@ -1,0 +1,606 @@
+PRODUCTIONS
+
+RFormula<var ParExp:TFormulaNode>
+=
+RExpr<ParExp>
+.
+
+RExpr<var ParExpr : TFormulaNode>
+(.
+	var
+		vlDigi : TDigiItem;
+.)
+=
+	RExprDigi<vlDigi>
+(.
+	ParExpr := nil;
+	if (vlDigi <> Nil) then begin
+		ParExpr := vlDigi.CreateReadNode(fNDCreator);
+		vlDigi.Destroy;
+	end;
+.)
+
+.
+
+RExprDigi:"formula"<var ParExpr : TDigiItem>
+(.
+var
+	vlI1 : TDigiItem;
+	vlI2 : TDigiItem;
+	vlI3 : TDigiItem;
+  	vlName : string;
+.)
+=
+RIdentOper<vlI1>  (. ParExpr := vlI1; .)
+[
+IBetween (.LexName(vlName);.)
+
+"(" RIdentOper<vlI2> ")" IAnd "(" RIdentOper<vlI3>")"
+(.
+	ParExpr := TBetweenOperatorDigiItem.Create(vlI1,vlI2,vlI3,vlName);
+	SetDigiPos(ParExpr);
+.)
+
+]
+.
+
+
+RIdentOper<var ParExp : TDigiItem>
+(.
+	var
+		vlDigiL : TDigiItem;
+		vlDigiR : TDigiItem;
+		vlName  : string;
+.)
+=
+
+RCompare<vlDigiL>
+[
+	RIdent<vlName>
+	RCompare<vlDigiR>
+
+	(.
+		vlDigiL := TDualOperatorDigiItem.Create(vlDigiL,vlDigiR,vlName,nil);
+		SetDigiPos(vlDigiL);
+	.)
+]
+
+(. ParExp := vlDigiL .)
+.
+
+
+RCompare<var ParExp:TDigiItem>
+(.
+	var
+		vlDigiL : TDigiItem;
+		vlDigiR : TDigiItem;
+		vlCode  : TIdentCode;
+		vlName:String;
+.)
+
+=
+RLogic<vlDigiL>
+	{ (((">"	    (. vlCode := IC_Bigger;   .))
+	|(">="			(. vlCode := IC_BiggerEq; .))
+	|("<"			(. vlCode := IC_Lower;    .))
+	|("<="			(. vlcode := IC_LowerEq;  .))
+	|("="			(. vlCode := IC_Eq;	  .))
+	|("<>"			(. vlCode := IC_NotEq;	  .))
+	 ) 			(. LexName(vlName);       .)
+ RLogic<vlDigiR>
+				(.
+					vlDigiL := TCompOperatorDigiItem.Create(vlDigiL,vlDigiR,vlName,vlCode);
+					SetDigiPos(vlDigiL);
+				.)
+	)
+	  }
+(.	ParExp := vlDigiL .)
+.
+
+
+
+RLogic<var ParDigi :TDigiItem>
+(.
+var
+		vlDigi1    : TDigiItem;
+		vlDigi2    : TDigiItem;
+		vlName     : string;
+		vlOperator : TRefNodeIdent;
+.)
+=
+RLogicAnd<vlDigi1>
+{
+ ( (IOr  (. vlOperator := TOrNode; .) )
+  |(IXor (. vlOperator := TXorNode;.) ))
+(. LexName(vlName); .)
+
+RLogicAnd<vlDigi2>
+(.
+	vlDigi1 := TDualOperatorDigiItem.Create(vlDigi1,vlDigi2,vlName,vlOperator);
+	SetDigiPos(vlDigi1);
+.)
+
+}
+(. ParDigi := vlDigi1;.)
+
+
+.
+
+
+RLogicAnd<var ParDigi : TDigiItem>
+(.
+var
+	vlDigi1    : TDigiItem;
+    vlDigi2    : TDigiItem;
+	vlName     : string;
+.)
+=
+RAdd<vlDigi1>
+{  IAnd (. LexName(vlName); .)
+
+RAdd<vlDigi2>
+(.
+	vlDigi1 := TDualOperatorDigiItem.create(vlDigi1,vlDigi2,vlName,TAndNode);
+	SetDigiPos(vlDigi1);
+.)
+}
+(.
+	ParDigi := vlDigi1;
+.)
+
+.
+
+
+RAdd:"formula"<var ParDigi : TDigiItem>
+(.
+var
+	vlOperator : TRefNodeident;
+	vlName     : String;
+	vlDigi1    : TDigiItem;
+	vlDigi2    : TDigiItem;
+.)
+=
+
+RShrShl<vlDigi1>
+
+{ (("-"         (.vlOperator := TSubNode;.) )
+  |("+"         (.vlOperator := TAddNode;.) )
+)				(. lexname(vlName);.)
+   RShrShl<vlDigi2>
+(.
+		vlDigi1 := TDualOperatorDigiItem.Create(vlDigi1,vlDigi2,vlName,vlOperator);
+		SetDigiPos(vlDigi1);
+.)
+
+}
+(.
+    ParDigi := vlDigi1;
+.)
+.
+
+
+RShrShl<var ParDigi : TDigiItem>
+(.
+	var
+		vlOperator : TRefNodeIdent;
+		vlDigi1 : TDigiItem;
+		vlDigi2 : TDigiItem;
+		vlName : string;
+	.)
+=
+RTerm<vlDigi1>
+{
+	((IShr (. vlOperator := TShrNode; .))
+    |(IShl (. vlOperator := TShlNode; .)))
+	(. LexName(vlName); .)
+RTerm<vlDigi2>
+	(.
+		vlDigi1 := TDualOperatorDigiItem.Create(vlDigi1,vlDigi2,vlName,vlOperator);
+    .)
+}
+(. ParDigi := vlDigi1.)
+.
+
+
+RTerm:"expression"<var ParDigi : TDigiItem>
+(.
+var
+	vlOperator : TRefNodeIdent;
+	vlneg      : boolean;
+	vlName     : string;
+	vlDigi1    : TDigiItem;
+	vlDigi2    : TDigiItem;
+.)
+=
+				(.
+					vlNeg     := false;
+                    vlOperator := nil;
+				.)
+
+['+'
+|('-'
+            (.
+				   vlNeg := true;
+			   	   lexName(vlName);
+			.)
+)
+]
+
+
+RTypeCast <vlDigi1>
+					(.
+                    	if vlNeg then begin
+							vlDigi1 := TSingleOperatorDigiItem.Create(vlDigi1,vlName,TNegNode);
+							SetDigiPos(vlDigi1);
+						end;
+       				.)
+{  (("*"	    (.  vlOperator := TMulNode;.) )
+   |(IDiv		(.  vlOperator := TDivNode; .))
+   |IMod        (.vlOperator := TModNode;.))
+ 				(.
+					LexName(vlName);
+					vlNeg := false;
+				.)
+[('+')
+|('-'				(.vlNeg := true;.)  )
+
+]   RTypeCast<vlDigi2>
+				(.
+					if vlNeg then begin
+						vlDigi2 := TSingleOperatorDigiItem.create(vlDigi2,'-',TNegNode);
+						SetDigiPos(vlDigi2);
+					end;
+					vlDigi1 := TDualOperatorDigiItem.create(vlDigi1,vlDigi2,vlName,vlOperator);
+					SetDigiPos(vlDigi1);
+				 .)
+}
+				(.
+					ParDigi := vlDigi1;
+				.)
+
+.
+
+RTypeCast:"type castring"<var ParDigi : TDigiItem>
+(.
+var
+		vlDigi : TDigiItem;
+		vlDef  : TDefinition;
+.)
+=
+RSimpelOper<vlDigi> {IAs  RDefIdentObj<vlDef,false> (. vlDigi := TCastDigiItem.Create(vlDigi,vlDef);
+																		 SetDigiPos(vlDigi);.)}
+(. ParDigi := vlDigi; .)
+.
+
+
+
+
+RSimpelOper:"formula"<var ParDigi :TDigiItem>
+(.
+var
+	vlDigi : TDigiItem;
+	vlPtr  : boolean;
+.)
+=
+	(.
+		vlPtr := false;
+	.)
+['@' (. vlPtr := true; .)]
+RComp<vlDigi>
+
+	(.
+		if vlPtr then begin
+			vlDigi := TPointerOfDigiItem.Create(vlDigi);
+			SetDigiPos(vlDigi);
+		end;
+		ParDigi := vlDigi;
+	.)
+.
+
+
+
+RComp:"expression"<var ParDigi : TDigiItem>
+(.
+var
+	vlNode2     : TFormulaNode;
+	vlIdent     : String;
+	vlIndex     : TArrayDigiItem;
+	vlOut       : TIdentHookDigiItem;
+	vlDotOper   : TDotOperDigiItem;
+	vlDigi      : TDigiItem;
+.)
+
+=
+RFact<vlDigi>
+{
+(
+"^"
+(.
+	vlOut := HandleDeReference(vlDigi);
+	vlDigi := vlOut;
+.)
+
+[RParameters<vlOut>]
+
+)
+
+|  ('['
+(.
+	vlIndex := TArrayDigiItem.Create(vlDigi);
+	vlDigi := vlIndex;
+	SetDigiPos(vlIndex);
+.)
+		RExpr<vlNode2>			(. vlIndex.AddIndexItem(vlNode2).)
+	{	',' RExpr<vlNode2>			(. vlIndex.AddIndexItem(vlNode2);.) }
+	']'
+	)
+
+     |(
+
+		"." RIdent<vlIdent>
+		(.
+			vlDotOper := HandleDotOperator(vlDigi,vlIdent);
+			vlDigi := vlDotOper;
+		.)
+		[RParameters<vlDotOper.fField>]
+
+        [
+            (.
+				vlDotOper.HandleRfi(fNDCreator);
+				fNDCreator.AddCurrentDefinitionEx(vlDotOper.GetRecordType,false,true);
+			.)
+			RShortDRoutine<TRoutineCollection(vlDotOper.GetFieldIdentItem),vlDotOper.fField>
+            (.
+            	if vlDotOper.GetRecordType <> nil then fNDCreator.EndIdent;
+			.)
+		]
+
+	 )
+|("#"
+        (. EmptyString(vlIdent) .)  (
+		(TIdent				(.   LexString(vlIdent);  .) )
+	   |RText<vlIdent>)
+(.
+	vlDigi := THashOperatorDigiItem.Create(vlDigi,TStringDIgiItem.Create(vlIdent),'#',nil);
+.)
+	)
+}
+(.
+	ParDigi := vlDigi;
+.)
+.
+
+
+ROwner:"owner indication"<var ParLocal : TDefinition>
+(.
+   var
+		vlNum     : cardinal;
+.)
+=
+                (. vlNum := 1;.)
+
+IOwner
+{IOwner      	(. inc(vlNum) .)	}
+
+(.
+	ParLocal := fNDCreator.GetCurrentDefinitionByNum(vlNum);
+    if ParLocal = nil then begin
+		SemError(Err_Has_No_Owner);
+	end else begin
+		if ParLocal is TClassType then ParLocal := TClassType(ParLocal).fObject;
+	end;
+.)
+.
+
+
+
+RInherited:"inherited"<var ParDigi : TDigiItem>
+(.
+var
+    vlDef     : TDefinition;
+    vlMention : TMN_Type;
+	vlLevel   : cardinal;
+	vlOut     : TIdentHookDigiItem;
+	vlDigi    : TIdentDigiItem;
+.)
+=
+(.
+	vlLevel :=  1;
+    vlOut   := nil;
+.)
+IInherited
+{IInherited			 (. inc(vlLevel); .)
+}
+((IOf IMain		         (. DoInheritedOfMain(vlLevel,vlOut); .) )
+|
+(
+	RIdentObject<nil,vlDef,vlDigi,vlMention>
+	(.
+		vlOut := TIdentHookDigiItem.Create(vlDigi);
+        SetDigiPos(vlOut);
+		vlOut.fInheritLevel := vlLevel;
+
+	.)
+	[RParameters<vlOut>]
+
+))
+(.
+	ParDigi := vlOut;
+.)
+.
+
+
+
+RIdentObject<ParLocal :TRoutine;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type>
+(.
+	var
+		vlIdent : string;
+.)
+=
+RIdent<vlident>
+(.
+		DoIdentObject(ParLocal,ParDef,ParDigi,ParMention,vlIdent);
+.)
+.
+
+
+RParameterList<ParList : THookDigiList>
+(.
+	var vlExpr : TFormulaNode;
+	    vlName : string;
+.)
+
+=
+"("RParam<vlExpr,vlName>   (. ParList.AddItem(vlExpr,vlName); .)
+	{","RParam<vlExpr,vlName>    (. ParList.AddItem(vlExpr,vlName); .)}")".
+
+
+RParameters:"parameters"<ParOut : TIdentHookDigiItem>
+=
+
+	RParameterList<ParOut.fList>
+.
+
+RShortProcDef:"short nested Routine"<ParRoutine : TRoutine>
+(.
+var
+	vlRoutine : TRoutine;
+	vlNode    : TFormulaNode;
+	vlError   : boolean;
+	vlPrn     : TRoutineNode;
+	vlName    : string;
+	vlLineInfo : TNodeident;
+.)
+=
+((RIdent<vlName>
+(.
+	vlNode  := nil;
+	vlPrn   := nil;
+	CreateShortSubCB(ParRoutine,vlName,vlRoutine,vlError);
+.)
+[RParamDef<vlRoutine>])
+(.
+	if not vlError then vlPrn := ProcessShortSubCb(vlRoutine);
+.)
+)
+":"
+(
+RBlockOfCode<vlPrn>|
+(
+ RFormula<vlNode>
+(.
+if not vlError then begin
+	CreateFormulaShortSubCB(vlRoutine,vlNode);
+end else begin
+	if vlNode <> nil then vlNode.Destroy;
+end;
+.)
+)
+) ";"
+(.
+if vlRoutine <> nil then begin
+	vlRoutine.SetIsDefined;
+	EndIdent;
+end;
+.)
+.
+
+
+RShortDRoutine:"short extended Routine"<ParRoutine : TRoutineCollection;ParItem :TIdentHookDigiItem>
+(.
+var
+		vlRoutine : TRoutine;
+        vlPrvAcc  : TDefAccess;
+		vlItem    : TShortNotationDigiItem;
+		vlContext : TDefinition;
+.)
+=
+(.
+	vlPrvAcc := fNDCreator.fCUrrentDefAccess;
+	fNDCreator.fCurrentDefAccess := AF_Private;
+	vlRoutine := CreateShortERtn(ParRoutine,ParItem);
+	fNDCreator.fCurrentDefAccess := AF_Protected;
+.)
+IWhere {RShortProcDef<vlRoutine>|RRoutine} IEnd
+(.
+	fNDCreator.fCurrentDefAccess := vlPrvAcc;
+	ProcessShortDyRoutine(vlRoutine);
+	if vlRoutine <> nil then vlContext := vlRoutine.GetRealOwner;
+	vlItem := TShortNotationDigiItem.Create(vlRoutine,vlContext);
+	SetDigiPos(vlItem);
+	ParItem.SetShort(vlItem);
+.)
+.
+
+RIdentMention<var ParDigi : TIdentHookDigiItem>
+(.
+	var
+            vlDef     : TDefinition;
+            vlMention : TMN_Type;
+            vlLocal   : TDefinition;
+			vlDigi    : TIdentDigiItem;
+.)
+=
+(. vlLocal := nil; .)
+[ROwner<vlLocal>]
+RIdentObject<TRoutine(vlLocal),vlDef,vlDigi,vlMention>
+(.
+	ParDigi := TIdentHookDigiItem.Create(vlDigi);
+	ParDigi.fLocal := vlLocal;
+    SetDigiPos(ParDigi);
+.)
+[RParameters<ParDigi>]
+[RShortDRoutine<TRoutineCollection(vlDef),ParDigi>]
+(* Remove TRoutineCollection cast *)
+.
+
+
+RFact:"formula"<var ParDigi : TDigiItem>
+(.
+var
+	vlNum   : TNumber;
+	vlValid : boolean;
+	vlPSt   : String;
+	vlName  : string;
+	vlExpr  : TDigiItem;
+.)
+=
+(.
+	vlValid := true;
+	ParDigi := nil;
+ .)
+(
+
+  RIdentMention<TIdentHookDigiItem(ParDigi)>
+ |RInherited<TIdentHookDigiItem(ParDigi)>
+ |( RNumber<vlNum,vlValid>
+	(.
+		if not(LargeInRange(vlNum ,Min_Longint, Max_Cardinal)) then SemError(Err_Num_Out_Of_Range);
+		if not vlValid then SemError(Err_int_Invalid_number);
+		ParDigi := TNUmberDigiItem.Create(vlNum);
+	.)
+  )
+|(RText<vlPst>  (. ParDigi := TStringDigiItem.Create(vlPst);.) )
+|(INil          (. ParDigi := TNilDigiItem.Create .))
+|(
+
+INot				(.   LexName(vlName); .)
+
+"("  RExprDigi<vlExpr> ")"          (. ParDigi := TSingleOperatorDigiItem.Create(vlExpr,vlName,TNotNode); .))
+|(ISizeOf "(" RExprDigi<vlExpr> ")" (. ParDigi := TSizeOfDigiItem.Create(vlExpr);.) )
+|( "(" RExprDigi<ParDigi> ")" )
+)
+(.
+	SetDigiPos(ParDigi);
+.)
+
+.
+
+
+RParam:"parameter"<var ParExpr : TFormulaNode;var ParName : string>
+=
+(. EmptyString(ParName); .)
+(RExpr<ParExpr> [">>" RIdent<ParName> ] )
+.
+
+END.

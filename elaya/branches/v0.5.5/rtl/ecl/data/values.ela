@@ -1,0 +1,210 @@
+unit;
+uses dlib;
+
+public
+const
+	vt_unkown = 1;
+	vt_string = 2;
+
+type TValue=class inherit TRoot
+			private
+			var
+				voValueType : long;
+			protected
+				procedure commonsetup;override;
+			public
+
+				property ValueType : Long;
+				begin
+					private write voValueType;
+					public read voValueType;
+				end;
+
+				function GetString(var ParString : string):boolean;virtual;
+				function Add(const ParString : string):boolean;virtual;overload;
+				function Add(ParValue : TValue) : boolean;virtual;overload;
+				function Clone : TValue;virtual;
+	end;
+
+		TString=class inherit TValue
+		private
+			var
+				voSize   : long;
+				voString : pasc;
+         	procedure SetStringPtr(ParAsc : PAsc;ParSize : long);
+			protected
+				procedure commonsetup;override;
+				procedure clear;override;
+		public
+
+			constructor create(const ParString : String);overload;
+			constructor Create(const ParString : Asc);overload;
+			function    GetString(var ParString : string):boolean; override;
+			procedure   SetString(const ParStr : string);overload;
+			procedure   SetString(const ParStr : Asc);overload;
+			function    Add(const ParString : string):boolean;override;overload;
+			function    Add(ParValue : TValue) : boolean;override;overload;
+			function    Clone : TValue;override;
+			function 	IsSameStr(const ParStr : string):boolean;
+
+		public
+			property StringSize : long;
+			begin
+				public read voSize;
+				private write voSize;
+			end;
+
+			property StringValue : Pasc;
+			begin
+				public read voString;
+				private write voString;
+			end;
+
+		public
+
+         procedure Scan; inherit StringScanner(StringValue^);
+		end;
+
+
+end public
+
+
+
+function TValue.Add(const ParString : string):boolean;virtual;overload;
+begin
+	exit(false);
+end;
+
+function TValue.Add(ParValue : TValue) : boolean;virtual;overload;
+begin
+	exit(false);
+end;
+
+procedure TValue.commonsetup;override;
+begin
+	inherited Commonsetup;
+	ValueType := vt_unkown;
+end;
+
+function TValue.GetString(var ParString : string):boolean;virtual;
+begin
+	ParString.length := 0;
+	exit(false);
+end;
+
+function TValue.Clone : TValue;virtual;
+begin
+	exit(TValue.Create);
+end;
+
+{---( TString )-------------------------------------------------------------------}
+
+procedure TString.SetStringPtr(ParAsc : PAsc;ParSize : long);
+begin
+	if StringValue <> nil then FreeMem(StringValue);
+	StringValue := ParAsc;
+	StringSIze := ParSIze;
+end;
+
+
+procedure TString.Scan; inherit StringScanner(StringValue^);
+end;
+
+function TString.IsSameStr(const ParStr : string):boolean;
+begin
+     exit(voString^ = ParStr);
+end;
+
+function TString.Clone : TValue;override;
+begin
+	exit(TString.Create(voString^));
+end;
+
+
+function TString.Add(const ParString : string):boolean;override;overload;
+var
+	vlLength : long;
+	vlPtr    : Pasc;
+begin
+	vlLength := StringSize + ParString.length;
+	vlPtr := reservemem(vlLength+1);
+	move(StringValue,vlPtr,StringSize);
+	move(@ParString[1],vlPtr + StringSize,ParString.Length+1);
+   SetStringPtr(vlPtr,vlLength);
+end;
+
+function TString.Add(ParValue : TValue) : boolean; override;overload;
+var
+	vlStr : string;
+	vlLength : long;
+	vlPtr : PAsc;
+	vlVal : TString;
+begin
+	if ParValue.ValueType = vt_string then begin
+		vlVal := ParValue as TString;
+      vlLength := StringSize + vlVal.StringSize;
+		vlPtr := reservemem(vlLength+1);
+		move(StringValue,vlPtr,StringSize);
+		move(vlVal.StringValue,vlPtr + StringSIze,vlVal.StringSize + 1);
+		SetStringPtr(vlPtr,vlLength);
+		exit(false);
+	end;
+	exit(true);
+end;
+
+
+procedure TString.SetString(const ParStr : string);overload;
+var
+	vlPtr : PAsc;
+begin
+	vlPtr := reservemem(ParStr.length+1);
+	vlPtr^ := ParStr;
+	SetStringPtr(vlPtr,ParStr.length);
+end;
+
+procedure TString.SetString(const ParStr : Asc);overload;
+var
+	vlPtr : PAsc;
+	vlLength : long;
+begin
+	vlLength := AsciizLength(ParStr);
+	vlPtr := ReserveMem(vlLength+1);
+	move(@ParStr,vlPtr,vlLength + 1);
+	SetStringPtr(vlPtr,vlLength);
+end;
+
+procedure TString.clear;override;
+begin
+	inherited Clear;
+	if StringValue <> nil then freemem(StringValue);
+end;
+
+constructor TString.Create(const ParString : string);overload;
+begin
+	inherited Create;
+	SetString(ParString);
+end;
+
+constructor TString.Create(const ParString : Asc);overload;
+begin
+	inherited Create;
+	SetString(ParString);
+end;
+
+procedure TString.commonsetup;override;
+begin
+	inherited Commonsetup;
+	StringValue := nil;
+	ValueType := VT_String;
+end;
+
+function TString.GetString(var ParString : string):boolean;override;
+begin
+	ParString := voString^;
+	exit(true);
+end;
+
+end.
+
+
+

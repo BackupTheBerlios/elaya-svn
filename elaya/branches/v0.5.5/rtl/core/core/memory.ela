@@ -1,0 +1,103 @@
+{    Elaya Rtl  for the elaya compiler
+    Copyright (C) 1999,2000  J.v.Iddekinge.
+
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+uses core;
+public
+
+	procedure FillBytes(ParDest : PVoid;ParSize : long;ParByte : byte);
+   function  FindByte(ParBegin : pointer;ParSize : long;ParByte: byte):pointer;
+	procedure Move(ParSource,ParDest:Pvoid;ParSIze:long);
+	function  AreBytesEqual(ParFirst,ParSecond : pointer;ParSize:long) : boolean;
+end public
+
+function  AreBytesEqual(ParFirst,ParSecond : pointer;ParSize:long) : boolean;
+var
+	vlPtr1 : pbyte;
+	vlPtr2 : pbyte;
+	vlSize : long;
+begin
+	vlPtr1 := ParFirst;
+	vlPtr2 := ParSecond;
+	vlSize := ParSize;
+	while (vlSize > 0) do begin
+		if vlPtr1^ <> vlPtr2^ then exit(false);
+		inc(vlPtr1);
+		inc(vlPtr2);
+		dec(vlSize);
+	end;
+	exit(true);
+end;
+
+{-----( FIndByte )-------------------------------------------------}
+
+function  FindByte(ParBegin : pointer;ParSize : long;ParByte: byte):pointer;
+var
+	vlPtr : pointer;
+	vlSize : long;
+begin
+	vlPtr := ParBegin;
+	vlSize  := ParSize;
+	while (vlSize > 0) and ((vlPtr as pbyte)^ <> ParByte) do begin
+		dec vlSIze;
+		inc vlPtr;
+	end;
+	if vlSize = 0 then exit(nil);
+	exit(vlPtr);
+end;
+
+{----( FillBytes) --------------------------------------------------}
+
+procedure FillBytes(ParDest : PVoid;ParSize : long;ParByte : byte);
+var
+	vlCnt : long;
+	vlDest : PByte;
+begin
+	vlCnt := ParSize;
+	vlDest := ParDest;
+	while vlCnt > 0 do begin
+		vlDest^ := ParByte;
+		dec vlCnt;
+		inc vlDest;
+	end;
+end;
+
+
+{----( Move )------------------------------------------------------}
+
+procedure Move(ParSource,ParDest:PVoid;ParSIze:long);
+var
+	vlSource : PByte;
+	vlDest   : PByte;
+	vlSize   : long;
+begin
+	vlSource := ParSource as pbyte;
+	vlDest   := ParDest as pbyte;
+	vlSize   := ParSize;
+	while vlSize > 0 do begin
+		vlDest^ := vlSource^;
+		dec vlSize;
+		inc vlSource;
+		inc vlDest;
+	end;
+end;
+
+
+
+end.

@@ -1,0 +1,739 @@
+{    Elaya Rtl  for the elaya compiler
+    Copyright (C) 1999,2000  J.v.Iddekinge.
+
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+uses core,sys_int;
+
+public
+
+const
+	FM_Closed	= 0;
+	FM_Binary	= 1;
+	FM_Text		= 2;
+
+	FT_Normal  = 1;
+	FT_Text    = 2;
+
+type
+
+     TTextExtra=record
+        vrBufferSize : Long;
+        vrBuffer     : pvoid;
+        vrBufferPos  : long;
+        vrBufferFil  : long;
+        vrReadMode   : boolean;
+        vrFilePos    : long;
+     end;
+
+     PTextExtra=ptr TTextExtra;
+     
+   TFileCloseRoutine = function(var ParFile:void):boolean;
+   TFileEofRoutine   = function(var ParFile : void):boolean;
+   TFileOpenRoutine  = function(ParSelf : pointer;var ParFileRec:void; const ParFileName : string; ParRw:TOpenMode):boolean;
+   TFileReadRoutine  = function(var ParFile:void;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
+   TFileWriteRoutine = function(var ParFile:void;ParSize:Long;var ParWritten : long;const ParBuffer:void):boolean;
+   TFileBlockingRoutine=function(var ParFile:void;ParBlock : boolean):boolean;
+   TFileWaitRoutine=function(var ParFile : void;ParTimeOut : long;var ParFound : boolean):boolean;
+
+   PFileSelf=ptr TFileSelf;
+
+  TFileSelf=record
+		vrParent                : PFileSelf;
+		vrType                  : long;
+		vrCloseRoutine          : TFileCloseRoutine;
+		vrEofRoutine            : TFIleEofRoutine;
+		vrOpenRoutine           : TFIleOpenRoutine;
+		vrReadRoutine           : TFileReadRoutine;
+		vrWriteRoutine          : TFileWriteRoutine;
+		vrWaitForReadRoutine    : TFileWaitRoutine;
+		vrSetBlockingRoutine    : TFileBlockingRoutine;
+   end;
+
+   
+   TFile=record
+		vrSelf        :PFileSelf;
+		vrHandle      :long;
+		vrRw          :TOpenMode;
+		vrOpen        :boolean;
+		vrExtraSize   :long;
+		vrExtra       :pointer;
+   end;
+
+
+
+
+{---( Process )------------------------------------------------------------}
+
+procedure Quit(ParInt:longint);
+procedure GetArgument(ParNo:long;var ParStr:string);
+function  GetNumberOfArguments : long;
+function  GetEnvByNum(ParNo : long;var ParVal: string):boolean;
+function  GetEnvByName(const ParName : string;var ParValue:string):boolean;
+
+
+
+{---( Memmory )-------------------------------------------------------}
+
+procedure FreeMem(ParPtr : PVoid);
+function  ReserveMem(ParSize : long):pvoid;
+function  ReReserveMem(ParPtr : Pointer; ParSize : long):pointer;
+{---( Support function for write/writeln )--------------------------}
+
+procedure PutNl;
+procedure Put(ParInt : Longint); overload; default;
+procedure put(ParInt : long);overload exact;default;
+procedure Put(ParBool : boolean);  overload;default;
+procedure Put(ParChar : char);   overload; default;
+procedure Put(const ParChar : asc); overload;default;
+procedure Put(const ParStr : string);  overload;default;
+
+{---( File )------------------------------------------------------------}
+
+function  Eof(var ParFile : TFile):boolean;overload;
+function  OpenFile(ParSelf : PFileSelf;var ParFile : TFile; const ParFileName : string; ParMode:TOpenMode):boolean;
+function  CloseFile(var ParFile:TFile):boolean;overload;
+function  ReadFile(var ParFile:TFile;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
+function  WriteFile(var ParFile:TFile;ParSize:Long;var ParWritten : long;const ParBuffer:void):boolean;
+procedure ReadText(var ParFileRec:TFile;var ParStr:string);
+procedure WriteText(var ParFile : TFile;const ParStr : string);
+function  WaitForRead(var ParFile : TFile;ParTimeOut : long;var ParFound : boolean):boolean;overload;
+function  Seek(var ParFileRec:TFile;ParPos:Longint;ParMethod:TSeekMode;var ParNewPos : longint):boolean;
+function  GetFilePos(var ParFile : TFile):longint;
+function  GetFileSize(var ParFile : TFile):longint;
+function  SetBlocking(var ParFile : TFile;PArBlock:boolean):boolean;
+function  GetC:byte;
+procedure InheritFileSelf(var ParNew : TFileSelf;const ParOld : TFileSelf);
+function  IsFileSelfType(const ParFile : TFile;ParType : long):boolean;
+
+{----( Directory )------------------------------------------------}
+
+function  OpenDir(const ParName : string;var ParDir : TDir):boolean;
+function  ReadDir(var ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
+function  CloseDir(var ParDir : TDir):boolean;
+function  GetCurrentDirectory(var   ParPathName :string):boolean;
+function  SetCurrentDirectory(const ParPathName :string):boolean;
+
+
+
+var
+                InputFile  : TFile;
+                InputText  : TFile;
+                OutputFile : TFile;
+                
+                NormalFile : PFileSelf;
+                Textfile   : PFileSelf;
+
+end public
+var
+	vlNormalFileSelf : TFileSelf;
+         vlTextFileSelf   : TFileSelf;
+
+
+{---( Enviroment )-------------------------------------------------}
+
+function GetEnvByName(const ParName : string;var ParValue:string):boolean;
+var
+	vlStr : string;
+	vlCnt : long;
+	vlLe  : long;
+begin
+	vlCnt := 0;
+	vlLe  := ParName.length ;
+	while GetEnvByNum(vlCnt,vlStr) do begin
+		if (vlStr.Length >= vlLe+1) and (vlStr[vlLe+1]='=') and (copy(vlStr,1,vlLe)=ParName) then begin
+			ParValue := copy(vlStr,vlLe+2,vlStr.length - vlLe-1);
+			exit(true);
+		end;
+		inc(vlCnt);
+	end;
+	exit(false);
+end;
+
+
+function GetEnvByNum(ParNo : long;var ParVal:string):boolean;
+var
+    vlAsc  :PAsc;
+    vlRes  : boolean;
+begin
+	vlAsc := int_GetEnvByNo(ParNo);
+	if vlAsc = nil then begin
+		vlRes := false;
+		ParVal.length := 0;
+	end else begin
+		vlRes  := true;
+		ParVal := vlAsc^;
+	end;
+	exit(vlRes);
+end;
+
+
+{----( Dyn. Geheugen )---------------------------------------------}
+
+procedure FreeMem(ParPtr:Pvoid);
+begin
+	Int_FreeMem(ParPtr);
+end;
+
+function ReserveMem(ParSize:long):pvoid;
+var
+	vlPtr : pvoid;
+begin
+	vlPtr := int_ReserveMem(ParSIze);
+end;
+
+function ReReserveMem(ParPTr:Pointer;ParSize:long):pointer;
+var
+	vlPtr : Pvoid;
+begin
+	vlPtr := int_ReReserveMem(ParPtr,ParSize);
+	exit(vlPtr);
+end;
+
+{----( Procedures voor Write/Writeln )------------------------}
+
+
+procedure Put(const  ParStr:string);overload;default;
+var
+	vlOut : long;
+begin
+	WriteFile(OutputFile,ParStr.length,vlOut,ParStr[1]);
+end;
+
+
+
+procedure  Put(ParInt:Longint); overload;default;
+var
+	vlStr:String;
+begin
+	str(ParInt,vlStr);
+	Put(vlStr);
+end;
+
+procedure put(ParInt:long);overload exact;default;
+var
+	vlStr : string;
+begin
+	str(ParInt,vlStr);
+	put(vlStr);
+end;
+
+procedure  Put(ParBool:boolean); overload;default;
+begin
+	if ParBool then Put('True')
+              else Put('False');
+end;
+
+
+procedure Put(ParChar:char); overload;default;
+var vLStr:String;
+begin
+	vlStr.Length := 1;
+	vlStr[1] := ParChar;
+	Put(vlStr);
+end;
+
+procedure PutNl; default;
+begin
+
+	Put(crlf);
+end;
+
+procedure Put(const ParChar:asc);   overload;default;
+var
+	vlOut : long;
+begin
+	WriteFile(OutputFile,AsciizLength(ParChar),vlOut,ParChar);
+end;
+
+
+
+{----( FileHandling )----------------------------------------------}
+
+
+procedure InheritFileSelf(var ParNew : TFileSelf;const ParOld : TFileSelf);
+begin
+	ParNew          := ParOld;
+	ParNew.vrParent := @ParOld;
+end;
+
+function CheckErrIfClosed(const ParFile : TFile):boolean;
+begin
+     if not(ParFile.vrOpen)  then begin
+        SetError(Err_Not_Open);
+        exit(true); 
+     end;
+     exit(false);
+end;
+
+
+function  OpenDir(const ParName : string;var ParDir : TDir):boolean;
+var vlRet : boolean;
+begin
+	vlRet := Int_OpenDir(ParName,ParDir);
+	exit(vlRet);
+end;
+
+function  ReadDir(var ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
+var
+	vlRet : TReadStatus;
+begin
+	vlRet := int_ReadDir(ParDir,ParFileInfo);
+	exit(vlRet);
+end;
+
+function  CloseDir(var ParDir : TDir):boolean;
+var
+	vlRet : boolean;
+begin
+	vlRet := int_CloseDir(ParDir);
+	exit(vlRet);
+end;
+
+
+function  GetCurrentDirectory(var   ParPathName :string):boolean;
+var
+	vlRet : boolean;
+begin
+	vlRet := int_GetCurrentDirectory(ParPathName);
+	exit(vlRet);
+end;
+
+function SetCurrentDirectory(const ParPathName :string):boolean;
+var vlRet : boolean;
+begin
+	vlRet := int_chdir(ParPathName);
+	exit(vlRet);
+end;
+
+
+procedure AssignHandle(ParSelf :PFileSelf;ParHandle : cint;var ParFileRec:TFile;ParRw:TOpenMode);
+begin
+	ParFileRec.vrSelf         := ParSelf;
+	ParFileRec.VrHandle	  := ParHandle;
+	ParFileRec.vrOpen	  := true;
+	ParFileRec.vrRw	  	  := ParRw;
+	ParFileRec.vrExtra	  := nil;
+end;
+
+
+procedure ft_AssignHandle(ParSelf : PFileSelf;ParHandle : cint;var ParFileRec:TFile;ParRw:TOpenMode);
+begin
+	ParFileRec.vrSelf     := ParSelf;
+	ParFileRec.vrHandle   := ParHandle;
+	ParFileRec.vrOpen     := true;
+	ParFileRec.vrRw       := ParRw;
+	ParFileRec.vrExtra    := ReserveMem(Sizeof(TTextExtra));
+	((ParFileRec.vrExtra) as PTextExtra)^.vrBufferpos   := 0;
+	((ParFileRec.vrExtra) as PTextExtra)^.vrBufferFil  := 0;
+	((ParFileRec.vrExtra) as PTextExtra)^.vrBufferSize := 4096;
+	((ParFileRec.vrExtra) as PTextExtra)^.vrReadMode   := false;
+	((ParFileRec.vrExtra) as PTextExtra)^.vrBuffer     := ReserveMem((ParFileRec.vrExtra as PTextExtra)^.vrBufferSize);
+	((ParFileRec.vrExtra) as PTextExtra)^.vrFilePos    := 0;
+end;
+
+function ft_CloseFile(var ParFileRec:TFile):boolean;
+var
+	vlRet : boolean;
+    vlExtra : PTextExtra;
+begin
+	vlRet := true;
+	if ParFileRec.vrOpen then begin
+		vlRet := int_Close(ParFileRec.vrHandle);
+		ParFileRec.vrOpen := false;
+		vlExtra := ParFileRec.vrExtra;
+		if vlExtra <> nil then begin
+			if vlExtra^.vrBufferSize <> 0 then Freemem(vlExtra^.vrBuffer);
+			Freemem(vlExtra);
+		end;
+	end;
+	exit(vlRet);
+end;
+
+
+function ft_Eof(var ParFile:TFile):boolean;
+var
+	vlExtra : PTextExtra;
+begin
+	if not(int_eof(ParFile.vrHandle)) then exit(false);
+	vlExtra := ParFile.vrExtra as PTextExtra;
+	if vlExtra = nil then exit(true);
+	if (vlExtra^.vrReadMode) and (vlExtra^.vrBufferSize > 0) then begin
+		exit(vlExtra^.vrBufferPos >= vlExtra^.vrBufferFil);
+	end;
+	exit(false);
+end;
+
+
+function ft_OpenFile(ParSelf : PFileSelf;var ParFileRec:TFile;const ParFileName:String;ParRW:TOpenMode):boolean;
+var
+	vlHandle : cint;
+	vlErr    : boolean;
+begin
+	ParFileRec.vrOpen := false;
+	vlErr := int_Open(ParFileName,ParRw,vlHandle);
+	if not(vlErr) then ft_AssignHandle(ParSelf,vlHandle,ParFileRec,ParRw);
+	exit(vlErr);
+end;
+
+function fn_OpenFile(ParSelf : PFileSelf;var ParFileRec : TFile; const ParFileName : string; ParRw:TOpenMode):boolean;
+var
+    vlHandle : cint;
+    vlErr    : boolean;
+begin
+	ParFileRec.vrOpen := false;
+	vlErr := int_open(ParFileName,ParRw,vlHandle);
+	if not(vlErr) then AssignHandle(ParSelf,vlHandle,ParFileRec,ParRw);
+	exit(vlErr);
+end;
+
+
+function fn_WriteFile(var ParFile:TFile;ParSize:Long;var ParWritten : long;const ParBuffer:void):boolean;
+begin
+	if CheckErrIfClosed(ParFile) then exit(true);
+	ParWritten := int_Write(ParFile.vrHandle,@parBuffer,ParSize);
+	exit(GetLastError<>0);
+end;
+
+function fn_ReadFile(var ParFile:TFile;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
+begin
+	if CheckErrIfClosed(ParFile) then exit(true);
+	ParRead := int_Read(ParFile.vrHandle,@ParBuffer,ParSize);
+	exit(GetLastError<>0);
+end;
+
+
+
+
+function fn_CloseFile(var ParFileRec:TFile):boolean;
+var
+	vlRet : boolean;
+begin
+	vlRet := true;
+	if CheckErrIfClosed(ParFileRec) then exit(true);
+	vlRet  := int_close(ParFileRec.vrHandle);
+	ParFileRec.vrOpen := false;
+	if (ParFileRec as TFile).vrExtra <> nil then freemem(ParFileRec.vrExtra);
+	ParFileRec.vrExtra := nil;
+	exit(vlRet);
+end;
+
+function fn_Eof(var ParFileRec : TFile):boolean;
+var
+	vlRes : boolean;
+begin
+	if CheckErrIfClosed(ParFileRec) then exit(true);
+	vlRes := int_eof(ParFileRec.vrHandle);
+	exit(vlRes);
+end;
+
+
+function  fn_WaitForRead(var ParFile : TFile;ParTimeOut : long;var ParFound : boolean):boolean;
+begin
+	ParFound := false;
+	if CheckErrIfClosed(ParFile) then exit(true);
+	ParFound := int_WaitForRead(ParFile.vrHandle,ParTimeOut);
+	exit(GetLastError<> 0);
+end;
+
+function fn_SetBlocking(var ParFile:TFile;ParBlock:boolean):boolean;
+begin
+	Int_SetInBlock(ParFile.vrHandle,ParBlock);
+	exit(GetLastError <> 0);
+end;
+
+function SetBlocking(var ParFile : TFIle;ParBlock : boolean):boolean;
+begin
+	if(ParFile.vrSelf = nil) or (ParFile.vrSelf^.vrSetBlockingRoutine = nil) then begin
+		SetError(ERR_Not_Implemented);
+		exit(true);
+	end;
+	exit(ParFile.vrSelf^.vrSetBlockingRoutine^(ParFile,ParBlock));
+end;
+
+
+function  GetC:byte;
+var
+	vlRet:byte;
+begin
+	if int_Read(stdin_fileNo,@vlRet,1) <> 1 then vlRet := 0;
+	exit(vlRet);
+end;
+
+
+
+
+function IsFileSelfType(const ParFile : TFile;ParType : long):boolean;
+begin
+	exit(ParFile.vrSelf^.vrType = ParType);
+end;
+
+function Eof(var ParFile : TFile):boolean;overload;
+begin
+	if (ParFile.vrSelf=nil) or (ParFile.vrSelf^.vrEofRoutine = nil) then begin
+        	SetError(Err_Not_Implemented);
+                exit(true);
+	end;
+        exit(ParFile.vrSelf^.vrEofRoutine^(ParFile));
+end;
+
+function  WaitForRead(var ParFile : TFile;ParTimeOut : long;var ParFound : boolean):boolean;overload;
+begin
+     ParFound := false;
+     if(ParFile.vrSelf = nil) or (ParFile.vrSelf^.vrWaitForReadRoutine = nil) then begin
+     	   SetError(Err_Not_Implemented);
+           exit(true);
+     end;
+     ParFound := ParFile.vrSelf^.vrWaitForReadRoutine^(ParFile,ParTimeOut,ParFound);
+     exit(GetLastError<> 0);
+end;
+
+function OpenFile(ParSelf : PFileSelf;var ParFile : TFile; const ParFileName : string; ParMode:TOpenMode):boolean;
+begin
+	if ParSelf^.vrOpenRoutine=nil then begin
+		SetError(Err_Not_Implemented);
+		exit(true);
+	end;
+	exit(ParSelf^.vrOpenRoutine^(ParSelf,ParFile,ParFileName,ParMode));
+end;
+
+function CloseFile(var ParFile : TFile):boolean;overload;
+begin
+        if (ParFile.vrSelf=nil) or (ParFile.vrSelf^.vrCloseRoutine = nil) then begin
+        	SetError(Err_Not_Implemented);
+                exit(true);
+	end;
+        exit(ParFile.vrSelf^.vrCloseRoutine^(ParFile  ));
+end;
+
+
+function ReadFile(var ParFile:TFile;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
+begin
+	if (ParFile.vrself= nil) or (ParFile.vrSelf^.vrReadRoutine= nil) then begin
+		SetError(Err_Not_Implemented);
+ 		exit(true);
+	end;
+	exit(ParFile.vrSelf^.vrReadRoutine^(ParFile,ParSize,ParRead,ParBuffer));
+end;
+
+
+
+function WriteFile(var ParFile:TFile;ParSize:long;var ParWritten : long;const ParBuffer : void):boolean;
+begin
+	if (ParFile.vrSelf= nil) or (ParFile.vrSelf^.vrWriteRoutine = nil) then begin
+		SetError(Err_Not_Implemented);
+		exit(true);
+	end;
+	exit(ParFile.vrSelf^.vrWriteRoutine^(ParFile,ParSize,ParWritten,ParBuffer));
+end;
+
+
+function CheckBufferPos(var ParFileRec:TFile):boolean;
+var
+	vlExtra : PTextExtra;
+	vlSize  : longint;
+	vlError : boolean;
+begin
+	vlError := false;
+	vlExtra := ParFileRec.vrExtra as PTextExtra;
+	if vlExtra = nil then exit(true);
+	if vlExtra^.vrBufferPos >= vlExtra^.vrBufferFil then begin
+		vlExtra^.vrFilePos   := int_filepos(ParFileRec.vrHandle);
+		vlSize := int_Read(ParFileRec.vrHandle,vlExtra^.vrBuffer,vlExtra^.vrBufferSize);
+		vlExtra^.vrBufferFil := 0;
+		if vlSize > 0 then begin
+			 vlExtra^.vrBufferFil := vlSize;
+		end else begin
+			vlError := true;
+		end;
+ 		vlExtra^.vrBufferPos := 0;
+		vlExtra^.vrReadMode  := true;
+   end;
+   exit(vlError);
+end;
+
+function GetNextByte(var ParFile:TFile;var ParByte : byte):boolean;
+var
+	vlExtra : PTextExtra;
+begin
+        vlExtra := ParFile.vrExtra as PTextExtra;
+		if vlExtra = nil then exit(true);
+        if vlExtra^.vrBufferSize = 0 then begin
+           int_read(ParFile.vrHandle,@ParByte,1);
+           exit(false);
+        end;
+        if CheckBufferPos(ParFile) then exit(true);
+        ParByte := ((vlExtra^.vrBuffer + vlExtra^.vrBufferPos) as pbyte)^;
+        vlExtra^.vrBufferPos := vlExtra^.vrBufferPos + 1;
+        exit(false);
+end;
+
+function PeekBufferByte(ParFile:TFile;var ParBt:byte):boolean;
+var
+	vlExtra : PTextExtra;
+begin
+    if CheckBufferPos(ParFile) then exit(true);
+    vlExtra := ParFile.vrExtra as PTextExtra;
+    ParBt := ((vlExtra^.vrBuffer + vlExtra^.vrBufferPos) as pbyte)^;
+   exit(false);
+end;
+
+
+procedure WriteText(var ParFile : TFile;const ParStr : string);
+var vlLf    : string;
+    vlExtra : PTextExtra;
+begin
+	if ParFile.vrSelf^.vrType <> FT_Text then begin
+		SetError(Err_Wrong_Type_Of_File);
+		exit;
+	end;
+	vlExtra := ParFile.vrExtra as PTextExtra;
+	if vlExtra = nil then begin
+		SetError(Err_Not_Open);
+		exit;
+	end;
+	if vlExtra^.vrReadmode then begin
+        int_seek(ParFile.vrHandle,vlExtra^.vrFilePos + vlExtra^.vrBufferPos,sm_begin);
+        if GetLastError <> 0 then exit;
+        vlExtra^.vrReadMode  := false;
+        vlExtra^.vrBufferPos := 0;
+        vlExtra^.vrBufferFil := 0;
+     end;
+     vlLf[1] := 10 as char;
+     vlLf.length := 1;
+     int_write(ParFile.vrHandle,@ParStr[1],ParStr.Length);
+     if GetLastError <> 0 then exit;
+     int_write(ParFile.vrHandle,@vlLf[1],1);
+end;
+
+
+procedure ReadText(var ParFileRec:TFile;var ParStr:string);
+var vlB1   : byte;
+    vlCnt  : long;
+    vlPeek : byte;
+begin
+	if ParFileRec.vrSelf^.vrType <> FT_Text then begin
+		SetError(Err_Wrong_Type_Of_File);
+		exit;
+	end;
+	ParStr.Length := 0 ;
+	vlCnt := 0;
+	while not(GetNextByte(ParFileRec,vlB1)) do begin
+		if (vlB1 = 13) or (vlB1 = 10) then begin
+			if PeekBufferByte(ParFileRec,vlPeek) then break;
+			if ((vlPeek = 13) or (vlPeek=10)) and (vlPeek <> vlB1) then begin
+				GetNextByte(parFileRec,vlB1);
+			end;
+			break;
+		end;
+		inc(vlCnt);
+		if vlCnt < 256 then ParStr[vlCnt] := vlB1 as char;
+	end;
+	if vlCnt > 255 then vlCnt := 255;
+	ParStr.Length := vlCnt;
+end;
+
+
+function Seek(var ParFileRec:TFile;ParPos:Longint;ParMethod:TSeekMode;var ParNewPos : longint):boolean;
+begin
+   if CheckErrIfClosed(ParFileRec) then exit(true);
+   ParNewPos :=int_Seek(ParFileRec.vrHandle,ParPos,parMethod);
+   exit(GetLastError <> 0);
+end;
+
+
+function  GetFilePos(var ParFile : TFile):longint;
+var
+	vlPos : longint;
+begin
+	if CheckErrIfClosed(ParFile) then exit(0);
+	if Seek(ParFile,0,SM_Current,vlPos) then exit(0);
+	exit(vlPos);
+end;
+
+function GetFileSize(var ParFile : TFile):longint;
+var
+        vlSize : cint;
+begin
+	if CheckErrIfClosed(ParFile) then exit(0);
+	if  int_GetFileSize(ParFile.vrHandle,vlSize) then vlSize := 0;
+	exit(vlSize);
+end;
+
+
+{----( Quit )------------------------------------------------------}
+
+procedure Quit(ParInt:longint);
+begin
+     Int_Quit(ParInt);
+end;
+
+
+
+
+function  GetNumberOfArguments : long;
+begin
+   exit(int_GetNumberOfArguments);
+end;
+
+procedure GetArgument(ParNo:long;var ParStr:string);
+begin
+	Int_GetArgument(ParNo,PArStr);
+end;
+
+
+
+
+
+procedure SegFaultHandler(ParAddres : long);
+var vlStr :string;
+begin
+     IntToHex(ParAddres,vlStr,8);
+     writeln('Segmentation fault at:0x',vlStr);
+     Quit(1);
+end;
+
+
+
+begin
+   vlNormalFileSelf.vrParent       := nil;
+   vlNormalFileSelf.vrType         := FT_Normal;
+   vlNormalFileSelf.vrCloseRoutine := @fn_CloseFile;
+   vlNormalFileSelf.vrEofRoutine   := @fn_eof;
+   vlNormalFileSelf.vrOpenRoutine  := @fn_OpenFile;
+   vlNormalFileSelf.vrReadRoutine  := @fn_ReadFile;
+   vlNormalFileSelf.vrWriteRoutine := @fn_WriteFile;
+   vlNormalFileSelf.vrWaitForReadRoutine := @fn_WaitForRead;
+   vlNormalFileSelf.vrSetBlockingRoutine := @fn_SetBlocking;
+   NormalFile := @vlNormalFileSelf;
+   vlTextFileSelf.vrParent       := nil;
+   vlTextFileSelf.vrType         := FT_Text;
+   vlTextFileSelf.vrCloseRoutine := @ft_CloseFile;
+   vlTextFileSelf.vrEofRoutine   := @ft_eof;
+   vlTextFileSelf.vrOpenRoutine  := @ft_OpenFile;
+   vlTextFileSelf.vrReadRoutine  := nil;
+   vlTextFileSelf.vrWriteRoutine := nil;
+   vlNormalFileSelf.vrWaitForReadRoutine := nil;
+   vlNormalFileSelf.vrSetBlockingRoutine := nil;
+   
+   TextFile := @vlTextFileSelf;
+   SetSegFaultHandler(@SegFaultHandler);
+   ft_AssignHandle(TextFile,stdin_FileNo,InputText,OM_read);
+   AssignHandle(NormalFile,stdin_FileNo,InputFile,OM_read);
+   AssignHandle(NormalFile,stdout_FileNo,OutputFile,OM_Read_Write);
+end.

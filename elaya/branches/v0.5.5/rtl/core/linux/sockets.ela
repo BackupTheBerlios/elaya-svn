@@ -1,0 +1,204 @@
+unit;
+uses core,sys_int,linux;
+
+public
+
+
+	function  INetAddr(const ParStr:string;var ParAddr:long):boolean;overload;
+	function  INetAddr(ParA1,ParA2,ParA3,ParA4:byte;var Parlong:long):boolean; overload;
+	function  AddrToStr(ParAddr:long):string;
+	function  LtoH(ParWord:word):word;
+	function  Socket(ParDomain,ParType,ParProto : cint):cint;
+	function  Connect(ParSocket : cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;overload;
+	function  Connect(ParSocket :TSocket;const ParName : string;ParPort : word):boolean;overload;
+	function  SocketClose(ParSocket : cint):boolean;
+	function  Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+	function  Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+	function  Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen) : TSocket;
+	function  listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
+	function  Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
+	function  GetHostByName(const ParName:String):PHostEnt;
+	procedure SetSocketBlocking(ParFile:TSocket;ParBlock:boolean);overload;
+	function  WaitForRead(ParHandle : cint;ParTimeOut:long):boolean;
+	function  WaitForWrite(ParHandle : cint;ParTimeOut:long):boolean;
+
+end public
+
+function INetAddr(ParA1,ParA2,ParA3,ParA4:byte;var Parlong:long):boolean; overload;
+var  vlRet:long;
+begin
+	(ParLong as TSPlit).b1 := ParA1;
+	(ParLong as TSplit).b2 := ParA2;
+	(ParLong as TSplit).b3 := ParA3;
+	(ParLong as TSplit).b4 := ParA4;
+   exit(false);
+end;
+
+function AddrToStr(ParAddr:long):string;
+var vlStr :string;
+    vlExt :string;
+	vlCnt : long;
+begin
+	vlStr.length := 0;
+	count vlCnt from 3 downto 0 do begin
+		if vlStr.length <> 0 then vlStr := vlStr + '.';
+		str(ParAddr as byte,vlExt);
+		vlStr := vlStr + vlExt;
+		ParAddr := ParAddr shr 4;
+	end;
+	exit(vlStr);
+end;
+
+function INetAddr(const ParStr:string;var ParAddr:long):boolean;overload;
+var vlPos   : byte;
+    vlCnt   : byte;
+    vlBuf   : array[1 to 4] of byte;
+    vlCur   : long;
+    vlLst   : byte;
+    vlToken : char;
+    vlDot   : string;
+begin
+	vlDot := '.';
+	vlCnt := 1;
+	vlCur := 0;
+    vlLst := 0;
+	vlPos := 1;
+	while vlPos<= ParStr.Length do begin
+        vlToken := ParStr[vlPos];
+	     if vlToken  between ('0') and ('9') then begin
+		      vlCur := vlCur * 10 + vlToken as byte - 48;
+            if vlCur > 255 then exit(true);
+	     end else if vlToken = vlDot[1] then  begin
+           vlBuf[vlCnt] := vlCur;
+		     vlCur := 0;
+		     vlCnt := vlCnt + 1;
+		     if (vlCnt >4) then exit(true);
+		     if vlLst + 1 = vlPos then exit(true);
+		     vlLst := vlPos;
+       end else begin
+           exit(true);
+       end;
+       vlPos := vlPos + 1;
+	end;    
+	if vlLst + 1 = vlPos then exit(true);
+   exit(INetAddr(vlBuf[1],vlBuf[2],vlBuf[3],vlCur,ParAddr));
+end;
+
+
+function LtoH(ParWord:word):word;
+begin
+	exit((parWord div 256) + (ParWord and 255) * 256);
+end;
+
+procedure SetInetAddres(ParW1,ParW2,ParW3,ParW4:word;ParPort:word;var vlAddr:TSockAddr_In);
+begin
+	vlAddr.Port := lToH(ParPort);
+	vlAddr.Addr[0] := ParW1;
+	vlAddr.Addr[1] := ParW2;
+	vlAddr.Addr[2] := ParW3;
+	vlAddr.Addr[3] := ParW4;
+end;
+
+function Socket(ParDomain,ParType,ParProto : cint):cint;
+var
+	vlHandle : cint;
+begin
+	vlHandle := int_socket(ParDomain,ParType,ParProto);
+   	exit(vlHandle);
+end;
+
+function Connect(ParSocket :TSocket;const ParName : string;ParPort : word):boolean;overload;
+var vlAddr : TSockAddr_in;
+    vlEnt  : PHostEnt;
+    vlChk  : boolean;
+begin
+     vlEnt := GetHostByName(ParName);
+     if vlEnt = nil then exit(true);
+     vlAddr.Addr as long := ((vlEnt^.vrAddrList^) as plong)^;
+     vlAddr.sin := af_inet;
+     vlAddr.Port := LtoH(ParPort);
+     vlChk := (Connect(ParSocket,@vlAddr as PSockAddr,sizeof(vlAddr)));
+     exit(vlChk);
+end;
+
+
+function Connect(ParSocket :cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;overload;
+var vlRet : boolean;
+begin
+     vlRet := int_connect(ParSocket,ParAddr,ParAddrlen);
+     exit(vlRet);
+end;
+
+function SocketClose(ParSocket : cint):boolean;
+var vlRet : boolean;
+begin
+     vlRet := int_close(ParSocket);
+     exit(vlRet);
+end;
+
+function GetHostByName(const ParName:String):PHostEnt;
+var vlHostEnt:PHostEnt;
+begin
+	vlHostEnt := int_GetHostByName(ParName);
+	exit(vlHostEnt);
+end;
+
+
+function  Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+var vlRet : cint;
+begin
+     vlRet := int_Recv(ParSocket,ParBuffer,ParSize,ParFlags);
+     exit(vlRet);
+end;
+
+function Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+var vlRet : cint;
+begin
+     vlRet := int_Send(ParSocket,ParBuffer,ParSize,ParFlags);
+     exit(vlRet);
+end;
+
+function  listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
+var
+   vlRet : boolean;
+begin
+     vlRet := int_Listen(ParSocket,ParBackLog);
+     exit(vlRet);
+end;
+
+
+function  Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen) : TSocket;
+var vlRet : TSocket;
+begin
+     vlRet := int_accept(ParSocket,Paraddr,ParSockAddrlen);
+     exit(vlRet);
+end;
+
+function  Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
+var vlRet : boolean;
+begin
+     vlRet := int_bind(ParSocket,ParAddres,ParSockLen);
+     exit(vlRet);
+end;
+
+procedure SetSocketBlocking(ParFile:TSocket;ParBlock:boolean); overload;
+begin
+	Int_SetInBlock(ParFile,ParBlock);
+end;
+
+function WaitForRead(ParHandle : cint;ParTimeOut:long):boolean;
+var vlRet : boolean;
+begin
+   	vlRet := int_WaitForRead(ParHandle,ParTimeOut);
+	exit(vlRet);
+end;
+
+function WaitForWrite(ParHandle : cint;ParTimeOut:long):boolean;
+var vlRet : boolean;
+begin
+   	vlRet := int_WaitForWrite(ParHandle,ParTimeOut);
+	exit(vlRet);
+end;
+
+
+end.

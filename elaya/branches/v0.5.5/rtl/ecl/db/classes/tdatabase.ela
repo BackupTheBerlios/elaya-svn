@@ -1,0 +1,151 @@
+unit;
+uses dal,values;
+public
+type
+	PTString=ptr TString;
+	TDatabase=class inherit TRoot
+	public
+	var
+		voIsOpen     : boolean;
+		voConnection : TDalDBConnection;
+		voHostObj    : TString;
+		voDbObj      : TString;
+		voUserObj    : TString;
+		voPasswordObj: TString;
+
+
+		function ReadTStr(virtual ParObj : TString) : string;root;
+		procedure SetTStr(const ParStr : string;virtual ParObj : PTString);root;
+		function GetDB       : string;inherit ReadTStr(voDbObj);
+		function GetHost     : string;inherit ReadTStr(voHostObj);
+      function GetUser     : string;inherit ReadTStr(voUserObj);
+		function GetPassword : string;inherit ReadTStr(voPasswordObj);
+		procedure SetHost(const ParStr : string);inherit SetTStr(ParStr,@voHostObj);
+		procedure SetDB (const ParStr : string);inherit SetTStr(ParStr,@voDBObj);
+		procedure SetUser(const ParStr : string);inherit SetTStr(ParStr,@voUserObj);
+		procedure SetPassword(const ParStr : string);inherit SetTStr(ParStr,@voPasswordObj);
+
+	property HostObj : TString;
+		begin
+			private read voHostObj;
+			private write voHostObj;
+		end;
+
+		property DbObj : TString;
+		begin
+			private read voDbObj;
+			private write voDbObj;
+		end;
+
+	protected
+		procedure Commonsetup;override;
+		procedure Clear;override;
+
+	public
+		procedure CloseConnection;
+		procedure OpenConnection;
+
+		property Connection : TDalDbConnection;
+		begin
+			private write voConnection;
+			public read voConnection;
+		end;
+
+		property IsOpen : boolean;
+		begin
+			private write voIsOpen;
+         public read voIsOpen;
+		end;
+
+		property Host : string;
+		begin
+			public write SetHost;
+			public read GetHost;
+		end;
+
+		property DB:string;
+		begin
+			public write SetDb;
+			public read GetDB;
+		end;
+
+		property User : string;
+		begin
+			public write SetUser;
+			public read GetUser;
+		end;
+
+		property Password : string;
+		begin
+			public write SetPassword;
+			public read GetPassword;
+		end;
+
+	end;
+end public
+
+
+procedure TDatabase.OpenConnection;{TODO:exception when elaya can do exception}
+begin
+	if not(IsOpen) then begin
+		writeln('##',GetHost,'>>');
+		if not(DalConnect(voConnection,GetHost,GetDb,GetUser,GetPassword)) then IsOpen:= true;
+	end;
+end;
+
+procedure TDatabase.CloseConnection;
+begin
+	if IsOpen then DalClose(Connection);
+   IsOpen := false;
+end;
+
+procedure TDatabase.commonsetup;override;
+begin
+	inherited Commonsetup;
+	HostObj := nil;
+	DbObj   := nil;
+	FillBytes(sizeof(TDalDbConnection) >> ParSize,0 >> ParByte,@voConnection >>ParDest);
+end;
+
+procedure TDatabase.clear;override;
+begin
+	inherited Clear;
+	if HostObj <> nil then HostObj.Destroy;
+	if DbObj <> nil then DbObj.Destroy;
+	CloseConnection;
+end;
+
+procedure TDatabase.SetTStr(const ParStr : string;virtual ParObj : PTString);root;
+begin
+	if IsOpen then exit;
+	if ParObj^<> nil then ParObj^.destroy;
+	ParObj^ := TString.Create(ParStr);
+end;
+
+function TDatabase.ReadTStr(virtual ParObj : TString) : string;root;
+var
+	vlName : string;
+begin
+	if ParObj <> nil then begin
+		ParObj.GetString(vlName);
+	end else begin
+		vlName.length := 0;
+	end;
+	writeln('>>>',vlName,' ',ParObj.ClassName);
+	exit(vlName);
+end;
+
+function TDatabase.GetDB : string; inherit ReadTStr(voDbObj);end;
+function TDatabase.GetHost : string;inherit ReadTStr(voHostObj);end;
+function TDatabase.GetUser : string;inherit ReadTStr(voUserObj);end;
+function TDatabase.GetPassword : string;inherit ReadTStr(voPasswordObj);end;
+procedure TDatabase.SetHost(const ParStr : string);inherit SetTStr(ParStr,@voHostObj);end;
+procedure TDatabase.SetDB (const ParStr : string);inherit SetTStr(ParStr,@voDBObj);end;
+procedure TDatabase.SetUser(const ParStr : string);inherit SetTStr(ParStr,@voUserObj);end;
+procedure TDatabase.SetPassword(const ParStr : string);inherit SetTStr(ParStr,@voPasswordObj);end;
+
+
+
+end.
+
+

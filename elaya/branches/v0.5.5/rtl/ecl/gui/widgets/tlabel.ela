@@ -1,0 +1,78 @@
+unit;
+uses interface,guitypes,twidget;
+public
+type
+	TLabel=class inherit TWidget
+	private
+	var
+		voTextColor : TColor;
+		voTextAdjust : TTextAdjust;
+	protected
+			procedure InitWidget;override;
+			procedure SetTextColor(const ParColor : TColor);
+			procedure SetTextAdjust(const ParAdjust : TTextAdjust);
+			procedure Commonsetup;override;
+	public
+		property TextColor : TColor;
+		begin
+			public read voTextColor;
+         private write voTextColor;
+			public  write SetTextColor;
+		end;
+
+		property TextAdjust : TTextAdjust;
+		begin
+			public read voTextAdjust;
+			private write voTextAdjust;
+			public write SetTextAdjust;
+		end;
+	end;
+
+
+end public
+
+procedure TLabel.SetTextColor(const ParColor : TColor);
+begin
+	TextColor := ParColor;
+	if Realised then begin
+		vgInterface.SetFgColor(Handle,ParColor);
+	end;
+end;
+
+procedure TLabel.InitWidget;override;
+var
+	vlHandle : TInterface.PWIdgetHandle;
+begin
+
+	if Parent <> nil then begin
+		vlHandle := Parent.Handle;
+	end else begin
+		vlHandle := nil;
+	end;
+
+	vgInterface.CreateInterLabel(X,y,W,H,vlHandle,handle,Title);
+	vgInterface.SetFgColor(Handle,TextColor);
+	vgInterface.SetTextAdjust(Handle,TextAdjust);
+end;
+
+
+procedure TLabel.SetTextAdjust(const ParAdjust : TTextAdjust);
+begin
+	TextAdjust := ParAdjust;
+	if Realised then begin
+			vgInterface.SetTextAdjust(Handle,ParAdjust);
+	end;
+end;
+
+
+procedure TLabel.Commonsetup;override;
+begin
+	TextColor.Red := 0;
+	TextColor.Blue := 0;
+	TextColor.Green := 0;
+	TextAdjust := TA_left;
+	inherited Commonsetup;
+end;
+
+
+end.

@@ -1,0 +1,200 @@
+<html>
+<title >Bugs & Changelog</title>
+<body>
+       <a href="index.htm">[index]</a><hr>
+<font size=+2><center><b>Bugs & Changelog</b></center></font>
+<hr>
+<font size=+1><b>Introduction</b></font><br>
+<pre>This page contains information about changes and bugs for differen versions.</pre><font size=+1><b>0.5.4.D1</b></font><br>
+<pre><UL>
+<LI> First rollout of OOP :<a href='node223.htm'>more info</a><UL>
+<LI>2 level system:classes/objects as instance of class.
+<LI>Inheretance.
+<LI>Datamembers.
+<LI>Methods:Virtual,final and not virtual.
+<LI>Properties.
+<LI>Classes can contain constants and types.
+<LI>Nested classes (Isolated only yet)
+<LI>Virtual nested classes (Isolated only yet).
+</ul>
+<LI>Dynamic routine<UL>
+   <LI>Feature renamed to extended routine
+   <LI>Forward definition requires the 'main' keyword when the 
+extended routine has a main part
+</ul>
+<LI>Shl /Shr
+<LI>Write to '#' operator now possible.
+<LI>Generic ident operator: A valid identifier name can also be a opertator.
+<LI>Fixed mixed usage of longint and cardinals
+<LI>Fixed wrong type castings.
+<LI>Fixed bug in error handling fileopen under linux.
+<LI>Some fixes under win32 of error handeling
+<LI>Replace usage of _fwrite/_fread by WriteFile/ReadFile
+<LI>GTK for linux only
+</ul></pre><font size=+1><b>0.5.3.4</b></font><br>
+<pre><b>Added:</b><UL>
+<LI>Add missing WM_ constants<LI>setup.sh doesn't need to be run before make.
+<LI>win32-Gui unit added
+<LI>Easier  install win32
+<LI>More examples
+</ul>
+<b>Fixes:</b><UL>
+<LI> make clean
+<LI> Rebuild detection
+<LI> Buildin 'data move' , used for large value parameters.
+<LI> Unit version check
+<LI> Large value parameters in parameter maping (data was moved to the wrong address)
+</ul></pre><font size=+1><b>0.5.3.3 -14/02/2002</b></font><br>
+<pre><b>Fixes</b><UL>
+<LI>Segment fault when reading of text file failed.
+<LI>Fixed determening sign in result of '.' operator.
+<LI>Combination of - and * operator failes sometimes.
+<LI>Rare bug in sizeof operator.
+<LI>Serious bug in program initalisation code under linux.
+<LI>Fixed some bugs in build system.
+</ul></pre><font size=+1><b>0.5.3.2</b></font><br>
+<pre>Fixes:
+<UL>
+<LI>Rtl fixes
+<LI>Optimizer fixes
+<LI>Segmentfaults after syntax error.
+</UL>
+</pre><font size=+1><b>0.5.3.1/2002-02-09</b></font><br>
+<pre>Fixes
+<UL>
+<LI>* File handeling change so the configuration files can be placed in for the
+user readonly directories.
+</UL></pre><font size=+1><b>0.5.3/2-feb-2002</b></font><br>
+<pre>Stable release.
+
+New:
+<UL>
+<LI>overload exact
+</ul>
+
+Fixed:
+<UL>
+<LI>Assembler file is removed when remove-option is used.
+<LI>Presendence of AND operator.
+<LI>Build system of compiler was broken under win32,fixed.
+<LI>Missing 'var' keyword in SetBlocking routine.
+<LI>Default value of start position dlib/DStringScanner.
+<LI>Number outside longint range are printed correctly now when using write(ln).
+</ul></pre><font size=+1><b>0.5.2.D7</b></font><br>
+<pre><b> Aditions</b>
+* Owner keyword.
+* Abstract nested dynamic routines
+* 'inc' and 'dec' statements
+* New Optimizations
+  * Node reordening
+  * Register usage optimazation
+  * Code generation
+    * move of large variabels improved
+  * Direct optimization
+    * Assigment of register for mul instruction.
+* Lower memmory use and better performation.
+* "C" type publics
+
+<b>Bugs</b>
+* Problems with use and casting with type size=3 solved
+* Fixed some problems with parameters with unkown size.</pre><font size=+1><b>Elaya 0.5.2.D6 - 15 December 2001</b></font><br>
+<pre>This release is mainly focussing on support for win32.
+
+<b>Changes</b>
+* Better support for win32 in Make-system
+  - under linux compiles win32 and linux wen crosscompiling is enabled.
+  - can selective compiler win32 or linux under linux.
+* More flexebilty in file functions
+
+<b>Fixes</b>Rtl:
+* Program parameter handeling under win32.
+* Add error conversion for win32
+* Add pagefault handeling.
+* Add some missing win32 function :
+    * Wait for read
+    * Others.
+* Split socket function of sys.(socket unit is also autoloading)
+
+Compiler:
+* Fixed problems when the size of a type is 3 bytes.
+ </pre><font size=+1><b>0.5.2.D5</b></font><br>
+<pre><b>Notes</b>
+Many fixes and some new features. 
+I started to work on the elaya for win32.The compiler compiles and there is 
+also a rtl, but it is not ready yet.
+
+
+<b>Change log</b>
+
+Added
+* Changed handeling of different os in configuration file
+* Clean up makefiles
+* Some code cleanup
+* Improved compile time range check
+* Added 'inherit final'
+* Added 'isolate'
+* and,or,xor and mod in constand definition now possible.
+* Changed CFG file creation in build system
+
+Fixed:
+* User defined operator failed somtimes because of missing 'exit' statement.
+* SF when error in config file.
+* Memmory leak in configuration system
+* Unit initalisation was in the wrong order.
+* Name startup procedure.
+* Sf when meta type was not defined in RTL
+* Missing 'exit' statement for auto conversion.
+* Sizeof is evaluated.
+* Validation of 'ArrayIndexNode' was wrong.
+* Fixed number processing for large numbers.
+* Somtimes error with some type of routine call.
+* Fatal error when casting number too pointer.
+* Protection for division by 0
+* Somtimes Sf failure with 'sizeof' operator.
+* Fixed Dll import.
+* Fixed options for linker.
+* Improved action when no os is given.
+* Problem when string has no end quote in configuration system.
+* Improved Asciiz
+* Error when array is to big.
+* Fixed 'negavtive (-x)' operator.
+* Fixed Array index node when generating code.
+* Type casting when size of type > 4;
+* Removed some duplicate error messages
+* Fixed Validation of routines
+* Fixed restoring access after short nested routine.
+* Error message when array is too large.
+* Add 'failed' to cfg system.
+* Fix when compate ('>','<>' etc) operators are used in 'between' operator.
+
+Rtl Fix:
+* When  Sf(Segment failure) in program, the routine displays the address of 
+  failure.
+</pre><font size=+1><b>0.5.2.D4-20/10/2001</b></font><br>
+<pre>Changes : 
+
+* Fixed bugs found in 0.5.2.D3
+* Error Message when Config var doesn't exists.
+* Extenal link type (dll/linked), and call convention (Pascal/CDecl)
+  can now be a string.
+* Files /doc regenerated.
+
+Fixes:
+
+* Segment failure when override non routine.
+* Missing checks when overriding routine.
+* Missing checking of parameters when routine is forward defined.
+* Missing forward checking between routine and definition in public section
+* Automatic parameter wasn't saved in unit.
+   This bug resulted in SF failure in program for routines with large
+    return type (>4 byte) and dynamic routines. This only hapends
+    when routine is imported from other routine.
+</pre><font size=+1><b>0.5.2.D3-6/10/2001</b></font><br>
+<pre>
+
+<b> Changes 0.5.2.D2 => 0.5.2.D3</b>
+* Forward in dynamic routines.
+* Variables in parametermapping.
+* Has notation.</pre><br>
+</body>
+</html>

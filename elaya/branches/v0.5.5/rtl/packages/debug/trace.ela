@@ -1,0 +1,52 @@
+unit;
+
+public
+
+procedure DumpTrace;
+
+external linked 'call.o'
+	function getbps:pointer;name 'getbp';
+end;
+
+end public
+
+
+type 	PCallRec=ptr TCallRec;
+	TCallRec=record
+		vrNext : PCallRec;
+		vrCaller : long;
+	end;	
+
+var
+	vlPrvHandler : TSegFaultHandler;
+
+procedure PrivSegFaultHandler(ParAddr : long);
+var
+	vlStr : string;
+begin
+	IntToHex(ParAddr,vlStr,4);
+	writeln('Segment fault at ',vlStr);
+	writeln('Call stack:');
+	DumpTrace;
+end;
+
+
+procedure DumpTrace;
+
+var vlPtr : PCallRec;
+ 	vlStr :string;
+	
+begin
+	vlPtr := GetBps;
+	while vlptr <> nil do begin
+		IntToHex(vlPtr^.vrCaller,vlStr,4);
+		writeln(vlStr);
+		vlPtr := vlPtr^.vrNext;
+	end;
+end;
+
+
+begin
+	vlPrvHandler := GetSegFaultHandler;
+	SetSegFaultHandler(@PrivSegFaultHandler);
+end.

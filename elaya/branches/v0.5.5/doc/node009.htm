@@ -1,0 +1,135 @@
+<html>
+<title >Installing</title>
+<body>
+       <a href="index.htm">[index]</a><hr>
+<font size=+2><center><b>Installing</b></center></font>
+<hr>
+<font size=+1><b>Requirements</b></font><br>
+<pre><OL>
+<LI>A X86(Minimal 386) Linux or minimal win98 OS 
+<LI>Freepascal : <a href="http://www.freepascal.org">Freepascal homepage </a>
+version 1.0.4 only(version 1.1 has some bugs).
+Delphi or Gpc can't compile elaya.
+<LI>Gnu ld,as and make (binutils) version &gt= 2.9.5
+
+<a href="http://www.cygwin.com">Cygwin</a> utils can also be used.
+
+Under windows, as and ld are allready included a in freepascal.
+These executables can also be used for elaya. The binary windows distrubution
+allready contains as and ld  for windows. In de default configuration the
+programs should be called asw.exe and ldw.exe
+<LI>gnu make version &gt;=3.77 (I don't know if non gnu make will work).
+</ol>
+<b>note.</b>
+
+
+Elaya is tested on:
+
+<OL>
+<LI>win98 SE
+<LI>Linux:
+
+<table>
+<tr><td>
+Distribution </td><td>:</td><td>Suse 7.0. </td></tr>
+<tr><td>kernel version</td><td>:</td><td> 2.2.13</td></tr>
+<tr><td>libc</td><td>:</td><td>Glibc 2.1.2</td></tr>
+</table>
+</ol>
+</pre><font size=+1><b>Building the sources</b></font><br>
+<pre>For building the compiler and Rtl, just run Make.
+First the shell script runsetup or runsetup.bat are automaticly called.
+The script does the following:
+<ol>
+<li>Create all the Makefiles
+<li>Creates the destination directory <b>$HOME/bin</b><br>Under windows $HOME can <br>be just '/', in this case $HOME is to the source tree<br> root  directory.
+<li>Creates file Values.tpl wich is use by cfgc and make.
+</ol>
+
+The destiniation directory in step 2 can be changed in runsetup/runsetup.bat
+The variabels used for this are: <b>Dir_Program </b>,<b>Dir_Cpl_Lib</b> and 
+<b>Dir_Ela_Rtl</b>. When runsetup or runsetup.bat is changed, the script 
+is automaticly run by make.
+
+<b>Windows note:</b>
+Make from Mingw or Cywin can be used for compiling the sources. When 
+<b>bash.exe</b> can be found in the path,runsetup is started using bash otherwise 
+the combination runsetup.bat/command.com is used.
+
+ </pre><font size=+1><b>Running make</b></font><br>
+<pre>Just type <b>make all</b> at the root of the source tree.
+The possible options are
+<table>
+<tr> <td>all</td><td>:</td><td>Build everything</td></tr>
+<tr> <td>ela</td><td>:</td><td>Build the compiler</td></tr>
+<tr> <td>lib</td><td>:</td><td>Build the souces in directory lib(*note) </td><tr>
+<tr> <td>rtl</td><td>:</td><td>Build the Rtl</td></tr>
+<tr> <td>cfg</td><td>:</td><td>Build Cfg files</td></tr>
+<tr> <td>cfgc</td><td>:</td><td>Build the <a href='node204.htm'>Cfgc</a> program</td></tr>
+</table>
+
+<font color=red>*Note 1</font> The compiler is beta and under development.
+The win32 doesn't support all units wich are available under linux.
+For more information <a href='node011.htm'>Features and Limitation</a>
+*Note 2
+The sources in the 'lib' directory are non elaya specific pascal
+sources for the compiler have nothing to do with the Rtl.
+All Rtl sources for the use in the Elaya language are in 
+<b>[Root]/sources/rtl</b></pre><font size=+1><b>The configuration file.</b></font><br>
+<pre><b>The creation of the file during make</b>
+During make of this elaya package 2 configuration files are made.
+The files are 'lib.cfg' and 'ela.cfg'. The 'lib.cfg' is for compiling the RTL
+units and 'ela.cfg' is for compiler a program or a unit.
+For creating these files, a program 'cfgc' is used. This program is part
+of the elaya compiler package and is build during the make process. The
+sources are located in 'lib/tools/cfgc'. 
+This program uses elaya/Values.tpl and ela.tpl/lib.tpl for input file.
+For more information on the 'cfgc' program <a href='node204.htm'>here</a>
+</pre><font size=+1><b>Cross compiler</b></font><br>
+<pre>Elaya can compile to all platforms from all supported platform (that is I386 win32
+and i386 linux).
+It is theoraticly possible to compile to linux platform under win32.
+The only missing part is the configuration files.
+The build/setup system can create configuration files for:
+<UL>
+<LI>win32 target under win32
+<LI>Linux target under linux
+<LI>win32 target under linux
+</ul>
+For linux target under win32 the config/make file must be setup manual.
+
+For win32 target support under linux the following steps are neccesary:
+* Install a ld/as version wich compiles to win32
+* Change in setup.sh the value for Can_Cross_Compile too 'y'
+* Fill in Dir_Win32_As and Dir_Win32_ld  to the path of the win32 assembler and 
+  linker.
+* When running make the win32 rtl should be automaticly be created.
+* For win32 support the compiler binary doesn't need to be recompiled, only
+  the configuration files must be changed.
+
+ela -t win32 somefile.ela    => compiles too win32 console
+ela -t gui32 somefile.ela    => compiles too win32 gui.
+
+The program created by the compiler can run under wine.
+
+</pre><font size=+1><b>Problems</b></font><br>
+<pre><UL>
+<LI> All *.pas and *.ela sources must be in lowercase. When make fails
+with for example with a message that it can't find a rule too build *.pas,
+pleas change case with rename *.PAS *.pas.
+<LI>Under win32  sometime the linker fails with "some.obj: file not recognised: 
+file truncated" or "some.obj: file format not...." and no executable is produced.
+The cause of this error is unkown. When the produced *.obj file is removed
+the compiler and linker works fine.
+</UL></pre><font size=+1><b>Binary RPM release for i386</b></font><br>
+<pre>This release contains the following:<UL><LI> The compiler 'ela' and 'cfgc', placed in /usr/bin
+<LI> ela.cfg also placed in /usr/bin 
+(oke should be in /etc)
+<LI> libraries , placed in /usr/lib/elaya
+<LI> Documentation , placed in /usr/doc/elaya
+</ul>
+
+Not futher setup is necessary after rpm --install</pre><font size=+1><b>Win32 binary release (>=win98 SE)</b></font><br>
+<pre>Just unzip the file and everything should work directly.</pre><br>
+</body>
+</html>

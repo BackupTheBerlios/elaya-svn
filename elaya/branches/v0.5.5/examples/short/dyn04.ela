@@ -1,0 +1,46 @@
+{Check ScanParameter}
+uses dlib;
+
+
+procedure ps;inherit EScanParameters;
+protected
+	function AtOption:TOptionMode;override;
+	begin
+		if Option='a' then begin
+			exit(OM_Value);
+		end else if Option='c' then begin
+			exit(OM_SubOption);
+		end;
+		exit(OM_Error);
+	end;
+
+	function AtSubOption :TOptionMode;override;
+	begin
+		if Option='c' then begin
+			if SubOption='+' then writeln('Do c on')
+			else if SubOption='-' then writeln('Do c off') 
+			else exit(OM_Error);
+			exit(OM_End);
+		end;
+		exit(OM_Error);
+	end;
+
+	function AtOptionValue : TOptionMode;override;
+	begin
+		if (option='a') then begin
+			writeln('Option param a value=',value);
+			exit(OM_End);
+		end;
+		exit(OM_Error);
+	end;
+
+	procedure Failed;override;
+	begin
+		writeln('Option Error:',GetError,' ',Option,' ',SubOption,' ',Value);
+	end;
+end;
+
+
+begin
+	ps;
+end.

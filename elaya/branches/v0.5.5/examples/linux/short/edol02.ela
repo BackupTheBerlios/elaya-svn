@@ -1,0 +1,14 @@
+uses edol;
+var vlStr:string;
+begin
+	GetArgument(1,vlStr);
+	EReadDir(vlStr) with
+		HandleFile(const ParInfo: TFileInfo):begin
+			writeln(ParInfo.FileName);
+			exit(false);
+		end;
+		Failed:begin
+			writeln('Failed :',GetLastError,' in ',GetRoutinePath);
+		end;
+	end;
+end.

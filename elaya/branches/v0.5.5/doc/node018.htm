@@ -1,0 +1,141 @@
+<html>
+<title >Basic Features</title>
+<body>
+<a href='node136.htm'>[UP] Introduction to the language</a>  <a href='node050.htm'>[Prev]Elaya for pascal programmers</a>     <a href="index.htm">[index]</a><hr>
+<font size=+2><center><b>Basic Features</b></center></font>
+<hr>
+<font size=+1><b>Introduction</b></font><br>
+<pre>Basic feature of Elaya language
+<UL>
+<LI>Case insensitive
+<LI>Strict type checking
+<LI>Same unit/program model as in Pascal.
+<LI>Some simelarities in syntax and structure with pascal
+</ul>
+</pre><font size=+1><b>Structure of a program/unit</b></font><br>
+<pre>The structure of a program look a little bit like pascal:
+
+<table align=center bgcolor=gray border=1><tr><td><pre>
+program;
+
+begin
+   writeln('hello');
+end.
+</pre></td></tr></table>
+
+But unit is a little bit different:
+
+<table align=center bgcolor=gray border=1><tr><td><pre>
+
+unit;
+
+uses dlib;
+
+public
+    procedure Hello;
+end public
+
+
+procedure Hello;
+begin
+   writeln('hello');
+end;
+
+end,
+</pre></td></tr></table></pre><font size=+1><b>Statements</b></font><br>
+<pre><b> while</b>
+
+<table bgcolor=gray border=1 align=center><tr><td><pre>
+var vlFac : long;
+    vlNum : long;
+begin
+   vlFac := 1;
+   vlNum := 10;
+<b>  while(vlNum >0) do begin</b>
+       vlFac := vlFac * vlNum;
+       vlNum := vlNum -1;
+<b>  end;</b>
+   writeln('Result=',vlFac);
+end.
+</pre></td></tr></table>
+
+<b> For </b>
+
+For is different is as in pascal.It is a combination of 'repeat' and 'while.
+(Note the small difference regarding strings}
+
+<table bgcolor=gray border=1 align=center><tr><td><pre>
+function Split(const ParString : string):string;
+var
+   vlCnt:long;
+   vlText:string;
+begin
+   vlText.Length := 0;
+   vlCnt  := 1;<b>
+   for vlCnt <= vlText.Length
+   until ParString[vlCnt]='='[1] do begin</b>
+         vlText := vlText + ParString[vlCnt];
+         vlCnt := vlCnt + 1;
+   end;
+   exit(vlText);
+end;
+</pre></td></tr></table>
+
+<b>If</b>
+
+<table bgcolor=gray border=1 align=center><tr><td><pre>
+procedure Check(ParNum : long);
+begin
+<b>   if ParNum > 3 then begin</b>
+          writeln('Hello');
+<b>   end else begin</b>
+          writeln('ParNum <=3');
+<b>   end;</b>
+end;
+</pre></td></tr></table>
+
+
+<b>repeat</b>   
+     
+<table bgcolor=gray border=1 align=center><tr><td><pre>
+procedure Dots(ParNum : long);
+var
+     vlNum : long;
+begin
+    vlNum := ParNum;
+    repeat
+           write('.');
+           vlNum := vlNum - 1;
+    until vlNum =0;
+end;
+</pre></td></tr></table>
+
+
+<b>count</b>
+
+<table bgcolor=gray border=1 align=center><tr><td><pre>
+procedure Dot(ParNum : long);
+var vlPtr : plong;
+    vlNum : long;
+begin
+  {Count 1}
+  count vlNum from 1 to ParNum do write('.');
+
+  {Other count expression are also possible}
+  vlPtr := @ vlNum;
+  count vlPtr^ from ParNum downto 1 do write('.');
+end;
+
+</pre></td></table>
+
+
+</pre><font size=+1><b>Var declaration</b></font><br>
+<pre>Declaring a var is more or less the same as in pascal:
+
+var 
+     a:word;
+     b:record
+         c,d:word;
+     end;</pre><br>
+</body>
+</html>

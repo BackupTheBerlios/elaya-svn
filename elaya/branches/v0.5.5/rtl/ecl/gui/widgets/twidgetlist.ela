@@ -1,0 +1,89 @@
+unit;
+uses twidget,linklist,interface;
+public
+
+type
+	TWidgetItem=class inherit TListItem
+	private
+		var
+			voWidget : TWidget;
+	public
+		property Widget : TWidget;
+		begin
+			public read voWidget;
+			private write voWidget;
+		end;
+   	constructor Create(ParWidget : TWidget);
+		function IsHandle(ParHandle :TInterface.PWidgetHandle):boolean;
+		function IsWidget(ParWidget : TWidget):boolean;
+	end;
+
+	TWidgetLIst = class inherit TList
+	public
+		procedure AddWidget(ParWidget : TWIdget);
+		function  GetWidget(ParHandle : TINterface.PWidgetHandle) : TWidget;
+		procedure DeleteWidget(ParWidget : TWidget);
+		procedure DestroyNoParentWidgets;
+	end;
+end public
+
+
+{---( TWidgetList )-----------------------------------------------------------}
+procedure TWidgetList.AddWidget(ParWidget : TWIdget);
+begin
+	InsertAt(nil,TWidgetItem.Create(parWidget));
+end;
+
+procedure TWidgetList.DeleteWidget(ParWidget : TWidget);
+begin
+	DeleteItems where
+		DeleteWhen : (Current as TWidgetItem).IsWidget(ParWidget);
+	end;
+end;
+
+procedure TWidgetList.DestroyNoParentWidgets;
+var
+	vlWidget : TWidget;
+begin
+	Scan where
+		DoItem:begin
+			vlWidget := (current as TWidgetItem).widget;
+			if vlWidget.Parent = nil then  begin
+				vlWidget.DestroyWidget;
+			end;
+		end;
+	end;
+end;
+
+function  TWidgetList.GetWidget(ParHandle : TINterface.PWidgetHandle) : TWidget;
+var
+	vlResult : TWidget;
+begin
+	vlResult := nil;
+	Scan where
+		EndWhen : (Current as TWidgetItem).IsHandle(ParHandle);
+		Found : begin
+			vlResult := (current as TWidgetItem).Widget;
+		end;
+	end;
+	exit(vlResult);
+end;
+
+{---( TWidgetItem )------------------------------------------------------------}
+constructor TWidgetItem.Create(ParWidget : TWidget);
+begin
+	inherited Create;
+	Widget := ParWidget;
+end;
+
+function TWidgetItem.IsHandle(ParHandle : TInterface.PWidgetHandle):boolean;
+begin
+	exit(Widget.Handle = ParHandle);
+end;
+
+function TWidgetItem.IsWidget(ParWidget : TWidget):boolean;
+begin
+	exit(Widget = ParWidget);
+end;
+
+end.

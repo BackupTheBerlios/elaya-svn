@@ -1,0 +1,659 @@
+{a
+}
+unit;
+uses win32procs,win32types,core;
+public
+type TLength=len_t;
+
+var stdin_fileno:handle;
+    stdout_fileNo:handle;
+
+function  int_ChMod(const ParName:string;ParMode:long):boolean;
+function  int_Acct(const ParPath:string):boolean;
+function  int_Read(ParFd:cint;ParBuf:Pvoid;ParSize:cint):cint;
+function  int_Write(Parfd:cint;ParBuf:PVoid;ParSize:cint):cint;
+function  int_chdir(const ParFileName:string):boolean;
+function  Int_DeleteFile(const ParFileName:string):boolean;
+function  int_link(const ParFileName,ParLinkName:string):boolean;
+function  int_Open(const ParFileName:string;ParMode:TOpenMode;var ParHandel : cint):boolean;
+function  int_Seek(ParFd:cint;ParPos:longint;ParMethod:TSeekMode):cint;
+function  int_close(ParFd:cint):boolean;
+function  int_filePos(ParFile:cint):cint;
+function  int_FileSize(ParFile:cint):cint;
+function  int_eof(ParFile:cint):boolean;
+function  int_WaitForRead(ParHandel,ParTimeOut:cint):boolean;
+function  int_WaitForWrite(ParHandel,ParTimeOut:cint):boolean;
+procedure int_Quit(ParStatus:cint);
+function  int_ReserveMem(ParSize:Size_t):pvoid;
+procedure Int_FreeMem(ParPtr:pvoid);
+function  int_ReReserveMem(ParPTr:Pointer;ParSize:long):pointer;
+procedure Int_SetInBlock(ParFileNo:cint;ParBlock:boolean);
+function  Int_GetNumberOfArguments:long;
+procedure int_GetArgument(ParNo:long;var ParStr:string);
+function  Int_GetHostByName(const ParName:string):PHostEnt;
+function  int_GetCurrentDirectory(var ParName : string):boolean;
+function  int_GetEnvByNo(ParNo : long):PAsc;
+function  int_Connect(ParSocket : cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;
+function  int_Socket(ParDomain,ParType,ParProto : cint):cint;
+function  int_Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+function  int_Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+function  int_listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
+function  int_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):TSocket;
+function  int_Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
+function  int_OpenDir(const ParName : string;var ParDir : TDir):boolean;
+function  int_ReadDir(var ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
+function  int_CloseDir(var ParDir : TDir):boolean;
+procedure int_GetError(var ParNative,ParError : long);
+function int_GetFileSize(var ParHandel : cint;var ParSize : cint):boolean;
+var
+	crLf : string;
+end public
+
+
+type
+
+    PTextListItem=ptr TTextListItem;
+    TTextListItem=record
+        vrNext : PTextListItem;
+        vrText : PString;
+     end;
+
+     
+var
+     vgArgList : PTextListItem;
+     vgArgNum  : long;
+     vgEnvList : PTextListItem;
+     vgEnvNum  : long;
+
+{----( Errors )----------------------------------------------------------------------}
+
+procedure dbg(ParStr : string);
+begin
+	int_write(stdout_fileno,@ParStr[1],ParStr.length);
+end;
+
+
+procedure DbgDig(ParNum : byte);
+var vlStr : string;
+begin
+	if (ParNUm > 0) and (ParNUm < 9) then vlStr[1] := (ParNum + 48) as char;
+	if (ParNum > 9) then vlStr[1] := (ParNum+64-9) as char;
+	vlStr.length := 1;
+	Dbg(vlStr);
+end;
+
+procedure DbgNum(ParNUm : byte);
+begin
+	DbgDig(ParNum div 16);
+	DbgDig(ParNum and 15);
+end;
+
+procedure DbgLn;
+var
+	vlStr : string;
+begin
+	vlStr := (10) as char;
+	dbg(vlStr);
+end;
+
+
+function GetTextItemByNum(ParStart : PTextLIstItem;ParNum : long) : PTextListITem;
+var
+	vlNum : long;
+	vlCurrent : PTextListItem;
+begin
+	vlNum     := ParNum;
+	vlCurrent := ParStart;
+	while (vlCurrent <> nil) and (vlNum > 0 ) do begin
+		dec(vlNum);
+		vlCurrent := vlCurrent^.vrNext;
+	end;
+	exit(vlCurrent);
+end;
+
+
+
+procedure ConvertError(ParNative:long;var ParError : long);
+begin
+	if (ParNative = ERROR_NO_ERROR) or (ParNative = 0) then ParError := ERR_NO_ERROR else
+	if ParNative = ERROR_FILE_NOT_FOUND then ParError := Err_File_Not_Found else
+	if ParNative = ERROR_NOT_ENOUGH_MEMORY then ParError := Err_Out_Of_Memory else
+	ParError := Err_Native_Error;
+end;
+
+
+procedure CheckErrors;
+var
+	vlNativeError : long;
+	 vlErrorCode   : long;
+begin
+	vlNativeError := GetLastError;
+	ConvertError(vlNativeError,vlErrorCode);
+	SetNativeError(vlNativeError,vlErrorCode);
+end;
+
+
+procedure int_GetError(var ParNative,ParError : long);
+begin
+	ParNative := GetLastError;
+	ConvertError(ParNative,ParError);
+end;
+
+
+
+
+{----(  GetEnvByNo )------------------------------------------------------------------}
+
+function  int_GetEnvByNo(ParNo : long):PASc;
+var
+	vlCurrent : PTextListItem;
+	vlNum     : long;
+	vlAsc     : PAsc;
+begin
+	if (ParNo >= vgEnvNum) then exit(nil);
+	vlCurrent := GetTextItemByNum(vgEnvList,ParNo);
+	if vlCurrent <> nil then begin
+		if vlCurrent^.vrText <> nil then begin
+			vlAsc := (@(vlCurrent^.vrText^[1])) as Pasc;
+			exit(vlAsc);
+		end;
+	end;
+	exit(nil);
+end;
+
+
+
+{----( Bestand )---------------------------------------------------------------------}
+
+type
+	TTempFind=record
+		vrFileName : Pstring;
+		vrIsFirst  : boolean;
+		vrHandle   : Handle;
+	end;
+	PTempFind=ptr TTempFind;
+
+function  int_OpenDir(const ParName : string;var ParDir : TDir):boolean;
+var
+	vlFind : PTempFind;
+begin
+	vlFind := int_reservemem(sizeof(TTempFind));
+	vlFind^.vrFileName := int_reservemem(ParName.length+1);
+	vlFind^.vrFileName^:=ParName;
+	vlFind^.vrIsFirst := true;
+	vlFind^.vrHandle  := 0;
+	ParDir.Spv := vlFind;
+end;
+
+function  int_ReadDir(var ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
+var
+	vlRec : TWin32FindData;
+	vlFind: PTempFind;
+	vlAsc : asc255;
+begin
+	ResetErrors;
+	vlFind := (ParDir.Spv) as PTempFind;
+	if vlFind^.vrIsFirst then begin
+		vlFind^.vrIsFirst := false;
+		vlAsc := vlFind^.vrFileName^;
+		vlFind^.vrHandle := FindFirstFile(@vlAsc,@vlRec);
+		if vlFind^.vrHandle < 0 then exit(rs_Error);
+	end else begin
+		if FindNextFile(vlFind^.vrHandle,@vlRec) = 0 then exit(rs_end);
+	end;
+	ParFileInfo.FileName := vlRec.cFileName;
+	ParFileInfo.FileSize := vlRec.nFileSizeLow;
+	CheckErrors;
+	exit(rs_ok);
+end;
+
+function  int_CloseDir(var ParDir : TDir):boolean;
+var
+	vlFind : PTempFind;
+begin
+	ResetErrors;
+	vlFind := (ParDir.Spv) as PTempFind;
+	if vlFind <> nil then begin
+		if not(vlFind^.vrIsFirst) then FindClose(vlFind^.vrHandle);
+		int_Freemem(vlFind^.vrFileName);
+		int_Freemem(vlFInd);
+	end;
+	ParDir.Spv := nil;
+	CheckErrors;
+end;
+
+function int_ChMod(const ParName:string;ParMode:long):boolean;
+begin
+	SetError(Err_Not_Implemented);
+        exit(true);
+end;
+
+function int_Acct(const ParPath:string):boolean;
+begin
+	SetError(Err_Not_Implemented);
+	exit(true);
+end;
+
+
+function int_Read(ParFd:cint;ParBuf:Pvoid;ParSize:cint):cint;
+var
+	vlStat : long;
+begin
+	ResetErrors;
+	vlStat := _lread(ParFd,ParBuf,ParSize);
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_Write(Parfd:cint;ParBuf:PVoid;ParSize:cint):cint;
+var
+	vlStat : long;
+begin
+	ResetErrors;
+	vlStat := (_lwrite(ParFd,ParBuf,ParSize));
+	CheckErrors;
+	exit(vlStat);
+end;
+
+
+function  int_GetCurrentDirectory(var ParName : string):boolean;
+var
+	vlAsc  : asc255;
+	vlBool : winbool;
+begin
+	ResetErrors;
+	vlBOol := GetCurrentDirectory(255,@vlAsc);
+	ParName := vlAsc;
+	CheckErrors;
+	exit(vlBool <> 0);
+end;
+
+function int_chdir(const ParFileName:string):boolean;
+var
+	vlBool : winbool;
+	vlAsc  : asc255;
+begin
+	ResetErrors;
+	vlAsc := ParFileName;
+	vlBool := SetCurrentDirectory(@vlAsc);
+	CheckErrors;
+	exit(vlBool <> 0);
+end;
+
+function Int_DeleteFile(const ParFileName:string):boolean;
+var
+	vlAsc  : asc255;
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlAsc := ParFileName;
+	vlStat := (DeleteFile(@vlAsc) <> 0);
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_link(const ParFileName,ParLinkName:string):boolean;
+begin
+	SetError(Err_Not_Implemented);
+	exit(true);
+end;
+
+function int_GetFileSize(var ParHandel : cint;var ParSize : cint):boolean;
+var
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlStat := (GetFileSize(ParHandel,nil)<> 0);
+	ChecKErrors;
+	exit(vlStat);
+end;
+
+
+function int_Open(const ParFileName:string;ParMode:TOpenMode;var ParHandel : cint):boolean;
+var 
+	vlFileName : Asc255;
+	vlAcc	     : dword;
+	vlMode     : dword;
+begin
+	ResetErrors;
+	vlAcc := 0;
+	vlMode := OPEN_EXISTING;
+	if ParMOde= OM_Read then vlAcc := GENERIC_READ;
+	if ParMode= OM_Write then vlAcc := GENERIC_WRITE;
+	if ParMode= OM_Read_Write then vlAcc := GENERIC_READ or GENERIC_WRITE;
+	if ParMode= OM_Create then begin
+		vlAcc := GENERIC_READ or GENERIC_WRITE;
+		vlMode := CREATE_ALWAYS;
+	end;
+	vlFileName := ParFileName;
+	ParHandel := CreateFile(@vlFileName,vlAcc,0,nil,vlMode,0,0);
+	CheckErrors;
+	exit(ParHandel = -1);
+end;
+
+
+function int_Seek(ParFd:cint;ParPos:longint;ParMethod:TSeekMode):cint;
+var
+	vlMode : long;
+	vlRet  : cint;
+begin
+	if ParMethod = SM_Begin then vlMode := FILE_Begin;
+	if ParMethod = SM_Current then vlMode := FILE_Current;
+	if ParMethod = SM_End     then vlMode := FILE_End;
+	ResetErrors;
+	vlRet:= SetFilePointer(ParFd,ParPos,nil,vlMode);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+
+
+function int_close(ParFd:cint):boolean;
+var
+	vlStat : boolean;
+begin
+	 ResetErrors;
+	 vlStat := CloseHandle(ParFd)<>0;
+	 CheckErrors;
+	 exit(vlStat);
+end;
+
+function int_filePos(ParFile:cint):cint;
+var
+	vlRet : cint;
+begin
+	ResetErrors;
+	vlRet := int_Seek(ParFile,0,SM_Current);
+	ChecKErrors;
+	exit(vlRet);
+end;
+
+
+function  int_FileSize(ParFile:cint):cint;
+var
+	vlRet : cint;
+begin
+	ResetErrors;
+	vlRet := GetFileSize(ParFile,nil);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+
+function int_eof(ParFile:cint):boolean;
+var
+	vlRet : boolean;
+begin
+	ResetErrors;
+	vlRet := int_filePos(ParFile) >= int_fileSize(ParFile);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+function int_WaitForRead(ParHandel,ParTimeOut:cint):boolean;
+var
+	vlVal : longint;
+begin
+	ResetErrors;
+	vlVal := WaitForSingleObject(ParHandel,ParTimeOut);
+	CheckErrors;
+	exit( vlVal=Wait_Object_0);
+end;
+
+
+function int_WaitForWrite(ParHandel,ParTimeOut:cint):boolean;
+begin
+	exit(true);
+end;
+
+
+{-----( Programma )---------------------------------------------------------------}
+
+procedure int_Quit(ParStatus:cint);
+begin
+	ExitProcess(ParStatus);
+end;
+
+{---( Geheugen )------------------------------------------------------------------}
+
+function int_ReserveMem(ParSize:Size_t):pvoid;
+var
+	vlRet : pvoid;
+begin
+	ResetErrors;
+	vlRet := HeapAlloc(GetProcessHeap,0,ParSize);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+procedure Int_FreeMem(ParPtr:pvoid);
+begin
+	ResetErrors;
+	HeapFree(GetProcessHeap,0,ParPtr);
+	CheckErrors;
+end;
+
+function int_ReReserveMem(ParPTr:Pointer;ParSize:long):pointer;
+var
+	vlRet : pointer;
+begin
+	ResetErrors;
+	vlRet := HeapReAlloc(GetProcessHeap,0,ParPtr,ParSize);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+
+procedure Int_SetInBlock(ParFileNo:cint;ParBlock:boolean);
+begin
+end;
+
+{---( Programma startup )----------------------------------------------------------}
+
+
+function  Int_GetNumberOfArguments:long;
+begin
+	exit(vgArgNum -1);
+end;
+
+procedure int_GetArgument(ParNo:long;var ParStr:string);
+var
+	vlCurrent : PTextListItem;
+	vlNum     : long;
+begin
+	ParStr.Length := 0;
+	if (ParNo > vgArgNum) then begin
+		exit;
+	end else begin
+		vlCurrent := GetTextItemByNum(vgArgList,ParNo);
+	end;
+	if vlCurrent <> nil then begin
+		if vlCurrent^.vrText <> nil then begin
+			ParStr := vlCurrent^.vrText^;
+			exit;
+		end;
+	end;
+	exit;
+end;
+
+{---( Socket )------------------------------------------------}
+
+function Int_GetHostByName(const ParName:string):PHostEnt;
+begin
+end;
+
+function  int_Connect(ParSocket : cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;
+begin
+end;
+
+function int_Socket(ParDomain,ParType,ParProto : cint):cint;
+begin
+end;
+
+function  int_Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+begin
+end;
+
+function  int_Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+begin
+end;
+
+function  int_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):TSocket;
+begin
+end;
+
+function  int_listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
+begin
+end;
+
+function  int_Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
+begin
+end;
+
+procedure AddText(var ParTop : PTextListItem;const ParStr : string);
+var
+	vgArg : PTextListItem;
+begin
+	vgArg := Int_ReserveMem(sizeof(TTextListItem));
+	vgArg^.vrNext := nil;
+	vgArg^.vrText := Int_ReserveMem(ParStr.Length+1);
+	vgArg^.vrText^ := ParStr;
+	if ParTop <> nil then begin
+		ParTop^.vrNext := vgArg;
+	end;
+	ParTop := vgArg;
+end;
+
+procedure AddArgument(var ParTop : PTextLIstItem; const ParStr : string);
+begin
+	vgArgNum := vgArgNum + 1;
+	AddText(ParTop,PArStr);
+	if vgArgList = nil then vgArgList:= ParTop;
+end;
+
+
+
+procedure SplitStringArgument(var ParTop : PTextListItem;ParStr : PAsc;var ParPos : long);
+var
+	vlCH  : char;
+	vlLe  : long;
+	vlOut : string;
+begin
+	vlCH := ParStr^[ParPos];
+	vlLe := 0;
+	for (ParStr^[ParPos] <> (0) as char) until (ParStr^[ParPos]=vlCh) do begin
+		if vlLe < 255 then begin
+			inc(vlLe);
+			vlOut[vlLe] :=  ParStr^[ParPos];
+		end;
+		inc(ParPos);
+	end;
+	if (ParStr^[ParPos] <> 0 as char) then inc(ParPos);
+	vlOut.Length := vlLe;
+	AddArgument(ParTop,vlOut);
+end;
+
+procedure SplitNormalArgument(var ParTop : PTextListItem;ParStr : PAsc;var ParPos : long);
+var
+	vlLe  : long;
+        vlOut : string;
+begin
+	vlLe := 0;
+	while (ParStr^[ParPos] <> 0 as char) and (ParStr^[ParPos] <> ' ') and (ParStr^[ParPos] <> 9 as char) do begin
+		if vlLe < 255 then begin
+			inc(vlLe);
+			vlOut[vlLe] := ParStr^[ParPos];
+		end;
+		inc(ParPos);
+	end;
+	vlOut.Length := vlLe;
+	if (ParStr^[ParPos] <> 0 as char) then inc(ParPos);
+	AddArgument(ParTop,vlOut);
+end;
+
+procedure SplitArguments;
+var
+	vlPc  : PAsc;
+        vlPos : long;
+        vlTop : PTextListItem;
+begin
+	vlPc := GetCommandLine;
+        vlPos := 1;
+        vlTop := nil;
+        while (vlPc^[vlPos] <> 0 as char) do begin
+            while (vlPc^[vlPos] = ' ') or (vlPc^[vlPos]=9 as char) do vlPos := vlPos + 1;
+	    if(vlPc^[vlPos]=0 as char) then break;
+            if (vlPc^[vlPos]=39 as char) or (vlPc^[vlPos]='"') then begin
+                SplitStringArgument(vlTop,vlPc,vlPos);
+            end else begin
+            	SplitNormalArgument(vlTop,vlPc,vlPos);
+            end;
+
+        end;
+end;
+
+procedure SplitEnviroment;
+var
+	vlPc : PCHar;
+	vlStr : string;
+	vlCnt : long;
+	vlTop : PTextListItem;
+	vlOld : PAsc;
+begin
+	vlOld  := GetEnvironmentStrings;
+	vlPc := @(vlOld^[1]);
+	vlTop := nil;
+	while vlPC^<>0 as char do begin
+		vlCnt := 0;
+		while vlPc^<>0 as char do begin
+			if(vlCnt<=252) then begin
+				vlCnt := vlCnt + 1;
+				vlStr[vlCnt] := (vlPc as PChar)^;
+			end;
+			inc(vlPc);
+		end;
+		inc(vlCnt);
+		vlStr[vlCnt] := 0 as char;
+		vlStr.Length := vlCnt;
+		AddText(vlTop,vlStr);
+		if vgEnvList = nil then vgEnvList := vlTop;
+		inc(vlPc);
+		vgEnvNum := vgEnvNum + 1;
+	end;
+	FreeEnvironmentStrings(vlOld);
+end;
+
+procedure dmp(const ParStr : string);
+begin
+	int_write(stdout_fileno,@parstr[1],ParStr.length);
+end;
+
+
+function win32_exception_handler( ParInfo : PEXCEPTION_POINTERS):longint;
+var
+	vlDate :  TDate;
+begin
+	vlDate.year := 3;
+	if (ParInfo^.exceptionrecord^.ExceptionCode=EXCEPTION_ACCESS_VIOLATION) then begin
+		CallSegFaultHandler(ParInfo^.contextrecord^.eip);
+	end;
+	exit(exception_execute_handler);
+end;
+
+
+begin
+	vgArgNum := 0;
+	vgEnvNum := 0;
+	vgArgList:= nil;
+	vgEnvList := nil;
+	stdin_fileno := GetStdHandle(STD_INPUT_HANDLE);
+	stdout_fileno := GetStdHandle(STD_OUTPUT_HANDLE);
+	SetUnhandledExceptionFilter((@win32_exception_handler));
+	SplitArguments;
+	SplitEnviroment;
+	crlf.length := 2;
+	crlf[1] := 10 as char;
+	crlf[2] := 13 as char;
+end.
+
+

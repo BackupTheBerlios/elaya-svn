@@ -1,0 +1,356 @@
+unit;
+uses interface,values,guibase,guitypes,tgc,tvisualcomponent;
+
+public
+
+
+type
+
+	TWidget=class;
+	TEnterEvent=object procedure(ParWidget : TWidget);
+	TLeaveEvent=object procedure(ParWidget : TWidget);
+   TAllocationChangedEvent=object procedure(ParWidget : TWidget;ParX,ParY:longint;ParW,ParH: long);
+	TWidget=class inherit TVisualComponent
+	private
+		var
+			voW,voH : long;
+			voRealised : boolean;
+			voTitleObj : TString;
+			voTipObj   : TString;
+			voBgColor  : TColor;
+			voParent   : TWidget;
+			voHandleRec : TInterface.TWidgetHandle;
+			voEnterEvent : TEnterEvent;
+			voLeaveEvent : TLeaveEvent;
+			voAllocationChangedEvent : TAllocationChangedEvent;
+	protected
+   	procedure SetXY(ParX,ParY : longint);override;
+      function  GetHandle : TInterface.PWidgetHandle;
+		procedure ChangeWH(ParW,ParH : long);
+		procedure SetW(ParW : long);
+		procedure SetH(ParH : long);
+		procedure SetTitle(const ParTitle : string);
+		function  GetTItle : string;
+
+		procedure Clear;override;
+		procedure Commonsetup; override;
+		procedure InitWidget;virtual;
+   	procedure SetToolTip(const ParStr :string);
+      function  GetToolTip : string;
+		procedure SetBgColor(const ParColor : TColor);
+   	procedure Expose;virtual;
+		procedure SetupWidget;virtual;
+		procedure ConfigWidget;virtual;
+		procedure CreateWidget;
+
+	public
+		procedure HandleEvent(var ParEvent: TEvent);virtual;
+      constructor Create(ParParent : TWidget);root;
+		has
+		protected
+			procedure Init;virtual;
+         main;
+		end;
+		procedure Show(ParShow : boolean);override;
+		procedure ClearWidget;
+		procedure ClearArea(ParX,ParY : longint;ParW,ParH:long);
+		procedure DestroyWidget;
+		function  CreateGC : TGC;
+
+
+		property AllocationChangedEvent : TAllocationChangedEvent;
+		begin
+			public read voAllocationChangedEvent;
+			public write voAllocationChangedEvent;
+		end;
+
+		property EnterEvent : TEnterEvent;
+		begin
+			public read voEnterEvent;
+			public write voEnterEvent;
+		end;
+
+		property LeaveEvent : TLeaveEvent;
+		begin
+			public read voLeaveEvent;
+			public write voLeaveEvent;
+		end;
+
+		property BgColor : TColor;
+		begin
+			public  read  voBgColor;
+			private write voBgColor;
+			public  Write SetBgColor;
+		end;
+
+		property TipObj : TString;
+		begin
+			private read voTipObj;
+			private write voTipObj;
+		end;
+
+		property ToolTip : string;
+		begin
+			public write SetToolTip;
+   		public read GetToolTip;
+		end;
+
+		property Parent : TWidget;
+		begin
+			public read voParent;
+			private write voParent;
+		end;
+
+		property HandleRec : TInterface.TWidgetHandle;
+		begin
+			protected read voHandleRec;
+			protected write voHandleRec;
+		end;
+
+   	property Handle : TInterface.PWidgetHandle;
+		begin
+			public read GetHandle;
+		end;
+
+   	property Title : string;
+		begin
+			public write SetTitle;
+			public read  GetTitle;
+		end;
+
+		property TitleObj : TString;
+		begin
+			private read voTitleObj;
+			public write voTitleObj;
+		end;
+
+		property W: long;
+		begin
+			private read voW;
+			private write voW;
+			public read voW;
+			public write SetW;
+		end;
+
+		property H: long;
+		begin
+			private read  voH;
+			private write voH;
+			public  read  voH;
+			public  write SetH;
+		end;
+
+		property Realised : boolean;
+		begin
+			private read voRealised;
+			private write voRealised;
+		end;
+
+	end;
+
+
+end public
+
+function  TWidget.CreateGC : TGC;
+begin
+	exit(TGC.Create(Handle));
+end;
+
+
+procedure TWidget.DestroyWidget;
+begin
+	vgInterface.DestroyWidget(Handle);
+end;
+
+procedure TWidget.SetBgColor(const ParColor :TColor);
+begin
+	vgInterface.SetBgColor(Handle,ParColor);
+end;
+
+function  TWidget.GetToolTip : string;
+var
+	vlText : string;
+begin
+	vlText.length :=0;
+	if TipObj <> nil then begin
+		TIpObj.GetString(vlText);
+	end;
+	exit(vlText);
+end;
+
+procedure TWidget.SetToolTip(const ParStr :string);
+begin
+   if TipObj <> nil then TipObj.Destroy;
+	TipObj := TString.Create(ParStr);
+	if realised then vgInterface.SetToolTip(Handle,ParStr);
+end;
+
+procedure TWidget.ClearWidget;
+begin
+	vgInterface.ClearWidget(Handle);
+end;
+
+procedure TWidget.ClearArea(ParX,ParY : longint;ParW,ParH:long);
+begin
+	vgInterface.ClearArea(Handle,ParX,ParY,ParW,ParH);
+end;
+
+procedure TWidget.Show(ParShow : boolean);override;
+begin
+      vgInterface.Show(Handle,ParShow);
+end;
+
+procedure TWidget.Expose;virtual;
+begin
+end;
+
+procedure TWidget.HandleEvent(var ParEvent: TEvent);virtual;
+begin
+		if ParEvent.base.vrType = EK_Enter then begin
+			if EnterEvent <> nil then EnterEvent^(self);
+		end else if ParEvent.base.vrType = EK_Leave then begin
+			if leaveEvent <> nil then leaveEvent^(self);
+		end else if ParEvent.base.vrType = EK_Expose then begin
+			Expose;
+		end else if ParEvent.base.vrType = EK_AllocationChanged then begin
+			if Realised then begin
+				if AllocationChangedEvent <> nil then AllocationChangedEvent^(self,ParEvent.AllocationChanged.X,ParEvent.AllocationChanged.Y,ParEvent.AllocationChanged.W,ParEvent.AllocationChanged.H);
+				X := ParEvent.AllocationChanged.X;
+				Y := ParEvent.AllocationChanged.Y;
+				W := ParEvent.AllocationChanged.W;
+				H := ParEvent.AllocationChanged.H;
+			end;
+		end;
+end;
+
+
+function  TWidget.GetHandle : TInterface.PWidgetHandle;
+begin
+	exit(@voHandleRec);
+end;
+
+procedure TWidget.SetTitle(const ParTitle : string);
+begin
+	if TitleObj <> nil then TitleObj.Destroy;
+	TitleObj := TString.Create(ParTItle);
+	if Realised then vgInterface.SetTitle(Handle,ParTitle);
+end;
+
+function  TWidget.GetTitle : string;
+var
+	vlTitle : string;
+begin
+	if TitleObj = nil then begin
+		vlTitle.length := 0;
+	end else begin
+		TitleObj.GetString(vlTitle);
+	end;
+	exit(vlTitle);
+end;
+
+constructor TWidget.Create(ParParent : TWidget);root;
+begin
+	Parent := ParParent;
+	inherited Create;
+	Init;
+	CreateWidget;
+end;
+
+procedure TWidget.Create has protected init;virtual;
+begin
+end;
+
+procedure TWidget.Commonsetup; override;
+begin
+	X := 0;
+	Y := 0;
+	W := 0;
+	H := 0;
+	Realised := false;
+	TitleObj := nil;
+	TipObj   := nil;
+	EnterEvent := nil;
+	LeaveEvent := nil;
+	AllocationChangedEvent := nil;
+	BgColor.Red   := $FFFFFFFF;
+	BgColor.Green := $FFFFFFFF;
+	BgColor.Blue  := $FFFFFFFF;
+	inherited Commonsetup;
+end;
+
+procedure TWidget.Clear;override;
+begin
+	inherited Clear;
+   if HandleRec.vrPrivate <> nil then Freemem(HandleRec.vrPrivate);
+	if TitleObj <> nil then TitleObj.destroy;
+	if TipObj <> nil then TipObj.Destroy;
+end;
+
+procedure TWidget.InitWidget;virtual;
+begin
+end;
+
+procedure TWidget.SetupWidget;virtual;
+begin
+end;
+
+procedure TWidget.ConfigWidget;virtual;
+var
+	vlTip : String;
+	vlStr : TString;
+begin
+	if TipObj <> nil then begin
+		TipObj.GetString(vlTip);
+		vgInterface.SetToolTip(Handle,vlTip);
+		vlStr := TipObj;
+		TipObj := nil;
+		vlStr.destroy;
+	end;
+	vgInterFace.SetBgColor(Handle,BgColor);
+	vgWidgetRegister^(self);
+end;
+
+procedure TWidget.CreateWidget;
+begin
+	writeln('W1=',w);
+   InitWidget;
+	writeln('W2=',w);
+	ConfigWidget;
+	writeln('W3=',w);
+	Realised := true;
+	SetupWidget;
+	writeln('W4=',w);
+end;
+
+
+
+procedure TWidget.SetW(ParW : long);
+begin
+	ChangeWH(ParW,H);
+end;
+
+procedure TWidget.SetH(ParH : long);
+begin
+	ChangeWH(W,ParH);
+end;
+
+procedure TWIdget.SetXY(ParX,ParY : longint);override;
+begin
+	if Realised then begin
+		vgInterface.SetPosition(Handle,ParX,ParY);
+	end else begin
+		inherited SetXY(ParX,ParY);
+   end;
+end;
+
+procedure TWidget.ChangeWH(ParW,ParH : long);
+begin
+	if Realised then begin
+		vgInterface.SetSize(Handle,ParW,ParH);
+	end else begin
+		W := ParW;
+		H := ParH;
+	end;
+end;
+
+end.

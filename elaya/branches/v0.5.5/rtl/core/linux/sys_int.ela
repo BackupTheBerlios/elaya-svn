@@ -1,0 +1,582 @@
+{    Elaya Rtl  for the elaya compiler
+    Copyright (C) 1999,2000  J.v.Iddekinge.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+unit;
+uses core,linux;
+
+
+public
+
+type TLength=len_t;
+const stdin_fileno=0;
+      stdout_fileno=1;
+      stderr_fileno=2;
+
+
+
+function  int_ChMod(const ParName:string;ParMode:long):boolean;
+function  int_Acct(const ParPath:string):boolean;
+function  int_Read(ParFd:Long;ParBuf:Pvoid;ParSize:cint):cint;
+function  int_Write(Parfd:Long;ParBuf:PVoid;ParSize:cint):cint;
+function  int_chdir(const ParFileName:string):boolean;
+function  Int_DeleteFile(const ParFileName:string):boolean;
+function  int_link(const ParFileName,ParLinkName:string):boolean;
+function  int_Open(const ParFileName:string;ParMode:TOpenMode;var ParHandle : cint):boolean;
+function  int_Seek(ParFd:Long;ParPos:longint;ParMethod:TSeekMode):cint;
+function  int_close(ParFd:Long):boolean;
+function  int_filePos(ParFile:cint):cint;
+function  int_FileSize(ParFile:cint):cint;
+function  int_eof(ParFile:cint):boolean;
+function  int_WaitForRead(ParHandle,ParTimeOut:cint):boolean;
+function  int_WaitForWrite(ParHandle,ParTimeOut:cint):boolean;
+procedure int_Quit(ParStatus:cint);
+function  int_ReserveMem(ParSize:Size_t):pvoid;
+procedure Int_FreeMem(ParPtr:pvoid);
+function  int_ReReserveMem(ParPTr:Pointer;ParSize:long):pointer;
+procedure Int_SetInBlock(ParFileNo:cint;ParBlock:boolean);
+function  Int_GetNumberOfArguments:long;
+procedure int_GetArgument(ParNo:long;var ParStr:string);
+function  Int_GetHostByName(const ParName:string):PHostEnt;
+function  int_GetCurrentDirectory(var ParName : string):boolean;
+function  int_GetEnvByNo(ParNo : long):PAsc;
+function  int_Connect(ParSocket : cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;
+function  int_Socket(ParDomain,ParType,ParProto : cint):cint;
+function  int_Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+function  int_Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+function  int_listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
+function  int_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):TSocket;
+function  int_Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
+function  int_OpenDir(const ParName : string;var ParDir : TDir):boolean;
+function  int_ReadDir(const ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
+function  int_CloseDir(const ParDir : TDir):boolean;
+procedure int_GetError(var ParNative,ParError : long);
+function  int_GetFileSize(var ParHandle : cint;var ParSize : cint):boolean;
+
+var
+ crlf : string;
+end public
+
+procedure Debug(const PArStr : pasc);
+var
+   vlStr : string;
+begin
+     vlStr := ParStr^;
+     int_write(1, @ParStr,vlStr.length);
+end;
+
+{----( Errors )----------------------------------------------------------------------}
+
+procedure ConvertError(ParNative:long;var ParError : long);
+begin
+
+     if ParNative=ENOERR then ParError := Err_No_Error else
+     if ParNative=EBADF  then ParError := Err_Int_File_Not_Open else
+     if ParNative=ENOENT then ParError := ERR_File_Not_Found else
+     if ParNative=EEXIST then ParError := Err_File_Allready_Exists else
+     if ParNative=EISDIR then ParError := Err_Cant_use_Item  else
+     if ParNative=EACCES then ParError := Err_No_Access
+     else     ParError := Err_Native_Error;
+end;
+
+
+
+procedure int_GetError(var ParNative,ParError : long);
+begin
+	ParNative := linux_GetErrNo;
+	ConvertError(ParNative,ParError);
+end;
+
+function CheckErrors:boolean;
+var
+	vlNative : long;
+	vlError  : long;
+begin
+	vlNative := linux_GetErrNo;
+	ConvertError(vlNative,vlError);
+	SetNativeError(vlNative,vlError);
+	exit(vlError <> 0);
+end;
+
+
+{----(  GetEnvByNo )------------------------------------------------------------------}
+
+function  int_GetEnvByNo(ParNo : long):PASc;
+var
+	vlCnt : long;
+	vlPtr : PPAsc;
+begin
+	vlCnt := ParNo;
+	vlPtr := Linux_GetEnvp;
+	while (vlPtr^ <> nil) and (vlCnt > 0) do begin
+		vlCnt := vlCnt - 1;
+		vlPtr := vlPtr + 1;
+	end;
+	exit(vlPtr^);
+end;
+
+
+{----( Bestand )---------------------------------------------------------------------}
+
+function  int_OpenDir(const ParName : string;var ParDir : TDir):boolean;
+var
+	vlPath : Asc;
+begin
+	 ResetErrors;
+	 vlPath := ParName;
+	 ParDir.spv := Linux_OpenDir(@vlPath);
+	 CheckErrors;
+	 exit(ParDir.spv =nil);
+end;
+
+function  int_ReadDir(const ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
+var
+	vlDirEnt : PDirEnt;
+	vlStat   : stat;
+	vlType   : long;
+begin
+	ResetErrors;
+	vlDirEnt := linux_readdir(ParDir.spv);
+	if vlDirEnt = nil then begin
+		if linux_geterrno <> ENOERR then begin
+			CheckErrors;
+			exit(rs_error);
+		end else begin
+			exit(rs_end);
+		end;
+	end;
+	ParFileInfo.FileName := vlDirEnt^.d_name;
+	if linux_stat(@(vlDirEnt^.d_name),@vlStat) <> 0 then begin
+		ParFileInfo.vrFailed := true;
+		ParFileInfo.FileSize := 0;
+		ParFileInfo.CreTime  := 0;
+		ParFileInfo.FileType := ft_Unkown;
+	end else begin
+		ParFileInfo.vrFailed := false;
+		ParFileInfo.FileSize := vlStat.st_size;
+		ParFileInfo.CreTime  := vlStat.st_ctime;
+		vlType :=  vlStat.st_mode and s_ifmt;
+		ParFileInfo.FileType := ft_unkown;
+		if vlType = s_ifdir then ParFileInfo.FileType := ft_Directory;
+		if vlType = s_ifchr then ParFileInfo.FileType := ft_CharDevice;
+		if vlType = s_ifBlk then ParFileInfo.FileType := ft_BlockDevice;
+		if vlType = s_ifReg then ParFileInfo.FileType := ft_Regular;
+		if vlType = s_ifIfo then ParFileInfo.FileType := ft_fifo;
+	end;
+	CheckErrors;
+	exit(rs_Ok);
+end;
+
+function  int_CloseDir(const ParDir : TDir):boolean;
+var
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlStat := linux_closedir(ParDir.spv) <> 0;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_ChMod(const ParName:string;ParMode:long):boolean;
+var
+	vlPath  : Asc;
+	vlCheck : boolean;
+begin
+	 ResetErrors;
+	 vlPath := ParName;
+	 vlCheck := (Linux_ChMod(@vlPath,ParMode) <> 0);
+	 CheckErrors;
+	 exit(vlCheck);
+end;
+
+function int_Acct(const ParPath:string):boolean;
+var
+	vlPath : Asc;
+	vlStat : boolean;
+begin
+	 ResetErrors;
+	 vlPath := ParPath;
+	 vlStat := (Linux_Acct(@vlPath) <> 0);
+	 CheckErrors;
+	 exit(vlStat);
+end;
+
+
+function int_Read(ParFd:Long;ParBuf:Pvoid;ParSize:cint):cint;
+var
+	vlRet : long;
+begin
+	ResetErrors;
+	vlRet := Linux_Read(ParFd,ParBuf,ParSize);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+function int_Write(Parfd:Long;ParBuf:PVoid;ParSize:cint):cint;
+var
+	vlRet : long;
+begin
+	ResetErrors;
+	vlRet := Linux_Write(ParFd,ParBuf,ParSize);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+
+function  int_GetCurrentDirectory(var ParName : string):boolean;
+var vlName : Asc;
+    vlStat : boolean;
+begin
+	ResetErrors;
+	ParName.Length := 0;
+	vlStat :=  linux_getcwd(@vlName,255) = nil;
+	ParName := vlName;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_chdir(const ParFileName:string):boolean;
+var vlName : Asc;
+    vlStat : boolean;
+begin
+	ResetErrors;
+	vlName := ParFileName;
+	vlStat := (linux_chdir(@vlName) <> 0);
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function Int_DeleteFile(const ParFileName:string):boolean;
+var
+	vlName : Asc;
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlName := PArfileName;
+	vlStat := linux_unlink(@vlName) <> 0;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_link(const ParFileName,ParLinkName:string):boolean;
+var
+	vlFileName : Asc;
+	vlLinkName : Asc;
+	vlStat     : boolean;
+begin
+	ResetErrors;
+	vlFileName := ParfileName;
+	vlLinkName := ParLinkName;
+	vlStat :=linux_link(@vlFileName,@vlLinkName)<> 0;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_GetFileSize(var ParHandle : cint;var ParSize : cint):boolean;
+var vlStat : stat;
+    vlRet  : cint;
+begin
+	ResetErrors;
+	vlRet :=  linux_fstat(ParHandle,vlStat);
+	ParSize := vlStat.st_Size;
+	CheckErrors;
+	exit(vlRet <> 0);
+end;
+
+
+function int_Open(const ParFileName:string;ParMode:TOpenMode;var ParHandle : cint):boolean;
+var vlMode : cint;
+    vlName : Asc;
+begin
+	vlMode := 0;
+	if ParMode = OM_Read       then vlMode := O_RDONLY else
+	if ParMode = OM_Write      then vlMode := O_WRONLY else
+	if ParMode = OM_Read_Write then vlMode := O_RDWR else
+	if ParMode = OM_Create     then vlMode := O_RDWR or O_Creat;
+	vlName := ParFileName;
+	ResetErrors;
+	ParHandle := linux_open(@vlName,vlMode,S_IRUSR or S_IWUSR);
+	CheckErrors;
+	exit(ParHandle =-1);
+end;
+
+
+function int_Seek(ParFd:Long;ParPos:longint;ParMethod:TSeekMode):cint;
+var
+ vlNativeMethod : Long;
+ vlStat         : cint;
+begin
+	ResetErrors;
+	vlNativeMethod := Seek_Set;
+	if ParMethod=SM_Begin     then vlNativeMethod := Seek_Set else
+	if ParMethod=SM_Current   then vlNativeMethod := Seek_Cur else
+	if ParMethod=SM_End       then vlNativeMethod := Seek_End;
+	vlStat := linux_lseek(ParFd,ParPos,vlNativemethod);
+	CheckErrors;
+	exit(vlStat);
+end;
+
+
+
+function int_close(ParFd:Long):boolean;
+var
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlStat := linux_close(parFd)<> 0;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function int_filePos(ParFile:cint):cint;
+var
+	vlSize : off_t;
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlSize := linux_lseek(ParFile,0,Seek_Cur);
+	CheckErrors;
+	exit(vlSize);
+end;
+
+
+function  int_FileSize(ParFile:cint):cint;
+var vlPos : long;
+    vlSize: long;
+begin
+   ResetErrors;
+   vlPos := Int_filepos(ParFile);
+   vlSize:= linux_lseek(ParFile,0,Seek_End);
+   linux_lSeek(ParFile,vlPos,seek_set);
+   CheckErrors;
+   exit(vlSize);
+end;
+
+
+function int_eof(ParFile : cint):boolean;
+var vlPos  : long;
+    vlSize : long;
+begin
+	ResetErrors;
+	vlPos := int_FilePos(ParFile);
+	if linux_GetErrNo=ESPIPE then begin
+		CheckErrors;
+		exit(true);
+	end else begin
+		vlSize:= int_FileSize(ParFile);
+		CheckErrors;
+		exit(vlPos >= vlSize);
+	end;
+end;
+
+function int_WaitForRead(ParHandle,ParTimeOut:cint):boolean;
+var
+	vlSetr,vlSetW,vlSetE:fd_set;
+	vlTime:Time_val;
+	vlLoop  : long;
+	vlNum   : long;
+begin
+	ResetErrors;
+	SetFdSetZero(vlSetR);
+	SetFdSetZero(vlSetW);
+	SetFdSetZero(vlSetE);
+	SetFdSet(ParHandle,vlSetR);
+	vlTime.tv_Sec  := ParTimeOut div 1000000;
+	vlTime.tv_usec := ParTImeOut mod 1000000;
+	vlNum := (linux_select(ParHandle+1,vlSetR,vlSetW,vlSetE,vlTime));
+	CheckErrors;
+	exit(vlNum > 0);
+end;
+
+
+function int_WaitForWrite(ParHandle,ParTimeOut:cint):boolean;
+var
+	vlSetr,vlSetW,vlSetE:fd_set;
+	vlTime:Time_val;
+	vlLoop  : long;
+	vlNum   : long;
+begin
+	ResetErrors;
+	SetFdSetZero(vlSetR);
+	SetFdSetZero(vlSetW);
+	SetFdSetZero(vlSetE);
+	SetFdSet(ParHandle,vlSetW);
+	vlTime.tv_Sec  := ParTimeOut div 1000000;
+	vlTime.tv_usec := ParTImeOut mod 1000000;
+	vlNum := (linux_select(ParHandle+1,vlSetR,vlSetW,vlSetE,vlTime));
+	CheckErrors;
+	exit(vlNum > 0);
+end;
+
+
+{-----( Programma )---------------------------------------------------------------}
+
+procedure int_Quit(ParStatus:cint);
+begin
+	Linux_Exit(ParStatus);
+end;
+
+{---( Geheugen )------------------------------------------------------------------}
+
+function int_ReserveMem(ParSize:Size_t):pvoid;
+var
+	vlPtr : PVoid;
+begin
+	ResetErrors;
+	vlPtr := linux_malloc(ParSize);
+	CheckErrors;
+	exit(vlPtr);
+end;
+
+procedure Int_FreeMem(ParPtr:pvoid);
+begin
+	 ResetErrors;
+	 linux_free(ParPtr);
+	 CheckErrors;
+end;
+
+function int_ReReserveMem(ParPTr:Pointer;ParSize:long):pointer;
+var
+	vlPtr : pointer;
+begin
+	ResetErrors;
+	vlPtr := linux_realloc(ParPtr,ParSize);
+	CheckErrors;
+	exit(vlPtr);
+end;
+
+
+procedure Int_SetInBlock(ParFileNo:cint;ParBlock:boolean);
+var
+	vlMode:long;
+begin
+	ResetErrors;
+	vlMode := o_nonblock;
+	if parBlock then vlMode :=  o_async;
+	linux_fcntl(ParfileNo,f_setfl,vlMode);
+	CheckErrors;
+end;
+
+{---( Programma startup )----------------------------------------------------------}
+
+
+function  Int_GetNumberOfArguments:long;
+begin
+     exit(Linux_GetArgc-1);
+end;
+
+procedure int_GetArgument(ParNo:long;var ParStr:string);
+var vlAsc:PAsc;
+begin
+   if ParNo > int_GetNumberOfArguments then begin
+            ParStr.length := 0;
+   end else begin
+            ParStr := ((Linux_GetArgp +  ParNo)^ as pasc)^;
+   end;
+
+end;
+
+{---( Socket )------------------------------------------------}
+
+function Int_GetHostByName(const ParName:string):PHostEnt;
+var
+	vlAsc : Asc255;
+	vlRet : PHostEnt;
+begin
+	ResetErrors;
+	vlAsc := ParNAme;
+	vlRet := Linux_GetHostByName(@vlAsc);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+function  int_Connect(ParSocket : cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;
+var
+	vlStat : boolean;
+begin
+	ResetErrors;
+	 vlStat := linux_connect(ParSocket,ParAddr,ParAddrLen) <> 0;
+	CheckErrors;
+	exit(vLStat);
+end;
+
+function int_Socket(ParDomain,ParType,ParProto : cint):cint;
+var
+	vlStat : cint;
+begin
+     ResetErrors;
+     vlStat := linux_socket(ParDomain,ParType,ParProto);
+     CheckErrors;
+     exit(vlStat);
+end;
+
+function  int_Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+var
+	vlStat : cint;
+begin
+	ResetErrors;
+         vlStat := linux_recv(ParSocket,ParBuffer,ParSize,ParFlags);
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function  int_Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
+var
+	vlRet : cint;
+begin
+	ResetErrors;
+	vlRet := linux_send(ParSocket,ParBuffer,ParSize,ParFlags);
+	CheckErrors;
+	exit(vlRet);
+end;
+
+function  int_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):TSocket;
+var
+	vlSocket : TSocket;
+begin
+	ResetErrors;
+	vlSocket := linux_accept(ParSocket,ParAddr,ParSockAddrLen);
+	CheckErrors;
+	exit(vlSocket);
+end;
+
+function  int_listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
+var
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlStat := linux_listen(ParSocket,ParBacklog) <> 0;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+function  int_Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
+var
+	vlStat : boolean;
+begin
+	ResetErrors;
+	vlStat := linux_bind(ParSocket,ParAddres,ParSockLen) <> 0;
+	CheckErrors;
+	exit(vlStat);
+end;
+
+
+begin
+	crlf := 10 as char;
+end.
+
+

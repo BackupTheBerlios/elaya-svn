@@ -1,0 +1,87 @@
+unit;
+uses sys,core;
+
+public
+
+type TRoot=class
+
+	 protected
+		procedure   clear;virtual;
+		procedure   commonsetup;virtual;
+
+     public
+
+		constructor create;
+		destructor  destroy;
+		function ClassName : string;
+		function ObjectSize : long;
+		function GetParent : pointer;
+     end;
+
+procedure init_object(var ParPA:void;ParMeta:pointer);
+procedure done_object(ParPA:pvoid);
+
+end public
+
+type
+	PClassMeta=ptr TClassMeta;
+	TClassMeta=record
+		vrParent : PClassMeta;
+		vrName   : PString;
+	end;
+
+function TRoot.GetParent : pointer;
+begin
+	exit((meta as ppointer)^);
+end;
+
+function TRoot.ObjectSize : long;
+begin
+	exit((meta as plong+1)^);
+end;
+
+function TRoot.ClassName:string;
+begin
+    exit((meta as PClassMeta)^.vrName^);
+end;
+
+constructor TRoot.Create;
+begin
+   commonsetup;
+end;
+
+procedure TRoot.Clear;virtual;
+begin
+end;
+
+procedure TRoot.Commonsetup;virtual;
+begin
+end;
+
+destructor TRoot.Destroy;
+begin
+	clear;
+end;
+
+
+procedure done_object(ParPA:pvoid);
+begin
+	if ParPA <> nil then begin
+		freemem(ParPA);
+		ParPA as pvoid := nil;
+	end;
+end;
+
+procedure init_object(var ParPA:void;ParMeta:pointer);
+var
+vlSelf :pointer;
+begin
+	if(ParPa as pvoid = nil) then begin
+		vlSelf:= reservemem(((ParMeta+8) as plong)^);
+		parPa as pointer := vlSelf;
+		(vlSelf as plong)^ := ParMeta as long;
+	end;
+end;
+
+
+end.

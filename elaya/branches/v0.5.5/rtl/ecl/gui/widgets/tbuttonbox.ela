@@ -1,0 +1,346 @@
+unit;
+
+uses tbutton,guitypes,twidget,tvisualcomponent,twidgetlist,tpixmap;
+
+public
+
+
+type
+
+    TZoomMode=enum
+		ZM_Same_Cell := 0;
+		ZM_Position  := 1;
+	end;
+
+	TBoxOrientation=enum
+		BO_Vertical := 0;
+		BO_Horizontal := 1;
+	end;
+	 TButtonBox=class inherit TVisualComponent
+     private
+	var
+		voButtonList  : TWidgetList;
+		voCellW		  : long;
+		voCellH 		  : long;
+		voMarginW 	  : long;
+      voMarginH 	  : long;
+		voStackNumber : long;
+		voOrientation : TBoxOrientation;
+		voParent      : TWidget;
+		voButtonPressed  : TButtonPressedEvent;
+		voButtonReleased : TButtonReleasedEvent;
+		voCurrentPos  : long;
+	  public
+
+		type
+			TButton=isolate virtual class inherit TButton
+			end;
+
+	protected
+
+		procedure SetCellW(ParNewW : long);
+		procedure SetCellH(ParNewH : long);
+		procedure SetCell(ParNewW,ParNewH: long);
+		procedure SetMarginW(ParMarginW : long);
+		procedure SetMarginH(ParMarginH : long);
+		procedure Commonsetup;override;
+		procedure SetButtonPositionByNum;
+		procedure SetStackNumber(ParNum : Long);
+		procedure SetOrientation(ParOrientation : TBoxOrientation);
+		procedure ButtonPressedEvent(ParButton : TButton);
+		procedure ButtonReleasedEvent(PArButton : TButton);
+
+		function CreateButton(ParTag : longint;ParNum : long): TButton;
+
+	  public
+
+		property ButtonPressed : TButtonPressedEvent;
+		begin
+			public read voButtonPressed;
+			public write voButtonPressed;
+		end;
+
+		property ButtonReleased : TButtonReleasedEvent;
+		begin
+			public read voButtonReleased;
+			public write voButtonReleased;
+		end;
+
+		property ButtonList : TWidgetList;
+		begin
+			private read voButtonList;
+			private write voButtonList;
+		end;
+
+		property CellW : long;
+		begin
+			private write voCellW;
+			public read voCellW;
+			public write SetCellW;
+		end;
+
+		property CellH : long;
+		begin
+			private write voCellH;
+			public read voCellH;
+			public write SetCellH;
+		end;
+
+		property StackNumber : long;
+		begin
+			private write voStackNumber;
+			public read voStackNumber;
+			public write SetStackNumber;
+		end;
+
+		property Orientation : TBoxOrientation;
+		begin
+			private write voOrientation;
+			public read voOrientation;
+			public write SetOrientation;
+		end;
+
+		property Parent : TWidget;
+		begin
+			private read voParent;
+			private write voParent;
+		end;
+
+		property MarginW : long;
+		begin
+			private write voMarginW;
+			public read voMarginW;
+			public write SetMarginW;
+		end;
+
+		property MarginH :long;
+		begin
+			private Write voMarginH;
+			public read voMarginH;
+			public write SetMarginH;
+		end;
+
+		property CurrentPos : long;
+		begin
+			private Write voCurrentPos;
+			public read voCurrentPos;
+		end;
+
+		procedure Show(ParShow : boolean);override;
+		constructor Create(ParParent : TWidget);
+		procedure AddButton(const ParName : char;ParTag :longint);overload;
+		procedure AddButton(const ParName : string;ParTag :longint);overload;
+		procedure AddButton(ParPixmap : TPixmap;ParTag : longint);overload;
+		procedure AddButton(const ParName : char;ParTag : longint;Parnum : long);overload;
+		procedure AddButton(const ParName : string;ParTag : longint;Parnum : long);overload;
+		procedure AddButton(ParPixmap : TPixmap;ParTag : longint;Parnum : long);overload;
+	end;
+end public
+
+procedure TButtonBox.ButtonPressedEvent(ParButton : TButton);
+begin
+	if ButtonPressed <> nil then ButtonPressed^(ParButton);
+end;
+
+procedure TButtonBox.ButtonReleasedEvent(PArButton : TButton);
+begin
+	if ButtonReleased <> nil then ButtonReleased^(ParButton);
+end;
+
+
+procedure TButtonBox.Show(ParShow : boolean);override;
+begin
+	ButtonList.Scan where
+		DoItem:begin
+			(Current as TWidget).Show(ParShow);
+		end;
+	end;
+end;
+
+constructor TButtonbox.Create(ParParent : TWidget);
+begin
+	inherited Create;
+	Parent := ParParent;
+end;
+
+procedure TButtonBox.AddButton(const ParName : char;ParTag :longint);overload;
+var
+	vlStr :string;
+begin
+	vlStr := ParName;
+	AddButton(vlStr,ParTag,CurrentPos);
+end;
+
+procedure TButtonBox.AddButton(const ParName : string;ParTag :longint);overload;
+begin
+	AddButton(ParName {>>ParName},ParTag {>> ParTag},CurrentPos {>> ParNum});
+end;
+
+procedure TButtonBox.AddButton(ParPixmap : TPixmap;ParTag : longint);overload;
+begin
+	AddButton(ParPixmap,ParTag,CurrentPos);
+end;
+
+
+procedure TButtonBox.AddButton(const ParName : char;ParTag : longint;Parnum : long);overload;
+var
+	vlStr : string;
+begin
+	vlStr := ParName;
+	AddButton(vlStr,ParTag,ParNum);
+end;
+
+procedure TButtonBox.AddButton(const ParName : string;ParTag : longint;Parnum : long);overload;
+var
+	vlButton : TButton;
+begin
+	vlButton := CreateButton(ParTag,ParNum);
+	vlButton.Title:= ParName;
+
+end;
+
+procedure TButtonBox.AddButton(ParPixmap : TPixmap;ParTag : longint;Parnum : long);overload;
+var
+	vlButton : TButton;
+begin
+	vlButton := CreateButton(ParTag,ParNum);
+	vlButton.Pixmap := ParPixmap;
+end;
+
+function TButtonBox.CreateButton(ParTag  : longint;ParNum : long) : TButton;
+var
+	vlNum  : long;
+	vlNumX : long;
+	vlNumY : long;
+	vlButton : TButton;
+begin
+	vlNum := ParNum;
+	if Orientation = BO_Horizontal then begin
+		vlNumX := vlNum mod StackNumber;
+		vlNumY := vlNum div StackNumber;
+	end else begin
+		vlNumY := vlNum mod StackNumber;
+		vlNumX := vlNum div StackNumber;
+	end;
+	vlButton := TButton.Create(Parent) where
+		init:begin
+			X := vlNumX * CellW+(owner owner owner owner X);
+			Y := vlNumY * CellH+(owner owner owner owner Y);
+			W := CellW - MarginW;
+			H := CellH - MarginH;
+			Tag   := ParTag;
+         ButtonPressed :=@(owner owner owner owner ButtonPressedEvent);
+			ButtonReleased :=@(owner owner owner owner ButtonReleasedEvent);
+		end;
+	end;
+	ButtonList.AddWidget(vlButton >> ParWidget);
+	CurrentPos := ParNum + 1;
+	exit(vlButton);
+end;
+
+
+procedure TButtonBox.SetStackNumber(ParNum : Long);
+begin
+	StackNumber := ParNum;
+	SetButtonPositionByNum;
+end;
+
+procedure TButtonBox.SetOrientation(ParOrientation : TBoxOrientation);
+begin
+	Orientation := ParOrientation;
+	SetButtonPositionByNum;
+end;
+
+
+procedure TButtonBox.Commonsetup;override;
+begin
+	inherited Commonsetup;
+   ButtonPressed :=nil;
+	ButtonReleased := nil;
+	ButtonList := TWidgetList.Create;
+	Orientation := BO_Horizontal;
+	StackNumber := 1;
+	CellW := 30;
+	CellH := 30;
+	MarginW := 2;
+	MarginH := 2;
+	CurrentPos := 0;
+end;
+
+
+procedure TButtonBox.SetCellW(ParNEwW : long);
+begin
+	SetCell(ParNewW,CellH);
+end;
+
+procedure TButtonBox.SetCellH(ParNewH : long);
+begin
+	SetCell(CellW,ParNewH);
+end;
+
+{TODO Set only  W and H instead of calling SetCell}
+procedure TButtonBox.SetMarginW(ParMarginW : long);
+begin
+	MarginW := ParMarginW;
+	SetCell(CellW,CellH);
+end;
+
+procedure TButtonBox.SetMarginH(ParMarginH : long);
+begin
+	MarginH := ParMarginH;
+	SetCell(CellW,CellH);
+end;
+
+procedure TButtonBox.SetButtonPositionByNum;
+var
+	vlNx : long;
+	vlNY : long;
+begin
+	vlNx := 0;
+	vlNy := 0;
+	ButtonList.Scan where
+		DoItem : begin
+			if(Orientation = BO_Vertical) then begin
+				inc(vlNx);
+				if vlNx >= StackNumber then begin
+					vlNx := 0;
+					inc(vlNy);
+				end;
+			end else begin
+				inc(vlNy);
+				if vlNy >= StackNumber then begin
+					vlNy := 0;
+					inc(vlNx);
+				end;
+			end;
+			(Current as TWidget).X := vlNx * CellW;
+			(Current as TWidget).y := vlNy * CellH;
+		end;
+	end;
+end;
+
+
+
+
+procedure TButtonBox.SetCell(ParNewW,ParNewH : long);
+var
+	vlNX : long;
+	vlNY : long;
+	vlN : long;
+begin
+	ButtonList.Scan where
+		DoItem:begin
+			(current as TWidget).x := ((current as TWidget).x div CellW) * ParNewW;
+			(current as TWidget).y := ((Current as TWidget).y div cellH) * ParNewH;
+			(current as TWidget).w := ParNewW - MarginW;
+			(current as TWidget).h := ParNewH - MarginH;
+		end;
+	end;
+	CellW := ParNewW;
+	CellH := ParNewH;
+end;
+
+
+
+
+end.

@@ -1,0 +1,71 @@
+unit;
+public
+
+type
+		TVisualComponent=class inherit TRoot
+		private
+		var
+			voX	: longint;
+			voY   : longint;
+   		voTag : longint;
+		protected
+			procedure SetXY(ParX,ParY : longint);virtual;
+			procedure SetX(ParX : longint);
+			procedure SetY(ParY : longint);
+			procedure Commonsetup;override;
+
+		public
+			procedure Show(ParShow : boolean);virtual;
+			property X:longint;
+			begin
+				public read voX;
+				private Write voX;
+				public  write SetX;
+			end;
+
+			property Y:longint;
+			begin
+				public read voY;
+				private write voY;
+				public write SetY;
+			end;
+
+			property Tag : longint;
+			begin
+				public read voTag;
+				public write voTag;
+			end;
+		end;
+
+end public
+
+procedure TVisualComponent.SetXY(ParX,ParY : longint);virtual;
+begin
+	X := ParX;
+   Y := ParY;
+end;
+
+procedure TVisualComponent.SetX(ParX : longint);
+begin
+	SetXY(ParX,Y);
+end;
+
+procedure TVisualComponent.SetY(ParY : longint);
+begin
+	SetXY(X,ParY);
+end;
+
+procedure TVisualComponent.Commonsetup;override;
+begin
+	inherited Commonsetup;
+	X := 0;
+	y := 0;
+	Tag := 0;
+end;
+
+procedure TVisualComponent.Show(ParShow : boolean);virtual;
+begin
+end;
+
+
+end.

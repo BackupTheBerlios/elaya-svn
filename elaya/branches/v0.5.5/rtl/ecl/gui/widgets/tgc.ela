@@ -1,0 +1,82 @@
+unit;
+uses interface,guitypes;
+
+public
+type
+	TGC=class inherit TRoot
+	private
+	var
+		voHandle : TInterface.TGCHandle;
+	protected
+		procedure Clear;override;
+		procedure SetFgColor(const ParColor : TCOlor);
+		procedure SetBgColor(const ParColor : TColor);
+	public
+
+		property Handle : TInterface.TGCHandle;
+		begin
+			public read voHandle;
+			private write voHandle;
+		end;
+
+		{TODO : read of FG and BGColor}
+		property FgColor : TColor;
+		begin
+      	public write SetFgColor;
+		end;
+
+		property BgCOlor : TColor;
+		begin
+			public write SetBgColor;
+		end;
+
+		constructor Create(ParWindow : TInterface.PWidgetHandle);
+		procedure Line(ParX0,ParY0,ParX1,ParY1 : longint);
+      procedure DrawText(ParX,ParY : longint;const ParText : string);
+		procedure GetTextMeasure(const ParText : string;var ParW,ParH : long);
+	end;
+
+end public
+
+
+procedure TGC.SetFgColor(const ParColor : TColor);
+begin
+	vgInterface.SetGcFgCOlor(Handle,ParColor);
+end;
+
+procedure TGC.SetBgCOlor(const ParColor : TColor);
+begin
+	vgInterface.SetGcBgColor(Handle,ParColor);
+end;
+
+procedure TGC.Clear;override;
+begin
+	inherited clear;
+	vgInterface.DestroyGC(voHandle);
+end;
+
+procedure TGc.GetTextMeasure(const ParText : string;var ParW,ParH : long);
+begin
+   vgInterface.GetTextMeasure(Handle,ParText,ParW,ParH);
+end;
+
+procedure TGC.DrawText(ParX,ParY : longint;const ParText : string);
+begin
+	vgInterface.DrawText(Handle,ParX,ParY,ParText);
+end;
+
+
+constructor TGC.Create(ParWindow : TInterface.PWidgetHandle);
+begin
+	inherited Create;
+	vginterface.CreateGC(ParWindow,voHandle);
+end;
+
+procedure TGC.Line(ParX0,ParY0,ParX1,ParY1 : longint);
+begin
+	vgInterface.LIne(Handle,ParX0,ParY0,ParX1,ParY1);
+end;
+
+
+
+end.

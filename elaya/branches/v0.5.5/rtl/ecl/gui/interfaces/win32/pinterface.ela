@@ -1,0 +1,313 @@
+{
+   Elaya, the compiler for the Elaya language
+    Copyright (C) 1999-2003  J.v.Iddekinge.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+unit;
+	uses values,linklist,ptypes,guitypes,win32types,win32op,guibase,win32gui,win32procs;
+
+public
+
+
+
+
+Type
+
+
+TInterInterface=class inherit TRoot
+	private
+	var
+		voWindowClass : WndClass;
+		property WindowClass : WndClass;
+		begin
+			private read voWindowClass;
+			private write voWindowClass;
+		end;
+
+	protected
+		procedure Commonsetup;override;
+	public
+	type
+		TWidgetHandle = T_WidgetHandle;
+		PWidgetHandle = P_WidgetHandle;
+		TGCHandle=T_GCHandle;
+		PGCHandle=P_GCHandle;
+		TPixmapHandle=T_PixmapHandle;
+		PPixmapHandle=P_PixmapHandle;
+
+
+
+
+	procedure CreateInterWindow(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	procedure CreateInterButton(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	procedure CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+	procedure CreateInterLineEdit(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+
+
+		procedure SetSize(ParWidget :PWidgetHandle;ParW,ParH : long);
+		procedure SetPosition( ParWidget : PWidgetHandle;ParX,ParY : longint);
+		procedure SetTitle( ParWidget : PWidgetHandle;const ParTitle : string);
+		procedure Show(ParWidget :  PWidgetHandle;ParShow : boolean);
+		procedure ClearWidget(ParWidget : PWidgetHandle);
+		procedure ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);
+		procedure SetToolTip(ParWidget : PWidgetHandle;const ParText : string);{todo veranderen in TString?}
+		procedure GetToolTip(ParWidget : PWidgetHandle;var ParText : string);
+      procedure SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+      procedure SetFgColor(ParWidget : PWidgetHandle;const ParColor: TColor);
+      procedure DestroyWidget(ParWidget : PWidgetHandle);
+		procedure DestroyGC(var ParGC : TGCHandle);
+		function  CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;
+		procedure Line(var ParGC :TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
+		procedure DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);
+		procedure GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);
+		procedure SetGcFgColor(var ParGC : TGCHandle;const ParColor : TColor);
+		procedure SetGcBgColor(var ParGC : TGCHandle;const ParColor : TColor);
+		procedure CreatePixmap(ParWidth,ParHeight,ParDepth: long;ParImage : PPixmapHandle);
+		procedure LoadPixmap(ParWindow : PWidgetHandle;const ParFileName : string;ParImage : PPixmapHandle;var ParWidth,ParHeight,ParDepth : long);
+		procedure DrawPixmap(var ParGC : TGCHandle;ParPixmap : PPixmapHandle;ParX,ParY : longint);
+		procedure SetButtonPixmap(ParWidget : PWIdgetHandle;ParPixmap : PPixmapHandle);
+		procedure SetTextAdjust(ParWidget : PWidgetHandle;ParAdjust : TTextAdjust);
+		function GetEditText(ParWidget : PWidgetHandle;ParFrom,ParTo : longint) : TString;
+
+		procedure ExitProgram;
+		procedure InterInit;
+		procedure InterRun;
+end;
+end public
+
+
+function WIndowProc(ParHwnd : Hwnd;ParMsg : long;ParWparam:long;ParlParam : Longint) :long;
+begin
+	exit(DefWindowProc(ParHWnd,ParMsg,ParWParam,ParLParam));
+end;
+
+
+{--( TInterInterface )-----------------------------------------------------------------------}
+		function TInterInterface.GetEditText(ParWidget : PWidgetHandle;ParFrom,ParTo : longint) : TString;{TODO}
+		begin
+			exit(nil);
+		end;
+
+		procedure TInterInterface.DestroyGC(var ParGC : TGCHandle);
+		begin
+		end;
+
+		function  TInterInterface.CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;
+		begin
+			exit(false);
+		end;
+
+		procedure TInterInterface.Line(var ParGC :TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);
+		begin
+		end;
+
+		procedure TInterInterface.DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);
+		begin
+		end;
+
+		procedure TInterInterface.GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);
+		begin
+		end;
+
+		procedure TInterInterface.SetGcFgColor(var ParGC : TGCHandle;const ParColor : TColor);
+		begin
+		end;
+
+		procedure TInterInterface.SetGcBgColor(var ParGC : TGCHandle;const ParColor : TColor);
+		begin
+		end;
+
+		procedure TInterInterface.CreatePixmap(ParWidth,ParHeight,ParDepth: long;ParImage : PPixmapHandle);
+		begin
+		end;
+
+		procedure TInterInterface.LoadPixmap(ParWindow : PWidgetHandle;const ParFileName : string;ParImage : PPixmapHandle;var ParWidth,ParHeight,ParDepth : long);
+		begin
+		end;
+
+		procedure TInterInterface.DrawPixmap(var ParGC : TGCHandle;ParPixmap : PPixmapHandle;ParX,ParY : longint);
+		begin
+		end;
+
+		procedure TInterInterface.SetButtonPixmap(ParWidget : PWIdgetHandle;ParPixmap : PPixmapHandle);
+		begin
+		end;
+
+		procedure TInterInterface.SetTextAdjust(ParWidget : PWidgetHandle;ParAdjust : TTextAdjust);
+		begin
+		end;
+
+
+procedure TInterInterface.commonsetup;override;
+var
+	vlRet:  long;
+begin
+	inherited Commonsetup;
+	WindowClass.lpfnWndProc := @WindowProc;
+	WIndowClass.cbClsExtra := 0;
+	WindowClass.cbWndExtra := 0;
+	WindowClass.hInstance := GetInstance;
+	WindowClass.hIcon := 0;
+	WindowClass.hCursor := 0;
+	WindowClass.hbrBackground := GetStockObject(WHITE_BRUSH);
+   WindowClass.lpszMenuName  := nil;
+	WIndowClass.lpszClassName := 'eclguiclass';
+	vlRet := RegisterClass(voWindowClass);
+end;
+
+procedure TInterInterface.DestroyWidget(ParWidget : PWidgetHandle);
+begin
+end;
+
+procedure TInterInterface.ExitProgram;
+begin
+end;
+
+procedure TInterInterface.SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+begin
+end;
+
+
+
+procedure TInterInterface.SetFgColor(ParWidget : PWidgetHandle;const ParColor : TColor);
+begin
+end;
+
+
+procedure TInterInterface.SetToolTip(ParWidget : PWidgetHandle;const ParText : string);{todo veranderen in TString?}
+begin
+end;
+
+procedure TInterInterface.GetToolTip(ParWidget : PWidgetHandle;var ParText : string);
+begin
+end;
+
+
+procedure TInterInterface.ClearWidget(ParWidget : PWidgetHandle);
+begin
+end;
+
+procedure TInterInterface.ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);
+begin
+end;
+
+
+procedure TInterInterface.Show(ParWidget :  PWidgetHandle;ParShow : boolean);
+var
+	vlMode : long;
+begin
+	vlMode := 0;
+	if ParShow then vlMode := 1;
+	ShowWIndow(ParWidget^.vrWindow,vlMode);
+end;
+
+
+procedure TInterInterface.SetTitle(ParWidget : PWidgetHandle;const ParTitle : string);
+var
+	vlTitle :asciiz size=255;
+begin
+	vlTitle := ParTitle;
+	SetWindowText(ParWidget^.vrWindow,@vlTitle);
+end;
+
+procedure TInterInterface.SetPosition( ParWidget : PWidgetHandle;ParX,ParY : longint);
+begin
+end;
+
+procedure TInterInterface.SetSize(ParWidget :PWidgetHandle;ParW,ParH : long);
+begin
+end;
+
+
+{----( CreateWidget )-----------------------------------------------------------------------------}
+
+
+procedure TInterInterface.CreateInterWindow(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWidgetHandle;const ParTitle : string);
+var
+	vlTitle : asciiz size=80;
+	vlParent : Handle;
+begin
+	vlTitle := ParTitle;
+	vlParent := 0;
+	if ParParent <> nil then vlParent := ParParent^.vrWindow;
+	ParWidget^.vrWindow := CreateWindow(windowclass.lpszClassName,@vlTItle,WS_OVERLAPPEDWINDOW,ParX,ParY,ParW,ParH,vlParent,0,GetInstance,nil);
+	ShowWIndow(ParWidget^.vrWindow,1);
+	UpdateWIndow(ParWIdget^.vrWindow);
+end;
+
+
+{---( CreateButton )----------------------------------------------------------------------------------}
+procedure TInterInterface.CreateInterButton(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWidgetHandle;const ParTitle : string);
+var
+	vlTitle : asciiz size=80;
+	vlParent : Handle;
+begin
+
+	vlParent := 0;
+	if ParParent <> nil then vlParent := ParParent^.vrWindow;
+	vlTitle := ParTitle;
+	ParWidget^.vrWindow := CreateWindow('BUTTON',@vlTitle,WS_Child,ParX,ParY,ParW,ParH,vlParent,0,GetInstance,nil);
+	ShowWIndow(ParWidget^.vrWindow,1);
+end;
+
+
+
+	procedure TInterInterface.CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+var
+	vlTitle : asciiz size=80;
+	vlParent : Handle;
+begin
+	vlParent := 0;
+	if ParParent <> nil then vlParent := ParParent^.vrWindow;
+	vlTitle := ParTitle;
+	ParWidget^.vrWindow := CreateWindow('STATIC',@vlTitle,WS_Child,ParX,ParY,ParW,ParH,vlParent,0,GetInstance,nil);
+	ShowWIndow(ParWidget^.vrWindow,1);
+end;
+
+
+procedure TInterInterface.CreateInterLineEdit(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+var
+	vlTitle : asciiz size=80;
+	vlParent : Handle;
+begin
+	vlParent := 0;
+	if ParParent <> nil then vlParent := ParParent^.vrWindow;
+	vlTitle := ParTitle;
+	ParWidget^.vrWindow := CreateWindow('EDIT',@vlTitle,WS_Child,ParX,ParY,ParW,ParH,vlParent,0,GetInstance,nil);
+	ShowWIndow(ParWidget^.vrWindow,1);
+end;
+
+{---( Main )--------------------------------}
+
+procedure TInterInterface.InterRun;
+var
+	vlHandle : Handle;
+   vlMsg : TMsg;
+begin
+	updatewindow(vlHandle);
+	while(GetMessage(@vlMsg,0,0,0)<>0) do begin
+		TranslateMessage(vlMsg);
+		DispatchMessage(vlMsg);
+	end;
+end;
+
+procedure TInterInterface.InterInit;
+begin
+end;
+
+
+begin
+end.

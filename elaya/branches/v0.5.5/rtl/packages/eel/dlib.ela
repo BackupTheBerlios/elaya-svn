@@ -1,0 +1,741 @@
+{   ;dlib, Extetended Routine library.
+    Copyright (C) 1999-2003  J.v.Iddekinge.
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but whereOUT ANY WARRANTY; whereout even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along where this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+
+unit;
+public
+type
+	TOptionMode=enum
+		om_Option;
+		om_Suboption;
+		om_Value;
+		om_Error;
+		om_end;
+	end;
+
+   	TTextReadStatus=enum
+		trs_ok := 0;
+		trs_error := 1;
+		trs_eof := 2;
+	end;
+
+
+	const
+		OER_No_Error               = 0;
+		OER_End_Expected           = 1;
+		OER_Error_In_Option        = 2;
+		OER_Error_In_Sub_Option    = 3;
+		OER_Invalid_Status         = 4;
+
+	procedure EBase;root;abstract;
+	has
+	protected
+		function  GetName : string;
+		function  GetParent : PMetaData;
+		function GetRoutinePath : string;
+	end;
+
+	function  Process:boolean;inherit EBase;
+	has
+	protected
+		function Initialize : boolean;virtual;abstract;
+		procedure Failed; virtual;abstract;
+		procedure Finalize;virtual;abstract;
+		function ProcessBody:boolean;virtual;abstract;
+		main;
+	end;
+
+	procedure StringScanner(virtual const ParString : string);inherit EBase;
+	has
+	private
+	var
+		vlPos        : long;
+		vlOutput     : string;
+		vlScanLength : long;
+    protected
+	var
+		vlSym        : char;
+
+
+		property Pos : long;
+		begin
+			public read vlPos;
+			public write vlPos;
+		end;
+
+		property Sym : char;
+		begin
+			public read vlSym;
+			public write vlSym;
+		end;
+
+		property Output : string;
+		begin
+			public read vlOutput;
+			public write vlOutput;
+		end;
+
+		property ScanLength : long;
+		begin
+			public read vlScanLength;
+			public write vlScanLength;
+		end;
+
+
+		function GetInputLength : long;
+		function GetBeginPos : long;virtual;
+		function GetEndPos : long;virtual;
+		function DoFrom  : boolean;virtual;
+		function DoUntil : boolean;virtual;
+		procedure Handle;virtual;
+		procedure SetOutput;virtual;
+		procedure Found;virtual;
+		procedure AfterLoop;virtual;
+		main;
+	end;
+
+	procedure StringCutElement(virtual const ParString : string);
+	inherit StringScanner(ParString);
+	has
+		protected
+		var
+			elementnum : long;
+			function IsSeperator:boolean;  virtual;
+			procedure Element(const ParStr : string); virtual;
+			procedure Handle;final;
+			procedure SetOutput;final;
+			procedure AfterLoop;override;
+			main;
+	end;
+
+procedure StringCutCharElement(ParChar : char;virtual const ParString : string);
+	inherit StringCutElement(ParString);
+	has
+		protected
+			function IsSeperator:boolean;override;
+	end;
+
+	function  ECopy(virtual const ParString : string):string;inherit StringScanner(ParString);
+	has
+	protected
+		procedure Handle;override;
+		main;
+	end;
+
+	function  EDelete(virtual const ParString : string) : string;inherit StringScanner(ParString);
+	has
+		protected
+			procedure SetOutput;override;
+		main;
+	end;
+
+procedure Scanner;inherit EBase;
+	has
+		protected
+			function  Scan : boolean;virtual;
+			procedure ScanBegin;virtual;
+			function ScanItem:boolean;virtual;
+			main;
+end;
+
+	procedure ScanVarStrings;inherit Scanner;
+	has
+private
+   var
+      vlTheName   : str255;
+      vlTheValue  : str255;
+	protected
+		property TheName : str255;
+		begin
+			public read vlTheName;
+			private write vlTheName;
+		end;
+
+		property TheValue : str255;
+		begin
+			public read vlTheValue;
+			private write vlTheValue;
+		end;
+
+		function GetNextVarString(var ParStr : string):boolean;virtual;
+		function Item(const ParName,ParValue : string):boolean;virtual;
+		function ScanItem:boolean;final;
+		function Scan : boolean;final;
+	 end;
+
+
+procedure EScanParameters;
+	inherit EBase;
+	has
+	private
+		procedure DoError;
+		procedure TryNextArg(var ParArg :string);
+		function HandleArg(const ParStr : string):boolean;
+		function CallAtFunc(ParOpt : TOptionMode):TOptionMode;root;
+		has
+			protected
+				function GetOption:char;virtual;
+				function GetSubOption:char;virtual;
+				function GetValue:string;virtual;
+				main;
+		end;
+		protected
+		var
+			Option    : char;
+			SubOption : char;
+			Value     : string;
+
+		procedure SetError(ParError : long);
+		function GetError : long;
+		function IsOption(const ParStr : string):boolean;virtual;
+		function AtOption:TOptionMode;virtual;
+		function AtSubOption : TOptionMode;virtual;
+		function AtOptionValue:TOptionMode;virtual;
+		function AtValue:TOptionMode;virtual;
+		procedure Failed;virtual;
+		main;
+	end;
+
+	procedure  EReadTextFile(const ParFileName : string);root;
+	has
+		private
+		var
+			vlFile : TFile;
+			vlStr  : string;
+			vlLastError : longint;
+			vlLine : string;
+		protected
+			property line : string;
+			begin
+				private write vlLine;
+				public read vlLine;
+			end;
+
+			procedure Failure;virtual;abstract;
+            function EndOfFile : boolean;
+	        function NextLine:TTextReadStatus;
+			function HandleLine : TTextReadStatus;virtual;
+			main;
+	end;
+           
+
+
+end public
+
+{---( EReadTextFile )------------------------------------------------------------------------------------}
+
+
+procedure EReadTextFile(const ParFileName : string);inherit EBase;
+var
+	vlStatus : TTExtReadStatus;
+begin
+	if(OpenFile(TextFile,vlFile,ParFileName,OM_Read))then begin
+		vlLastError := GetLastError;
+		Failure;
+	end else begin
+		while not(EndOfFile) do begin
+			vlStatus := NextLine;
+			if vLStatus =  trs_eof then begin
+				break;
+			end else if vlStatus =  trs_Error then begin
+				failure;
+				break;
+			end;
+			vlStatus :=HandleLine;
+			if vLStatus =  trs_eof then begin
+				break;
+			end else if vlStatus =  trs_Error then begin
+				failure;
+				break;
+			end;
+		end;
+	end;
+end;
+
+
+function EReadTextFile has protected NextLine:TTextReadStatus;
+begin
+	ReadText(vlFile,vlLine);
+	if GetLastError <> err_no_error then exit(trs_error);
+	if   eof(vlFile) then exit(trs_eof);
+	exit(trs_ok);
+end;
+
+
+function EReadTextFile has protected EndOfFile : boolean;
+begin
+	exit(eof(vlFile));
+end;
+
+function EReadTextFile has protected HandleLine : TTextReadStatus;virtual;
+begin
+	exit(trs_ok);
+end;
+
+
+
+{---( EBase )----------------------------------------------------------------}
+
+function  EBase has protected GetName : string;
+begin
+exit(meta^.vrName^);
+end;
+
+function  EBase has protected GetParent : PMetaData;
+begin
+	if meta = nil then begin
+		exit(nil);
+	end else begin
+		exit(meta^.vrParent);
+	end;
+end;
+
+function EBase has protected GetRoutinePath : string;
+var
+	vlPath : string;
+	vlMeta : PMetaData;
+begin
+	vlMeta := meta;
+	vlPath.length := 0;
+	while(vlMeta <> nil) do begin
+		if vlPath.length<> 0 then vlPath:= '/'+vlPath;
+		vlPath := vlMeta^.vrName^+vlPath;
+		vlMeta := vlMeta^.vrParent;
+	end;
+	exit(vlPath);
+end;
+
+
+{------------( PRocess )----------------------------------------------------------------------------}
+
+function Process:boolean;
+inherit EBase;
+var vlErr : boolean;
+begin
+	vlErr := true;
+	if not(Initialize) then vlErr := ProcessBody;
+	if vlErr then Failed;
+	Finalize;
+	exit(vlErr);
+end;
+
+
+
+
+{-------( StringScanner )----------------------------------------------------------------------------}
+
+
+procedure StringScanner has protected Found;virtual;
+begin
+end;
+
+procedure StringScanner(virtual const ParString : string);inherit EBase;
+private
+var
+	EndPos   : Long;
+	BeginPos : long;
+
+
+begin
+{	Output.Length := 0;
+	BeginPos    := GetBeginPos;
+	EndPos      := GetEndPos;
+	ScanLength := GetInputLength;
+	if EndPos > ScanLength then EndPos := ScanLength;
+	Pos := BeginPos;
+	SetOutput;
+	while (Pos <= ScanLength)do begin
+		sym := ParString[pos];
+		if DoFrom then break;
+		inc(pos);
+	end;
+	while Pos <=ScanLength do begin
+		Sym    := ParString[Pos];
+		Handle;
+		if DoUntil then begin
+			Found;
+			break;
+		end;
+		inc(Pos);
+	end;
+	AfterLoop;}
+end;
+
+
+function StringScanner has protected GetInputLength : long;
+begin
+	exit(ParString.Length);
+end;
+
+function StringScanner has protected GetBeginPos : long;virtual;
+begin
+	exit(1);
+end;
+
+function StringScanner has protected GetEndPos : long;virtual;
+begin
+	exit(ParString.Length);
+end;
+
+function StringScanner has protected DoFrom  : boolean;virtual;
+begin
+	exit(true);
+end;
+
+function StringScanner has protected DoUntil : boolean;virtual;
+begin
+	exit(false);
+end;
+
+procedure StringScanner has protected Handle;virtual;
+begin
+end;
+
+procedure StringScanner has protected SetOutput;virtual;
+begin
+end;
+
+procedure StringScanner has protected AfterLoop;virtual;
+begin
+end;
+
+
+{---( StringCutElement )----------------------------------------------------------------------------------}
+procedure StringCutElement(virtual const ParString : string);
+inherit StringScanner(ParString);
+begin
+	ElementNum := 0;
+	inherited of main;
+end;
+
+
+function  StringCutElement has protected IsSeperator:boolean;virtual;
+begin
+	exit(false);
+end;
+
+procedure StringCutElement has Protected Element(const ParStr : string); virtual;
+begin
+end;
+
+procedure StringCutElement has protected Handle;final;
+begin
+	if IsSeperator then begin
+		inc(ElementNum);
+		Element(Output);
+		Output.length := 0;
+	end else begin
+		Output := Output + sym;
+	end;
+end;
+
+procedure StringCutElement has protected AfterLoop;override;
+begin
+	if Output.length > 0 then begin
+		inc(ElementNum);
+		Element(Output);
+		Output.length := 0;
+	end;
+end;
+
+
+procedure StringCutElement has protected SetOutput;final;
+begin
+end;
+
+{----( StringCutCharElement )---------------------------------------------------------------------------}
+
+
+function StringCutCharElement has protected IsSeperator:boolean;override;
+begin
+	exit(ParChar=sym);
+end;
+
+
+{----( ECopy )-------------------------------------------------------------------------------------------}
+
+
+procedure ECopy has protected Handle;override;
+begin
+     Output := Output + Sym;
+end;
+
+function ECopy(virtual const ParString : string):string;
+inherit StringScanner(ParString);
+protected
+begin
+	inherited of main;
+	exit(output);
+end;
+
+{-----( EDelete )------------------------------------------------------------------------------------}
+
+function  EDelete(virtual const ParString : string) : string;
+inherit StringScanner(ParString);
+begin
+	inherited of main;
+	exit(Output +  copy(ParString,pos,ScanLength - pos+1));
+end;
+
+
+procedure EDelete has protected SetOutput;override;
+begin
+	if pos > 0 then Output := copy(ParString,1,pos - 1);
+end;
+
+{----------( Scanner )---------------------------------------------------------------------------------------}
+
+
+procedure Scanner;inherit EBase;
+begin
+	ScanBegin;
+	for Scan until ScanItem do begin end;
+end;
+
+
+function Scanner has protected Scan : boolean;virtual;
+begin
+     exit(false);
+end;
+
+procedure Scanner has protected  ScanBegin;virtual;
+begin
+end;
+
+function Scanner has protected ScanItem:boolean;virtual;
+begin
+end;
+
+
+{----( ScanVarStrings )--------------------------------------------------------------------------}
+
+
+{procedure ScanVarStrings;inherit Scanner;end;}
+
+function ScanVarStrings has protected GetNextVarString(var ParStr : string):boolean;virtual;
+begin
+	exit(true);
+end;
+
+function ScanVarStrings has protected Item(const ParName,ParValue : string):boolean;virtual;
+begin
+	exit(False);
+end;
+
+function ScanVarStrings has protected ScanItem:boolean;final;
+begin
+	exit(Item(TheName,TheValue));
+end;
+
+
+function ScanVarStrings has protected Scan : boolean;final;
+var
+	vlPos : long;
+	vlStr : string;
+begin
+	TheName := '';
+	TheValue  := '';
+	if GetNextVarString(vlStr) then exit(false);
+	vlPos := pos('=',vlStr);
+	if vlPos = 0 then begin
+		TheValue := vlStr;
+	end else begin
+		TheName := copy(vlStr,1,vlPos - 1);
+		TheValue  := copy(vlStr,vlPos + 1,vlStr.length);
+	end;
+	exit(true);
+end;
+
+{---( TScanParameters )-------------------------------------------------------------------------------------------}
+
+procedure EScanParameters;inherit EBase;
+var
+   vlError : long;
+   vlArg   : string;
+protected
+
+
+  procedure SetError(ParError : long);
+  begin
+       vlError := ParError;
+  end;
+
+  function GetError : long;
+  begin
+       exit(vlError);
+  end;
+
+  function IsOption(const ParStr : string):boolean;virtual;
+  begin
+       exit((ParStr.Length >1) and (ParStr[1] = '-'));
+  end;
+
+  function AtOption:TOptionMode;virtual;
+  begin
+       exit(OM_Error);
+  end;
+
+  function AtSubOption : TOptionMode;virtual;
+  begin
+       exit(Om_Error);
+  end;
+
+  function AtOptionValue:TOptionMode;virtual;
+  begin
+       exit(OM_Error);
+  end;
+
+  function AtValue:TOptionMode;virtual;
+  begin
+       exit(OM_Error);
+  end;
+
+
+  procedure Failed;virtual;
+  begin
+  end;
+
+private
+
+  function CallAtFunc(ParOpt : TOptionMode):TOptionMode; root;
+  var vlStat : TOptionMode;
+  protected
+           function GetOption:char;virtual;
+           begin
+           end;
+
+           function GetSubOption:char;virtual;
+           begin
+           end;
+
+           function GetValue:string;virtual;
+           begin
+           end;
+           
+  begin
+       vlStat := OM_Error;
+       if ParOpt = OM_Option then begin
+          Option    := GetOption;
+          SubOption := 0 as char;
+          Value.Length := 0;
+          vlStat := AtOption;
+       end else if ParOpt = OM_SubOption then begin
+          SubOption := GetSubOption;
+          Value.length := 0;
+          vlStat := ATSubOption;
+       end else if ParOpt = OM_Value then begin
+          Value := GetValue;
+          vlStat := ATOptionValue;
+       end;
+       exit(vlStat);
+  end;
+  
+
+
+  var vlCnt : long;
+
+  procedure DoError;
+  begin
+       if GetError = OER_No_Error then SetError(OER_Error_In_Option);
+       Failed;
+  end;
+
+  procedure TryNextArg(var ParArg :string);
+  begin
+       if vlCnt+1 < GetNumberOfArguments then begin
+          inc(vlCnt);
+          GetArgument(vlCnt,ParArg);
+          if IsOption(ParArg) then begin
+             dec(vlCnt);
+             ParArg.Length :=0;
+          end;
+       end;
+  end;
+
+  function HandleArg(const ParStr : string):boolean;
+  var vlStat : TOptionMode;
+      vlPos  : long;
+      vlStr  : string;
+  begin
+       Option    := 0 as char;
+       SubOption := 0 as char;
+       Value.length := 0;
+       if IsOption(ParStr) then begin
+           vlPos := 2;
+           vlStat := OM_Option;
+           while vlPos <= ParStr.length do begin
+                vlStat := CallAtFunc(vlStat) where
+                             GetOption    : ParStr[vlPos];
+                             GetSubOption : GetOption;
+                             GetValue     : begin
+                                            if vlPos <= ParStr.Length then begin
+                                               vlStr := copy(ParStr,vlPos ,ParStr.Length - vlPos+1);
+                                               vlPos := ParStr.Length;
+                                            end else begin
+                                                TryNextArg(vlStr);
+                                            end;
+                                            exit(vlStr);
+                                          end;
+                          end;
+                 if (vlStat =OM_End) and (vlPos < ParStr.Length) then begin
+                           SetError(OER_End_Expected);
+                           vlStat := OM_Error;
+                 end;
+                 if (vlStat = OM_Error) then begin
+                    DoError;
+                    exit(true);
+                 end;
+                 inc(vlPos);
+           end;
+           if (vlStat <> OM_Error) and (vlStat <> OM_End) then begin
+               vlStat := CallAtFunc(vlStat) where
+                             GetOption    : 0 as char;
+                             GetSubOption : 0 as char;
+                             GetValue     : begin TryNextArg(vlStr);exit(vlStr);end;
+                         end;
+           end;
+           if vlStat = OM_Error then begin
+              DoError;
+              exit(true);
+           end;
+       end else begin
+           vlStat := AtValue;
+           if (vlStat <> OM_Error) or (vlStat <> OM_End) then begin
+                     SetError(OER_Invalid_Status);
+                     vlStat := OM_Error;
+           end;
+       end;
+       if vlStat = OM_Error then begin
+          DoError;
+          Exit(true);
+       end;
+  end;
+
+begin
+     vlCnt := 1;
+     while vlCnt <GetNumberOfArguments do begin
+           GetArgument(vlCnt,vlArg);
+           if HandleArg(vlArg) then break;
+           inc(vlCnt);
+     end;
+
+end;
+
+
+end.

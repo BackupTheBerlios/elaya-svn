@@ -1,0 +1,606 @@
+{   Edol, Elaya dynamic operating system library for linux.
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    Email : Iddekingej@lycos.com
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but whereOUT ANY WARRANTY; whereout even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along where this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+
+
+unit;
+	uses dlib,linux,sys_int;
+	public
+
+	const
+		whn_Fork = 1;
+		whn_Wait = 2;
+		whn_exec = 3;
+
+
+
+	type  PPAsc=ptr PAsc;
+	function  EReadDir(const ParName : string):boolean;
+		inherit Process;
+		has
+		protected
+			function HandleFile(const ParInfo : TFileInfo):boolean;virtual;
+			function Filter(const ParInfo : TFileInfo):boolean;virtual;
+			function GetNextFile(var ParInfo : TFIleInfo):TReadStatus;
+			function  ProcessBody:boolean; override;
+			function Initialize:boolean; override;
+			procedure Finalize;override;
+         main;
+		end;
+
+	procedure EnvScanner;
+		inherit ScanVarStrings;
+		has
+		private
+	     var
+				vlPtr        : PPAsc;
+
+		protected
+			procedure ScanBegin;override;
+			 function GetNextVarString(var ParStr : string):boolean;override;
+		end;
+
+	function  EGetEnv(const ParName : string):String;
+		inherit EnvScanner;
+		has
+		protected
+			function Item(const ParName,ParValue : string):boolean;override;
+			main;
+	end;
+
+	function  EExistsEnv(const ParName : string):boolean;
+		inherit EnvScanner;
+		has
+		protected
+			function Item(const ParItemName,ParValue : string):boolean;override;
+			main;
+	end;
+
+	function  EExec(const ParFileName : string):boolean;root;
+		has
+		private
+			procedure FreeList(ParPtr : PPAsc);
+			procedure AddToPList(ParList : PPAsc;ParNo : long;const ParStr : string);
+		protected
+			procedure SetupExec;virtual;
+			procedure SetEnvNo(ParEnvNo : long);
+			procedure SetParamNo(ParParamNo : long);
+			procedure AddParameter(const ParParam : string);
+			procedure AddEnviroment(const ParEnv : string);
+			procedure Init;virtual;
+			procedure Done;virtual;
+			function  Exec:longint;virtual;
+			procedure Error(ParError : Longint);virtual;
+			main;
+	end;
+
+	function  EFork : pid_t;
+	inherit EBase;
+	has
+	private
+		var
+			vlChildPid : Pid_t;
+		function GetChildStatus : cint;
+
+	protected
+
+		property ChildPid : pid_t;
+		begin
+			private write vlChildPid;
+			public  read vlChildPid;
+		end;
+
+		function GetChildExitStatus(var ParStatus : long):boolean;
+		function Child : long;virtual;
+		procedure Error(ParWhen :long);virtual;
+		procedure Parent;virtual;
+		main;
+	end;
+
+	procedure EForkWait;
+	inherit Efork;
+	has
+	protected
+		function NormalExit : boolean;
+		function ExitCode : longint;
+		procedure Parent;override;
+		main;
+	end;
+
+	function EReadTextAbstract( var ParFileRec:TFile):boolean;
+	root;
+	has
+	protected
+		function GetPos : long;
+		function ReadFile(ParBuffer : PVoid;ParSize : long):long;
+		function CheckBufferPos:boolean;
+		function GetNextByte(var ParByte : byte):boolean;
+		function PeekBufferByte(var ParBt:byte):boolean;
+		procedure SetLength(ParLength : long);virtual;
+		function IsEol(ParBT:byte):boolean;virtual;
+		procedure AppendChar(ParChar : char);virtual;
+		main;
+	end;
+
+	function EReadText(var ParFileRec :TFile;var ParStr : string):boolean;
+	inherit EReadTextAbstract(ParFileRec);
+	overload;
+	has
+	protected
+		procedure AppendChar(ParChar : char);override;
+		procedure SetLength(ParLength : long);override;
+		main;
+	end;
+
+	function EReadText(var ParFileRec :TFile;var ParStr : asc255):boolean;
+	inherit EReadTextAbstract(ParFileRec);
+	overload;
+	has
+		protected
+			procedure AppendChar(ParChar : char);override;
+			procedure SetLength(ParLength : long);override;
+			main;
+	end;
+
+
+     end public
+
+
+	procedure EnvScanner has protected ScanBegin;override;
+	begin
+		inherited ScanBegin;
+		vlPtr := linux_GetEnvp;
+	end;
+
+	function EnvScanner has protected GetNextVarString(var ParStr : string):boolean;override;
+	begin
+		if(vlPtr^=nil) then exit(true);
+		Parstr := vlPtr^^;
+		inc(vlPtr);
+		exit(false);
+	end;
+	
+
+
+
+
+{---( EGetEnv )--------------------------------------------------------------}
+     function  EGetEnv(const ParName : string):String;inherit EnvScanner;
+     protected
+     
+     begin
+          inherited of main;
+          exit(TheValue);
+     end;
+
+     function EGetEnv has protected Item(const ParName,ParValue : string):boolean;override;
+     begin
+          exit(ParName =ParName);
+     end;
+
+
+{----( EExistsEnv )--------------------------------------------------------------------}
+
+     function EExistsEnv(const ParName : string):boolean;
+	 inherit EnvScanner;
+     var
+        vlFound : boolean;
+     begin
+          vlFound := false;
+          inherited of main;
+          exit(vlFound);
+     end;
+
+
+     function EExistsEnv has protected Item(const ParItemName,ParValue : string):boolean;override;
+     begin
+          if ParItemName = ParName then vlFound := true;
+          exit(vlFound);
+     end;
+
+
+
+     function EExec(const ParFileName : string):boolean;root;
+     private
+            var
+                  vlParam    : PPAsc;
+                  vlEnv      : PPAsc;
+                  vlParamCnt : long;
+                  vlEnvCnt   : long;
+                  vlParamNo  : long;
+                  vlEnvNo    : long;
+
+
+            procedure FreeList(ParPtr : PPAsc);
+            var vlPtr : PPAsc;
+            begin
+                 vlPtr := ParPtr;
+                 while (vlPtr^ <> nil) do begin
+                           FreeMem(vlPtr^);
+                           inc(vlPtr);
+                 end;
+                 FreeMem(ParPtr);
+            end;
+
+            procedure AddToPList(ParList : PPAsc;ParNo : long;const ParStr : string);
+            var
+               vlPtr :PAsc;
+            begin
+                 vlPtr := ReserveMem(ParStr.length+1);
+                 vlPtr^ := ParStr;
+                 (vlParam +  ParNo)^ := vlPtr;
+                 (vlParam +  (ParNo+1))^ := nil;
+            end;
+
+     protected
+
+            procedure SetupExec;virtual;
+            begin
+            end;
+            
+            procedure SetEnvNo(ParEnvNo : long);
+            var vlPtr : PPAsc;
+            begin
+                 vlEnvNo := ParEnvNo;
+                 vlPtr   := Reservemem(ParEnvNo * sizeof(PAsc));
+                 if vlEnvCnt > 0 then begin
+                    move(vlEnv,vlPtr,vlEnvCnt * sizeof(PAsc));
+                    FreeList(vlEnv);
+                 end;
+                 vlEnv := vlPtr;
+            end;
+
+            procedure SetParamNo(ParParamNo : long);
+            var vlPtr : pointer;
+            begin
+                 vlParamNo := ParParamNo;
+                 vlPtr     := ReserveMem(ParParamNo * sizeof(PAsc));
+                 if vlParamCnt > 0 then begin
+                    move(vlParam,vlPtr,vlParamCnt * sizeof(PAsc));
+                    FreeList(vlParam);
+                 end;
+                 vlParam := vlPtr;                 
+            end;
+     
+            procedure AddParameter(const ParParam : string);
+            var vlPtr : pointer;
+            begin
+                 if vlParamCnt >= vlParamNo then SetParamNo(vlParamNo + 16);
+                    AddToPList(vlParam,vlParamCnt,ParParam);
+                    vlParamCnt := vlParamCnt + 1;
+            end;
+
+            procedure AddEnviroment(const ParEnv : string);
+            begin
+                 if vlEnvCnt >= vlEnvNo then SetParamNo(vlParamNo + 16);
+                 AddToPList(vlEnv,vlEnvCnt,ParEnv);
+                 inc(vlEnvCnt);
+            end;
+            
+            procedure Init;virtual;
+            begin
+                 vlParamNo  := 0;
+                 vlParamCnt := 0;
+                 vlEnvNo    := 0;
+                 vlEnvCnt   := 0;
+                 SetParamNo(4);
+                 SetEnvNo(4);
+            end;
+
+            procedure Done;virtual;
+            begin
+                    if vlParam <> nil then FreeList(vlParam);
+                    if vlEnv <> nil then FreeList(vlEnv);
+            end;
+
+            function  Exec:longint;virtual;
+            var vlProg : Asc;
+            begin
+                 vlProg := ParFileName;
+                 Linux_ExecVe(@vlProg,(vlParam),(vlEnv));
+            end;
+
+            procedure Error(ParError : Longint);virtual;
+            begin
+            end;
+     var
+        vlErr : boolean;
+     begin
+          vlErr := false;
+          Init;
+          SetupExec;
+          if Exec <> 0 then begin
+             Error(GetLastError);
+             vlErr := true;
+          end;
+          Done;
+          exit(vlErr);
+     end;
+
+
+
+{---( EFork )------------------------------------------------}
+
+function EFork : pid_t;inherit EBase;
+begin
+	ChildPid := linux_fork;
+	if ChildPid=0 then begin
+		quit(Child);
+	end else if ChildPid=-1 then begin
+		Error(whn_Fork);
+	end else begin
+		Parent;
+	end;
+	exit(ChildPid);
+end;
+
+function EFork has private GetChildStatus : cint;
+var vlStat : cint;
+begin
+	linux_waitpid(ChildPid,@vlStat,WNoHang);
+	exit(vlStat);
+end;
+
+procedure EFork has protected Parent;virtual;
+begin
+end;
+
+
+function EFork has protected GetChildExitStatus(var ParStatus : long):boolean;
+var
+	vlStat : cint;
+begin
+	vlStat := GetChildStatus;
+	if Linux_WIfExcited(vlStat) then begin
+		ParStatus := Linux_WExitStatus(vlStat);
+		exit(true);
+	end else begin
+		exit(false);
+	end;
+end;
+
+function EFork has protected Child : long;virtual;
+begin
+	exit(1);
+end;
+
+procedure EFork has protected Error(ParWhen :long);virtual;
+begin
+end;
+
+             
+{----( EForkWait )------------------------------------------------}
+
+procedure EForkWait;inherit EFork;
+var
+	vlExitStatus : longint;
+begin
+	inherited of Main;
+end;
+
+function EForkWait has protected NormalExit : boolean;
+begin
+	exit(Linux_WIfExcited(vlExitStatus));
+end;
+
+function EForkWait has protected ExitCode : longint;
+begin
+	if NormalExit then begin
+		exit(Linux_WExitStatus(vlExitStatus));
+	end else begin
+		exit(0);
+	end;
+end;
+
+
+procedure EForkWait has protected Parent;override;
+var
+	vlStatus :longint;
+begin
+	if linux_waitpid(ChildPid,@vlExitStatus,0) = -1 then error(whn_Wait);
+end;
+
+function EReadTextAbstract(var ParFileRec:TFile):boolean;root;
+var vlB1    : byte;
+    vlCnt   : long;
+    vlExtra : PTextExtra;
+protected
+
+	function GetPos : long;
+	begin
+		exit(vlCnt);
+	end;
+
+	function ReadFile(ParBuffer : PVoid;ParSize : long):long;
+	begin
+		exit(int_Read(ParFileRec.vrHandle,ParBuffer,ParSize));
+	end;
+
+	function CheckBufferPos :boolean;
+	begin
+ 	   if vlExtra^.vrBufferPos >= vlExtra^.vrBufferFil then begin
+         	     vlExtra^.vrFilePos   := int_filepos(ParFileRec.vrHandle);
+             	     vlExtra^.vrBufferFil := ReadFile(vlExtra^.vrBuffer,vlExtra^.vrBufferSize);
+              	     vlExtra^.vrBufferPos := 0;
+              	     vlExtra^.vrReadMode  := true;
+	   end;
+            exit(vlExtra^.vrBufferFil = 0);
+	end;
+
+	function GetNextByte(var ParByte : byte):boolean;
+	begin
+        		if vlExtra^.vrBufferSize = 0 then begin
+	           	ReadFile(@ParByte,1);
+        	   		exit(false);
+        		end;
+        		if CheckBufferPos  then exit(true);
+        		ParByte :=((vlExtra^.vrBuffer + vlExtra^.vrBUfferPos) as pbyte)^;
+        		inc(vlExtra^.vrBufferPos);
+        		exit(false);
+	end;
+
+	function PeekBufferByte(var ParBt:byte):boolean;
+	begin
+		if CheckBufferPos then exit(true);
+		ParBt := ((vlExtra^.vrBuffer + vlExtra^.vrBufferPos) as pbyte)^;
+   		exit(false);
+	end;
+
+
+	function IsEol(ParBT:byte):boolean;virtual;
+	var vlPeek : byte;
+	begin
+		if (ParBt = 13) or (ParBt = 10) then begin
+			if PeekBufferByte(vlPeek) then exit(true);
+			if ((vlPeek = 13) or (vlPeek=10)) and (vlPeek <> vlB1) then begin
+            			GetNextByte(vlB1);
+			end;
+        		exit(true);
+		end;
+		exit(false);
+	end;
+
+	procedure AppendChar(ParChar : char);virtual;
+	begin
+	end;
+
+    procedure SetLength(ParLength : long);virtual;
+	begin
+	end;
+
+
+begin
+	vlCnt := 0;
+	SetLength(0);
+	if not(IsFileSelfType(ParFileRec,FT_Text)) then exit(true);
+	vlExtra := ParFileRec.vrExtra as PTextExtra;
+	
+	while not(GetNextByte(vlB1)) do begin
+		if IsEol(vlB1) then break;
+		inc(vlCnt);
+		AppendChar(vlB1 as char);
+	end;
+
+	SetLength(vlCnt);
+	exit(true);
+end;
+
+
+
+function EReadText(var ParFileRec :TFile;var ParStr : string):boolean;
+inherit  EReadTextAbstract(ParFileRec);
+overload;
+protected
+
+	procedure AppendChar(ParChar : char);override;
+	begin
+		ParStr[GetPos] :=  ParChar;
+	end;
+
+	procedure SetLength(ParLength : long);override;
+	var vlLength : long;
+	begin
+		vlLength := ParLength;
+		if vlLength > 255 then vlLength := 255;
+		ParStr.Length := vlLength;
+	end;
+begin
+	exit(inherited of main);
+end;
+
+function EReadText(var ParFileRec :TFile;var ParStr : asc255):boolean;
+inherit  EReadTextAbstract(ParFileRec);
+overload;
+protected
+	procedure AppendChar(ParChar : char);override;
+	begin
+		ParStr[GetPos-1] :=  ParChar;
+	end;
+
+	procedure SetLength(ParLength : long);override;
+	var vlLength : long;
+	begin
+		vlLength := ParLength;
+		if vlLength > 255 then vlLength := 255;
+		ParStr[vlLength] := 0 as char;
+	end;
+begin
+	exit(inherited of main);
+end;
+
+
+{---( EReadDir )-----------------------------------------------------------------------------------------}
+
+function  EReadDir(const ParName : string):boolean;inherit Process;
+private
+      var
+            vlDir  : TDir;
+            vlInfo : TFileInfo;
+protected
+
+
+      function HandleFile(const ParInfo : TFileInfo):boolean;virtual;
+      begin
+           exit(false);
+      end;
+
+      function Filter(const ParInfo : TFileInfo):boolean;virtual;
+      begin
+           exit(true);
+      end;
+
+      function GetNextFile(var ParInfo : TFIleInfo):TReadStatus;
+      begin
+           exit( ReadDir(vlDir,ParInfo));
+      end;
+
+
+      function  ProcessBody:boolean; override;
+      var
+         vlStatus : TReadStatus;
+      begin
+           repeat
+                vlStatus := GetNextFile(vlInfo);
+                if vlStatus = RS_End then break;
+                if vlStatus = RS_Error then exit(true);
+                if (Filter(vlInfo)) then if HandleFile(vlInfo) then break;
+           until false;
+           exit(false);
+      end;
+
+
+     function Initialize:boolean; override;
+     begin
+          exit(OpenDir(ParName,vlDir));
+     end;
+
+     procedure Finalize;override;
+     begin
+          CloseDir(vlDir);
+     end;
+
+begin
+	exit(inherited of main);
+end;
+
+
+
+end.
+

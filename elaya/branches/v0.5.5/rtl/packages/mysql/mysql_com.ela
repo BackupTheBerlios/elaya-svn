@@ -1,0 +1,261 @@
+{   Mysql unit for the  Elaya, the compiler for the elaya language
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    Email : iddekingej@lycos.com
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+}
+
+{
+  Derived from freepascal mysql units
+  Import unit for the mysql header files.
+  Translated form the original mysql.h by Michael Van Canneyt
+  (michael@tfdec1.fys.kuleuven.ac.be)
+  
+}
+unit ;
+
+public
+
+
+{ Extra types introduced for pascal }
+Type
+  align 4;
+  Socket = longint;
+  my_bool = byte;
+
+Const
+ NAME_LEN  = 64 ;               { Field/table name length }
+ 
+ MYSQL_PORT = 3306;             { Alloced by ISI for MySQL }
+ MYSQL_UNIX_ADDR  = '/tmp/mysql.sock';
+
+Type
+ enum_server_command=enum 
+	COM_SLEEP;
+	COM_QUIT;
+	COM_INIT_DB;
+	COM_QUERY;
+         COM_FIELD_LIST;
+	COM_CREATE_DB;
+	COM_DROP_DB;
+	COM_REFRESH;
+         COM_SHUTDOWN;
+	COM_STATISTICS;
+         COM_PROCESS_INFO;
+	COM_CONNECT;
+	COM_PROCESS_KILL;
+         COM_DEBUG;
+ end;
+
+Const
+ NOT_NULL_FLAG       = 1;               { Field can't be NULL }
+ PRI_KEY_FLAG        = 2;               { Field is part of a primary key }
+ UNIQUE_KEY_FLAG     = 4;               { Field is part of a unique key }
+ MULTIPLE_KEY_FLAG   = 8;               { Field is part of a key }
+ BLOB_FLAG           = 16;              { Field is a blob }
+ UNSIGNED_FLAG       = 32;              { Field is unsigned }
+ ZEROFILL_FLAG       = 64;              { Field is zerofill }
+ BINARY_FLAG         = 128;
+{ The following are only sent to new clients }
+ ENUM_FLAG           = 256;             { field is an enum }
+ AUTO_INCREMENT_FLAG = 512;             { field is a autoincrement field }
+ TIMESTAMP_FLAG      = 1024;            { Field is a timestamp }
+ PART_KEY_FLAG       = 16384;           { Intern; Part of some key }
+ GROUP_FLAG          = 32768;           { Intern group field }
+
+ REFRESH_GRANT          = 1;    { Refresh grant tables }
+ REFRESH_LOG            = 2;    { Start on new log file }
+ REFRESH_TABLES         = 4;    { close all tables }
+
+ CLIENT_LONG_PASSWORD   = 1;    { new more secure passwords }
+ CLIENT_FOUND_ROWS      = 2;    { Found instead of affected rows }
+ CLIENT_LONG_FLAG       = 4;    { Get all column flags }
+
+Type
+pst_used_mem = ptr st_used_mem;
+st_used_mem  = record                           { struct for once_alloc }
+  next : pst_used_mem;                          { Next block in use }
+  left : long;                              { memory left in block  }
+  vsize: long;                              { size of block }
+end;
+
+TUSED_MEM = st_used_mem;
+PUSED_MEM = ptr TUSED_MEM;
+
+TError_handler = Procedure;
+
+st_mem_root =  record
+  free       : PUSED_MEM;
+  used       : PUSED_MEM;
+  min_malloc : long;
+  block_size : long;
+  error_handler : TERROR_Handler;
+end;
+TMEM_ROOT = st_mem_root;
+PMEM_ROOT = ptr TMEM_ROOT;
+
+Const
+ MYSQL_ERRMSG_SIZE = 200;
+
+Type
+net_type = enum
+	NET_TYPE_TCPIP;
+	NET_TYPE_SOCKET;
+	NETTYPE_NAMEDPIP;
+end;
+
+st_net  = record
+  nettype    : net_type;
+  fd         : Socket;
+  fcntl      : Longint;
+  buff       : pasc;
+  buff_end   : pasc;
+  write_pos  : pasc;
+  read_pos   : pasc;
+  last_error : asciiz size=MySql_ErrMsg_Size;
+  last_errno : long;
+  max_packet : long;
+  timeout,pkt_nr : long;
+  error		 : my_bool;
+  return_errno   : my_bool;
+  compress       : my_bool; 
+
+  remain_in_buf  :long;
+  r_length       :long;
+  buf_length     :Long;
+  where_b        :long; 
+  more           :my_bool;
+  save_char      :char; 
+end;
+TNET = st_net;
+PNET = ptr TNET;
+
+Const
+  packet_error = -1;
+
+Type
+ enum_field_types = enum
+	 FIELD_TYPE_DECIMAL;
+	 FIELD_TYPE_TINY;
+          FIELD_TYPE_SHORT;
+	 FIELD_TYPE_LONG;
+          FIELD_TYPE_FLOAT;
+	 FIELD_TYPE_DOUBLE;
+          FIELD_TYPE_NULL;
+	 FIELD_TYPE_TIMESTAMP;
+          FIELD_TYPE_LONGLONG;
+	 FIELD_TYPE_INT24;
+          FIELD_TYPE_DATE;
+	 FIELD_TYPE_TIME;
+          FIELD_TYPE_DATETIME;
+          FIELD_TYPE_ENUM        := 247;
+          FIELD_TYPE_SET         := 248;
+          FIELD_TYPE_TINY_BLOB   := 249;
+          FIELD_TYPE_MEDIUM_BLOB := 250;
+          FIELD_TYPE_LONG_BLOB   := 251;
+          FIELD_TYPE_BLOB        := 252;
+          FIELD_TYPE_VAR_STRING  := 253;
+          FIELD_TYPE_STRING      := 254;
+   end;
+
+Const
+FIELD_TYPE_CHAR = FIELD_TYPE_TINY;              { For compability }
+FIELD_TYPE_INTERVAL = FIELD_TYPE_ENUM;          { For compability }
+
+
+{
+extern unsigned long max_allowed_packet;
+extern unsigned long net_buffer_length;
+}
+
+{
+#define net_new_transaction(net) ((net)->pkt_nr=0)
+}
+
+
+Type
+{TRand_struct  = record
+  seed,seed2,max_value : long;
+  max_value_dbl : double;
+end;
+PRand_struct = ptr TRand_struct;
+}
+
+{ The following is for user defined functions }
+
+Item_result=enum
+	STRING_RESULT;
+	REAL_RESULT;
+	INT_RESULT;
+end;
+
+st_udf_args = record
+  arg_count : long;                 { Number of arguments }
+  arg_type  : ptr Item_result;              { Pointer to item_results }
+  args      : ppasc;                        { Pointer to argument }
+  lengths   : Plong;                  { Length of string arguments }
+end;
+TUDF_ARGS = st_udf_args;
+PUDPF_ARGS = ptr TUDF_ARGS;
+
+  { This holds information about the result }
+
+st_udf_init = record
+  maybe_null : my_bool;                 { 1 if function can return NULL }
+  decimals   : long;                  { for real functions }
+  max_length : long;                { For string functions }
+  fd_ptr     : pasc;                          { free pointer for function data }
+end;
+TUDF_INIT = st_udf_init;
+PUDF_INIT = TUDF_INIT;
+
+  { Prototypes to password functions }
+
+{
+#define NULL_LENGTH ((unsigned long) ~0)  For net_store_length
+}
+
+
+external &MySql_Lib_Type &MySql_Lib_Name &MySql_Lib_CallType
+{         Procedure sql_free (ParRoot : PMEM_ROOT);name 'sql_free';
+         Procedure init_alloc_root (ParRoot: PMEM_ROOT;block_size : long);name 'init_alloc_root';
+         Function sql_alloc_first_block(ParRoot : PMEM_ROOT) : my_bool;name 'sql_alloc_first_block';
+         Function sql_alloc_root(mem_root : PMEM_ROOT;len : long) : longint;name 'sql_alloc_root';
+         Function sql_strdup_root(ParRoot : PMEM_ROOT;st : pasc) : pasc;name 'sql_strdup_root';
+         Function sql_memdup_root(ParRoot: PMEM_ROOT;st : pasc; len : long) : longint;name 'sql_memdump_root';
+}         Function  my_net_init(net :PNET; fd : Socket) : Longint;name 'my_net_init';
+         procedure net_end(net : PNET);name 'net_end';
+         Procedure net_clear(net : PNET);name 'net_clear';
+         Function  net_flush(net : PNET) : longint;name 'net_flush';
+         Function  my_net_write(net : PNET;packet : pbyte;len : long) : longint;name 'my_net_write';
+         Function  net_write_command(net : PNET; command : char;packet : pbyte;len : long) : longint;name 'net_write_command';
+         Function  net_real_write(net : PNET;packet : pbyte; len : long) : longint;name 'net_real_write';
+         Function  my_net_read(net : PNET) : long;name 'my_net_read';
+         {procedure randominit(rand : Prand_struct; seed1,seed2 : long);name 'randominit';}
+         {Function  rnd(rand : Prand_struct) : double;name 'rnd';}
+{         procedure make_scrambled_password(toarg, passwd : pasc);name 'make_scanbled_password';
+         function  check_scramble(scramble,message : pasc; salt : long;old_ver:my_bool) : my_bool;name 'check_scamble';
+         procedure scramble(toarg,message,password : pasc; old_ver : my_bool);name 'scramble';}
+         procedure get_salt_from_password(res : plong; password : pasc);name 'get_salt_from_password';
+
+         function  get_tty_password(opt_message:  pasc) : pasc;name 'get_tty_password';
+end;
+
+end  public
+
+begin
+end.
+

@@ -1,0 +1,620 @@
+unit;
+uses core,win32types,win32op;
+
+public
+
+external dll 'gdi32.dll'
+    function SetPixelFormat(_para1:HDC; _para2:longint; var _para3:PIXELFORMATDESCRIPTOR):WINBOOL; name 'SetPixelFormat';
+
+    function SwapBuffers(_para1:HDC):WINBOOL; name 'SwapBuffers';
+
+   function ChoosePixelFormat(_para1:HDC; var _para2:PIXELFORMATDESCRIPTOR):longint; name 'ChoosePixelFormat';
+  function DescribePixelFormat(_para1:HDC; _para2:longint; _para3:UINT; _para4:LPPIXELFORMATDESCRIPTOR):longint; name 'DescribePixelFormat';
+  function AnimatePalette(_para1:HPALETTE; _para2:UINT; _para3:UINT; var _para4:PALETTEENTRY):WINBOOL; name 'AnimatePalette';
+
+  function Arc(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint; _para8:longint; _para9:longint):WINBOOL; name 'Arc';
+
+  function BitBlt(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:HDC; _para7:longint; _para8:longint; _para9:DWORD):WINBOOL; name 'BitBlt';
+
+  function CancelDC(_para1:HDC):WINBOOL; name 'CancelDC';
+
+  function Chord(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint; _para8:longint; _para9:longint):WINBOOL; name 'Chord';
+
+  function CloseMetaFile(_para1:HDC):HMETAFILE; name 'CloseMetaFile';
+
+  function CombineRgn(_para1:HRGN; _para2:HRGN; _para3:HRGN; _para4:longint):longint; name 'CombineRgn';
+
+  function CreateBitmap(_para1:longint; _para2:longint; _para3:UINT; _para4:UINT; _para5:pvoid):HBITMAP; name 'CreateBitmap';
+
+  function CreateBitmapIndirect(var _para1:BITMAP):HBITMAP; name 'CreateBitmapIndirect';
+
+  function CreateBrushIndirect(var _para1:LOGBRUSH):HBRUSH; name 'CreateBrushIndirect';
+
+  function CreateCompatibleBitmap(_para1:HDC; _para2:longint; _para3:longint):HBITMAP; name 'CreateCompatibleBitmap';
+
+  function CreateDiscardableBitmap(_para1:HDC; _para2:longint; _para3:longint):HBITMAP; name 'CreateDiscardableBitmap';
+
+  function CreateCompatibleDC(_para1:HDC):HDC; name 'CreateCompatibleDC';
+
+  function CreateDIBitmap(_para1:HDC; var _para2:BITMAPINFOHEADER; _para3:DWORD; _para4:pvoid; var _para5:BITMAPINFO;
+             _para6:UINT):HBITMAP; name 'CreateDIBitmap';
+
+  function CreateDIBPatternBrush(_para1:HGLOBAL; _para2:UINT):HBRUSH; name 'CreateDIBPatternBrush';
+
+  function CreateDIBPatternBrushPt(_para1:pvoid; _para2:UINT):HBRUSH; name 'CreateDIBPatternBrushPt';
+
+  function CreateEllipticRgn(_para1:longint; _para2:longint; _para3:longint; _para4:longint):HRGN; name 'CreateEllipticRgn';
+
+  function CreateEllipticRgnIndirect(var _para1:RECT):HRGN; name 'CreateEllipticRgnIndirect';
+
+  function CreateHatchBrush(_para1:longint; _para2:COLORREF):HBRUSH; name 'CreateHatchBrush';
+
+  function CreatePalette(var _para1:LOGPALETTE):HPALETTE; name 'CreatePalette';
+
+  function CreatePen(_para1:longint; _para2:longint; _para3:COLORREF):HPEN; name 'CreatePen';
+
+  function CreatePenIndirect(var _para1:LOGPEN):HPEN; name 'CreatePenIndirect';
+
+  function CreatePolyPolygonRgn(var _para1:POINT; var _para2:INT; _para3:longint; _para4:longint):HRGN; name 'CreatePolyPolygonRgn';
+
+  function CreatePatternBrush(_para1:HBITMAP):HBRUSH; name 'CreatePatternBrush';
+
+  function CreateRectRgn(_para1:longint; _para2:longint; _para3:longint; _para4:longint):HRGN; name 'CreateRectRgn';
+
+  function CreateRectRgnIndirect(var _para1:RECT):HRGN; name 'CreateRectRgnIndirect';
+
+  function CreateRoundRectRgn(_para1:longint; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint):HRGN; name 'CreateRoundRectRgn';
+
+  function CreateSolidBrush(_para1:COLORREF):HBRUSH; name 'CreateSolidBrush';
+
+  function DeleteDC(_para1:HDC):WINBOOL; name 'DeleteDC';
+
+  function DeleteMetaFile(_para1:HMETAFILE):WINBOOL; name 'DeleteMetaFile';
+
+  function DeleteObject(_para1:HGDIOBJ):WINBOOL; name 'DeleteObject';
+
+  function DrawEscape(_para1:HDC; _para2:longint; _para3:longint; _para4:LPCSTR):longint; name 'DrawEscape';
+
+  function Ellipse(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint):WINBOOL; name 'Ellipse';
+
+  function EnumObjects(_para1:HDC; _para2:longint; _para3:ENUMOBJECTSPROC; _para4:LPARAM):longint; name 'EnumObjects';
+
+  function EqualRgn(_para1:HRGN; _para2:HRGN):WINBOOL; name 'EqualRgn';
+
+  function Escape(_para1:HDC; _para2:longint; _para3:longint; _para4:LPCSTR; _para5:LPVOID):longint; name 'Escape';
+
+  function ExtEscape(_para1:HDC; _para2:longint; _para3:longint; _para4:LPCSTR; _para5:longint;
+             _para6:LPSTR):longint; name 'ExtEscape';
+
+  function ExcludeClipRect(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint):longint; name 'ExcludeClipRect';
+
+{  function ExtCreateRegion(var _para1:XFORM; _para2:DWORD; var _para3:TRGNDATA):HRGN; name 'ExtCreateRegion';}
+
+  function ExtFloodFill(_para1:HDC; _para2:longint; _para3:longint; _para4:COLORREF; _para5:UINT):WINBOOL; name 'ExtFloodFill';
+
+  function FillRgn(_para1:HDC; _para2:HRGN; _para3:HBRUSH):WINBOOL; name 'FillRgn';
+
+  function FloodFill(_para1:HDC; _para2:longint; _para3:longint; _para4:COLORREF):WINBOOL; name 'FloodFill';
+
+  function FrameRgn(_para1:HDC; _para2:HRGN; _para3:HBRUSH; _para4:longint; _para5:longint):WINBOOL; name 'FrameRgn';
+
+  function GetROP2(_para1:HDC):longint; name 'GetROP2';
+
+  function GetAspectRatioFilterEx(_para1:HDC; _para2:LPSIZE):WINBOOL; name 'GetAspectRatioFilterEx';
+
+  function GetBkColor(_para1:HDC):COLORREF; name 'GetBkColor';
+
+  function GetBkMode(_para1:HDC):longint; name 'GetBkMode';
+
+  function GetBitmapBits(_para1:HBITMAP; _para2:LONG; _para3:LPVOID):LONG; name 'GetBitmapBits';
+
+  function GetBitmapDimensionEx(_para1:HBITMAP; _para2:LPSIZE):WINBOOL; name 'GetBitmapDimensionEx';
+
+  function GetBoundsRect(_para1:HDC; _para2:LPRECT; _para3:UINT):UINT; name 'GetBoundsRect';
+
+  function GetBrushOrgEx(_para1:HDC; _para2:LPPOINT):WINBOOL; name 'GetBrushOrgEx';
+
+  function GetClipBox(_para1:HDC; _para2:LPRECT):longint; name 'GetClipBox';
+
+  function GetClipRgn(_para1:HDC; _para2:HRGN):longint; name 'GetClipRgn';
+
+  function GetMetaRgn(_para1:HDC; _para2:HRGN):longint; name 'GetMetaRgn';
+
+  function GetCurrentObject(_para1:HDC; _para2:UINT):HGDIOBJ; name 'GetCurrentObject';
+
+  function GetCurrentPositionEx(_para1:HDC; _para2:LPPOINT):WINBOOL; name 'GetCurrentPositionEx';
+
+  function GetDeviceCaps(_para1:HDC; _para2:longint):longint; name 'GetDeviceCaps';
+
+  function GetDIBits(_para1:HDC; _para2:HBITMAP; _para3:UINT; _para4:UINT; _para5:LPVOID;
+             _para6:LPBITMAPINFO; _para7:UINT):longint; name 'GetDIBits';
+
+  function GetFontData(_para1:HDC; _para2:DWORD; _para3:DWORD; _para4:LPVOID; _para5:DWORD):DWORD; name 'GetFontData';
+
+  function GetGraphicsMode(_para1:HDC):longint; name 'GetGraphicsMode';
+
+  function GetMapMode(_para1:HDC):longint; name 'GetMapMode';
+
+  function GetMetaFileBitsEx(_para1:HMETAFILE; _para2:UINT; _para3:LPVOID):UINT; name 'GetMetaFileBitsEx';
+
+  function GetNearestColor(_para1:HDC; _para2:COLORREF):COLORREF; name 'GetNearestColor';
+
+  function GetNearestPaletteIndex(_para1:HPALETTE; _para2:COLORREF):UINT; name 'GetNearestPaletteIndex';
+
+  function GetObjectType(h:HGDIOBJ):DWORD; name 'GetObjectType';
+
+  function GetPaletteEntries(_para1:HPALETTE; _para2:UINT; _para3:UINT; _para4:LPPALETTEENTRY):UINT; name 'GetPaletteEntries';
+
+  function GetPixel(_para1:HDC; _para2:longint; _para3:longint):COLORREF; name 'GetPixel';
+
+  function GetPixelFormat(_para1:HDC):longint; name 'GetPixelFormat';
+
+  function GetPolyFillMode(_para1:HDC):longint; name 'GetPolyFillMode';
+
+{  function GetRasterizerCaps(_para1:LPRASTERIZER_STATUS; _para2:UINT):WINBOOL; name 'GetRasterizerCaps';}
+
+{  function GetRegionData(_para1:HRGN; _para2:DWORD; _para3:LPRGNDATA):DWORD; name 'GetRegionData';}
+
+  function GetRgnBox(_para1:HRGN; _para2:LPRECT):longint; name 'GetRgnBox';
+
+  function GetStockObject(_para1:longint):HGDIOBJ; name 'GetStockObject';
+
+  function GetStretchBltMode(_para1:HDC):longint; name 'GetStretchBltMode';
+
+  function GetSystemPaletteEntries(_para1:HDC; _para2:UINT; _para3:UINT; _para4:LPPALETTEENTRY):UINT; name 'GetSystemPaletteEntries';
+
+  function GetSystemPaletteUse(_para1:HDC):UINT; name 'GetSystemPaletteUse';
+
+  function GetTextCharacterExtra(_para1:HDC):longint; name 'GetTextCharacterExtra';
+
+  function GetTextAlign(_para1:HDC):UINT; name 'GetTextAlign';
+
+  function GetTextColor(_para1:HDC):COLORREF; name 'GetTextColor';
+
+  function GetTextCharset(hdc:HDC):longint; name 'GetTextCharset';
+
+  function GetTextCharsetInfo(hdc:HDC; lpSig:LPFONTSIGNATURE; dwFlags:DWORD):longint; name 'GetTextCharsetInfo';
+
+  function TranslateCharsetInfo(var lpSrc:DWORD; lpCs:LPCHARSETINFO; dwFlags:DWORD):WINBOOL; name 'TranslateCharsetInfo';
+
+  function GetFontLanguageInfo(_para1:HDC):DWORD; name 'GetFontLanguageInfo';
+
+  function GetViewportExtEx(_para1:HDC; _para2:LPSIZE):WINBOOL; name 'GetViewportExtEx';
+
+  function GetViewportOrgEx(_para1:HDC; _para2:LPPOINT):WINBOOL; name 'GetViewportOrgEx';
+
+  function GetWindowExtEx(_para1:HDC; _para2:LPSIZE):WINBOOL; name 'GetWindowExtEx';
+
+  function GetWindowOrgEx(_para1:HDC; _para2:LPPOINT):WINBOOL; name 'GetWindowOrgEx';
+
+  function IntersectClipRect(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint):longint; name 'IntersectClipRect';
+
+  function InvertRgn(_para1:HDC; _para2:HRGN):WINBOOL; name 'InvertRgn';
+
+  function LineDDA(_para1:longint; _para2:longint; _para3:longint; _para4:longint; _para5:LINEDDAPROC;
+             _para6:LPARAM):WINBOOL; name 'LineDDA';
+
+  function LineTo(_para1:HDC; _para2:longint; _para3:longint):WINBOOL; name 'LineTo';
+
+  function MaskBlt(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:HDC; _para7:longint; _para8:longint; _para9:HBITMAP; _para10:longint;
+             _para11:longint; _para12:DWORD):WINBOOL; name 'MaskBlt';
+
+  function PlgBlt(_para1:HDC; var _para2:POINT; _para3:HDC; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint; _para8:HBITMAP; _para9:longint; _para10:longint):WINBOOL; name 'PlgBlt';
+
+  function OffsetClipRgn(_para1:HDC; _para2:longint; _para3:longint):longint; name 'OffsetClipRgn';
+
+  function OffsetRgn(_para1:HRGN; _para2:longint; _para3:longint):longint; name 'OffsetRgn';
+
+  function PatBlt(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:DWORD):WINBOOL; name 'PatBlt';
+
+  function Pie(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint; _para8:longint; _para9:longint):WINBOOL; name 'Pie';
+
+  function PlayMetaFile(_para1:HDC; _para2:HMETAFILE):WINBOOL; name 'PlayMetaFile';
+
+  function PaintRgn(_para1:HDC; _para2:HRGN):WINBOOL; name 'PaintRgn';
+
+  function PolyPolygon(_para1:HDC; var _para2:POINT; var _para3:INT; _para4:longint):WINBOOL; name 'PolyPolygon';
+
+  function PtInRegion(_para1:HRGN; _para2:longint; _para3:longint):WINBOOL; name 'PtInRegion';
+
+  function PtVisible(_para1:HDC; _para2:longint; _para3:longint):WINBOOL; name 'PtVisible';
+
+  function RectInRegion(_para1:HRGN; var _para2:RECT):WINBOOL; name 'RectInRegion';
+
+  function RectVisible(_para1:HDC; var _para2:RECT):WINBOOL; name 'RectVisible';
+
+  function Rectangle(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint):WINBOOL; name 'Rectangle';
+
+  function RestoreDC(_para1:HDC; _para2:longint):WINBOOL; name 'RestoreDC';
+
+  function RealizePalette(_para1:HDC):UINT; name 'RealizePalette';
+
+  function RoundRect(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint):WINBOOL; name 'RoundRect';
+
+  function ResizePalette(_para1:HPALETTE; _para2:UINT):WINBOOL; name 'ResizePalette';
+
+  function SaveDC(_para1:HDC):longint; name 'SaveDC';
+
+  function SelectClipRgn(_para1:HDC; _para2:HRGN):longint; name 'SelectClipRgn';
+
+  function ExtSelectClipRgn(_para1:HDC; _para2:HRGN; _para3:longint):longint; name 'ExtSelectClipRgn';
+
+  function SetMetaRgn(_para1:HDC):longint; name 'SetMetaRgn';
+
+  function SelectObject(_para1:HDC; _para2:HGDIOBJ):HGDIOBJ; name 'SelectObject';
+
+  function SelectPalette(_para1:HDC; _para2:HPALETTE; _para3:WINBOOL):HPALETTE; name 'SelectPalette';
+
+  function SetBkColor(_para1:HDC; _para2:COLORREF):COLORREF; name 'SetBkColor';
+
+  function SetBkMode(_para1:HDC; _para2:longint):longint; name 'SetBkMode';
+
+  function SetBitmapBits(_para1:HBITMAP; _para2:DWORD; _para3:pvoid):LONG; name 'SetBitmapBits';
+
+  function SetBoundsRect(_para1:HDC; var _para2:RECT; _para3:UINT):UINT; name 'SetBoundsRect';
+
+  function SetDIBits(_para1:HDC; _para2:HBITMAP; _para3:UINT; _para4:UINT; _para5:pvoid;
+             var _para6:BITMAPINFO; _para7:UINT):longint; name 'SetDIBits';
+
+  function SetDIBitsToDevice(_para1:HDC; _para2:longint; _para3:longint; _para4:DWORD; _para5:DWORD;
+             _para6:longint; _para7:longint; _para8:UINT; _para9:UINT; _para10:pvoid;
+             var _para11:BITMAPINFO; _para12:UINT):longint; name 'SetDIBitsToDevice';
+
+  function SetMapperFlags(_para1:HDC; _para2:DWORD):DWORD; name 'SetMapperFlags';
+
+  function SetGraphicsMode(hdc:HDC; iMode:longint):longint; name 'SetGraphicsMode';
+
+  function SetMapMode(_para1:HDC; _para2:longint):longint; name 'SetMapMode';
+
+  function SetMetaFileBitsEx(_para1:UINT; var _para2:BYTE):HMETAFILE; name 'SetMetaFileBitsEx';
+
+  function SetPaletteEntries(_para1:HPALETTE; _para2:UINT; _para3:UINT; var _para4:PALETTEENTRY):UINT; name 'SetPaletteEntries';
+
+  function SetPixel(_para1:HDC; _para2:longint; _para3:longint; _para4:COLORREF):COLORREF; name 'SetPixel';
+
+  function SetPixelV(_para1:HDC; _para2:longint; _para3:longint; _para4:COLORREF):WINBOOL; name 'SetPixelV';
+
+  function SetPolyFillMode(_para1:HDC; _para2:longint):longint; name 'SetPolyFillMode';
+
+  function StretchBlt(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:HDC; _para7:longint; _para8:longint; _para9:longint; _para10:longint;
+             _para11:DWORD):WINBOOL; name 'StretchBlt';
+
+  function SetRectRgn(_para1:HRGN; _para2:longint; _para3:longint; _para4:longint; _para5:longint):WINBOOL; name 'SetRectRgn';
+
+  function StretchDIBits(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint; _para8:longint; _para9:longint; _para10:pvoid;
+             var _para11:BITMAPINFO; _para12:UINT; _para13:DWORD):longint; name 'StretchDIBits';
+
+  function SetROP2(_para1:HDC; _para2:longint):longint; name 'SetROP2';
+
+  function SetStretchBltMode(_para1:HDC; _para2:longint):longint; name 'SetStretchBltMode';
+
+  function SetSystemPaletteUse(_para1:HDC; _para2:UINT):UINT; name 'SetSystemPaletteUse';
+
+  function SetTextCharacterExtra(_para1:HDC; _para2:longint):longint; name 'SetTextCharacterExtra';
+
+  function SetTextColor(_para1:HDC; _para2:COLORREF):COLORREF; name 'SetTextColor';
+
+  function SetTextAlign(_para1:HDC; _para2:UINT):UINT; name 'SetTextAlign';
+
+  function SetTextJustification(_para1:HDC; _para2:longint; _para3:longint):WINBOOL; name 'SetTextJustification';
+
+  function UpdateColors(_para1:HDC):WINBOOL; name 'UpdateColors';
+
+{  function PlayMetaFileRecord(_para1:HDC; _para2:LPHANDLETABLE; _para3:LPMETARECORD; _para4:UINT):WINBOOL; name 'PlayMetaFileRecord';
+ }
+{  function EnumMetaFile(_para1:HDC; _para2:HMETAFILE; _para3:ENUMMETAFILEPROC; _para4:LPARAM):WINBOOL; name 'EnumMetaFile';
+ }
+  function CloseEnhMetaFile(_para1:HDC):HENHMETAFILE; name 'CloseEnhMetaFile';
+
+  function DeleteEnhMetaFile(_para1:HENHMETAFILE):WINBOOL; name 'DeleteEnhMetaFile';
+
+{  function EnumEnhMetaFile(_para1:HDC; _para2:HENHMETAFILE; _para3:ENHMETAFILEPROC; _para4:LPVOID; var _para5:RECT):WINBOOL; name 'EnumEnhMetaFile';
+ }
+  function GetEnhMetaFileHeader(_para1:HENHMETAFILE; _para2:UINT; _para3:LPENHMETAHEADER):UINT; name 'GetEnhMetaFileHeader';
+
+  function GetEnhMetaFilePaletteEntries(_para1:HENHMETAFILE; _para2:UINT; _para3:LPPALETTEENTRY):UINT; name 'GetEnhMetaFilePaletteEntries';
+
+  function GetWinMetaFileBits(_para1:HENHMETAFILE; _para2:UINT; _para3:LPBYTE; _para4:INT; _para5:HDC):UINT; name 'GetWinMetaFileBits';
+
+  function PlayEnhMetaFile(_para1:HDC; _para2:HENHMETAFILE; var _para3:RECT):WINBOOL; name 'PlayEnhMetaFile';
+
+{  function PlayEnhMetaFileRecord(_para1:HDC; _para2:LPHANDLETABLE; var _para3:ENHMETARECORD; _para4:UINT):WINBOOL; name 'PlayEnhMetaFileRecord';
+}
+  function SetEnhMetaFileBits(_para1:UINT; var _para2:BYTE):HENHMETAFILE; name 'SetEnhMetaFileBits';
+
+  function SetWinMetaFileBits(_para1:UINT; var _para2:BYTE; _para3:HDC; var _para4:METAFILEPICT):HENHMETAFILE; name 'SetWinMetaFileBits';
+
+  function GdiComment(_para1:HDC; _para2:UINT; var _para3:BYTE):WINBOOL; name 'GdiComment';
+
+  function AngleArc(_para1:HDC; _para2:longint; _para3:longint; _para4:DWORD; _para5:FLOAT;
+             _para6:FLOAT):WINBOOL; name 'AngleArc';
+
+  function PolyPolyline(_para1:HDC; var _para2:POINT; var _para3:DWORD; _para4:DWORD):WINBOOL; name 'PolyPolyline';
+
+  function GetWorldTransform(_para1:HDC; _para2:LPXFORM):WINBOOL; name 'GetWorldTransform';
+
+  function SetWorldTransform(_para1:HDC; var _para2:XFORM):WINBOOL; name 'SetWorldTransform';
+
+  function ModifyWorldTransform(_para1:HDC; var _para2:XFORM; _para3:DWORD):WINBOOL; name 'ModifyWorldTransform';
+
+  function CombineTransform(_para1:LPXFORM; var _para2:XFORM; var _para3:XFORM):WINBOOL; name 'CombineTransform';
+
+  function CreateDIBSection(_para1:HDC; var _para2:BITMAPINFO; _para3:UINT; var _para4:pvoid; _para5:HANDLE;             _para6:DWORD):HBITMAP; name 'CreateDIBSection';
+
+  function GetDIBColorTable(_para1:HDC; _para2:UINT; _para3:UINT; var _para4:RGBQUAD):UINT; name 'GetDIBColorTable';
+
+  function SetDIBColorTable(_para1:HDC; _para2:UINT; _para3:UINT; var _para4:RGBQUAD):UINT; name 'SetDIBColorTable';
+
+  function SetColorAdjustment(_para1:HDC; var _para2:COLORADJUSTMENT):WINBOOL; name 'SetColorAdjustment';
+
+  function GetColorAdjustment(_para1:HDC; _para2:LPCOLORADJUSTMENT):WINBOOL; name 'GetColorAdjustment';
+
+  function CreateHalftonePalette(_para1:HDC):HPALETTE; name 'CreateHalftonePalette';
+
+  function EndDoc(_para1:HDC):longint; name 'EndDoc';
+
+  function StartPage(_para1:HDC):longint; name 'StartPage';
+
+  function EndPage(_para1:HDC):longint; name 'EndPage';
+
+  function AbortDoc(_para1:HDC):longint; name 'AbortDoc';
+
+  function SetAbortProc(_para1:HDC; _para2:TABORTPROC):longint; name 'SetAbortProc';
+
+
+  function ArcTo(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:longint; _para7:longint; _para8:longint; _para9:longint):WINBOOL; name 'ArcTo';
+
+  function BeginPath(_para1:HDC):WINBOOL; name 'BeginPath';
+
+  function CloseFigure(_para1:HDC):WINBOOL; name 'CloseFigure';
+
+  function EndPath(_para1:HDC):WINBOOL; name 'EndPath';
+
+  function FillPath(_para1:HDC):WINBOOL; name 'FillPath';
+
+  function FlattenPath(_para1:HDC):WINBOOL; name 'FlattenPath';
+
+  function GetPath(_para1:HDC; _para2:LPPOINT; _para3:LPBYTE; _para4:longint):longint; name 'GetPath';
+
+  function PathToRegion(_para1:HDC):HRGN; name 'PathToRegion';
+
+  function PolyDraw(_para1:HDC; var _para2:POINT; var _para3:BYTE; _para4:longint):WINBOOL; name 'PolyDraw';
+
+  function SelectClipPath(_para1:HDC; _para2:longint):WINBOOL; name 'SelectClipPath';
+
+  function SetArcDirection(_para1:HDC; _para2:longint):longint; name 'SetArcDirection';
+
+  function SetMiterLimit(_para1:HDC; _para2:FLOAT; _para3:PFLOAT):WINBOOL; name 'SetMiterLimit';
+
+  function StrokeAndFillPath(_para1:HDC):WINBOOL; name 'StrokeAndFillPath';
+
+  function StrokePath(_para1:HDC):WINBOOL; name 'StrokePath';
+
+  function WidenPath(_para1:HDC):WINBOOL; name 'WidenPath';
+
+  function ExtCreatePen(_para1:DWORD; _para2:DWORD; var _para3:LOGBRUSH; _para4:DWORD; var _para5:DWORD):HPEN; name 'ExtCreatePen';
+
+  function GetMiterLimit(_para1:HDC; _para2:PFLOAT):WINBOOL; name 'GetMiterLimit';
+
+  function GetArcDirection(_para1:HDC):longint; name 'GetArcDirection';
+
+  function MoveToEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'MoveToEx';
+
+  function CreatePolygonRgn(var _para1:POINT; _para2:longint; _para3:longint):HRGN; name 'CreatePolygonRgn';
+
+  function DPtoLP(_para1:HDC; _para2:LPPOINT; _para3:longint):WINBOOL; name 'DPtoLP';
+
+  function LPtoDP(_para1:HDC; _para2:LPPOINT; _para3:longint):WINBOOL; name 'LPtoDP';
+
+  function Polygon(_para1:HDC; var _para2:POINT; _para3:longint):WINBOOL; name 'Polygon';
+
+  function Polyline(_para1:HDC; var _para2:POINT; _para3:longint):WINBOOL; name 'Polyline';
+
+  function PolyBezier(_para1:HDC; var _para2:POINT; _para3:DWORD):WINBOOL; name 'PolyBezier';
+
+  function PolyBezierTo(_para1:HDC; var _para2:POINT; _para3:DWORD):WINBOOL; name 'PolyBezierTo';
+
+  function PolylineTo(_para1:HDC; var _para2:POINT; _para3:DWORD):WINBOOL; name 'PolylineTo';
+
+  function SetViewportExtEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPSIZE):WINBOOL; name 'SetViewportExtEx';
+
+  function SetViewportOrgEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'SetViewportOrgEx';
+
+  function SetWindowExtEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPSIZE):WINBOOL; name 'SetWindowExtEx';
+
+  function SetWindowOrgEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'SetWindowOrgEx';
+
+  function OffsetViewportOrgEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'OffsetViewportOrgEx';
+
+  function OffsetWindowOrgEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'OffsetWindowOrgEx';
+
+  function ScaleViewportExtEx(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:LPSIZE):WINBOOL; name 'ScaleViewportExtEx';
+
+  function ScaleWindowExtEx(_para1:HDC; _para2:longint; _para3:longint; _para4:longint; _para5:longint;
+             _para6:LPSIZE):WINBOOL; name 'ScaleWindowExtEx';
+
+  function SetBitmapDimensionEx(_para1:HBITMAP; _para2:longint; _para3:longint; _para4:LPSIZE):WINBOOL; name 'SetBitmapDimensionEx';
+
+  function SetBrushOrgEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'SetBrushOrgEx';
+
+  function GetDCOrgEx(_para1:HDC; _para2:LPPOINT):WINBOOL; name 'GetDCOrgEx';
+
+  function FixBrushOrgEx(_para1:HDC; _para2:longint; _para3:longint; _para4:LPPOINT):WINBOOL; name 'FixBrushOrgEx';
+
+  function UnrealizeObject(_para1:HGDIOBJ):WINBOOL; name 'UnrealizeObject';
+
+  function GdiFlush:WINBOOL; name 'GdiFlush';
+
+  function GdiSetBatchLimit(_para1:DWORD):DWORD; name 'GdiSetBatchLimit';
+
+  function GdiGetBatchLimit:DWORD; name 'GdiGetBatchLimit';
+
+  function SetICMMode(_para1:HDC; _para2:longint):longint; name 'SetICMMode';
+
+  function CheckColorsInGamut(_para1:HDC; _para2:LPVOID; _para3:LPVOID; _para4:DWORD):WINBOOL; name 'CheckColorsInGamut';
+
+  function GetColorSpace(_para1:HDC):HANDLE; name 'GetColorSpace';
+
+  function SetColorSpace(_para1:HDC; _para2:HCOLORSPACE):WINBOOL; name 'SetColorSpace';
+
+  function DeleteColorSpace(_para1:HCOLORSPACE):WINBOOL; name 'DeleteColorSpace';
+
+  function GetDeviceGammaRamp(_para1:HDC; _para2:LPVOID):WINBOOL; name 'GetDeviceGammaRamp';
+
+  function SetDeviceGammaRamp(_para1:HDC; _para2:LPVOID):WINBOOL; name 'SetDeviceGammaRamp';
+
+  function ColorMatchToTarget(_para1:HDC; _para2:HDC; _para3:DWORD):WINBOOL; name 'ColorMatchToTarget';
+
+
+  function AbortPath(_para1:HDC):WINBOOL; name 'AbortPath';
+
+{  function AbortPrinter(_para1:HANDLE):WINBOOL; name 'AbortPrinter';} {nt prob}
+
+  function AddFontResource(_para1:LPCSTR):longint;  name 'AddFontResourceA';
+
+  function CopyMetaFile(_para1:HMETAFILE; _para2:LPCSTR):HMETAFILE;  name 'CopyMetaFileA';
+
+  function CreateFontIndirect(var _para1:LOGFONT):HFONT;  name 'CreateFontIndirectA';
+
+  function CreateIC(_para1:LPCSTR; _para2:LPCSTR; _para3:LPCSTR; var _para4:DEVMODE):HDC;  name 'CreateICA';
+
+  function CreateMetaFile(_para1:LPCSTR):HDC;  name 'CreateMetaFileA';
+
+  function CreateScalableFontResource(_para1:DWORD; _para2:LPCSTR; _para3:LPCSTR; _para4:LPCSTR):WINBOOL;  name 'CreateScalableFontResourceA';
+
+{  function EnumFontFamiliesEx(_para1:HDC; _para2:LPLOGFONT; _para3:FONTENUMEXPROC; _para4:LPARAM; _para5:DWORD):longint;  name 'EnumFontFamiliesExA';
+ }
+{  function EnumFontFamilies(_para1:HDC; _para2:LPCSTR; _para3:FONTENUMPROC; _para4:LPARAM):longint;  name 'EnumFontFamiliesA';
+}
+{  function EnumFonts(_para1:HDC; _para2:LPCSTR; _para3:ENUMFONTSPROC; _para4:LPARAM):longint;  name 'EnumFontsA';
+ }
+  function GetCharWidth(_para1:HDC; _para2:UINT; _para3:UINT; _para4:LPINT):WINBOOL;  name 'GetCharWidthA';
+
+  function GetCharWidth32(_para1:HDC; _para2:UINT; _para3:UINT; _para4:LPINT):WINBOOL;  name 'GetCharWidth32A';
+
+  function GetCharWidthFloat(_para1:HDC; _para2:UINT; _para3:UINT; _para4:PFLOAT):WINBOOL;  name 'GetCharWidthFloatA';
+
+  function GetCharABCWidths(_para1:HDC; _para2:UINT; _para3:UINT; _para4:LPABC):WINBOOL;  name 'GetCharABCWidthsA';
+
+{  function GetCharABCWidthsFloat(_para1:HDC; _para2:UINT; _para3:UINT; _para4:LPABCFLOAT):WINBOOL;  name 'GetCharABCWidthsFloatA';
+ }
+  function GetGlyphOutline(_para1:HDC; _para2:UINT; _para3:UINT; _para4:LPGLYPHMETRICS; _para5:DWORD;
+             _para6:LPVOID; var _para7:MAT2):DWORD;  name 'GetGlyphOutlineA';
+
+  function GetMetaFile(_para1:LPCSTR):HMETAFILE;  name 'GetMetaFileA';
+
+  function GetOutlineTextMetrics(_para1:HDC; _para2:UINT; _para3:LPOUTLINETEXTMETRIC):UINT;  name 'GetOutlineTextMetricsA';
+
+  function GetTextExtentPoint(_para1:HDC; _para2:LPCSTR; _para3:longint; _para4:LPSIZE):WINBOOL;  name 'GetTextExtentPointA';
+
+  function GetTextExtentPoint32(_para1:HDC; _para2:LPCSTR; _para3:longint; _para4:LPSIZE):WINBOOL;  name 'GetTextExtentPoint32A';
+
+  function GetTextExtentExPoint(_para1:HDC; _para2:LPCSTR; _para3:longint; _para4:longint; _para5:LPINT;
+             _para6:LPINT; _para7:LPSIZE):WINBOOL;  name 'GetTextExtentExPointA';
+
+  function GetCharacterPlacement(_para1:HDC; _para2:LPCSTR; _para3:longint; _para4:longint; _para5:LPGCP_RESULTS;
+             _para6:DWORD):DWORD;  name 'GetCharacterPlacementA';
+
+  function ResetDC(_para1:HDC; var _para2:DEVMODE):HDC;  name 'ResetDCA';
+
+  function RemoveFontResource(_para1:LPCSTR):WINBOOL;  name 'RemoveFontResourceA';
+
+  function CopyEnhMetaFile(_para1:HENHMETAFILE; _para2:LPCSTR):HENHMETAFILE;  name 'CopyEnhMetaFileA';
+
+  function CreateEnhMetaFile(_para1:HDC; _para2:LPCSTR; var _para3:RECT; _para4:LPCSTR):HDC;  name 'CreateEnhMetaFileA';
+
+  function GetEnhMetaFile(_para1:LPCSTR):HENHMETAFILE;  name 'GetEnhMetaFileA';
+
+  function GetEnhMetaFileDescription(_para1:HENHMETAFILE; _para2:UINT; _para3:LPSTR):UINT;  name 'GetEnhMetaFileDescriptionA';
+
+  function GetTextMetrics(_para1:HDC; _para2:LPTEXTMETRIC):WINBOOL;  name 'GetTextMetricsA';
+
+  function StartDoc(_para1:HDC; var _para2:DOCINFO):longint;  name 'StartDocA';
+
+  function GetObject(_para1:HGDIOBJ; _para2:longint; _para3:LPVOID):longint;  name 'GetObjectA';
+
+  function TextOut(_para1:HDC; _para2:longint; _para3:longint; _para4:LPCSTR; _para5:longint):WINBOOL;  name 'TextOutA';
+
+  function ExtTextOut(_para1:HDC; _para2:longint; _para3:longint; _para4:UINT; var _para5:RECT;
+             _para6:LPCSTR; _para7:UINT; var _para8:INT):WINBOOL;  name 'ExtTextOutA';
+
+  function PolyTextOut(_para1:HDC; var _para2:POLYTEXT; _para3:longint):WINBOOL;  name 'PolyTextOutA';
+
+  function GetTextFace(_para1:HDC; _para2:longint; _para3:LPSTR):longint;  name 'GetTextFaceA';
+
+  function GetKerningPairs(_para1:HDC; _para2:DWORD; _para3:LPKERNINGPAIR):DWORD;  name 'GetKerningPairsA';
+
+  function CreateColorSpace(_para1:LPLOGCOLORSPACE):HCOLORSPACE;  name 'CreateColorSpaceA';
+
+  function GetLogColorSpace(_para1:HCOLORSPACE; _para2:LPLOGCOLORSPACE; _para3:DWORD):WINBOOL;  name 'GetLogColorSpaceA';
+
+  function GetICMProfile(_para1:HDC; _para2:DWORD; _para3:LPSTR):WINBOOL;  name 'GetICMProfileA';
+
+  function SetICMProfile(_para1:HDC; _para2:LPSTR):WINBOOL;  name 'SetICMProfileA';
+
+
+  function UpdateICMRegKey(_para1:DWORD; _para2:DWORD; _para3:LPSTR; _para4:UINT):WINBOOL;  name 'UpdateICMRegKeyA';
+
+  function EnumICMProfiles(_para1:HDC; _para2:ICMENUMPROC; _para3:LPARAM):longint;  name 'EnumICMProfilesA';
+
+  function CreateDC(_para1:LPCSTR; _para2:LPCSTR; _para3:LPCSTR; var _para4:DEVMODE):HDC;  name 'CreateDCA';
+
+end;
+
+  function CreateWindow(lpClassName:LPCSTR; lpWindowName:LPCSTR; dwStyle:DWORD; X:longint;
+             Y:longint; nWidth:longint; nHeight:longint; ParhWndParent:HWND; ParhMenu:HMENU;
+             hInstance:HINST; lpParam:LPVOID):HWND;
+  function CreateDialogIndirect(hInstance:HINST; lpTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):HWND;
+  function DialogBox(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+  function DialogBoxIndirect(hInstance:HINST; hDialogTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+
+
+end public
+
+
+  { was #define dname(params) def_expr }
+  function CreateWindow(lpClassName:LPCSTR; lpWindowName:LPCSTR; dwStyle:DWORD; X:longint;
+             Y:longint; nWidth:longint; nHeight:longint; ParhWndParent:HWND; ParhMenu:HMENU;
+             hInstance:HINST; lpParam:LPVOID):HWND;
+    begin
+       exit(CreateWindowEx(0,lpClassName,lpWindowName,dwStyle,x,y,nWidth,nHeight,ParhWndParent,ParhMenu,hInstance,lpParam));
+    end;
+
+  { was #define dname(params) def_expr }
+  function CreateDialog(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC):HWND;
+    begin
+       exit(CreateDialogParam(hInstance,lpTemplateName,ParhWndParent,lpDialogFunc,0));
+    end;
+
+  { was #define dname(params) def_expr }
+  function CreateDialogIndirect(hInstance:HINST; lpTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):HWND;
+    begin
+       exit(CreateDialogIndirectParam(hInstance,lpTemplate,ParhWndParent,lpDialogFunc,0));
+    end;
+
+  { was #define dname(params) def_expr }
+  function DialogBox(hInstance:HINST; lpTemplateName:LPCSTR; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+    begin
+       exit(DialogBoxParam(hInstance,lpTemplateName,ParhWndParent,lpDialogFunc,0));
+    end;
+
+  { was #define dname(params) def_expr }
+  function DialogBoxIndirect(hInstance:HINST; hDialogTemplate:LPCDLGTEMPLATE; ParhWndParent:HWND; lpDialogFunc:DLGPROC):longint;
+    begin
+       exit(DialogBoxIndirectParam(hInstance,hDialogTemplate,ParhWndParent,lpDialogFunc,0));
+    end;
+
+end.

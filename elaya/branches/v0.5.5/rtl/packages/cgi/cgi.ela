@@ -1,0 +1,479 @@
+{   Edol, Elaya dynamic operating system library for linux.
+    Copyright (C) 1999-2002  J.v.Iddekinge.
+    Email : iddekingej@lycos.com
+    Web   : www.elaya.org
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but whereOUT ANY WARRANTY; whereout even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along where this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1
+}
+unit;
+uses dlib,html;
+public
+type
+     
+	TCgiVariable=record
+		vlDm : long;
+	end;
+
+	PInputInfo=ptr TInputInfo;
+		TInputInfo=record
+		vrNext   : PInputInfo;
+		vrRead   : long;
+		vrBuffer : pointer;
+	end;
+
+
+   
+   procedure ScanCgiParameters;
+     inherit ScanVarStrings;
+     has
+       protected
+            procedure ScanBegin;override;
+            function GetNextVarString(var ParStr : string):boolean;override;
+			main;
+     end;
+
+   function  GetCgiParameterByName(const ParReqName : string;var ParValue:str255):boolean;
+     inherit ScanCgiParameters;
+     has
+      protected
+       function Item(const ParName,ParValue : string) : boolean;override;
+	   main;
+     end;
+     
+   procedure ScanInputInfo;
+     inherit ScanVarStrings;
+     has
+       protected
+        function GetInputInfo : PInputInfo;virtual;
+        function GetNextCh(var ParCh:char):boolean;
+        function GetNextVarString(var parStr : string):boolean;override;
+        procedure ScanBegin;override;
+		main;
+     end;
+
+
+    procedure CgiResponse;
+        inherit EBase;
+        has
+         protected
+          procedure Nl;
+		  procedure Output(ParCh : char);virtual;overload;
+          procedure Output(const ParStr : string);virtual;overload;
+          procedure Output(const ParAsc : asc255); overload;
+          procedure Output(ParNum : longint);overload;
+          procedure SetDocumentStatus(ParStatus : long;ParMessage : string);
+          procedure AutoHeaderElement(const ParType,ParValue : string);
+          procedure WriteHeaderElement(const ParType,ParValue : string);
+          function  HeaderLocation : string; virtual;
+          function  HeaderContentType : string;virtual;
+          function  HeaderDate : string;virtual;
+          function  HeaderServer : string; virtual;
+          procedure WriteStdHeader;
+          procedure WriteHeader;virtual;
+          procedure SendDocument; root;virtual;
+          procedure FreeInfo;
+          procedure ReadInfo;
+		  main;
+          operator (const ParParameters : TCgiVariable) # (const ParString : str255) : str255;  overload;
+
+          procedure ScanInputInfo;
+            inherit ScanInputInfo;
+            has
+              protected
+                function GetInputInfo:PInputInfo;override;
+				main;
+            end;
+            
+         function GetInputInfoByName(const ParName : string;var ParValue : string):boolean;
+           inherit ScanInputInfo;
+           has
+             protected
+               function Item(const ParItemName , ParValue : string):boolean;override;
+				main;
+           end;
+           
+        end;
+    
+    
+    procedure HtmlResponse;
+     inherit CgiResponse;
+     has
+       protected
+         procedure SendDocument;
+           inherit SendHtmlDocument;
+           override;
+           has
+             protected
+               procedure Output(const ParStr : string);override;overload;
+               procedure WriteBody;virtual;
+               function DocumentBgColor : string;virtual;
+               procedure InBodyTag;override;
+			   main;
+           end;
+        main;
+     end;
+     
+
+var
+
+    globals : TCgiVariable;
+
+
+
+end public
+
+const Info_Size = 256;
+
+
+
+
+
+
+{------( ScanParameters )----------------------------------------------------------------------}
+
+
+procedure ScanCgiParameters;inherit ScanVarStrings;
+private
+   var vlCnt  : long;
+       vlText : string;
+protected
+
+   procedure ScanBegin;override;
+   begin
+        vlCnt  := 1;
+         GetEnvByName('QUERY_STRING',vlText);
+   end;
+
+   function GetNextVarString(var ParStr : string):boolean;override;
+   begin
+        if vlCnt > vlText.length then exit(true);
+        ParStr := ECopy(vlText) where
+                         GetBeginPos : vlCnt;
+                         DoUntil     : sym='&';
+                 end;
+        inc vlCnt with ParStr.length+1;
+        exit(false);
+   end;
+
+begin
+	inherited of main;
+end;
+
+
+{---( GetParamByName )-------------------------------------------------------------------}
+
+function GetCgiParameterByName(const ParReqName : string;var ParValue : str255):boolean;inherit ScanCgiParameters;
+protected
+var vlFound : boolean;
+
+       function Item(const ParName,ParValue : string) : boolean;override;
+       begin
+            vlFound := ParName=ParReqName;
+            exit(vlFound);
+       end;
+       
+begin
+     vlFound := false;
+     inherited of Main;
+     ParValue := TheValue;
+     exit(vlFound);
+end;
+
+
+  procedure ScanInputInfo;inherit ScanVarStrings;
+  protected
+  var vlCurrentInfo : PInputInfo;
+      vlPos         : long;
+
+
+        function GetInputInfo : PInputInfo;virtual;
+        begin
+             exit(nil);
+        end;
+        
+        function GetNextCh(var ParCh:char):boolean;
+        begin
+             if vlCurrentInfo = nil then exit(true);
+             ParCh :=  (vlCurrentInfo^.vrBuffer as pchar+vlPos)^;
+             vlPos := vlPos + 1;
+             if vlPos >=  vlCurrentInfo^.vrRead then begin
+                vlPos := 0;
+                vlCurrentInfo := vlCurrentInfo^.vrNext;
+             end;
+             exit(false);
+        end;
+
+        function GetNextVarString(var parStr : string):boolean;override;
+        var vlCh : char;
+        begin
+             ParStr.Length := 0;
+             while not(GetNextCh(vlCh)) do begin
+                   if (vlCh='&') then break;
+                   ParStr := ParStr + vlCh;
+             end;
+             exit(ParStr.length = 0);
+        end;
+
+
+        procedure ScanBegin;override;
+        begin
+             inherited ScanBegin;
+             vlCurrentInfo := GetInputInfo;
+             vlPos := 0;
+        end;
+
+   begin
+		inherited of main;
+   end;
+
+
+
+
+{----( CGIResponse )--------------------------------------------------------------------}
+
+procedure CgiResponse;inherit EBase;
+private
+var
+   vlStatus  : long;
+   vlMessage : string;
+   vlLocation: string;
+
+
+protected
+
+var
+   vlInputInfo : PInputInfo;
+
+
+
+
+   procedure ScanInputInfo;inherit ScanInputInfo;
+   protected
+   
+      function GetInputInfo:PInputInfo;override;
+      begin
+          exit(vlInputInfo);
+      end;
+   begin
+			inherited of main;
+   end;
+
+
+   function GetInputInfoByName(const ParName : string;var ParValue : string):boolean;inherit ScanInputInfo;
+   var vlFound : boolean;
+   protected
+   
+            function Item(const ParItemName , ParValue : string):boolean;override;
+            begin
+                 vlFound := ParItemName = ParName;
+                 exit(vlFound);
+            end;
+
+   begin
+        vlFound := false;
+        inherited of Main;
+        ParValue := theValue;
+        exit(true);
+   end;
+
+  operator (const ParParameters : TCgiVariable) # (const ParString : str255) : str255;  overload;
+  var vlstr : string;
+  begin
+     if GetCgiParameterByName(ParString,vlStr) then exit(vlStr);
+     if GetEnvByName(ParString,vlStr) then exit(vlStr);
+     if GetInputInfoByName(ParString,vlStr) then exit(vlStr);
+     exit('');
+  end;
+
+
+	 procedure Output(ParCh : char);virtual;overload;
+	begin
+		write(ParCh);
+	end;
+
+
+   procedure Output(const ParStr : string);virtual;overload;
+   begin
+        write(ParStr);
+   end;
+
+   procedure Nl;
+   var vlStr : string;
+   begin
+        vlStr := 10 as char;
+        Output(vlStr);
+   end;
+
+   procedure Output(const ParAsc : asc255); overload;
+   var vlStr : string;
+   begin
+        vlStr := ParAsc;
+        Output(vlStr);
+   end;
+
+
+   procedure Output(ParNum : longint);overload;
+   var vlStr : string;
+   begin
+        str(ParNum,vlStr);
+        Output(vlStr);
+   end;
+
+
+   procedure SetDocumentStatus(ParStatus : long;ParMessage : string);
+   begin
+      vlStatus  := ParStatus;
+      vlMessage := ParMessage;
+   end;
+
+   procedure WriteHeaderElement(const ParType,ParValue : string);
+   begin
+        Output(ParType);
+        Output(': ');
+        Output(ParValue);
+        nl;
+   end;
+
+   procedure AutoHeaderElement(const ParType,ParValue : string);
+   begin
+        if ParValue.length > 0 then WriteHeaderElement(ParType,ParValue);
+   end;
+
+   function HeaderLocation : string; virtual;
+   begin
+        exit('');
+   end;
+
+   function HeaderContentType : string;virtual;
+   begin
+        exit('text/html');
+   end;
+
+   function HeaderDate : string;virtual;
+   begin
+        exit('');
+   end;
+
+   function HeaderServer : string; virtual;
+   begin
+        exit('');
+   end;
+   
+   
+   procedure WriteStdHeader;
+   begin
+        AutoHeaderElement('Location',HeaderLocation);
+        AutoHeaderElement('Date',HeaderDate);
+        AutoHeaderElement('Server',HeaderServer);
+        AutoHeaderElement('Content-type',HeaderContentType);
+   end;
+   
+   procedure WriteHeader;virtual;
+   begin
+        WriteStdHeader;
+   end;
+
+   procedure SendDocument; root;virtual;
+   begin
+   end;
+
+   procedure FreeInfo;
+   var vlInfo : PInputInfo;
+       vlnext : PInputInfo;
+   begin
+        vlInfo := vlInputInfo;
+        while vlInfo <> nil do begin
+              vlNext := vlInfo^.vrNext;
+              Freemem(vlInfo^.vrBuffer);
+              Freemem(vlInfo);
+              vlInfo := vlNext;
+        end;
+   end;
+
+   procedure ReadInfo;
+   var vlInfo : PInputInfo;
+       vlTOp  : PInputInfo;
+       vlPtr  : Pointer;
+       vlRd   : long;
+   begin
+        vlTop := nil;
+        repeat
+               vlPtr  := ReserveMem(Info_Size);
+               vlInfo := ReserveMem(sizeof(TInputInfo));
+               vlInfo^.vrBuffer := vlPtr;
+               if ReadFile(InputFile,Info_Size,vlRd,(vlPtr as pbyte)^) then break;
+               vlInfo^.vrRead := vlRd;
+               if vlTop<> nil then begin
+                  vlTop^.vrNext := vlInfo;
+               end else begin
+                   vlInputInfo := vlInfo;
+               end;
+                vlInfo^.vrNext := nil;
+                vlTop := vlInfo;
+        until vlRd = 0;
+   end;
+   
+begin
+     vlInputInfo := nil;
+     ReadInfo;
+     WriteHeader;
+     nl;
+     SendDocument;
+     FreeInfo;
+end;
+
+
+procedure HtmlResponse;inherit CgiResponse;
+protected
+
+   procedure SendDocument;inherit SendHtmlDocument;override;
+   protected
+
+
+
+      procedure Output(const ParStr : string);override;overload;
+      begin
+           owner owner Output(ParStr);
+      end;
+   
+      procedure WriteBody;virtual;
+      begin
+      end;
+
+
+      function DocumentBgColor : string;virtual;
+      begin
+        exit('');
+      end;
+
+      procedure InBodyTag;override;
+      var
+          vlName :string;
+      begin
+               vlName := DocumentBgColor;
+               AutoValue('bgcolor',vlName);
+      end;
+
+   begin
+	inherited of main;
+   end;
+
+begin
+	inherited of main;
+end;
+
+
+
+end.

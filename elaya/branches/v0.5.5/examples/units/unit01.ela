@@ -1,0 +1,91 @@
+{
+  examples/units/unit01.ela & Unit02.ela
+  examples usage units in Elaya.
+  Notice the similarities with Pascal.
+  See also unit02.ela, in whih this unit is used.
+}
+  
+unit;
+
+{
+    'public section', this is then same as the
+    'implementation section' from Pascal.
+    The identifiers declared in the public section are visible outside
+    the unit.
+
+}
+
+    public
+
+        procedure PrintHello(const ParToWho : string);
+        procedure PrintOtherHello(const ParHello:string);
+        procedure PrintList;root;
+        
+    end public
+
+ procedure PrintHello(const ParToWho : string);
+ begin
+      writeln('hello to :',ParToWho);
+ end;
+
+{
+  Dynamic codeblock,
+  (See 'Dynamic codeblock examples' for more.)
+  This identfier is not declared in the public section, and therefore
+  only 'visible' inside this unit.
+}
+
+
+ procedure PrintList;root;
+   private
+      var   vlCnt : long;
+   protected
+      function Cnt : long;
+      begin
+           exit(vlCnt);
+      end;
+
+      function Text:str255;virtual;
+      begin
+           exit('');
+      end;
+
+      function Start : long;virtual;
+      begin
+           exit(0);
+      end;
+
+      function Last : long;virtual;
+      begin
+           exit(0);
+      end;
+
+ var vlStr2 : string;
+ begin
+      vlCnt :=Start ;
+      
+      while vlCnt <= Last do begin
+            writeln(Text);
+            vlCnt := vlCnt + 1;
+      end;
+ end;
+
+procedure PrintOtherHello(const ParHello : string);
+var vlStr :string;
+begin
+     PrintList begin
+          Last 10;
+          Text  IntToStr(cnt)+ParHello;
+     end;
+end;
+
+{
+  Same as in pascal, a unit can have an initalization
+  routine.
+}
+
+begin
+     PrintOtherHello('user');
+end;
+
+
