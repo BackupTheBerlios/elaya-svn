@@ -205,6 +205,7 @@ var
    vlCommand : string;
 	vlStart : string;
 	vlIgnore : TSMTextList;
+	vlOutputFile : string;
 
 procedure LowerStr(var ParStr :string);
 var
@@ -987,6 +988,7 @@ begin
 		if(vlStr[1]='-') then begin
 			if length(vlStr) <2 then exit(true);
 			case vlStr[2] of 
+			'o':if nextParam(vlOutputFile) then exit(true);
 			'a':if NextParam(vlAutoLoad) then exit(true);
 			'u':if NextParam(vlUnitDir)    then exit(true);
 			'p':vlIsPascal := true;
@@ -1024,6 +1026,7 @@ begin
 	SetLength(vlUnitExt,0);
 	SetLength(vLSourceExt,0);
 	SetLength(vlCommand,0);
+	SetLength(vlOutputFile,0);
 	vlStart := 'main';
 	if getparameters then begin
 		writeln('Invalid parameters');

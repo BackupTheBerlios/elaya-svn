@@ -41,7 +41,7 @@ section
 	Is_Elf_Target                := 'N';
 	Auto_Load                    := 'core;sys;classes;memory;strings';
         Assembler_Path               := '@Dir_as@';
-	object_Path	             := '@Dir_Ela_Rtl_Base@/'+Target_Platform;
+	object_Path	             := '@Rtl_Build_Out@/'+Target_Platform;
 END;
 
 var MySql_Lib_Type := '';

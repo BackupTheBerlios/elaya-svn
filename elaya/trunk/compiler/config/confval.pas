@@ -353,6 +353,8 @@ begin
 	vlVal.SetVarUseCheck(iVarUseCheck,iVarUseChecklevel);
 	vlVal.SetGenerateDebug(iGenerateDebug,iGenerateDebugLevel);
 	vlVal.SetAutoload(iAutoload,iAutoloadlevel);
+	GetOutputObjectPath(vlStr);
+	vlVal.SetOutputObjectPath(vlStr,iOutputObjectPathLevel);
 	exit(vlVal);
 end;
 
@@ -429,7 +431,7 @@ begin
 	iConfigFileLevel    := CL_None;
 	iInputFileLevel     := CL_None;
 	iAssemblerTypeLevel := CL_None;
-	iCanUseDllLevel	    := CL_None;
+	iCanUseDllLevel	  := CL_None;
 	iOptimizeModesLevel := CL_None;
 	iDeleteAsmFileLevel := CL_None;
 	iRebuildLevel       := CL_None;
@@ -439,6 +441,7 @@ begin
 	iVarUseCheckLevel   := CL_None;
 	iGenerateDebugLevel := CL_None;
 	iAutoLoadLevel      := CL_None;
+	iOutputObjectPathLevel := CL_None;
 	iConfigFile         := nil;
 	iInputFile          := nil;
 	iHostOs             := TString.Create(DEF_Operating_System);

@@ -1,3 +1,7 @@
+# This program creates  all Makefiles for all ela files.
+#(C) copyright Jeroen van Iddekinge
+#Under GPL License (TODO)
+
 cd rtl
 while true;
 do  read filename
@@ -16,7 +20,8 @@ while [ ! -e build_files   ];
 done
 popd
 
-echo "all:all_ela" >Makefile
+
+echo "#auto generated please,don't edit" >Makefile
 echo "root_path=$lpath" >>Makefile
 if test -e Makefile.inc;then echo "include Makefile.inc" >>Makefile;fi
 echo 'include $(root_path)Makefile.ela' >>Makefile

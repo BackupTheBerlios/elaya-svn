@@ -32,7 +32,6 @@ type
 		fMacCnt : longint;
 	public
 		procedure AddSec(ParSec:TSecBase);
-		function  CreateLabel:TLabelPoc;
 		function  AddLabel:TLabelPoc;
 		procedure CommonSetup;override;
 		function  Optimize:boolean;virtual;
@@ -74,26 +73,30 @@ type
 	end;
 	
 	TUnkPoc=class(TPocBase)
-	public
+	private
 		voClassName : TString;
+	protected
 		procedure  SetClassName(const ParClassName:string);
 		property  fClassName:TString read voClassName write voClassName;
+		procedure  clear;override;
+		procedure   Commonsetup;override;
+
 	public
 		procedure   Print(ParDis:TDisplay);override;
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
-		procedure   Commonsetup;override;
 		constructor Create(const ParName:string);
-		destructor  destroy;override;
 	end;
 	
 	TSubPoc=class(TPocBase)
 	private
 		voPocList : TSubPocList;
 		property iPocList :TSubPocList read voPocList write voPocList;
+	protected
+		procedure clear;override;
+		procedure   CommonSetup;override;
+
 	public
 		property    fPocList:TSubPocList read voPocList;
-		destructor  Destroy;override;
-		procedure   CommonSetup;override;
 		procedure   Print(parDis:TDisplay);override;
 		function    Optimize:boolean;override;
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
@@ -160,10 +163,11 @@ type
 		property iMacList : TMacList read voMacList write voMacList;
 	protected
 		procedure   CommonSetup;override;
+		procedure   clear;override;
+
 	public
 		property    GetMacList:TMacList read voMacList ;
 		procedure   CreateList;
-		destructor  Destroy;override;
 		procedure   ReserveStorage(ParList:TTlvStorageList);override;
 		procedure   FreeStorage; override;
 		procedure   SetMacResTranslation(ParList:TOperandList;ParCre:TInstCreator);
@@ -436,6 +440,7 @@ type
 		voMacList : TLongResList;
 	protected
 		procedure CommonSetup;override;
+		procedure clear;override;
 
 	public
 		property fMacList : TLongResList read voMacList write voMacList;
@@ -444,7 +449,6 @@ type
 		procedure SetMacsLongRes(PArCre:TInstCreator;ParFlag:boolean);
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(ParDis : TDisplay);override;
-		destructor Destroy;override;
 		procedure Check;
 		procedure   ReserveStorage(ParList:TTlvStorageList);override;
 		procedure   FreeStorage; override;
@@ -721,9 +725,9 @@ begin
 end;
 
 
-destructor TLongResMetaPoc.Destroy;
+procedure TLongResMetaPoc.Clear;
 begin
-	inherited Destroy;
+	inherited Clear;
 	fMacList.Destroy;
 end;
 
@@ -807,16 +811,11 @@ begin
 	CreateInst := false;
 end;
 
-
-
-
 {---( TUnkPoc )-------------------------------------------------------------------}
 
-
-
-destructor TUnkPoc.Destroy;
+procedure TUnkPoc.Clear;
 begin
-	inherited destroy;
+	inherited Clear;
 	if fClassName <> nil then fClassName.Destroy;
 end;
 
@@ -880,10 +879,9 @@ begin
 	exit(iPocList.Optimize);
 end;
 
-
-destructor TSubPoc.Destroy;
+procedure TSubPoc.Clear;
 begin
-	inherited Destroy;
+	inherited Clear;
 	iPocList.Destroy;
 end;
 
@@ -1487,9 +1485,9 @@ begin
 end;
 
 
-destructor  TFormulaPoc.Destroy;
+procedure TFormulaPoc.Clear;
 begin
-	inherited Destroy;
+	inherited Clear;
 	iMacList.Destroy;
 end;
 
@@ -1997,11 +1995,6 @@ end;
 Verplaatsen naar SecCreate?
 }
 
-function TSubPocList.CreateLabel:TLabelPoc;
-begin
-	exit(TLabelPoc.Create);
-end;
-
 function TSubPocList.AddLabel:TLabelPoc;
 var
 	vlLab:TLabelPoc;
@@ -2009,7 +2002,7 @@ begin
 	if (fTop <> nil) and ( TPocBase(fTop).fIdentCode = IC_LabelPoc)then begin
 		vlLab := TLabelPoc(fTop)
 	end else begin
-		vlLab := CreateLabel;
+		vlLab := TLabelPoc.Create;
 		AddSec(vlLab);
 	end;
 	exit(vlLab);

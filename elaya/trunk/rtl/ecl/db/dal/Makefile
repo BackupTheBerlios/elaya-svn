@@ -5,12 +5,16 @@ include $(root_path)Makefile.inc
 
 all: all_$(rtl_target)
 all_win32:
-	make all -Cbase
+	$(MAKE) all -Cbase
 
 all_linux:
-	make all -Cbase
-	make all -Cmysql
+	$(MAKE) all -Cbase
+	$(MAKE) all -Cmysql
+
+install:
+	$(MAKE) install -Cbase
+	$(MAKE) install -Cmysql
 
 clean:
-	make clean -Cbase
-	make clean -Cmysql
+	$(MAKE) clean -Cbase
+	$(MAKE) clean -Cmysql

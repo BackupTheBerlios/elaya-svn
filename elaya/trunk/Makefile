@@ -41,8 +41,14 @@ cfg    : compiler tools
 rtl    :  compiler tools cfg
 	$(MAKE) all -C rtl
 
+install:
+	$(MAKE) install -C compiler
+	$(MAKE) install -C rtl
+	$(MAKE) install -C tools/eladep
+        
 clean  : 
 	  $(MAKE) clean -C compiler
 	  $(MAKE) clean -C rtl
 	  $(MAKE) clean -C cfg
 	  $(MAKE) clean -C tools
+

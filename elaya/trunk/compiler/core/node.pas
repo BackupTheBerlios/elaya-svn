@@ -356,7 +356,7 @@ end;
 
 function TSecCreator.CreateLabel:TLabelPoc;
 begin
-	exit( iPoc.fPocList.CreateLabel);
+	exit(TLabelPoc.Create);
 end;
 
 

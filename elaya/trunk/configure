@@ -73,8 +73,8 @@ Can_Cross_Compile='y'
 #fpc and ela options
 
 Fpc="ppc386"
-ela="$Dir_Program/ela"
-eladep="$Dir_Program/eladep"
+ela="ela"
+eladep="eladep"
 
 Opt_Fpc="-dmalloc -a -O2g -CR  -Ci- -gl -Ch1000000  -S2c  -vrwen -Ratt"
 Fpc_Opt_Unit_Path="/home/jeroen/fpc/"
@@ -88,7 +88,9 @@ echo "os_host=$vlHost" >>$build_conf_gen
 
 build_conf="config/build_conf.$vlHost.$vlTarget"
 
+build_target=`pwd`/rtl/bin
 echo Fpc_Opt_Unit_Path=$Fpc_Opt_Unit_Path>$build_conf
+echo Rtl_Build_Out=$build_target>>$build_conf
 echo Dir_Cpl_Lib=$Dir_Cpl_Lib>>$build_conf
 echo Dir_Program=$Dir_Program>>$build_conf
 echo Dir_Rtl=$Dir_Ela_Rtl/$vlTarget>>$build_conf
@@ -118,6 +120,7 @@ mkdir -p $Dir_Program
 mkdir -p $Dir_Cpl_Lib
 mkdir -p $Dir_Ela_Rtl
 mkdir -p $Dir_Ela_Rtl/$vlTarget
+mkdir -p $build_target/$vlTarget
 mkdir -p dirt
 
 sh build_files/programs/mkelamake.sh <build_files/config/eladirs.db >>config.log

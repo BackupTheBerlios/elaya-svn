@@ -18,13 +18,19 @@
 .PHONY:all clean
 
 all:
-	make -C base all
-	make -C interfaces all
-	make -C fw all
-	make -C widgets all
+	$(MAKE) -C base all
+	$(MAKE) -C interfaces all
+	$(MAKE) -C fw all
+	$(MAKE) -C widgets all
+
+install:
+	$(MAKE) install -C base
+	$(MAKE) install -C interfaces
+	$(MAKE) install -C fw
+	$(MAKE) install -C widgets
 
 clean:
-	make -C base clean
-	make -C interfaces clean
-	make -C fw clean
-	make -C widgets clean
+	$(MAKE) -C base clean
+	$(MAKE) -C interfaces clean
+	$(MAKE) -C fw clean
+	$(MAKE) -C widgets clean

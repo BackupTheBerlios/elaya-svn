@@ -43,8 +43,7 @@ type
 		voNeededHash : longint;
 		voName       : TString;
 		property iNeededHash : longint read voNeededHash write voNeededHash;
-		property    iName		: TString read voName write voName;
-		procedure   SetName(const parString:String);
+		property iName		   : TString read voName       write voName;
 	protected
 		procedure   Clear;override;
 		procedure   COmmonsetup;override;
@@ -928,7 +927,7 @@ begin
 end;
 
 
-constructor TUnit.Create(const pArName:string);
+constructor TUnit.Create(const ParName:string);
 var vlName:String;
 begin
 	inherited Create;
@@ -1148,17 +1147,11 @@ begin
 	iName.GetString(ParName);
 end;
 
-procedure  TUnititem.SetName(const parString:String);
-begin
-	if iName <> nil then iName.Destroy;
-	iName :=TString.Create(ParString);
-end;
-
 constructor TUnitItem.Create(ParUnit:TUnit);
 var vlName:string;
 begin
 	inherited Create;
-	SetModuleItem(TModule(ParUnit));
+	iModuleItem := ParUnit;
 	if ParUnit <> nil then begin
 		ParUnit.GetNameStr(vlName);
 		iName := TString.Create(vlname);
@@ -1176,7 +1169,7 @@ end;
 
 
 
-function TUnititem.LoadItem(ParWriter:TObjectStream):boolean;
+function TUnitItem.LoadItem(ParWriter:TObjectStream):boolean;
 var  vlName   : string;
 	vlhash   : longint;
 	vlItem   : TModuleLoadItem;
@@ -1184,16 +1177,16 @@ var  vlName   : string;
 	vlCode   : longint;
 begin
 	LoadItem := true;
-	SetModuleItem(nil);
+	iModuleItem := nil;
 	if ParWriter.ReadLongint(longint(vlCode)) then exit;
 	if ParWriter.ReadString(vlName) then exit;
 	if ParWriter.ReadLongint(vlHash) then exit;
-	SetName(vlName);
+	iName := TString.Create(vlName);
 	iNeededHash := vlHash;
 	vlItem:= ParWriter.GetModuleLoadItemByName(vlName);
 	if vlItem <> nil then begin
 		vlModule := vlItem.fModuleObj;
-		SetModuleItem(vlModule);
+		iModuleItem := vlModule;
 		ParWriter.AddToPtrList(vlCode,vlModule);
 	end;
 	LoadItem := false;

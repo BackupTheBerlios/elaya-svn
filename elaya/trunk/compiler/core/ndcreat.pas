@@ -806,10 +806,6 @@ procedure TNDCreator.AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const p
 var vlLine,vlCol,vlPos:Longint;
 begin
 	ParNode.GetPos(vlLine,vlCol,vlPos);
-	if vlLine = 0 then begin
-		writeln(ParNode.ClassName);
-		runerror(1);
-	end;
 	AddError(ParError,vlLine,vlCol,vlPos,ParText);
 end;
 

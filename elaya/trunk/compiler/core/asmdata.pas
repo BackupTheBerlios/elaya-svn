@@ -51,10 +51,11 @@ type
 	private
 		voText:TString;
 		property iText : TString read voText write voText;
+		procedure clear;override;
+
 	public
 		property fText : TString read voText;
 		constructor Create(const ParName:string);
-		destructor  destroy;override;
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
 
@@ -417,9 +418,9 @@ end;
 {----( TTextDataDef )--------------------------------------}
 
 
-destructor  TTextDataDef.destroy;
+procedure TTextDataDef.Clear;
 begin
-	inherited destroy;
+	inherited clear;
 	if iText <> nil then iText.destroy;
 end;
 

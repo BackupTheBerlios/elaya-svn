@@ -7,5 +7,8 @@ all:
 dep:
 	make dep -C$(rtl_target)
 
+install:
+	make install -C$(rtl_target)
+
 clean:
-	make dep -C$(rtl_target)
+	make clean -C$(rtl_target)

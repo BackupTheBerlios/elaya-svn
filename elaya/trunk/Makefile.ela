@@ -1,12 +1,18 @@
 include $(root_path)/Makefile.inc
 
 
-.PHONY:clean all all_ela all_win32 all_linux dep
+.PHONY:clean all all_ela all_win32 all_linux dep  install
 
 
 
 zothall=
 zothclean=
+zothinstall=
+
+ifdef othinstall
+	zothinstall=$(othinstall)
+endif
+
 ifdef othall
 	zothall=$(othall)
 endif
@@ -21,17 +27,23 @@ endif
 
 all_ela_sources=$(wildcard *.ELA) $(wildcard *.ela)
 
-Base_Dir:=$(Dir_Rtl)
-ELA_CPL:=$(LIB_ELA) -t $(rtl_target) $(ela_opt)
+Base_Dir:=$(root_path)rtl/bin/$(rtl_target)/
+ELA_CPL:=$(root_path)compiler/bin/$(ELA) -c $(root_path)/cfg/bin/lib.cfg $(Opt_Ela) -o $(Rtl_Build_Out)/$(rtl_target) -t $(rtl_target) $(ela_opt)
+
 dep_file:=dep_$(rtl_target)
 vpath %.emd $(Base_Dir)
+
 all:dep  all_main $(zothall)
+
+install: $(zothinstall)
+	cp -f -r  $(addsuffix .*, $(addprefix $(Base_Dir),$(basename $(all_ela_sources))))   $(Dir_Rtl) -v
+
 
 clean: clean_main $(zothclean)
 	rm dep_$(rtl_target)
 
 dep:$(dep_file) 
 $(dep_file): $(all_ela_sources) $(root_path)include/alp.$(rtl_target)
-	$(eladep) -a $(root_path)include/alp.$(rtl_target) $(all_ela_sources) -c "ELA_CPL" -u $(Base_Dir)/ -s .ela -e .emd >$(dep_file)
+	$(ELADEP_CMD) -a $(root_path)include/alp.$(rtl_target) $(all_ela_sources) -c "ELA_CPL" -u $(Base_Dir)  -s .ela -e .emd >$(dep_file)
 
 include $(dep_file)

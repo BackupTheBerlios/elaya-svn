@@ -18,8 +18,6 @@
 .PHONY : all clean 
 
 all : 
-
-  
 	$(MAKE) all -C core
 	$(MAKE) all -C packages
 	$(MAKE) all -C ecl
@@ -29,8 +27,12 @@ dep:
 	$(MAKE) dep -C packages
 	$(MAKE) dep -C ecl
 
+install:
+	$(MAKE) install -C core
+	$(MAKE) install -C packages
+	$(MAKE) install -C ecl
+
 clean :
 	$(MAKE) clean -C core
 	$(MAKE) clean -C packages
 	$(MAKE) clean -C ecl
-

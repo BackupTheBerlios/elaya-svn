@@ -288,6 +288,7 @@ begin
 end;
 SetAlwaysStackFrame(true);
 if GetVarValue(conf_output_object_path,vlOutPath) then ParCfg.SetOutputObjectPath(vlOutPath,cl_Conf);
+
 if GetVarUpperBool(conf_Always_Stack_Frame,vlBool) then SetAlwaysStackFrame(vlBool);
 if GetVarUpperBool(CONF_Run_Assembler,vlBool) then ParCfg.SetRunAssembler(vlBool,CL_Conf);
 if GetVarUpperBool(CONF_Can_Use_Dll,vlBool) then ParCfg.SetCanUseDll(vlBool,CL_Conf);

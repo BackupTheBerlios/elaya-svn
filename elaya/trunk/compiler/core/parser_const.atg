@@ -446,7 +446,7 @@ RNumberConstant<ParVal,ParValid>
 
 RNum_Or_Const_2:"identifier"<var ParVal:TValue>
 (. var
-       vlInValid : boolean;
+       vlValid   : boolean;
        vlNum     : TNumber;
        vlStr     : String;
        vlNeg     : boolean;
@@ -455,17 +455,15 @@ RNum_Or_Const_2:"identifier"<var ParVal:TValue>
 (.
 	ParVal  := nil;
 	vlNeg   := false;
-	vlInvalid := false;
 .)
 (
 
   (
 	[('-'  (. vlNeg := true; .))
 	|'+']
-	RNumberConstant<ParVal,vlInValid>
+	RNumberConstant<ParVal,vlValid>
 	(.
 		if vlNeg then ParVal.neg;
-		if vlInValid then SemError(Err_int_Invalid_Number);
 	.)
   )
 |RStringConstant<ParVal>

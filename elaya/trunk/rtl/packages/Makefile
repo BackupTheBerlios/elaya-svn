@@ -33,6 +33,14 @@ mysql: eel
 
 oth_win32:
 
+install:
+	$(MAKE) install -C eel
+	$(MAKE) install -C cgi
+	$(MAKE) install -C gtk
+	$(MAKE) install -C mysql
+	$(MAKE) install -C native
+
+   
 clean:
 	$(MAKE) clean -C eel
 	$(MAKE) clean -C cgi

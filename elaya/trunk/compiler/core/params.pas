@@ -1927,6 +1927,7 @@ end;
 procedure TParamNode.Clear;
 begin
 	inherited Clear;
+	if iName <> nil then iName.Destroy;
 	if iNode <> nil then iNode.Destroy;
 end;
 

@@ -81,12 +81,13 @@ type
 		property iAllOf : TFormulaNode read voAllOf write voAllOf;
 		property iEndCondition : TFormulaNode read voEndCondition write voEndCondition;
 		property iDispAll : boolean read voDispAll write voDispAll;
+
 	protected
 		procedure CheckNodeByType(ParCre : TCreator;ParType :TType ;ParCheck : TFormulaNode);
 		procedure  commonsetup;override;
+		procedure clear; override;
 
 	public
-
 		procedure  SetAllOf(ParNode : TFormulaNode);
 		procedure  SetCount(parNode:TFormulaNode);
 		procedure  SetBegin(ParNode:TFormulaNode);
@@ -96,7 +97,6 @@ type
 		procedure  Setup(parUp:boolean);
 		procedure  print(ParDis:TDisplay);override;
 		function   CreateSec(parcre:TSecCreator):boolean;override;
-		destructor destroy;override;
 		procedure  Optimize(ParCre : TCreator);override;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure Proces(ParCre : TCreator);override;
@@ -114,7 +114,7 @@ type
 	public
 		property fCond : TFormulaNode read voCond;
 		procedure  SetCond(ParCond:TFormulaNode);
-		destructor destroy;override;
+		procedure clear;override;
 		procedure  Optimize(ParCre : TCreator);override;
 		procedure  ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure  ValidateAfter(ParCre  : TCreator);override;
@@ -142,13 +142,13 @@ type
 		property   iEnd : TFormulaNode read voEnd write voEnd;
 	protected
 		procedure  commonsetup;override;
+		procedure  clear;override;
 
 	public
 		
 		property   fEnd : TFormulaNode read voEnd;
 		procedure  SetEnd(ParNode:TFormulaNode);
 		procedure  SetBegin(parNode:TFormulaNode);
-		destructor destroy;override;
 		procedure  print(ParDis:TDisplay);override;
 		function   CreateSec(ParCre:TSecCreator):boolean;override;
 		procedure  Optimize(ParCre :TCreator);override;
@@ -378,9 +378,9 @@ begin
 	if iCond <> nil then iCond.Proces(ParCre);
 end;
 
-destructor TConditionNode.Destroy;
+procedure TConditionNode.clear;
 begin
-	inherited Destroy;
+	inherited Clear;
 	if iCond <> nil then iCond.Destroy;
 end;
 
@@ -511,9 +511,9 @@ begin
 	iEnd := nil;
 end;
 
-destructor TForNode.Destroy;
+procedure TForNode.Clear;
 begin
-	inherited Destroy;
+	inherited Clear;
 	if iEnd <> nil then iEnd.Destroy;
 end;
 
@@ -741,9 +741,9 @@ begin
 	iDispAll := true;
 end;
 
-destructor TCountNode.Destroy;
+procedure TCountNode.Clear;
 begin
-	inherited Destroy;
+	inherited clear;
 	if iCount <> nil then iCount.Destroy;
 	if iBegin <> nil then iBegin.Destroy;
 	if iEnd   <> nil then iEnd.Destroy;

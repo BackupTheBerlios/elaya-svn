@@ -93,6 +93,7 @@ TModuleLoadItem=class(TSMTextItem)
 private
 	voModuleObj:TModule;
 	property iModuleObj : TModule read voModuleObj write voModuleObj;
+
 public
 	property fModuleObj : TModule read voModuleObj;
 	procedure   DoBind;
@@ -121,9 +122,10 @@ protected
 	property    iName        : string  read voName    write voName;
 	property    iOpen		 : boolean read voOpen    write voOpen;
 	property    iOsError	 : cardinal read voOsError write voOsError;
+
+	procedure clear;override;
 public
 	constructor Create;
-	destructor  destroy;override;
 	
 	property    fBufferFile : TFile    read voBufferFile;
 	property    fHashing    : longint  read voHashing write voHashing;
@@ -157,10 +159,14 @@ end;
 TObjectStream=class(TStream)
 private
 	voModuleLoadList : TModuleLoadList;
+
+   property iModuleloadList :  TModuleLoadList read voModuleLoadList write voModuleLoadList;
+
+protected
+   procedure clear;override;
 public
+
 	constructor Create;
-	destructor  destroy;override;
-	
 	procedure   AddModule(const ParModule:string;ParModuleObj:TModule);
 	function    GetModuleLoadItemByName(const ParName:string):TModuleLoadITem;
 	procedure   ConvertItemPtr(ParItem:TStrAbelRoot;var ParNum,ParModule:TIdentNumber);
@@ -187,7 +193,6 @@ protected
 
 public
 	property  fModuleItem : TModule read voModuleItem;
-	procedure SetModuleItem(ParModuleBase : TModule);
 end;
 
 
@@ -210,10 +215,6 @@ begin
 	iModuleItem := nil;
 end;
 
-procedure TModuleItemBase.SetModuleItem(ParModuleBase:TModule);
-begin
-	iModuleItem := ParModuleBase;
-end;
 
 
 
@@ -293,7 +294,6 @@ constructor TStrAbelRoot.Load(ParWrite:TObjectStream);
 begin
 	inherited Create;
 	if loadItem(ParWrite) then begin
-		writeln(classname);
 		clear;
 		fail;
 	end;
@@ -459,9 +459,9 @@ begin
 	fBufferFile.ReadFromBuffer(ParSize,parInfo);
 end;
 
-destructor  TStream.destroy;
+procedure TStream.clear;
 begin
-	inherited destroy;
+	inherited clear;
 	if fBufferFile <> nil then fBufferFile.destroy;
 end;
 
@@ -686,23 +686,23 @@ end;
 
 function    TObjectStream.GetModuleLoadItemByName(const ParName:string):TModuleLoadITem;
 begin
-	GetModuleLoadItemByName := TModuleLoadITem(voModuleLoadList.GetPtrByName(nil,ParName))
+	exit(TModuleLoadITem(iModuleLoadList.GetPtrByName(nil,ParName)));
 end;
 
 constructor TObjectStream.Create;
 begin
 	iOpen := false;
 	inherited Create;
-	voModuleLoadList := TModuleLoadList.Create;
+	iModuleLoadList := TModuleLoadList.Create;
 	voHashing	     := 0;
 end;
 
 
-destructor TObjectStream.destroy;
+procedure TObjectStream.Clear;
 begin
 	CloseFile;
-	inherited destroy;
-	voModuleLoadList.destroy;
+	inherited clear;
+	iModuleLoadList.destroy;
 end;
 
 
@@ -818,19 +818,22 @@ begin
 	ParModule := IC_No_Code;
 	
 	if ParItem = nil then exit;
+
 	vlModule := TModule(ParItem.fModule);
+
 	if vlModule = nil then vlModule := TModule(fModule);
+
 	if (vlModule <> nil) and (ParItem <> vlModule) then begin
 		vlModule.ConvertPtrToCode(ParItem);
 		ParModule := vlModule.fCode;
-	end else begin
 	end;
+
 	ParNum := ParItem.fCode;
 end;
 
 procedure TObjectStream.AddModule(const ParModule:string;PArModuleObj:TModule);
 begin
-	voModuleLoadList.AddModule(parModule,ParModuleObj);
+	iModuleLoadList.AddModule(parModule,ParModuleObj);
 end;
 
 function TObjectStream.WritePst(ParPst:TString):boolean;
@@ -841,22 +844,21 @@ begin
 	end else begin
 		EmptyString(vlStr);
 	end;
-	WritePst := WriteString(vlStr);
+	exit(WriteString(vlStr));
 end;
 
 function TObjectStream.ReadPst(var ParPst:TString):boolean;
 var
 	vlStr:string;
 begin
-	ReadPst := true;
-	if ReadString(vlStr) then exit;
+	if ReadString(vlStr) then exit(true);
 	ParPst  := TString.Create(vlStr);
-	ReadPst := false;
+	exit(false);
 end;
 
 procedure TObjectStream.DoBind;
 begin
-	voModuleLoadList.DoBind;
+	iModuleLoadList.DoBind;
 end;
 
 

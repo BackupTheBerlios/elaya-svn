@@ -19,16 +19,21 @@ root_path=../../
 include $(root_path)Makefile.inc
 
 all:
-	make all -C core  
-	make all -C $(rtl_target) 
-	make all -C common 
+	$(MAKE) all -C core
+	$(MAKE) all -C $(rtl_target)
+	$(MAKE) all -C common
 
 dep:
-	make dep -C core  
-	make dep -C $(rtl_target) 
-	make dep -C common 
+	$(MAKE) dep -C core
+	$(MAKE) dep -C $(rtl_target)
+	$(MAKE) dep -C common
+
+install:
+	$(MAKE) install -C core
+	$(MAKE) install -C $(rtl_target)
+	$(MAKE) install -C common
 
 clean:
-	make clean -C core 
-	make clean -C $(rtl_target) 
-	make clean -C common 
+	$(MAKE) clean -C core
+	$(MAKE) clean -C $(rtl_target)
+	$(MAKE) clean -C common

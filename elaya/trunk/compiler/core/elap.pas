@@ -1081,30 +1081,34 @@ begin
       Procedure TELA_Parser._RCount ( var ParNode:TSubListStatementNode);
        
       var
-      vlN1,vln2,vlN3,vlN4:TFormulaNode;
-      vlNode : TCountNode;
-      vlUp   : boolean;
+      vlCount        : TFormulaNode;
+      vlNode         : TCountNode;
+      vlUp           : boolean;
+      vlEnd          : TFormulaNode;
+      vlAllOf        : TFormulaNode;
+      vlStep         : TFormulaNode;
       vlEndCondition : TFormulaNode;
+      vlBegin        : TFormulaNode;
       
       begin
              
-            vlN4   := nil;
-            vlNode := TCountNode.Create;
-            vlUp   := false;
+            vlUp           := false;
+            vlEndCondition := nil;
+            vlEnd          := nil;
+            vlAllOf        := nil;
+            vlStep         := nil;
+            vlBegin        := nil;
             ;
             _ICount;
-            _RFormula( vlN1);
-               vlNode.SetCount(vlN1); ;
+            _RFormula( vlCount);
             if (GetSym = 13) then begin
                   _IAll;
                   _IOf;
-                  _RFormula( vlN3);
-                    vlNode.SetAllOf(vlN3); ;
+                  _RFormula( vlAllOf);
             end
              else if (GetSym = 46) then begin
                   _IFrom;
-                  _RFormula( vlN2);
-                     vlNode.SetBegin(vlN2); ;
+                  _RFormula( vlBegin);
                   if (GetSym in [36 , 86]) then begin
                         if (GetSym = 86) then begin
                               _ITo;
@@ -1112,30 +1116,31 @@ begin
                         end
                          else begin
                               _IDownTo;
-                                 vlUp := false; ;
                         end
-                        ;   vlNode.Setup(vlUp); ;
-                        _RFormula( vlN3);
-                           vlNode.SetEnd(vlN3); ;
+                        ;_RFormula( vlEnd);
                   end;
-                  if (GetSym = 85) then begin
-                        _IStep;
-                        _RFormula( vlN4);
-                  end;
-                   
-                  if vlN4 = nil then vlN4 := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
-                  vlNode.SetStep(vlN4);
-                  ;
             end
             else begin
                   SynError(127);
             end;
-            ;if (GetSym = 89) then begin
+            ;if (GetSym = 85) then begin
+                  _IStep;
+                  _RFormula( vlStep);
+            end;
+            if (GetSym = 89) then begin
                   _IUntil;
                   _RExpr( vlEndCondition);
-                   	vlNode.SetEndCondition(vlEndCondition);;
             end;
              
+            vlNode := TCountNode.Create;
+            vlNode.SetCount(vlCount);
+            vlNode.SetUp(vlUp);
+            vlNode.SetAllOf(vlAllOf);
+            vlNode.SetEnd(vlEnd);
+            vlNode.SetBegin(vlBegin);
+            if vlStep = nil then vlStep := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
+            vlNode.SetStep(vlStep);
+            vlNode.SetEndCondition(vlEndCondition);
             fNDCreator.AddCurrentNode(vlNode);
             ;
             if (GetSym = 35) then begin
@@ -2699,7 +2704,7 @@ begin
       
       Procedure TELA_Parser._RNum_Or_Const_2 ( var ParVal:TValue);
         var
-          vlInValid : boolean;
+          vlValid   : boolean;
           vlNum     : TNumber;
           vlStr     : String;
           vlNeg     : boolean;
@@ -2708,7 +2713,6 @@ begin
              
             ParVal  := nil;
             vlNeg   := false;
-            vlInvalid := false;
             ;
             if (GetSym in [3 , 4 , 5 , 105 , 106]) then begin
                   if (GetSym in [105 , 106]) then begin
@@ -2720,10 +2724,9 @@ begin
                               Get;
                         end
                         ;end;
-                  _RNumberConstant( ParVal,vlInValid);
+                  _RNumberConstant( ParVal,vlValid);
                    
                   	if vlNeg then ParVal.neg;
-                  	if vlInValid then SemError(Err_int_Invalid_Number);
                   ;
             end
              else if (GetSym in [2 , 6 , 25]) then begin

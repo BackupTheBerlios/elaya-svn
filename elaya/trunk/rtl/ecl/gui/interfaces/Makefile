@@ -27,6 +27,14 @@ all_linux:
 all_win32:
 	make -C win32
 
+install: install_$(rtl_target)
+
+install_linux:
+	$(MAKE) install -C gtk
+
+install_win32:
+	$(MAKE) install -C win32
+   
 clean:
 	make -C gtk clean
 	make -C win32 clean

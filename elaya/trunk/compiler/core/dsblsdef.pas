@@ -36,7 +36,7 @@ type
 		property   fParts:TIdentList read voParts;
 		
 		procedure   SetHashingObject(Parhash:THashing);override;
-		function    Validate(ParIdent : TDefinition):TErrorType;
+		{function    Validate(ParIdent : TDefinition):TErrorType;}
 		function    Addident(Parident:TDefinition):TErrorType;override;
 		function    SearchOwner:boolean;virtual;
 		function    GetDefaultIdent(ParCode : TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
@@ -145,10 +145,10 @@ begin
 end;
 
 
-function TSubListDef.Validate(ParIdent : TDefinition):TErrorType;
+{function TSubListDef.Validate(ParIdent : TDefinition):TErrorType;
 begin
 	exit(Err_No_Error);
-end;
+end;                                                           }
 
 function TSubListDef.Addident(Parident:TDefinition):TErrorType;
 begin

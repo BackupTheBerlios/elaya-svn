@@ -583,7 +583,7 @@ type
 			vlCurrent.GetTextStr(vlName);
 			if(length(ParName) <> 0) then ParName := '/'+ParName;
 			ParName := vlName+ParName;
-			vlCurrent := TRoutine(vlCurrent).GetRealOwner
+			vlCurrent := vlCurrent.GetRealOwner
 		end;
 	end;
 	
@@ -868,10 +868,10 @@ type
 			ParItem   := nil;
 			while (vlCurrent <> nil) do begin
 				vlRes := vlCurrent.GetPtrByName(ParName,ParOption ,ParOwner,ParItem);
-			if(vlRes) and (((SO_Local in ParOption) and (ParItem.fDefAccess <> AF_Private))
-			or (ParItem.fDefAccess = AF_Public))   then begin
-					if(ParOwner =vlCurrent) then ParOwner := self;
-					break;
+				if(vlRes) and (((SO_Local in ParOption) and (ParItem.fDefAccess <> AF_Private))
+					or (ParItem.fDefAccess = AF_Public))   then begin
+						if(ParOwner =vlCurrent) then ParOwner := self;
+						break;
 				end;
 				vlCurrent := vlCurrent.fParent;
 				ParOwner := nil;

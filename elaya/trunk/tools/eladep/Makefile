@@ -24,12 +24,15 @@ include $(root_path)/Makefile.inc
 .PHONY : all clean
 
 name=eladep
-outfile=$(Dir_Program)/$(name)$(exe_ext)
+outfile=bin/$(name)$(exe_ext)
 all: $(outfile)
 
 
 $(outfile) :eladep.pas
-		$(EXE_FPC) eladep $(Opt_Fpc) -FE"$(Dir_Program)" -Fu"$(Fpc_Unit_Path)"
+		$(LIB_FPC) eladep $(Opt_Fpc) -FEbin -Fu"$(Fpc_Unit_Path)"
+
+install:
+	cp bin/eladep $(Dir_Program)
 
 clean : 
 	$(cmd_rm) $(outfile)

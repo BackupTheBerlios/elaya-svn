@@ -117,33 +117,44 @@ RCount:"count statement"<var ParNode:TSubListStatementNode>
 
 (.
  var
-	vlN1,vln2,vlN3,vlN4:TFormulaNode;
-	vlNode : TCountNode;
-	vlUp   : boolean;
+   vlCount        : TFormulaNode;
+	vlNode         : TCountNode;
+	vlUp           : boolean;
+	vlEnd          : TFormulaNode;
+	vlAllOf        : TFormulaNode;
+	vlStep         : TFormulaNode;
 	vlEndCondition : TFormulaNode;
+	vlBegin        : TFormulaNode;
 .)
 =
 (.
-	vlN4   := nil;
-	vlNode := TCountNode.Create;
-	vlUp   := false;
+	vlUp           := false;
+	vlEndCondition := nil;
+	vlEnd          := nil;
+	vlAllOf        := nil;
+	vlStep         := nil;
+	vlBegin        := nil;
  .)
-ICount RFormula<vlN1>			(.  vlNode.SetCount(vlN1); .)
-((IAll IOf RFormula<vlN3> (. vlNode.SetAllOf(vlN3); .))|(
+ICount RFormula<vlCount>
+((IAll IOf RFormula<vlAllOf>)|(
 
-IFrom  RFormula<vlN2>			(.  vlNode.SetBegin(vlN2); .)
-[((ITo					(.  vlUp := true; .))
-|(IDownTo				(.  vlUp := false; .)))
-							(.  vlNode.Setup(vlUp); .)
-RFormula<vlN3>				(.  vlNode.SetEnd(vlN3); .)]
-[IStep RFormula<vlN4>]
+IFrom  RFormula<vlBegin>
+[((ITo	(.  vlUp := true; .))
+|(IDownTo	))
+RFormula<vlEnd>]) )
+[IStep RFormula<vlStep>]
+[IUntil RExpr<vlEndCondition> ]
+
 (.
-	if vlN4 = nil then vlN4 := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
-	vlNode.SetStep(vlN4);
-.)
-))
-[IUntil RExpr<vlEndCondition> (.	vlNode.SetEndCondition(vlEndCondition);.)]
-((.
+	vlNode := TCountNode.Create;
+	vlNode.SetCount(vlCount);
+	vlNode.SetUp(vlUp);
+	vlNode.SetAllOf(vlAllOf);
+	vlNode.SetEnd(vlEnd);
+	vlNode.SetBegin(vlBegin);
+	if vlStep = nil then vlStep := TFormulaNode(fNDCreator.CreateIntNodeLOng(1));
+	vlNode.SetStep(vlStep);
+	vlNode.SetEndCondition(vlEndCondition);
 	fNDCreator.AddCurrentNode(vlNode);
 .)
 [IDo RCode<vlNode>]
@@ -151,7 +162,7 @@ RFormula<vlN3>				(.  vlNode.SetEnd(vlN3); .)]
 	ParNode := vlNode;
 	fNDCreator.EndNode;
  .)
-)
+
 .
 
 

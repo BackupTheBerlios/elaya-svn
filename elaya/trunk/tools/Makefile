@@ -19,12 +19,17 @@
 
 all	: cfgc eladep
 
-cfgc	:
+cfgc:
 	$(MAKE) all -Ccfgc
 
-eladep	:
+eladep:
 	$(MAKE) all -Celadep 
 
-clean	:
+
+install:
+	$(MAKE) install -Celadep
+	$(MAKE) install -Ccfgc
+   
+clean:
 	$(MAKE) clean -Ccfgc 
 	$(MAKE) clean -Celadep

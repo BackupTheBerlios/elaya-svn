@@ -25,17 +25,15 @@ include $(root_path)Makefile.inc
 .PHONY : all clean
 
 
-all: $(Dir_Program)/cfgc
+all: bin/cfgc
 
 
-$(Dir_Program)/cfgc :cfgc.pas
-		$(Fpc) cfgc $(Opt_Fpc) -FE$(Dir_Program) -Fu$(Dir_Cpl_Lib)
+bin/cfgc :cfgc.pas
+		$(Fpc) cfgc $(Opt_Fpc) -FEbin -Fu$(Dir_Cpl_Lib)
 
-clean : clean_$(Cpl_Target)
-
-clean_win32: 
-	$(cmd_rm) $(Dir_Program)$(Dir_Sep)cfgc.exe
-
-clean_linux :
-	rm -f $(Dir_Program)$(Dir_Sep)cfgc
+install:
+	cp bin/cfgc$(exe_ext)  $(Dir_Program)
+        
+clean :
+	rm bin/*
 
