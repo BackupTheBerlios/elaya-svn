@@ -19,11 +19,54 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit vars;
 interface
-uses varbase,Formbase,streams,elacons,compbase,types,asmcreat,progutil,stdobj,
+uses varbase,Formbase,streams,elacons,compbase,asmcreat,progutil,stdobj,
 	display,elaTypes,macObj,asmdata,elacfg,node,ddefinit,asminfo,largenum,dsblsdef;
 	
 type
+
+	TVariableBase=class(TVarBase)
+	public
+		function  Can(ParCan:TCan_Types):boolean;override;
+		function  CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+		procedure PrintDefinitionHeader(ParDIs :TDisplay);override;
+		Procedure PrintDefinitionBody(ParDis :TDisplay);override;
+	end;
+
+	TConstantVariable=class(TVariableBase)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure PrintDefinitionType(ParDis :TDisplay);override;
+
+	end;
+
+	TVariable=class(TVariableBase)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure PrintDefinitionType(ParDis :TDisplay);override;
+	end;
+
+	TTLVariable = class(TVariableBase)
+	private
+		voName         : cardinal;
+		property iName : cardinal read voName write voName;
+	protected
+		procedure Commonsetup;override;
+
+	public
+		property  fName : cardinal read voName;
+		function  CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
+	end;
 	
+	TTLVarNode  = class(TVarNode)
+	protected
+		procedure  clear;override;
+
+	public
+		constructor Create(ParType:TType);
+	end;
+
 	TConstant=class(TVarBase)
 	private
 		voVal:TValue;
@@ -79,17 +122,122 @@ type
 		function GetValue : TValue;override;
 	end;
 
-	TEnumCollection=class(TSubListDef)
-	protected
-		procedure Commonsetup;override;
-	public
-		procedure SetEnumType(ParType : TEnumType);
-	end;
 	
 	
 implementation
 
 uses execobj,ndcreat;
+
+
+{------( TConstantVariable )------------------------------------------------}
+
+procedure TConstantVariable.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode := IC_ConstantVariable;
+	iAccess := [Can_Read];
+end;
+
+procedure TConstantVariable.PrintDefinitionType(ParDis:TDisplay);
+begin
+	ParDis.Write('constant_variable');
+end;
+
+
+{------( TVariableBase )------------------------------------------------}
+
+
+
+function TVariableBase.CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;
+var vlMac : TMacBase;
+	vlStr : string;
+begin
+	Case ParOption of
+	MCO_Result:begin
+		GetMangledName(vlStr);
+		vlMac := TMemMac.Create(fType.fSize,fType.GetSign,vlStr);
+		ParCre.AddObject(vlMac);
+	end;
+	MCO_ValuePointer,MCO_ObjectPointer:begin
+		vlMac := TMemOfsMac.Create(CreateMac(ParContext,MCO_Result,ParCre));
+		ParCre.AddObject(vlMac);
+	end
+	else vlMac:= inherited CreateMac(ParContext,ParOption,ParCre);
+end;
+exit(vlmac);
+end;
+
+function TVariableBase.Can(ParCan:TCan_Types):boolean;
+begin
+	exit( inherited Can(ParCan - [Can_Pointer]));
+end;
+
+
+procedure TVariableBase.PrintDefinitionHeader(ParDis:TDisplay);
+begin
+	inherited PrintDefinitionHeader(ParDis);
+end;
+
+procedure TVariableBase.PrintDefinitionBody(ParDis:TDisplay);
+begin
+	pardis.write('<type>');
+	PrintIdentName(ParDis,fType);
+	pardis.write('</type>');
+end;
+
+{--------( TTLVarNode )----------------------------------------}
+
+
+constructor TTLVarNode.Create(ParType : TType);
+begin
+	inherited Create(TTLVariable.Create('[TRTLParameter]',ParType));
+end;
+
+
+procedure TTLVarNode.clear;
+begin
+	inherited clear;
+	if fVariable <> nil then fVariable.Destroy;
+end;
+
+
+
+{--------( TTLVariable )--------------------------------------}
+
+
+procedure TTLVariable.Commonsetup;
+begin
+	inherited commonsetup;
+	iName := GetNewResNo;
+end;
+
+
+function    TTLVariable.CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;
+var vlMac : TTLMac;
+begin
+	if ParOption =	MCO_Result then begin
+		vlMac       := TTLMac.Create(iType.fSize,iType.GetSign);
+		ParCre.AddObject(vlMac);
+		vlMac.fName := fName;
+		exit(vlMac);
+	end else begin
+		exit(inherited CreateMac(ParContext,ParOption,ParCre));
+	end;
+end;
+
+
+{------( TVariable )------------------------------------------------}
+
+procedure TVariable.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode := IC_Variable;
+	iAccess := [Can_Read,Can_Write];
+end;
+procedure TVariable.PrintDefinitionType(ParDis:TDisplay);
+begin
+	ParDis.Write('variable');
+end;
 
 
 {---( TConstantNode )-----------------------------------------------------------}
@@ -326,25 +474,6 @@ procedure TEnumCons.Commonsetup;
 begin
 	inherited Commonsetup;
 	iIdentCode := IC_EnumCons;
-end;
-{-------( TEnumCollection )------------------------------------------}
-
-procedure TEnumCollection.Commonsetup;
-begin
-	inherited Commonsetup;
-	iIdentCode     := IC_EnumCollection;
-	fParts.fGlobal := true;
-end;
-
-procedure TEnumCollection.SetEnumType(ParType : TEnumType);
-var
-	vlCurrent : TEnumCons;
-begin
-	vlCurrent := TEnumCons(fParts.fStart);
-	while vlCurrent <> nil do begin
-		vlCurrent.SetType(ParType);
-		vlCurrent := TEnumCons(vlCurrent.fNxt);
-	end;
 end;
 
 

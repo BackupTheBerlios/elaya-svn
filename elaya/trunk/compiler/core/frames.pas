@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit frames;
 interface
-uses largenum,streams,compbase,formbase,ddefinit,varbase,node,stdobj,macobj,linklist,elacons,elatypes,error,display;
+uses vars,largenum,streams,compbase,formbase,ddefinit,varbase,node,stdobj,macobj,linklist,elacons,elatypes,error,display;
 type
 	TAddressing=class(TListItem)
 	private

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit meta;
 interface
-uses macobj,stdobj,varbase,asminfo,strmbase,linklist,ddefinit,elacons,elatypes,
+uses vars,macobj,stdobj,varbase,asminfo,strmbase,linklist,ddefinit,elacons,elatypes,
 	  formbase,streams,node,frames,compbase,asmcreat,asmdata;
 type
 	TVmtItem=class(TListItem)

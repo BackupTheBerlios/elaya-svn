@@ -587,8 +587,7 @@ end;
 function TFormulaNode.Can(ParCan:TCan_Types):boolean;
 begin
 	if GetType <> nil then ParCan := ParCan - [Can_Size];
-	Can := (ParCan - [Can_read]=[]);
-	writeln(classname,Can,can_execute in ParCan);
+	exit(ParCan - [Can_read]=[]);
 end;
 
 
@@ -854,12 +853,10 @@ begin
 end;
 
 function TType.Can(ParCan:TCan_Types):boolean;
-var vlCan:boolean;
 begin
-	vlCan := true;
 	ParCan -= [Can_Type ,Can_Size];
-		Can := vlCan and inherited Can(ParCan);
-	end;
+	exit(inherited Can(ParCan));
+end;
 	
 procedure TType.COmmonSetup;
 begin

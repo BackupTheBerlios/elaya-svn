@@ -1,4 +1,4 @@
-{Copyright (C) 1999-2004  J.v.Iddekinge.
+{Copyright (C) 1999-2004 [5~5~ J.v.Iddekinge.
 Web   : www.elaya.org
 
 This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit cblkbase;
 interface
-uses rtnenp,confval,meta,objlist,largenum,strmbase,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata,
+uses vars,rtnenp,confval,meta,objlist,largenum,strmbase,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata,
 	varuse,progutil,params,node,elacons,pocobj,stdobj,macobj,formbase,varbase,asminfo,elatypes,error,elacfg,ddefinit;
 	
 type
@@ -287,7 +287,7 @@ type
 			{Meta}
 			procedure  CloneVmtFromParent;
 			procedure  SetupMeta(ParCre :TCreator);
-			
+
 			function   MustNameAddAsOwner:boolean; override;
 			procedure  GetForParentMangleName(var ParName : string);override;
 			procedure  DoneRoutine(ParCre : TSecCreator);
@@ -674,7 +674,7 @@ type
 		exit(vlOwn);
 	end;
 	
-	
+
 	function  TRoutine.GetRoutineOwner : TDefinition;
 	var vlOwn : TDefinition;
 	begin
@@ -1664,7 +1664,7 @@ type
 	
 	function TRoutine.Can(ParCan:TCan_Types):boolean;
 	begin
-		if IsExecutableRoutine then Parcan := ParCan - [Can_Execute];
+		if IsExecutableRoutine then ParCan := ParCan - [Can_Execute];
 		exit( inherited Can(ParCan-[Can_Pointer]));
 	end;
 	

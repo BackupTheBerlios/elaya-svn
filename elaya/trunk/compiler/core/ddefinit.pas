@@ -660,7 +660,7 @@ end;
 
 function TDefinition.Can(ParCan:TCan_Types):boolean;
 begin
-	Can := (ParCan = []);
+	exit(ParCan = []);
 end;
 
 

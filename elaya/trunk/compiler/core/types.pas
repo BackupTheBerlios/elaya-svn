@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit types;
 
 interface
-uses frames,largenum,varbase,strmbase,streams,compbase,linklist,display,error,elacons,stdobj,ddefinit,
+uses vars,dsblsdef,frames,largenum,varbase,strmbase,streams,compbase,linklist,display,error,elacons,stdobj,ddefinit,
 elatypes,pocobj,macobj,node,formbase,progutil,asminfo,cmp_type,elacfg,simplist,varuse;
 	
 type
@@ -271,7 +271,15 @@ type
 		function    IsDominant(ParType:TType):TDomType;override;
 		constructor Create;
 	end;
-	
+
+	TEnumCollection=class(TSubListDef)
+	protected
+		procedure Commonsetup;override;
+	public
+		procedure SetEnumType(ParType : TEnumType);
+	end;
+
+
 	TForwardList=class(TSMTextList)
 		procedure AddBind(const ParName:string;ParBind:TPtrType);
 		procedure Bind(ParCreat:TCreator);
@@ -354,6 +362,26 @@ type
 implementation
 
 uses NdCreat,procs,classes;
+{-------( TEnumCollection )------------------------------------------}
+
+procedure TEnumCollection.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode     := IC_EnumCollection;
+	fParts.fGlobal := true;
+end;
+
+procedure TEnumCollection.SetEnumType(ParType : TEnumType);
+var
+	vlCurrent : TEnumCons;
+begin
+	vlCurrent := TEnumCons(fParts.fStart);
+	while vlCurrent <> nil do begin
+		vlCurrent.SetType(ParType);
+		vlCurrent := TEnumCons(vlCurrent.fNxt);
+	end;
+end;
+
 {---( TType )------------------------------------------------------}
 
 procedure TBooleanType.CommonSetup;

@@ -981,11 +981,7 @@ begin
              else if (GetSym in [8 , 37]) then begin
                    
                   if vlDigiL <> nil then ParExp :=TFormulaNode(vlDigiL.CreateExecuteNode(fNDCreator));
-                  if (ParExp = nil) then begin
-                  	ErrorText(Err_Cant_Execute,'');
-                  end else begin
-                  	if not( ParExp.can([can_execute])) then ErrorText(Err_Cant_Execute,'');
-                  end;
+                  if (ParExp = nil) then ErrorText(Err_Cant_Execute,'');
                   ;
             end
             else begin

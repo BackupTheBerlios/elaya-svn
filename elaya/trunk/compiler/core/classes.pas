@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit classes;
 interface
-uses meta,varbase,elacfg,confval,elatypes,params,strmbase,macobj,
+uses vars,meta,varbase,elacfg,confval,elatypes,params,strmbase,macobj,
 	node,frames,elacons,compbase,cblkbase,types,display,formbase,streams,
 	asminfo,error,ddefinit,ndcreat,procs,largenum,stdobj,asmcreat,asmdata,
 	linklist;
