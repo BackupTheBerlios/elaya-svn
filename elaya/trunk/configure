@@ -27,16 +27,8 @@ function help()
 	exit
 }
 
-function check_has_errno()
-{
-	cd build_files
-	if fpc errno.pas 1>errno.out.1 2>errno.out.2;
-	then lhas_errno=1;
-	else lhas_errno=0;
-	fi
-	cd ..
-	return $lhas_errno
-}
+
+echo "config started" >config.log
 
 if test $HOME = "/"; then HOME=`pwd`;fi;
 vlHost=""
@@ -63,11 +55,12 @@ echo "Host platform = $vlHost"
 echo "Target        = $vlTarget"
 echo "Assembler path= $vlAsPath"
 
-source param.$vlHost
+cd build_files/programs
+sh conf.$vlHost $vlTarget
+cd ../..
+source config/config_conf.$vlHost.$vlTarget
+source build_files/config/param.$vlHost.$vlTarget
 
-check_has_errno
-has_errno=$?
-echo "Has errno     = $has_errno"
 
 Dir_Program=$HOME/bin/elaya/bin
 Dir_Cpl_Lib=$HOME/bin/lib
@@ -89,42 +82,46 @@ Fpc_Opt_Unit_Path="/home/jeroen/fpc/"
 
 # Main Program1
 
-echo Fpc_Opt_Unit_Path=$Fpc_Opt_Unit_Path>Values.tpl
-echo Dir_Cpl_Lib=$Dir_Cpl_Lib>>Values.tpl
-echo Dir_Program=$Dir_Program>>Values.tpl
-echo Dir_linux_Rtl=$Dir_Ela_Rtl/linux>>Values.tpl
-echo Dir_win32_Rtl=$Dir_Ela_Rtl/win32>>Values.tpl
-echo Dir_Ela_Rtl_Base=$Dir_Ela_Rtl>>Values.tpl
-echo Os_Host=$vlHost>>Values.tpl
-echo Os_Target=$vlTarget>>Values.tpl
-echo Opt_Fpc=$Opt_Fpc>>Values.tpl
-echo Fpc=$Fpc>>Values.tpl
-echo ELA=$ela>>Values.tpl
-echo Opt_Ela=$Opt_Ela>>Values.tpl
-echo Rtl_Target=$Rtl_Target>>Values.tpl
-echo Can_Cross_Compile=$Can_Cross_Compile>>Values.tpl
-echo Cpl_Target=$Cpl_Target>>Values.tpl
-echo cmd_rm=$cmd_rm>>Values.tpl
-echo cmd_cp=$cmd_cp>>Values.tpl
-echo Dir_Dirt=./bin>>Values.tpl
-echo Dir_Sep=/>>Values.tpl
-echo Dir_Linux_As=$Dir_Linux_As>>Values.tpl
-echo Dir_Linux_Ld=$Dir_Linux_Ld>>Values.tpl
-echo Dir_Win32_As=$Dir_Win32_As>>Values.tpl
-echo Dir_Win32_Ld=$Dir_Win32_Ld>>Values.tpl
-echo linux_auto_load=$linux_auto_load>>Values.tpl
-echo win32_auto_load=$win32_auto_load>>Values.tpl
-echo pp_unit_ext=$pp_unit_ext>>Values.tpl
-echo eladep=$eladep>>Values.tpl
-echo exe_ext=$exe_ext>>Values.tpl
+build_conf_gen="config/build_conf.gen"
+
+echo "os_host=$vlHost" >>$build_conf_gen
+
+build_conf="config/build_conf.$vlHost.$vlTarget"
+
+echo Fpc_Opt_Unit_Path=$Fpc_Opt_Unit_Path>$build_conf
+echo Dir_Cpl_Lib=$Dir_Cpl_Lib>>$build_conf
+echo Dir_Program=$Dir_Program>>$build_conf
+echo Dir_Rtl=$Dir_Ela_Rtl/$vlTarget>>$build_conf
+echo Dir_Ela_Rtl_Base=$Dir_Ela_Rtl>>$build_conf
+echo Os_Host=$vlHost>>$build_conf
+echo Os_Target=$vlTarget>>$build_conf
+echo Opt_Fpc=$Opt_Fpc>>$build_conf
+echo Fpc=$Fpc>>$build_conf
+echo ELA=$ela>>$build_conf
+echo Opt_Ela=$Opt_Ela>>$build_conf
+echo Rtl_Target=$Rtl_Target>>$build_conf
+echo Can_Cross_Compile=$Can_Cross_Compile>>$build_conf
+echo Cpl_Target=$vlHost>>$build_conf
+echo cmd_rm=$cmd_rm>>$build_conf
+echo cmd_cp=$cmd_cp>>$build_conf
+echo Dir_Dirt=./bin>>$build_conf
+echo Dir_Sep=/>>$build_conf
+echo Dir_as=$conf_as_path>>$build_conf
+echo Dir_ld=$conf_ld_path>>$build_conf
+echo auto_load=$_auto_load>>$build_conf
+echo pp_unit_ext=$pp_unit_ext>>$build_conf
+echo eladep=$eladep>>$build_conf
+echo exe_ext=$exe_ext>>$build_conf
 
 
 mkdir -p $Dir_Program
 mkdir -p $Dir_Cpl_Lib
 mkdir -p $Dir_Ela_Rtl
-mkdir -p $Dir_Ela_Rtl/linux
-mkdir -p $Dir_Ela_Rtl/win32
+mkdir -p $Dir_Ela_Rtl/$vlTarget
 mkdir -p dirt
+
+sh build_files/programs/mkelamake.sh <build_files/config/eladirs.db >>config.log
+
 
 echo
 echo FEEDBACK FEEDBACK FEEDBACK

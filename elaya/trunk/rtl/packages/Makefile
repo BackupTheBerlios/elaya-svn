@@ -1,5 +1,5 @@
-include ../../Values.tpl
-include ../../Makefile.inc
+root_path=../../
+include $(root_path)Makefile.inc
 
 
 .PHONY: all debug native clean oth_linux oth_win32 eel cgi mysl gtk mysql
@@ -13,8 +13,8 @@ all:	oth_$(rtl_target) debug native eel cgi math
 math:
 	$(MAKE) all -C math
 
-debug:
-	$(MAKE) all -C debug
+
+
 eel:
 	$(MAKE) all -C eel
 cgi: eel

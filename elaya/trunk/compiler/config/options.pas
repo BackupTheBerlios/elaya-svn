@@ -155,20 +155,23 @@ begin
 	writeln('                 d = Delete assembler file (Default)');
 	writeln('                 D = Don''t delete Assembler file');
 	writeln('-c<filename>   = Configuration Filename(default ''ela.cfg'')');
-	writeln('-C[u]		    = checks');
-	writeln('				  u = Trace variable use');
+	writeln('-C[u]          = checks');
+	writeln('				     u = Trace variable use');
 	writeln('-d             = Generate debug info');
 	writeln('-D<name>=<value>=define config variable an value');
 	writeln('-e             = GNU style errors');
 	writeln('-h	            = Print options help');
-	writeln('-l             = Generate lis file');
-	writeln('	          n=Print node/POC list file');
-	writeln('	          N=Turnoff printing node/POC list file');
-	writeln('-O		= Optimize');
-	writeln('		  k=Optimize register use:');
-	writeln('		    1=Reuse register contents');
+	writeln('-l[nN]         = Generate lis file');
+	writeln('	              n=Print node/POC list file');
+	writeln('	              N=Turnoff printing node/POC list file');
+	writeln('-O[k]          = Optimize');
+	writeln('		           k=Optimize register use:');
+	writeln('  		          k1=Reuse register contents');
 	writeln('-r      = rebuild, when source has changed or unit versions dont match');
 	{	writeln('	          b = Rebuild all programs'); }
+	writeln('-u             =Unit options');
+	writeln('                n=don''''autoload units');
+	writeln('-o <path>      = set output object path');
 	writeln('-v[clarefpAswotEB]= set verbose level');
 	writeln('		  c = Used config file   s = Source file');
 	writeln('		  l = Loading unit	 w = What I do');
@@ -379,10 +382,28 @@ begin
 	exit(false);
 end;
 
+
+function HandleUnitOptions(const ParParameter: string) : boolean;
+var
+	vlCnt : cardinal;
+begin
+	vlCnt := 1;
+	if length(ParParameter) = 0 then exit(true);
+   while (vlCnt <= length(ParParameter)) do begin
+		case ParParameter[vlCnt] of
+		'n':GetOptionValues.SetAutoLoad(false,CL_Options);
+		else exit(true);
+		end;
+		inc(vlCnt);
+	end;
+	exit(false);
+end;
+
 function GetParameters:boolean;
 var vlCnt   : cardinal;
 	vStr    : string;
 	vlParam : String;
+	vlTarget: string;
 begin
 	GetParameters := false;
 	vlCnt         := 0;
@@ -391,6 +412,10 @@ begin
 		if vstr[1]='-' then begin
 			vlParam := copy(vStr,3,length(vStr) - 2);
 			case vStr[2] of
+				'o':begin
+						if GetParParameter(vlCnt,vlParam) then exit(true);
+						GetOptionValues.SetOutputObjectPath(vlParam,CL_Options);
+         		end;
 				'O':if HandleOptimize(vlParam) then GetParameters := true;
 				'C':if HandleCheck(vlParam) then GetParameters := true;
 				't':begin
@@ -418,6 +443,9 @@ begin
 				end;
 				'h':PrintOptions;
 				'l':if HandleNodeListing(vlParam) then GetParameters := true;
+				'u':if HandleUnitOptions(vlParam) then begin
+					GetParameters := true;
+				end;
 				'r':begin
 					GetOptionValues.SetRebuild(true,CL_Options);
 					GetParameters := length(vStr)>3;
@@ -444,7 +472,11 @@ begin
 
 	until vlCnt > paramcount;
 	if (not GetOptionValues.IsInputfileSet) and (vlCnt <> 0) then exit(true);
-	if GetOptionValues.fConfigFIle    = nil then GetOptionValues.SetConfigFIle('ela.cfg',cl_Options);
+	if GetOptionValues.fConfigFIle    = nil then begin
+		GetOptionValues.GetTargetOsStr(vlTarget);
+		if length(vlTarget) = 0 then vlTarget:=DEF_Operating_System;
+		GetOptionValues.SetConfigFIle('ela'+vlTarget+'.cfg',cl_Options);
+	end;
 end;
 
 

@@ -1,6 +1,7 @@
 .PHONY: all clean
-include ../../../../Values.tpl
-include ../../../../Makefile.inc
+
+root_path=../../../../
+include $(root_path)Makefile.inc
 
 all: all_$(rtl_target)
 all_win32:

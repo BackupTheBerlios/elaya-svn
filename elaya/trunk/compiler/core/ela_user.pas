@@ -666,21 +666,23 @@ var
 begin
 	ParError := true;
 	ParNewCB := nil;
-	if ParRoutine = nil then exit;
-	ParRoutine.GetPtrByName(ParName,[SO_Local],vlOwner,vlOther);
-	if (vlOther = nil) then begin
-		ErrorText(Err_Unkown_Ident,ParName)
-	end else if not (vlOther is TRoutineCollection) then begin
-		SemError(Err_Not_A_Routine);
-	end else begin
-		vlOtherCB :=  vlOther.GetFirstRoutine;
-		ParNewCB  := vlOtherCB.CreateShortSubCb(fNDCreator);
-		if ParNewCB=nil then begin
-			ErrorText(Err_Int_Cant_Make_new_Sub,ParName);
+	if ParRoutine <> nil then begin
+		ParRoutine.GetPtrByName(ParName,[SO_Local],vlOwner,vlOther);
+		if (vlOther = nil) then begin
+			ErrorText(Err_Unkown_Ident,ParName)
+		end else if not (vlOther is TRoutineCollection) then begin
+			SemError(Err_Not_A_Routine);
 		end else begin
-			ParError := false;
+			vlOtherCB :=  vlOther.GetFirstRoutine;
+			ParNewCB  := vlOtherCB.CreateShortSubCb(fNDCreator);
+			if ParNewCB=nil then begin
+				ErrorText(Err_Int_Cant_Make_new_Sub,ParName);
+			end else begin
+				ParError := false;
+			end;
 		end;
 	end;
+	if(ParNewCb = nil) then ParNewCB := TProcedureObj.Create(ParName);
 end;
 
 

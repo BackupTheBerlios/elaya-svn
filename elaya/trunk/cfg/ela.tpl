@@ -64,72 +64,21 @@ SECTION(Target_Platform='linux')
 	Rtl_Sub_Dir := Target_PlatForm;
 END;
 
-{target win32 Os}
 
-SECTION(Target_Platform='win32')
-         t_Is_Win32:='y';
-	Linker_options:='--subsystem console';
-END;
-
-SECTION(Target_Platform='gui32')
-         t_is_win32:='y';
-	Linker_options:='--subsystem windows';
-END;
-
-SECTION(Target_Platform='dll32')
-	t_is_win32:='y';
-	Linker_options:='--subsystem dll';
-END;
-
-SECTION(t_is_win32='y')
-	t_os_ok:='y';
-	Rtl_Sub_Dir := 'win32';
-END;
-
-SECTION(operating_system = 'linux')
+SECTION (oprating_system = 'linux')
 	Object_Path := '@Dir_Ela_Rtl_Base@/'+Rtl_Sub_Dir;
 END;
 
-SECTION (operating_system='win32')
-	object_Path :=Compiler_Dir +'../lib/' +Rtl_Sub_Dir;
-END;
-{host x target}
 
 
 SECTION(operating_system='linux')
 
-
-      SECTION(t_is_win32='y')
-	Assembler_Path    := '/usr/local/bin/asw';
-	Linker_Path       := '/usr/local/bin/ldw';
-	Req_Cross_Compile := 'y';
-      END;
-
-      SECTION(Target_Platform='linux')
-      	Assembler_Path     := '/usr/bin/as';
-	Linker_Path        := '/usr/bin/ld';
-      END;
+      	Assembler_Path     := '@Dir_as@';
+	Linker_Path        := '@Dir_ld@';
 END;
 
-SECTION(operating_system='win32')
-	SECTION(t_is_win32='y')
-	 Assembler_Path := 'asw';
-	 Linker_Path    := 'ldw';
-	END;
-	
-	SECTION(Target_Platform='linux')
-	  t_os_ok :='n';
-	END;
-END;
 
 {Error Checking}
 
-SECTION(t_os_ok='n')
-    fail('Target operating system should be : linux,gui32,dll32 or win32, but not:'+Target_Platform);
-END;
-
-SECTION(can_cross_compile='n' Req_cross_compile='y')
-    fail('Target '+Target_Platform+' not supported');
-END;
 
 END;

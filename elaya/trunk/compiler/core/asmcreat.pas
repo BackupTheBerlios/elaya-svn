@@ -89,7 +89,7 @@ begin
 	if GetConfigValues.fRunAssembler then begin
 		Verbose(VRB_what_I_do,'Starting assembler');
 		GetNameStr(vlAsmName);
-		GetConfig.GetOutputObjectPath(vlObjOut);
+		GetConfigValues.GetOutputObjectPath(vlObjOut);
 		vlAsm := GetAssemblerInfo.CreateAsmExec(vlAsmName,vlObjOut);
 		if vlAsm.Execute<> ERR_No_Error then vlErr := Err_Assembler_Failed;
 		vlAsm.Destroy;

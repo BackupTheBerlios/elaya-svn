@@ -1,7 +1,8 @@
 .PHONY: all clean all_main clean_main
 
-include ../Values.tpl
-include ../Makefile.inc
+
+root_path=../
+include $(root_path)Makefile.inc
 
 vpath %.ppu $(Dir_Cpl_Lib) $(Dir_Dirt)
 vpath %.ppw $(Dir_Cpl_Lib) $(Dir_Dirt)

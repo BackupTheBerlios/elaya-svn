@@ -57,23 +57,56 @@ public
 	operator (const ParA:str255) <  (const ParB:str255) : boolean;overload;
 	operator (const ParA:str255) <> (const ParB:str255) : boolean;overload;
 	function AsciizLength(const ParAsc : Asc):long;
-	operator (const ParHaystack : string) contains (const ParNeedle:string) : boolean;
-	operator (const ParString   : string) starts_with (const ParStarter : string):boolean;
+	operator (const ParHaystack : string) contains (ParNeedle:char):boolean;overload;
+	operator (const ParHaystack : string) contains (const ParNeedle:string) : boolean;overload;
+	operator (const ParString   : string) starts_with (const ParStarter : string):boolean;overload;
+	operator (const ParString   : string) ends_with (const ParEnd : string):boolean;overload;
+	operator (const ParString   : string) ends_with (const ParEnd : char):boolean;overload;
 end public
 
 {---( String commands )------------------------------------------------------------}
 
-operator (const ParHaystack : string) contains (const ParNeedle:string) : boolean;
+operator (const ParHaystack : string) contains (ParNeedle:char):boolean;overload;
+begin
+	exit(Pos(ParNeedle,ParHayStack)> 0);
+end;
+
+operator (const ParHaystack : string) contains (const ParNeedle:string) : boolean;overload;
 begin
 	exit(Pos(ParNeedle,ParHayStack) > 0);
 end;
 
-operator (const ParString   : string) starts_with (const ParStarter : string):boolean;
+operator (const ParString : string) starts_with (const ParStarter : char) : boolean;overload;
+begin
+	if (ParString.length >0) then begin
+     	exit(ParString[1] = ParStarter);
+   end;
+   exit(false);
+end;
+
+operator (const ParString   : string) starts_with (const ParStarter : string):boolean;overload;
 begin
 	if(ParStarter.length > 0) then begin
 		exit(copy(ParString,1,ParStarter.length)=ParStarter);
 	end;
 	exit(false);
+end;
+
+operator (const ParString   : string) ends_with (const ParEnd : string):boolean;overload;
+begin
+	if(ParEnd.length > 0) and (ParEnd.length <= ParString.length) then begin
+     	exit(copy(ParString,ParString.length - ParEnd.length + 1,ParEnd.length)=ParEnd);
+   end;
+   exit(false);
+end;
+
+
+operator (const ParString : string) ends_with (const ParEnd : char):boolean;overload;
+begin
+    if(ParString.length >1) then begin
+		exit(ParString[ParString.length] = ParEnd);
+    end;
+    exit(false);
 end;
 
 procedure MoveAsciizString(const ParSource:str255;var ParDest:Asc255);

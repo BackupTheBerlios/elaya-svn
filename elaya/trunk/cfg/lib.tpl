@@ -58,7 +58,7 @@ SECTION(Target_Platform='linux')
 	MySql_Lib_Name     := 'libmysqlclient.so';
 	MySql_Lib_CallType := 'CDecl';
 	Can_Use_Dll	 := 'N';
-	Output_Object_Path   := Object_Path_base+'/linux';
+	Output_Object_Path   :='@Dir_Rtl@';
 	Is_Elf_Target := 'Y' ;
 
 
@@ -69,75 +69,18 @@ SECTION(Target_Platform='linux')
 
 	object_Path	     := Output_Object_Path;
 
-         t_os_ok:='y';
 END;
 
 
-SECTION(Target_Platform='win32')
-	t_is_Win32:='y';
-END;
-
-SECTION(Target_Platform='gui32')
-         Linker_options:='--subsystem windows';
-	t_is_Win32:='y';
-END;
-
-SECTION(Target_Platform='dll32')
-	Linker_options:='-subsystem dll';
-         t_is_Win32:= 'y';
-END;
 
 SECTION(operating_system='linux')
 	SECTION(Target_Platform='linux')
-		Assembler_Path  := '/usr/bin/as';
+		Assembler_Path  := '@Dir_as@';
 	END;
 	
-	SECTION(t_is_win32='y')
-		Assembler_Path := '/usr/local/bin/asw';
-		Req_Cross_Compile := 'y';
-	END;
-END;
-
-SECTION(operating_system='win32')
-	SECTION(t_is_win32='y')
-		Assembler_Path := 'asw';
-	END;
-	
-	SECTION(Target_Platform='linux')
-		t_os_ok := 'n';
-	END;
 END;
 
 
-SECTION(t_is_Win32='y')
-	Output_Object_Path   := Object_Path_base+'/win32';
-	object_Path	     := Output_Object_Path;
-
-	MySql_Lib_Type      := 'DLL';
-	MySql_Lib_Name      := 'mysql.dll';
-	MySql_Lib_CallType  := 'normal';
-	Kernel_Lib_Type     := 'DLL';
-	Kernel_Lib_Name	  := 'kernel32.dll';
-	Kernel_Lib_CallType := 'normal';
-	Can_Use_Dll         := 'Y';
-
-        SECTION(source_Name='win32op')
-		Auto_LOad := '';
-	END;
-
-	SECTION(source_name='win32procs')
-		Auto_Load := '';
-	END;
-	SECTION(source_name='win32types')
-		Auto_Load := '';
-	END;
-
-	SECTION(source_name='win32gui')
-		Auto_Load := '';
-	END;
-
-        t_os_Ok:='y';
-END;
 
 
 SECTION(source_name='strings') 
@@ -168,12 +111,5 @@ SECTION(source_name='sockets')
 	Auto_Load := '';
 END;
 
-SECTION(t_os_ok='n')
-	fail('Target operating system must be:linux or for windows win32,gui32 or dll32');
-END;
-
-SECTION(Can_Cross_Compile='n'  Req_Cross_Compile='y')
-	fail('Target '+Target_Platform+' not supported');
-END;
 
 END;

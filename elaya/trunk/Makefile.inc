@@ -15,9 +15,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+include $(root_path)config/build_conf.gen
+
 ifndef rtl_target
-      rtl_target=$(Rtl_Target)
+      rtl_target=$(os_host)
 endif
+
+include $(root_path)config/build_conf.$(os_host).$(rtl_target)
 
 ifeq ($(Cpl_Target),win32)
 	a=$(shell rename *.PAS *.pas)

@@ -53,10 +53,14 @@ type
 		voCanUseDllLevel     : cardinal;
 		voOptimizeModes      : TOptimizeModes;
 		voOptimizeModesLevel : cardinal;
-		voVarUseCheck		 : boolean;
+		voVarUseCheck		   : boolean;
 		voVarUseCheckLevel   : cardinal;
-		voGenerateDebug      :boolean;
+		voGenerateDebug      : boolean;
 		voGenerateDebugLevel : cardinal;
+		voAutoload           : boolean;
+		voAutoloadLevel      : cardinal;
+		voOutputObjectPath   : TString;
+		voOutputObjectPathlevel : cardinal;
 		property iRebuildLevel       : cardinal read voRebuildLevel	  write voRebuildLevel;
 		property iOptimizeModesLevel : cardinal read voOptimizeModesLevel write voOptimizeModesLevel;
 		property iConfigFileLevel    : cardinal read voCOnfigFIleLevel	  write voConfigFileLevel;
@@ -72,6 +76,8 @@ type
 		property iGnuStyleErrorsLevel: cardinal read voGnuStyleErrorsLevel write voGnuStyleErrorsLevel;
 		property iVarUseCheckLevel   : cardinal read voVarUseCheckLevel    write voVarUseCheckLevel;
 		property iGenerateDebugLevel : cardinal read voGenerateDebugLevel  write voGenerateDebugLevel;
+		property iAutoLoadLevel      : cardinal read voAutoloadLevel       write voAutoloadLevel;
+		property iOutputObjectPathLevel : cardinal read voOutputObjectPathLevel write voOutputObjectPathLevel;
 	protected
 		property iRebuild       : boolean        read voRebuild       write voRebuild;
 		property iOptimizeModes : TOptimizeModes read voOptimizeModes write voOptimizeModes;
@@ -88,6 +94,8 @@ type
 		property iGnuStyleErrors: boolean        read voGnuStyleErrors write voGnuStyleErrors;
 		property iVarUseCheck   : boolean        read voVarUseCheck   write voVarUSeCheck;
 		property iGenerateDebug : boolean        read voGenerateDebug write voGenerateDebug;
+		property iAutoload      : boolean        read voAutoLoad      write voAutoload;
+		property iOutputObjectPath : TString     read voOutputObjectPath write voOutputObjectPath;
 		function  CreateConfigValuesObject : TConfigValues ;virtual;
 		procedure Commonsetup;override;
 		procedure Clear;override;
@@ -109,7 +117,11 @@ type
 		property fGnuStyleErrors: boolean        read voGnuStyleErrors;
 		property fVarUSeCheck   : boolean        read voVarUseCheck;
 		property fGenerateDebug : boolean        read voGenerateDebug;
+		property fAutoload      : boolean        read voAutoload;
 
+
+		procedure SetOutputObjectPath(const ParPath : string;ParLevel : cardinal);
+		procedure GetOutputObjectPath(var ParPath : string);
 		procedure SetGenerateDebug(ParGenerateDebug : boolean;ParLevel : cardinal);
 		procedure SetNodeListing(ParNodeLIsting : boolean;ParLevel : cardinal);
 		procedure SetRebuild(ParRebuild : boolean;ParLevel : cardinal);
@@ -130,6 +142,7 @@ type
 		procedure SetOptimizeModes(const ParOptimizeModes : TOptimizeModes;ParLevel : cardinal);
 		procedure SetGnuStyleErrors(const ParGnuStyleErrors : boolean;ParLevel : cardinal);
 		procedure SetVarUseCheck(ParVarUseCheck : boolean;ParLevel : cardinal);
+		procedure SetAutoLoad(ParAutoload : boolean;ParLevel : cardinal);
 		procedure GetTargetOsStr(var ParOs: string);
 		function  CloneValues : TCOnfigValues ;virtual;
 	end;
@@ -174,6 +187,24 @@ end;
 
 {---( TConfigValues )-------------------------------------------------------------------------------}
 
+
+procedure TConfigValues.SetOutputObjectPath(const ParPath : string;ParLevel : cardinal);
+begin
+	if ParLevel >=iOutputObjectPathLevel then begin
+		if iOutputObjectPath <> nil then iOutputObjectPath.Destroy;
+		iOutputObjectPath := TString.Create(ParPath);
+		iOutputObjectPathLevel := ParLevel;
+	end;
+end;
+
+procedure TConfigValues.GetOutputObjectPath(var ParPath : string);
+begin
+	if iOutputObjectPath <> nil then begin
+		iOutputObjectPath.GetString(ParPath);
+	end else begin
+		SetLength(ParPath,0);
+	end;
+end;
 procedure TConfigValues.SetGenerateDebug(ParGenerateDebug : boolean;ParLevel : cardinal);
 begin
 	if ParLevel >= iGenerateDebugLevel then begin
@@ -321,6 +352,7 @@ begin
 	vlVal.SetGnuStyleErrors(iGnuStyleErrors,iGnuStyleErrorsLevel);
 	vlVal.SetVarUseCheck(iVarUseCheck,iVarUseChecklevel);
 	vlVal.SetGenerateDebug(iGenerateDebug,iGenerateDebugLevel);
+	vlVal.SetAutoload(iAutoload,iAutoloadlevel);
 	exit(vlVal);
 end;
 
@@ -382,6 +414,14 @@ begin
 	end;
 end;
 
+procedure TConfigValues.SetAutoLoad(ParAutoload : boolean;ParLevel : cardinal);
+begin
+	if ParLevel >= iAutoloadLEvel then begin
+		iAutoload := ParAutoload;
+		iAutoLoadLevel := ParLevel;
+	end;
+end;
+
 
 procedure TConfigValues.Commonsetup;
 begin
@@ -398,6 +438,7 @@ begin
 	iGnuStyleErrorsLevel:= CL_None;
 	iVarUseCheckLevel   := CL_None;
 	iGenerateDebugLevel := CL_None;
+	iAutoLoadLevel      := CL_None;
 	iConfigFile         := nil;
 	iInputFile          := nil;
 	iHostOs             := TString.Create(DEF_Operating_System);
@@ -413,6 +454,7 @@ begin
 	iGnuStyleErrors     := false;
 	iVarUseCheck        := false;
 	iGenerateDebug      := false;
+	iAutoload           := true;
 end;
 
 

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit NDCreat;
 interface
 uses largenum,streams,sysutils,stdobj,files,compbase,idlist,DSbLsDef,node,elatypes,formbase,progutil,asminfo,ddefinit,cmp_type,
-	hashing,types,elacons,cmp_base,elacfg,module,error,curitem;
+	hashing,types,elacons,cmp_base,elacfg,module,error,curitem,confval;
 	
 type
 	
@@ -518,7 +518,7 @@ var vlCnt:cardinal;
 	vlStr:String;
 begin
 	vlCnt :=1;
-	while not GetConfig.GetAutoLoad(vlCnt,vlStr) do begin
+	while (not GetConfig.GetAutoLoad(vlCnt,vlStr)) and (GetConfigValues.fAutoload) do begin
 		if length(vlStr) <> 0 then begin
 			AddUnitInUse(vlStr);
 			verbose(VRB_Auto_Load,'Auto loading :'+vlStr);

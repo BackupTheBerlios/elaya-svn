@@ -1,5 +1,5 @@
-include ../../../Values.tpl
-include ../../../Makefile.inc
+root_path=../../../
+include $(root_path)Makefile.inc
 
 all:
 	make  all -C$(rtl_target)

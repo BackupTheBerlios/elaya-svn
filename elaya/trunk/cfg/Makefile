@@ -1,11 +1,12 @@
-include ../Values.tpl
-include ../Makefile.inc
+root_path=../
+
+include $(root_path)/Makefile.inc
 
 .PHONY : all clean
 
 all  :
-	$(Dir_Program)/cfgc ela.tpl ../Values.tpl $(Dir_Program)/ela.cfg
-	$(Dir_Program)/cfgc lib.tpl ../Values.tpl $(Dir_Program)/lib.cfg
+	$(Dir_Program)/cfgc ela.tpl $(root_path)/config/build_conf.$(os_host).$(rtl_target) $(Dir_Program)/ela.cfg
+	$(Dir_Program)/cfgc lib.tpl $(root_path)/config/build_conf.$(os_host).$(rtl_target) $(Dir_Program)/lib.cfg
 
 clean:
 

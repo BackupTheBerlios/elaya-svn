@@ -479,9 +479,7 @@ var
 	CreateShortSubCB(ParRoutine,vlName,vlRoutine,vlError);
 .)
 [RParamDef<vlRoutine>])
-(.
-	if not vlError then vlPrn := ProcessShortSubCb(vlRoutine);
-.)
+(. vlPrn := ProcessShortSubCb(vlRoutine); .)
 )
 ":"
 (

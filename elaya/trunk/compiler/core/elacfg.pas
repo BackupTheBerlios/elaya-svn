@@ -37,15 +37,16 @@ type
 		procedure   CommonSetup;override;
 		procedure   Clear;override;
         property iIsElfTarget : boolean read voIsElfTarget write voIsElfTarget;
+
 	public
 		
 		property  fAlign           : TSize   read voAlign;
 		property  fIsElfTarget     : boolean read voIsElfTarget;
+		procedure GetOutputObjectPath(var ParPath:string);
 		procedure GetAssemblerOptions(var ParOptions : string);
 		procedure GetLinkerOptions(var ParOptions:string);
 		function  GetLinkerPAth:TString;
 		procedure GetLinkerPathStr(var ParPath:string);
-		procedure GetOutputObjectPath(var ParPath:string);
 		function  GetObjectPath(var ParOut:String):boolean;
 		function  GetAutoLoad(ParNo : cardinal;var ParOut:string):boolean;
 		function  GetPart(const ParIn:string;ParNo : cardinal;var ParOut:string):boolean;
@@ -112,6 +113,7 @@ begin
 	GetObjectPath := true;
 	if GetVarValue(Conf_Object_Path,vlStr) then ParOut := vlStr;
 end;
+
 
 function TElaConfig.GetAutoLoad(parNo : cardinal;var ParOut:String):boolean;
 var vlStr:string;

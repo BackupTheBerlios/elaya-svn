@@ -307,9 +307,7 @@ begin
             if (GetSym = 103) then begin
                   _RParamDef( vlRoutine);
             end;
-             
-            if not vlError then vlPrn := ProcessShortSubCb(vlRoutine);
-            ;
+              vlPrn := ProcessShortSubCb(vlRoutine); ;
             Expect(10);
             if (GetSym = 20) then begin
                   _RBlockOfCode( vlPrn);

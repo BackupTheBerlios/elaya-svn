@@ -2011,7 +2011,7 @@ end;
 
 procedure TParamNode.Optimize(ParCre : TCreator) ;
 begin
-	iNode.Optimize(ParCre);
+	if iNode <> nil then iNode.Optimize(ParCre);
 	inherited Optimize(ParCre);
 end;
 

@@ -20,20 +20,16 @@
 
 .PHONY:all clean rtl tools cfg compiler
 
-include Values.tpl
 
-all :setup eladep compiler tools cfg rtl 
-
-setup : Values.tpl
+all :eladep compiler tools cfg rtl 
 
 
-Values.tpl: configure param.*
-	./configure $(Os_Host)
+
 
 compiler: eladep
 	$(MAKE) all -C compiler
 
-eladep : setup
+eladep :
 	$(MAKE) all -C tools/eladep
 
 tools  : compiler
