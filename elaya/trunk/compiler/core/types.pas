@@ -132,6 +132,7 @@ type
 		procedure   InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext : TDefinition);override;
 		procedure   DoneDotFrame;override;
 		function    GetDescForAnonymousIdent : string;override;
+		function		CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;override;
 	end;
 	
 	TAsciizType=class(TStringBase)
@@ -1213,6 +1214,17 @@ end;
 
 
 {----( TStringType)-----------------------------------------------}
+
+function TStringType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+var
+	vlItem : TStructDefinitionUseItem;
+begin
+	vlItem := TStructDefinitionUseItem.Create(ParVar);
+	fParts.AddItemsToUseList(vlItem.fSubList);
+   exit(vlItem);
+end;
+
+
 
 function   TStringType.GetDescForAnonymousIdent : string;
 var

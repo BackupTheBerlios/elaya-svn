@@ -459,7 +459,7 @@ end;
 procedure TOperAssemDef.Clear;
 begin
 	inherited Clear;
-	if iOperand <> nil then iOperand.Clear;
+	if iOperand <> nil then iOperand.destroy;
 end;
 
 procedure TOperAssemDef.Print(parDIs:TAsmDisplay);

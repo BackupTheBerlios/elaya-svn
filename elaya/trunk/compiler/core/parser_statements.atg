@@ -27,10 +27,7 @@ var
 
 ((
   IWrite
-|(IWriteln
-  (.
-	vlWritelnFlag := true;
-  .)
+|(IWriteln (. vlWritelnFlag := true; .)
 )
 )
 [
@@ -87,12 +84,10 @@ var
 RExit<var ParNode:TNodeIdent>
 (.
    var
-	vlExp : TFormulaNode;
+		vlExp : TFormulaNode;
 .)
 =
-(.
-	vlExp := nil;
-.)
+(.	vlExp := nil;.)
 
 IExit ["(" RFormula<vlExp> ")"]
 (.
@@ -166,7 +161,7 @@ RFor<var ParNode :TNodeIdent>
 (.
 	var
 		vlExpr : TFormulaNode;
-        vlNode : TForNode;
+      vlNode : TForNode;
 .)
 =
 					(. vlNode := (TForNode.Create); .)

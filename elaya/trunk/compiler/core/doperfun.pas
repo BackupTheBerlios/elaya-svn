@@ -50,7 +50,7 @@ end;
 procedure TOperatorFUnction.Commonsetup;
 begin
 	inherited Commonsetup;
-	iIdentCode := (IC_OPeratorFunction);
+	iIdentCode := IC_OPeratorFunction;
 end;
 
 

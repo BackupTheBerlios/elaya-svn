@@ -23,7 +23,7 @@ unit i386asin;
 
 interface
 uses largenum,asmdisp,display,i386cons,asminfo,extappl,stdObj,elacons,error,confval,
-elatypes,progutil,resource,procinst,pocobj,macobj,compbase,cmp_type,register;
+elatypes,progutil,resource,procinst,pocobj,macobj,compbase,cmp_type,register,rtnenp;
 	
 type
 	TX86AssemblerInfo=class(TAssemblerInfo)
@@ -142,7 +142,6 @@ type
 	end;
 	
 implementation
-uses cblkbase;
 
 
 {----( T386AmsDisplay )---------------------------------------------------------}

@@ -60,6 +60,7 @@ type
 		voMetaFrame : TFrame;
 		voObject    : TObjectRepresentor;
 		voIncompleet: boolean;
+		voPtrType   : TType;
 	protected
 		property iParent    : TClassType         read voParent     write voParent;
 		property iMeta      : TClassMeta         read voMeta       write voMeta;
@@ -67,6 +68,7 @@ type
 		property iMetaFrame : TFrame             read voMetaFrame  write voMetaFrame;
 		property iObject    : TObjectRepresentor read voObject     write voObject;
 		property iIncompleet: boolean			     read voIncompleet write voIncompleet;
+		property iPtrType   : TType              read voPtrType    write voPtrType;
 		procedure SetParent(ParType :TClassTYpe);virtual;
 	protected
 		procedure Commonsetup;override;
@@ -123,6 +125,8 @@ type
 		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
 		constructor Create(ParParent : TClassType;ParInCompleet : boolean);
 		function  CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
+		function LoadItem(ParStream : TObjectStream) : boolean;override;
+		function SaveItem(ParStream : TObjectStream) : boolean;override;
 
    end;
 
@@ -233,10 +237,15 @@ type
 		function  LoadItem(ParStream : TObjectStream):boolean;override;
 	end;
 
-	
+
+
+
+
 implementation
 
 uses nif,execobj,stmnodes;
+
+
 
 
 {---( TProperty )-----------------------------------------------------------------------}
@@ -703,6 +712,7 @@ procedure TValueClassType.Commonsetup;
 begin
 	inherited Commonsetup;
 	iIdentCode := IC_ValueClassType;
+	iPtrType   := nil;
 end;
 
 procedure TValueClassType.AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);
@@ -717,13 +727,37 @@ begin
 		vlPtrType := TNDCReator(ParCre).GetCheckDefaultType(DT_Pointer,0,false,'pointer');
 		vlParameter := TFrameParameter.Create(Name_MetaPtr,1,vlRoutine.fParameterFrame,fMeta.fMetaframe,vlPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
 		vlRoutine.AddParam(vlParameter);
-		vlPtrType := TPtrType.Create(self,not(RTM_Write_mode in vlRoutine.fRoutineModes));
-		vlClassParam := TClassFrameParameter.Create(Name_Self,nil,nil,vlRoutine.fParameterFrame,fFrame,vlPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
+		if(iPtrType=nil) then begin
+			iPtrType := TPtrType.Create(self,not(RTM_Write_mode in vlRoutine.fRoutineModes));
+		end;
+		vlClassParam := TClassFrameParameter.Create(Name_Self,nil,nil,vlRoutine.fParameterFrame,fFrame,iPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
 		vlClassParam.fConstant := not(RTM_Write_Mode in vlRoutine.fRoutineModes);
 		vlRoutine.AddParam(vlClassParam);
 	end;
 end;
 
+function TValueClassType.SaveItem(ParStream : TObjectStream):boolean;
+begin
+	if inherited SaveItem(ParStream) then exit(true);
+   if ParStream.WriteBoolean(iPtrType <> nil) then exit(true);
+	if iPtrType <> nil then begin
+		if iPtrType.SaveItem(ParStream) then exit(true);
+	end;
+	exit(false);
+end;
+
+function TValueClassType.LoadItem(ParStream : TObjectStream) : boolean;
+var
+	vlBool : boolean;
+	vlType : TType;
+begin
+	if inherited LoadItem(ParStream) then exit(true);
+	if ParStream.ReadBoolean(vlBool) then exit(true);
+	if vlBool then begin
+		if CreateObject(ParStream,vlType) <> STS_Ok then exit(true);
+		iPtrType := vlType;
+	end;
+end;
 
 procedure  TValueClassType.InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);
 var

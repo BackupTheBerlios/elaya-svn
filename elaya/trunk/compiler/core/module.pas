@@ -67,7 +67,9 @@ type
 		voUnitSourceTime     : longint;
 		property    iState  : TUnitLoadStates read voState write voState;
 		property    iLevel  : TUnitLevel read voLevel write voLevel;
-		property    iHash	: THashNumber read voHash write voHash;
+		property    iHash	  : THashNumber read voHash write voHash;
+		property    iUnit   : TUnit read voUnit write voUnit;
+		property    iUnitSourceTime : Longint read voUnitSourceTime write voUnitSourceTime;
 	protected
 		procedure   SetUnitLevel(ParUnitLevel:TUnitLevel);
 		procedure   Clear;override;
@@ -76,11 +78,11 @@ type
 	public
 		property    fLevel  : TUnitLevel  read voLevel write SetUnitLevel;
 		property    fHash   : THashNumber read voHash write voHash;
+		property    fUnit   : TUnit       read voUnit;
+		property    fUnitSourceTime : longint read voUnitSourceTime;
 		function    LoadUnitHeader(ParCre:TCreator;ParUseList:TUnitUseList):TLoadUnitState;
 		procedure   SetUnitSourceTime(ParTime:Longint);
-		function    GetUnitSourceTime:longint;
 		procedure   SetUnit(ParUnit:TUnit);
-		function    GetUnit:TUnit;
 		procedure   EmptyDependence;
 		procedure   SetFlag(ParFlag:TUnitLoadStates;ParSet:boolean);
 		function    GetFlag(ParFlag:TUnitLoadState):boolean;
@@ -457,7 +459,7 @@ var vlCurrent:TUnitUseItem;
 begin
 	vlCurrent  := TUnitUseItem(fStart);
 	while vlCUrrent <> nil do begin
-		if vlCurrent.GetUnit <> nil then vlCurrent.GetUnit.CleanUpLoad;
+		if vlCurrent.fUnit <> nil then vlCurrent.fUnit.CleanUpLoad;
 		vlCurrent := TUnitUSeItem(vlCurrent.fNxt);
 	end;
 end;
@@ -569,9 +571,7 @@ end;
 
 procedure TUnitUseItem.AddToGlobalHashing(parCre :TCreator;ParHashing :THashing);
 begin
-	if (GetUnit <> nil) then begin
-		GetUnit.AddListToGlobalHashing(ParCre,ParHashing);
-	end;
+	if (fUnit <> nil) then fUnit.AddListToGlobalHashing(ParCre,ParHashing);
 end;
 
 function TUnitUseItem.Recompile(ParCre : TCreator):boolean;
@@ -651,10 +651,6 @@ begin
 	voUnitSourcetime := ParTime;
 end;
 
-function    TUnitUseItem.GetUnitSourceTime:longint;
-begin
-	GetUnitSourceTime := voUnitSourceTime;
-end;
 
 procedure   TUnitUseItem.EmptyDependence;
 begin
@@ -676,9 +672,9 @@ begin
 	reset(vlFile,1);
 	if ioresult = 0 then begin
 		vlTime := GetFileTime(vlFile);
-		if vlTime > GetUnitSourceTime then begin
+		if vlTime > iUnitSourceTime then begin
 			Verbose(VRB_Recomp_Reason,[vlName , ' needs to be recompiled: source changed ',
-			IntToStr(GetUnitSourceTime),'=>',vlTime]);
+			IntToStr(iUnitSourceTime),'=>',vlTime]);
 			SetFlag([US_Must_Recompile,US_Wrong_SOurce_Date],true);
 			SetFlag([US_Must_Load],false);
 		end;
@@ -708,20 +704,14 @@ begin
 	vlErr := Err_No_Error;
 	if ParSet then iState := iState + ParFlag
 	else iState := iState -(ParFlag);
-	if ( iState * [US_Must_Load,US_Must_Load_Header] = [US_Must_Load_Header]) then begin
-		vlErr := FAT_Load_header_No_Set;
-	end;
-	if (US_Current_Unit in iState) and ((iState * [Us_Must_Load,US_Must_Load_Header]) <> []) then begin
-		vlErr := FAT_Cant_Load_Current_Unit;
-	end;
-	if vlErr <> 0 then begin
-		Fatal(vlErr,'');
-	end;
+	if ( iState * [US_Must_Load,US_Must_Load_Header] = [US_Must_Load_Header]) then vlErr := FAT_Load_header_No_Set;
+	if (US_Current_Unit in iState) and ((iState * [Us_Must_Load,US_Must_Load_Header]) <> []) then vlErr := FAT_Cant_Load_Current_Unit;
+	if vlErr <> 0 then Fatal(vlErr,'');
 end;
 
 function    TUnitUseItem.GetFlag(ParFlag:TUnitLoadState):boolean;
 begin
-	GetFlag := ParFlag in iState;
+	exit(ParFlag in iState);
 end;
 
 
@@ -788,13 +778,8 @@ end;
 
 procedure TUnitUseItem.SetUnit(ParUnit:TUnit);
 begin
-	if GetUnit <> nil then ParUnit.Destroy;
+	if fUnit <> nil then ParUnit.Destroy;
 	voUnit := ParUnit;
-end;
-
-function  TUnitUseItem.GetUnit:TUnit;
-begin
-	GetUnit := voUnit;
 end;
 
 procedure TUnitUseItem.CommonSetup;
@@ -816,7 +801,7 @@ procedure TUnitUseItem.Clear;
 begin
 	inherited Clear;
 	if GetUnitDependenceList <>nil then GetUnitDependenceList.Destroy;
-	if GetUnit <> nil then GetUnit.Destroy;
+	if fUnit <> nil then fUnit.Destroy;
 end;
 
 

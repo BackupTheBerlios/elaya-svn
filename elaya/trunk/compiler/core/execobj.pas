@@ -433,12 +433,14 @@ type
 		function  DefaultNodeCheck : boolean;override;
 		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
 	end;
-	
+
+
 	TClassTypeNode=class(TTypeNode)
 	public
 		procedure InitDotFrame(ParCre : TSecCreator);override;
 		procedure DoneDotFrame;override;
 	end;
+
 	
 	TLabelNode=class(TFormulaNode)
 	private
@@ -475,6 +477,35 @@ type
 
 implementation
 uses cblkbase;
+{---( TClassTypeNode )------------------------------------------------------------}
+
+procedure TClassTypeNode.InitDotFrame(ParCre : TSecCreator);
+var
+	vlType : TTYpe;
+begin
+	if not iParts.IsEmpty then begin
+		inherited InitDotFrame(ParCre);
+	end else begin
+	if iRecord <>nil then iRecord.InitDotFrame(ParCre);
+		vlType := GetType;
+		TClassType(vlType).InitClassDotFrame(ParCre,fContext);
+	end;
+end;
+
+procedure TClassTypeNode.DoneDotFrame;
+var
+	vlType : TType;
+begin
+	if not iParts.IsEmpty then begin
+		inherited DoneDotFrame;
+	end else begin
+		vlType := GetType;
+		TClassType(vlType).DoneClassDotFrame;
+		if iRecord <> nil then iRecord.DoneDotFrame;
+	end;
+end;
+
+
 
 
 {---( TStringNode )---------------------------------------------------------------}
@@ -890,36 +921,6 @@ begin
 end;
 
 
-{---( TClassTypeNode )------------------------------------------------------------}
-
-procedure TClassTypeNode.InitDotFrame(ParCre : TSecCreator);
-var
-	vlType : TTYpe;
-begin
-	if not iParts.IsEmpty then begin
-		inherited InitDotFrame(ParCre);
-	end else begin
-	if iRecord <>nil then iRecord.InitDotFrame(ParCre);
-		vlType := GetType;
-		TClassType(vlType).InitClassDotFrame(ParCre,fContext);
-	end;
-end;
-
-procedure TClassTypeNode.DoneDotFrame;
-var
-	vlType : TType;
-begin
-	if not iParts.IsEmpty then begin
-		inherited DoneDotFrame;
-	end else begin
-		vlType := GetType;
-		TClassType(vlType).DoneClassDotFrame;
-		if iRecord <> nil then iRecord.DoneDotFrame;
-	end;
-end;
-
-
-
 {---(TTypeNode )------------------------------------------------------------------}
 
 
@@ -1222,7 +1223,7 @@ begin
 		vlType := TFormulaNode(vlNode).GetType;
 		if not TFormulaNode(vlNode).Can([CAN_Pointer]) then TNDCreator(ParCre).AddNodeError(vlNode,Err_Cant_Get_Expr_Pointer,'');
 		if vlType = nil then begin
-					vlName  := 'Unkown Type';
+			vlName  := 'Unkown Type';
 		end else begin
 			vlType.GetTextStr(vlName);
 			vlName := 'Ptr '+vlName;
@@ -2588,13 +2589,13 @@ begin
 			if vlSecond.CanWriteWith(false,vlFirst) then exit;
 			TNDCreator(PArCre).AddNodeError(vlFirst,Err_Incompatible_Types,'');
 		end;
-		inherited ValidatePre(ParCre,ParIsSec);
 		if vlFirst.IsLikeType(TRoutineType) or vlSecond.IsLikeType(TRoutineTYpe) then begin
 			vlType1 :=vlFirst.GetOrgType;{TODO! Both vlFirst and vlSecond must be done}
 			if (TRoutineType(vlType1).fOfObject) and not(iCompCode in [IC_Eq,IC_NotEq]) then begin
 				TNDCreator(ParCre).AddNodeError(vlFirst,Err_Invalid_Operation,'');
 			end;
 		end;
+		inherited ValidatePre(ParCre,ParIsSec);
 	end;
 end;
 

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit stmnodes;
 interface
-uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,varuse,execobj,cblkbase;
+uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,varuse,execobj,rtnenp;
 
 type
 

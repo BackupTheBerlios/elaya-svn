@@ -240,18 +240,18 @@ begin
 end;
 
 function TElaConfig.SetValues(ParCfg : TConfigValues) : boolean;
-var vlAsmProg       : string;
+var vlAsmProg      : string;
 	vlLinkerPath    : string;
 	vlNumberOfErrors: cardinal;
-	vlBool	    : boolean;
-	vlPath	    : string;
+	vlBool	       : boolean;
+	vlPath	       : string;
 	vlAsmPath	    : string;
 	vlSourceName    : string;
 	vlExtName	    : string;
 	vlPathName      : string;
-	vlCheck	    : string;
+	vlCheck	       : string;
 	vlFileName      : string;
-	vlHostOs	    : string;
+	vlHostOs	       : string;
 	vlTargetOs      : string;
 begin
 	if ParCfg.fRunAssembler then vlCheck := 'Y' else vlCheck := 'N';

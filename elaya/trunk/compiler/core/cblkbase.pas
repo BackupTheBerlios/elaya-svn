@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit cblkbase;
 interface
-uses confval,meta,objlist,largenum,strmbase,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata,
+uses rtnenp,confval,meta,objlist,largenum,strmbase,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata,
 	varuse,progutil,params,node,elacons,pocobj,stdobj,macobj,formbase,varbase,asminfo,elatypes,error,elacfg,ddefinit;
 	
 type
@@ -25,52 +25,6 @@ type
 	
 	TRoutine	   = class;
 	TRoutineMeta=class(TMEta);
-		
-		TRoutinePoc=class(TSubPoc)
-		private
-			voName	              : TString;
-			voExitLabel           : TLabelPoc;
-			voCDeclFlag           : boolean;
-			voParamSize           : TSize;
-			voLocalFramePtr       : TMacBase;
-			voNeedStackFrame      : boolean;
-			voHasNeverStackFrame  : boolean;
-			voLocalFrame          : TFrame;
-			voHasOwnFramePtr      : boolean;
-			voObjectList          : TObjectList;
-		protected
-			property  iLocalFrame         : TFrame        read voLocalFrame         write voLocalFrame;
-			property  iExitLabel          : TLabelPoc     read voExitLabel          write voExitLabel;
-			property  iLocalFramePtr      : TMacBase      read voLocalFramePtr      write voLocalFramePtr;
-			property  iCDeclFlag          : boolean       read voCDeclFlag          write voCDeclFlag;
-			property  iParamSize          : TSize	      read voParamSize          write voParamSize;
-			property  iName	              : TString       read voName               write voName;
-			property  iNeedStackFrame     : boolean       read voNeedStackFrame     write voNeedStackFrame;
-			property  iHasNeverStackFrame : boolean       read voHasNeverStackFrame write voHasNeverStackFrame;
-			property  iHasOwnFramePtr     : boolean       read voHasOwnFramePtr     write voHasOwnFramePtr;
-			property  iObjectList         : TObjectList   read voObjectList          write voObjectLIst;
-			procedure   Clear;override;
-   		procedure   Commonsetup;override;
-
-		public
-			property  fObjectList         : TObjectList   read voObjectList;
-			property  fHasNeverStackFrame : boolean   read voHasNeverStackFrame     write voHasNeverStackFrame;
-			property  fNeedStackFrame     : boolean   read voNeedStackFrame         write voNeedStackFrame;
-			property  fHasOwnFramePtr     : boolean   read voHasOwnFramePtr;
-			property  fParamSize          : TSize     read voParamSize;
-			property  fLocalFramePtr      : TMacBase  read voLocalFramePtr;
-			property  fCDeclFlag          : boolean   read voCDeclFlag;
-			property  fName               : TString   read voName;
-			constructor Create(const ParName : String;ParCDeclFlag : boolean;ParOwnerPoc : TRoutinePoc;ParRoutine : TRoutine;ParLocalframe : TFrame;ParlocalSize,ParParamSize : TSize);
-			
-			
-			function  CreateInst(ParCre:TInstCreator):boolean;override;
-			procedure Print(ParDis:TDisplay);override;
-			procedure ProcessPocList(ParStorage : TTlvStorageList);
-			function  CreateExitLabel : TLabelPoc;
-			function  GetLocalSize : TSize;
-			function  Optimize : boolean;override;
-		end;
 		
 
 		
@@ -180,19 +134,19 @@ type
 			function   CreateRoutineAsm : TRoutineAsm;
 
 		protected
-			property  iParent	         : TRoutine        read voParent             write voParent;
-			property  iPhysicalAddress   : TRoutine        read voPhysicalAddress    write voPhysicalAddress;
-			property  iInitializeAddress : TRoutine        read voInitializeAddress  write voInitializeAddress;
-			property  iParameterFrame    : TFrame		   read voParameterFrame     write voParameterFrame;
-			property  iLocalFrame	     : TFrame	       read voLocalFrame         write voLocalFrame;
-			property  iRoutineModes      : TRoutineModes   read voRoutineModes       write voRoutineModes;
-			property  iRoutineStates     : TRoutineStates  read voRoutineStates      write voRoutineStates;
-			property  iMeta	             : TRoutineMeta    read voMeta		         write voMeta;
-			property  iVmtItem	         : TVmtITem        read voVmtItem            write voVmtItem;
+			property  iParent	           : TRoutine              read voParent             write voParent;
+			property  iPhysicalAddress   : TRoutine              read voPhysicalAddress    write voPhysicalAddress;
+			property  iInitializeAddress : TRoutine              read voInitializeAddress  write voInitializeAddress;
+			property  iParameterFrame    : TFrame		           read voParameterFrame     write voParameterFrame;
+			property  iLocalFrame	     : TFrame	              read voLocalFrame         write voLocalFrame;
+			property  iRoutineModes      : TRoutineModes         read voRoutineModes       write voRoutineModes;
+			property  iRoutineStates     : TRoutineStates        read voRoutineStates      write voRoutineStates;
+			property  iMeta	           : TRoutineMeta          read voMeta		          write voMeta;
+			property  iVmtItem	        : TVmtITem              read voVmtItem            write voVmtItem;
 			property  iParameterMapping  : TParameterMappingList read voParameterMapping   write voParameterMapping;
-			property  iCollectionNo      : cardinal              read voCollectionNo	   write voCollectionNo;
+			property  iCollectionNo      : cardinal              read voCollectionNo	    write voCollectionNo;
 			property  iRelativeLevel     : cardinal              read voRelativeLevel      write voRelativeLevel;
-			property  iStatements        : TRoutineNode           read voStatements         write voStatements;
+			property  iStatements        : TRoutineNode          read voStatements         write voStatements;
 			procedure ValidateOverrideVirtTest(ParCre : TNDCreator; ParOther : TRoutine);virtual;
 			procedure  CreateInitCode(ParCre :TNDCreator);
 		{seperation}
@@ -200,18 +154,18 @@ type
 
 		public
 			property   fRelativeLevel      : cardinal        read voRelativeLevel     write voRelativeLevel;
-			property   fParameterFrame     : TFrame	  	     read voParameterFrame;
-			property   fLocalFrame	       : TFrame	 	     read voLocalFrame;
-			property   fParent	           : TRoutine        read voParent;
+			property   fParameterFrame     : TFrame	  	    read voParameterFrame;
+			property   fLocalFrame	       : TFrame	 	    read voLocalFrame;
+			property   fParent	           : TRoutine       read voParent;
 			property   fPhysicalAddress    : TRoutine        read voPhysicalAddress;
 			property   fInitilizeAddress   : TRoutine        read voInitializeAddress write voInitializeAddress;
 			property   fRoutinePoc         : TRoutinePoc     read voRoutinePoc        write voRoutinePoc;
-			property   fCollectionNo       : cardinal        read voCollectionNo	  write voCollectionNo;
+			property   fCollectionNo       : cardinal        read voCollectionNo	     write voCollectionNo;
 			property   fStorageList        : TTLVStorageList read voStorageList;
-			property   fRoutineModes	   : TRoutineModes   read voRoutineModes;
+			property   fRoutineModes	   : TRoutineModes    read voRoutineModes;
 			property   fRoutineStates      : TRoutineStates  read voRoutineStates;
 			property   fMeta               : TRoutineMeta    read voMeta;
-			property   fVmtItem            : TVmtItem	     read voVmtItem            write voVmtItem;
+			property   fVmtItem            : TVmtItem	       read voVmtItem           write voVmtItem;
 			property   fParameterMapping   : TParameterMappingList read voParameterMapping;
 			property   fStatements         : TRoutineNode          read voStatements write voStatements;
 
@@ -428,100 +382,7 @@ type
 		exit(false);
 	end;
 	
-	{----( TRoutinePoc )------------------------------------------------------}
-	
-	
-	function TRoutinePoc.GetLocalSize  : TSize;
-	begin
-		if iHasNeverStackFrame then begin
-			exit(0);
-		end else begin
-			exit(iLocalFrame.GetTotalSize);
-		end;
-	end;
-	
-	constructor TRoutinePoc.Create(const ParName : String;ParCDeclFlag : boolean;
-							ParOwnerPoc : TRoutinePoc;ParRoutine : TRoutine;
-					ParLocalframe : TFrame ;ParlocalSize,ParParamSize : TSize);
-	begin
-		iLocalFrame     := ParLocalFrame;
-		inherited Create;
-		iCDeclFlag     := ParCDeclFlag;
-		iParamSize     := ParParamSize;
-		iName	       := TString.Create(ParName);
-		if (RTS_SharedLocalFrame in ParRoutine.fROutineStates) then begin
-			iHasOwnFramePtr := false;
-			iLocalFramePtr := ParOwnerPoc.fLocalFramePtr;
-		end else begin
-			iHasOwnFramePtr := true;
-			iLocalFramePtr  := TResultMac.Create(GetAssemblerInfo.GetSystemSize,false);
-			iObjectList.AddObject(iLocalFramePtr);
-		end;
-		
-		iLocalFrame.AddAddressing(ParRoutine,ParRoutine,iLocalFramePtr,false);
-	end;
-	
-	procedure TRoutinePoc.Clear;
-	begin
-		inherited Clear;
-		if iName       <> nil then iName.Destroy;
-		if iExitLabel  <> nil then iExitLabel.Destroy;
-		if iObjectList <> nil then iObjectList.Destroy;
-	end;
-	
-	procedure TRoutinePoc.Print(parDis:TDisplay);
-	begin
-		PArDis.Print(['---( ',iName,' )']);
-		if ParDis.fWidth > ParDis.fCol then ParDis.WriteRep(ParDis.fWidth - ParDis.fCol,'-');
-		ParDis.nl;
-		ParDis.nl;
-		parDis.Write('Frame Var=');
-		iLocalFramePtr.Print(ParDis);
-		ParDis.nl;
-		fPocList.Print(ParDis);
-	end;
-	
-	function TRoutinePoc.Optimize:boolean;
-	begin
-		exit(fPocList.Optimize);
-	end;
-	
-	procedure TRoutinePoc.ProcessPocList(ParStorage : TTlvStorageList);
-	begin
-		if iExitLabel <> nil then begin
-			fPocList.AddSec(iExitLabel);
-			iExitLabel := nil;
-		end;
-		fPocList.AssignTLStorage(ParStorage);
-		ParStorage.CalculateStorageAddress(iLocalFrame);
-		LinearizeSubList;
-		Optimize;
-	end;
-	
-	procedure TRoutinePoc.Commonsetup;
-	begin
-		inherited Commonsetup;
-		iExitLabel      := nil;
-		iParamSize      := 0;
-		iIdentCode      := (Ic_RoutinePoc);
-		iNeedStackFrame := true;
-		iHasNeverStackFrame := false;
-		iObjectList     := TObjectList.Create;
-	end;
-	
-	function TRoutinePoc.CreateExitLabel:TLabelPoc;
-	begin
-		if iExitLabel = nil then iExitLabel := TLabelPoc.Create;
-		exit(iExitLabel);
-	end;
-	
-	function  TRoutinePoc.CreateInst(ParCre:TInstCreator):boolean;
-	begin
-		GetAssemblerInfo.CreateRoutineInit(ParCre,self);
-		if fPocList.CreateInst(ParCre) then exit(true);
-		GetAssemblerInfo.CreateRoutineExit(parCre,self);
-	end;
-	
+
 	{---( TRoutine )-------------------------------------------------}
 
 
@@ -725,8 +586,7 @@ type
 			vlCurrent.GetTextStr(vlName);
 			if(length(ParName) <> 0) then ParName := '/'+ParName;
 			ParName := vlName+ParName;
-			if vlCurrent is TRoutine then vlCurrent := TRoutine(vlCurrent).GetRealOwner
-			else vlCurrent := vlCurrent.fOwner;
+			vlCurrent := TRoutine(vlCurrent).GetRealOwner
 		end;
 	end;
 	
@@ -1435,7 +1295,7 @@ type
 					TNDCreator(ParCre).SemError(err_No_Meta_data_type);
 					
 				end else begin
-					
+
 					if vlRoutine.fMeta <> nil then begin
 						GetTextStr(vlMetaName);
 						vlMetaName := Name_OwnerMeta+'_'+vlMetaName;
@@ -1947,10 +1807,10 @@ type
 		vlRoutinePoc   := TRoutinePoc.Create(vlName,
 		RTM_CDecl in fRoutine.fRoutineModes,
 		vlOwnerPoc,
-		fRoutine,
+		RTS_SharedLocalFrame in fRoutine.fRoutineStates,
 		fRoutine.fLocalFrame,
-		fRoutine.GetLocalSize,
 		fRoutine.GetParamSize);
+		fRoutine.fLocalFrame.AddAddressing(fRoutine,fRoutine,vlRoutinePoc.fLocalFramePtr,false);
 		ParCre.fObjectList := vlRoutinePoc.fObjectList;
 		if (fRoutine.GetLocalSize <> 0) or (fRoutine.GetParamSize<>0) then begin
 			if RTS_HasNeverStackFrame in fRoutine.fRoutineStates then begin
@@ -2064,12 +1924,12 @@ type
 
 procedure TCallNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 var
-	vlNOde : TParamNode;
-	vlName : string;
-	vlCurrent : TParamNode;
+	vlNOde            : TParamNode;
+	vlName            : string;
+	vlCurrent         : TParamNode;
 	vlNumberOfDefPar  : cardinal;
 	vlNumberOfUsedPar : cardinal;
-	vlError : TErrorType;
+	vlError           : TErrorType;
 begin
 	inherited ValidatePre(ParCre,ParIsSec);
 	vlNode := TParamNode(fParts.fStart);

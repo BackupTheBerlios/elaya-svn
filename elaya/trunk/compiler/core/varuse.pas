@@ -250,7 +250,6 @@ procedure TStructDefinitionUseItem.CheckUnused(ParCre : TCreator;ParOwnerBase : 
 var
 	vlDef   : TBaseDefinition;
 	vlOwner : string;
-	vlName  : string;
 begin
 	if IsUnused then begin
       if(iContext <> nil) then begin

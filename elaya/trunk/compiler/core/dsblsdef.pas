@@ -26,7 +26,7 @@ type
 	private
 		voParts     : TIdentList;
     protected
-        property   iParts : TIdentList read voParts write voParts;
+      property   iParts : TIdentList read voParts write voParts;
 		procedure   Commonsetup;override;
 		procedure   clear;override;
 

@@ -600,7 +600,7 @@ type
 	
 implementation
 
-uses procinst,asminfo,macobj{remove when setoutputlock is cleanedup ?};
+uses procinst,asminfo,macobj{TODO remove when setoutputlock is cleanedup ?};
 
 
 {----( TLabelRes )---------------------------------}

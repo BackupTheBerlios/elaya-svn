@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit strlist;
 interface
-uses simplist,stdobj,compbase;
+uses asmdata,elacons,simplist,stdobj,compbase;
 
 type
 	TStringListItem=class(TSMTextItem)
@@ -43,7 +43,7 @@ type
 
 
 implementation
-uses asmcreat,asmdata,elacons;
+uses asmcreat;
 {----( TStringListItem )--------------------------------------------------}
 procedure TStringListItem.Commonsetup;
 begin
