@@ -1,0 +1,14 @@
+Host_Type=linux
+Opt_Ela="-votB -Cu -Ok+ -d -t linux"
+Cpl_Target=linux
+Rtl_Target=linux
+cmd_rm="rm -f"
+cmd_cp=cp
+linux_auto_load="core,strings,classes"
+win32_auto_load="core,strings,classes"
+Dir_Linux_As=/usr/bin/as
+Dir_Linux_Ld=/usr/bin/ld
+Dir_Win32_As=/usr/local/bin/asw
+Dir_Win32_Ld=/usr/local/bin/ldw
+pp_unit_ext=.ppu
+exe_ext=

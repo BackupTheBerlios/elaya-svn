@@ -1,0 +1,9 @@
+Host_Type=win32
+Opt_Ela="-votB -Ok+ -d -t win32"
+Cpl_Target=win32
+Rtl_Target=win32
+cmd_rm="rm -f"
+cmd_cp=cp
+auto_load="core,strings,classes,sys"
+pp_unit_ext=.ppw
+exe_ext=.exe

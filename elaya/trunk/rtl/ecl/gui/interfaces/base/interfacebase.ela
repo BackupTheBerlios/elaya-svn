@@ -1,0 +1,43 @@
+unit;
+	uses gtk,gdk,glib,linklist,gtktypes,guitypes,guibase,values;
+
+public
+type TInterfaceBase=class inherit TRoot
+	public
+
+		procedure CreateInterWindow(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);virtual;abstract;
+		procedure CreateInterButton(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);virtual;abstract;
+		procedure CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);virtual;abstract;
+		procedure CreateInterLineEdit(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);virtual;abstract;
+		function GetEditText(ParWidget : PWidgetHandle;ParFrom,ParTo : longint) : TString;virtual;abstract;
+		procedure SetSize(ParWidget :PWidgetHandle;ParW,ParH : long);virtual;abstract;
+		procedure SetPosition( ParWidget : PWidgetHandle;ParX,ParY : longint);virtual;abstract;
+		procedure SetTitle( ParWidget : PWidgetHandle;const ParTitle : string);virtual;abstract;
+		procedure Show(ParWidget :  PWidgetHandle;ParShow : boolean);virtual;abstract;
+		procedure ClearWidget(ParWidget : PWidgetHandle);virtual;abstract;
+		procedure ClearArea(ParWidget : PWidgetHandle;ParX,ParY : longint;ParW,ParH : long);virtual;abstract;
+		procedure SetToolTip(ParWidget : PWidgetHandle;const ParText : string);virtual;abstract;
+		procedure GetToolTip(ParWidget : PWidgetHandle;var ParText : string);virtual;abstract;
+      procedure SetBgColor(ParWidget : PWidgetHandle;const ParColor : TColor);virtual;abstract;
+      procedure SetFgColor(ParWidget : PWidgetHandle;const ParColor: TColor);virtual;abstract;
+      procedure DestroyWidget(ParWidget : PWidgetHandle);virtual;abstract;
+		procedure DestroyGC(var ParGC : TGCHandle);virtual;abstract;
+		function  CreateGC(ParWidget : PWidgetHandle;var ParGC : TGCHandle) : boolean;virtual;abstract;
+		procedure Line(var ParGC :TGCHandle;ParX0,ParY0,ParX1,ParY1 : longint);virtual;abstract;
+		procedure DrawText(var ParGC : TGCHandle;ParX,ParY : longint;const ParText : string);virtual;abstract;
+		procedure GetTextMeasure(var ParGC : TGCHandle;const ParText : string;var ParW,ParH : long);virtual;abstract;
+		procedure SetGcFgColor(var ParGC : TGCHandle;const ParColor : TColor);virtual;abstract;
+		procedure SetGcBgColor(var ParGC : TGCHandle;const ParColor : TColor);virtual;abstract;
+		procedure CreatePixmap(ParWidth,ParHeight,ParDepth: long;ParImage : PPixmapHandle);virtual;abstract;
+		procedure LoadPixmap(ParWindow : PWidgetHandle;const ParFileName : string;ParImage : PPixmapHandle;var ParWidth,ParHeight,ParDepth : long);virtual;abstract;
+		procedure DrawPixmap(var ParGC : TGCHandle;ParPixmap : PPixmapHandle;ParX,ParY : longint);virtual;abstract;
+		procedure SetButtonPixmap(ParWidget : PWIdgetHandle;ParPixmap : PPixmapHandle);virtual;abstract;
+		procedure SetTextAdjust(ParWidget : PWidgetHandle;ParAdjust : TTextAdjust);virtual;abstract;
+		procedure ExitProgram;virtual;abstract;
+		procedure InterInit;virtual;abstract;
+		procedure InterRun;virtual;abstract;
+
+end;
+end public
+
+end.
