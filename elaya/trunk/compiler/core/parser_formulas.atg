@@ -576,7 +576,6 @@ var
  |( RNumber<vlNum,vlValid>
 	(.
 		if not(LargeInRange(vlNum ,Min_Longint, Max_Cardinal)) then SemError(Err_Num_Out_Of_Range);
-		if not vlValid then SemError(Err_int_Invalid_number);
 		ParDigi := TNUmberDigiItem.Create(vlNum);
 	.)
   )

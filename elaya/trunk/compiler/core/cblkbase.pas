@@ -1,4 +1,4 @@
-{Copyright (C) 1999-2004 [5~5~ J.v.Iddekinge.
+{Copyright (C) 1999-2004  J.v.Iddekinge.
 Web   : www.elaya.org
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit cblkbase;
 interface
 uses vars,rtnenp,confval,meta,objlist,largenum,strmbase,ndcreat,routasm,frames,compbase,resource,display,asmdisp,streams,lsstorag,cmp_type,asmcreat,asmdata,
-	varuse,progutil,params,node,elacons,pocobj,stdobj,macobj,formbase,varbase,asminfo,elatypes,error,elacfg,ddefinit;
+	useitem,progutil,params,node,elacons,pocobj,stdobj,macobj,formbase,varbase,asminfo,elatypes,error,elacfg,ddefinit;
 	
 type
 	
@@ -63,7 +63,7 @@ type
 			property    fFrame       : TFrame     read voFrame      write voFrame;
 
 
-			procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+			procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 			procedure   SetName(const ParName : string);
 			constructor Create(const ParName : string);
 			procedure   SetRoutineItem(ParCre : TNDCreator;PArProc:TRoutine;ParContext :TDefinition);
@@ -105,7 +105,7 @@ type
 			procedure   PrintNode(ParDis:TDisplay);override;
 			procedure   DoneRoutine(ParCre : TSecCreator);
 		   function  IsSubNodesSec:boolean;override;
-			procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+			procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 
 		end;
 		
@@ -1508,14 +1508,14 @@ type
 	procedure  TRoutine.ProducePoc(ParCre : TCreator);
 	var vlCre  : TSecCreator;
 		vlName : string;
-		vlList : TDefinitionUseList;
+		vlList : TUseList;
 	begin
 		if iStatements = nil then exit;
 
 		vlCre := TAsmCreator(ParCre).fSecCre;
 
 		if GetConfigValues.fVarUseCheck then begin
-			vlList := TDefinitionUseList.Create(self);
+			vlList := TUseList.Create(self);
 			GetParList.AddItemsToUseList(vlList);
 			iStatements.ValidateDefinitionUse(vlCre,AM_Execute,vlList);
 			vlList.CheckUnused(vlCre);
@@ -1769,7 +1769,7 @@ type
 	{----( TRoutineNode )--------------------------------------------}
 
 
-	procedure TROutineNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	procedure TROutineNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	begin
 		iParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 	end;
@@ -1857,7 +1857,7 @@ type
 	end;
 	
 	{-----( TCallNode )-------------------------------------------}
-	procedure TCallNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	procedure TCallNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	begin
 			inherited ValidateFormulaDefinitionUse(ParCre,AM_Execute,ParUseList);
 			fParts.ValidateDefinitionUse(ParCre,AM_Nothing,ParUseList);

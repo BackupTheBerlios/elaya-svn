@@ -83,12 +83,20 @@ var
 .)
 .
 
-RNumber:"number"<var ParNum : TNumber;var ParValid : boolean>
+RNumber:"number"<var ParNum : TNumber;ParValid : boolean>
 =
-	(. 	 loadlong(ParNum,0); .)
+	(.
+		loadlong(ParNum,0);
+		ParValid := false;
+	.)
+	(
 	( RDec_Number<ParNum,ParValid>
 	|RBin_Number<ParNum,ParValid>
 	|RHex_Number<ParNum,ParValid>)
+	)
+	(.
+		if not(ParValid) then SemError(Err_int_Invalid_Number);
+	.)
 .
 
 RIdentObj<var ParDef:TDefinition>

@@ -1,6 +1,6 @@
 unit blknodes;
 interface
-uses display,node,pocObj,varuse;
+uses display,node,pocObj,useitem;
 type
 
 TBlockNode=class(TNodeIdent)
@@ -8,12 +8,12 @@ TBlockNode=class(TNodeIdent)
 		procedure Print(ParDis : TDisplay);override;
 		function CreateSec(ParCre : TSecCreator):boolean;override;
 	   function  IsSubNodesSec:boolean;override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 
 	end;
 implementation
 
-procedure TBlockNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TBlockNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	fParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 end;

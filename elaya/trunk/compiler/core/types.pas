@@ -22,7 +22,7 @@ unit types;
 
 interface
 uses vars,dsblsdef,frames,largenum,varbase,strmbase,streams,compbase,linklist,display,error,elacons,stdobj,ddefinit,
-elatypes,pocobj,macobj,node,formbase,progutil,asminfo,cmp_type,elacfg,simplist,varuse;
+elatypes,pocobj,macobj,node,formbase,progutil,asminfo,cmp_type,elacfg,simplist,useitem,varuse;
 	
 type
 	
@@ -132,7 +132,7 @@ type
 		procedure   InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext : TDefinition);override;
 		procedure   DoneDotFrame;override;
 		function    GetDescForAnonymousIdent : string;override;
-		function		CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;override;
+		function		CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
 	end;
 	
 	TAsciizType=class(TStringBase)
@@ -237,7 +237,7 @@ type
 		function CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;override;
 		function   IsMinimum(ParValue : TValue):boolean;override;
 		function   IsMaximum(ParValue : TValue):boolean;override;
-		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;override;
+		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
 
 	end;
 	
@@ -346,7 +346,7 @@ type
 		function  AddIdent(ParItem:TDefinition):TErrorTYpe;override;
 		procedure CommonSetup;override;
 		procedure Print(ParDis:TDisplay);override;
-		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;override;
+		function CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
 
 	end;
 
@@ -520,7 +520,7 @@ end;
 
 {------( TRecordType )--------------------------------------------------}
 
-function TRecordType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+function TRecordType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;
 var
 	vlItem : TStructDefinitionUseItem;
 begin
@@ -1243,7 +1243,7 @@ end;
 
 {----( TStringType)-----------------------------------------------}
 
-function TStringType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+function TStringType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;
 var
 	vlItem : TStructDefinitionUseItem;
 begin
@@ -1631,7 +1631,7 @@ end;
 {-----( TTypeAs )----------------------------------------------------}
 
 
-function TTypeAs.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+function TTypeAs.CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;
 begin
 	exit(fType.CreateVarOfTypeUse(Parvar));
 end;

@@ -25,7 +25,7 @@ RCharConst<ParValue>
 .
 
 
-RNumberConstant:"Constant Number"<var ParValue : TValue;var ParInvalid : boolean>
+RNumberConstant:"Constant Number"<var ParValue : TValue;var ParValid : boolean>
 (.
 	var
 		vlNumber : TNumber;
@@ -33,11 +33,13 @@ RNumberConstant:"Constant Number"<var ParValue : TValue;var ParInvalid : boolean
 .)
 =
 
-RNumber<vlNumber,vlValid>
+RNumber<vlNumber,ParValid>
 (.
-	if not(LargeInRange(vlNumber, Min_Longint,Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'2');
+	if not(LargeInRange(vlNumber, Min_Longint,Max_Cardinal)) then begin
+		ErrorText(Err_Num_Out_Of_Range,'');
+		ParValid := false;
+	end;
 	ParValue := TLongint.Create(vlNumber);
-	if not(vlValid) then ParInvalid := true;
 .)
 .
 
@@ -80,94 +82,206 @@ RDirectNumber<vlNum>
 RDirectExpr<var ParVal:TValue>
 (.
 	var
-		vlInvalid:boolean;
+		vlValid:boolean;
 .)
 =
-(. vlInValid := false; .)
-	RDirectLogic<ParVal,vlInValid>          (. if vlInValid then SemError(Err_Invalid_Operation); .)
+	RDirectLogic<ParVal,vlValid>
 . 
 
 
-RDirectLogic<var ParVal : TValue;var ParInvalid:boolean>
+RDirectLogic<var ParVal : TValue;var ParValid:boolean>
 (.
 	var
 		vlVal : TValue;
+		vlValid: boolean;
 .)
 =
-RDirectAdd<ParVal,ParInvalid>
-{((IAnd RDirectAdd<vlVal,ParInvalid> (. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.AndVal(vlVal)); .))
- |(IOr  RDirectAdd<vlVal,ParInvalid> (. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.OrVal(vlVal)); .))
- |(IXor RDirectAdd<vlVal,ParInvalid> (. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.XorVal(vlVal)); .))
- )				     (. if vlVal <> nil then vlVal.Destroy; .)
+(. vlVal := nil; .)
+RDirectAdd<ParVal,ParValid>
+{((IAnd RDirectAdd<vlVal,vlValid>
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.AndVal(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+ |(IOr  RDirectAdd<vlVal,vlValid>
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.OrVal(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+ |(IXor RDirectAdd<vlVal,vlValid>
+
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.XorVal(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+ )
+(. if vlVal <> nil then vlVal.Destroy; .)
 }
 .
 
-RDirectAdd<var ParVal:TValue;var ParInValid:boolean>
+RDirectAdd<var ParVal:TValue;var ParValid:boolean>
 (.
 	var
 		vlVal:TValue;
+		vlValid : boolean;
 .)
 
 =
-RDirectMul<ParVal,ParInValid>
-{(('+' RDirectMul<vlVal,ParInValid> (. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Add(vlVal)); .))
-|('-' RDirectMul<vlval,ParInValid> (. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Sub(vlVal)); .))
-|(IShl RDirectMul<vlVal,ParInValid>(. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ShiftLeft(vlVal)); .))
-|(IShr RDirectMul<vlVal,ParInValid>(. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ShiftRight(vlVal)); .))
-	)			 (.  vlVal.destroy;.)
+RDirectMul<ParVal,ParValid>
+{(('+' RDirectMul<vlVal,vlValid>
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.Add(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+|('-' RDirectMul<vlval,vlValid>
+
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.Sub(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+|(IShl RDirectMul<vlVal,vlValid>
+(.
+  if ParValid and  vlValid then begin
+    if CalculationStatusToError(ParVal.ShiftLeft(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+|(IShr RDirectMul<vlVal,vlValid>
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.ShiftRight(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+)
+ (.  if vlVal <> nil then vlVal.destroy;.)
 }
 .
 
 
-RDirectMul<var ParVal:TValue;var ParInValid:boolean>
-				        (. var vlVal:TValue;   .)
+RDirectMul<var ParVal:TValue;var ParValid:boolean>
+(.
+	var
+		vlVal   : TValue;
+		vlValid : boolean;
+  .)
 =
-RDirectNeg<ParVal,ParInValid>
-{(('*' RDirectNeg<vlval,ParInValid>		(. ParInValid := ParInValid or CalculationStatusToError(ParVal.Mul(vlVal)); .))
-|(IDiv RDirectNeg<vlVal,ParInValid>		(. ParInValid := ParInValid or CalculationStatusToError(ParVal.DivVal(vlVal)); .))
-|(IMod RDirectNeg<vlVal,ParInvalid>		(. ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ModVal(vlVal));.))
-	)			 		(. vlVal.destroy; .)
+(.
+		ParValid := true;
+.)
+
+RDirectNeg<ParVal,ParValid>
+{(('*' RDirectNeg<vlval,vlValid>
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.Mul(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+|(IDiv RDirectNeg<vlVal,vlValid>
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.DivVal(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+|(IMod RDirectNeg<vlVal,vlValid>
+
+(.
+  if ParValid and vlValid then begin
+    if CalculationStatusToError(ParVal.ModVal(vlVal)) then ParValid := false;
+  end else begin
+    ParValid := false;
+  end;;
+.)
+)
+
+	)			 		(. if vlVal <> nil then vlVal.destroy; .)
 }
 .
 
 
-RDirectNeg<var ParVal : TValue;var ParInvalid : boolean>
+RDirectNeg<var ParVal : TValue;var ParValid : boolean>
 (.
 	Var
 		vlNeg : boolean;
+		vlValid :boolean;
 .)
 =
-(. vlNeg := false;.)
+(.
+	vlNeg := false;
+   ParValid := true;
+.)
 {('-'				 (. vlNeg := true; .))
 |('+')
 }
- RDirectFact<ParVal,ParInvalid>
+ RDirectFact<ParVal,vlValid>
 (.
-    if vlNeg then  ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Neg);
+	if(vlValid) then begin
+		if vlNeg then  begin
+			if CalculationStatusToError(ParVal.Neg) then ParValid := false;
+		end;
+	end else begin
+		ParValid := false;
+	end;
 .)
 .
 
 
 
 
-RDirectFact:"formula"<var ParVal:TValue;var ParInValid:boolean>
+RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 (.
 	var
 		vlNum :TSize;
 		vlType:TType;
 .)
 =
-(. ParVal     := nil; .)
+(. ParVal     := nil;  .)
+
 (
- (  RNum_Or_Const<ParVal,ParInvalid>  )
-|('(' RDirectLogic<ParVal,ParInValid> ')')
+ (  RNum_Or_Const<ParVal,ParValid>  )
+|('(' RDirectLogic<ParVal,ParValid> ')')
 |(INil
 	(.
 		ParVal := TPointer.Create;
         TPointer(ParVal).SetPointer(0);
 	.)
 )
-|(INot "(" RDirectLogic<ParVal,ParInvalid> ")" (. if CalculationStatusToError(ParVal.NotVal) then ParInvalid := true; .))
+|(INot "(" RDirectLogic<ParVal,ParValid> ")"
+	(.
+ 		if(ParValid) then begin
+			if CalculationStatusToError(ParVal.NotVal) then ParValid := false;
+		end;
+ .))
 
 |(ISizeOf "(" RH_Type<vlType> ")"
 	(.
@@ -175,7 +289,7 @@ RDirectFact:"formula"<var ParVal:TValue;var ParInValid:boolean>
 			vlNum := vlType.fSize
 		end  else begin
 			vlNum := 0;
-			ParInvalid := true;
+			ParValid := false;
 		end;
 		ParVal := TLongint.Create(vlNum);
 	.)
@@ -283,15 +397,13 @@ RConstant
 
 
 
-RNum_Or_Const:"identifier"<var ParVal:TValue;var ParInvalid : boolean>
+RNum_Or_Const:"identifier"<var ParVal:TValue;var ParValid : boolean>
 				(. var vlConst : TConstant;
-				       vlValid : boolean;
 				.)
 =
-				(.   ParVal := nil;
-				     vlValid := true; .)
+				(.   ParVal := nil;.)
 (
-RNumberConstant<ParVal,ParInvalid>
+RNumberConstant<ParVal,ParValid>
 |(RDefIdentObj<TDefinition(vlConst),false>
 	(.
 		ParVal := nil;
@@ -309,7 +421,7 @@ RNumberConstant<ParVal,ParInvalid>
 (.
  if ParVal = nil then begin
  	ParVal := TLongint.Create(1);
- 	ParInvalid := true;
+ 	ParValid := false;
  end;
 .)
 
@@ -325,8 +437,9 @@ RNum_Or_Const_2:"identifier"<var ParVal:TValue>
 .)
 =
 (.
-    ParVal  := nil;
-    vlNeg   := false;
+	ParVal  := nil;
+	vlNeg   := false;
+	vlInvalid := false;
 .)
 (
 

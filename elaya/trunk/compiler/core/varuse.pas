@@ -20,50 +20,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit varuse;
 interface
-uses compbase,simplist,error,progutil;
+uses compbase,simplist,error,progutil,useitem;
 type
-{TODO AM_WRITE_READ en AM_READ_WRITE}
-TDefinitionUseMode=(VM_Not,VM_Sometimes,VM_Used);
-TAccessStatus=(AS_Normal,AS_No_Read,AS_Maybe_No_Read,AS_No_Write,AS_Maybe_No_Write,AC_Ident_Not_Found);
-TAccessMode = (AM_Read,AM_ReadWrite,AM_Write,AM_Nothing,AM_Execute,AM_SizeOf,AM_PointerOf,AM_Silent_Read_Write,AM_Silent_Write_Read);
-{TODO Instead of using TDefinitionUseList everywhere, use a sort of  TDefinitionUseItem}
-TDefinitionUseList=class;
-TDefinitionUseItemBase=class(TSMListItem)
-			private
-         	voContext    : TDefinitionUseItemBase;
-			protected
-            property iContext    : TDefinitionUseItemBase read voContext    write voContext;
-            procedure Commonsetup;override;
-			public
-            property fContext    : TDefinitionUseItemBase read voContext write voContext;
-				function IsDefinition(ParDefinition : TBaseDefinition) : boolean;
-				procedure CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition);virtual;abstract;
-				procedure CombineFlow(ParOther : TDefinitionUseItemBase);virtual;abstract;
-				procedure SetElseMode(ParElse :TDefinitionUseItemBase);virtual;abstract;
-				function Clone : TDefinitionUseItemBase;virtual;abstract;
-				procedure SetLike(ParItem : TDefinitionUseItemBase);virtual;abstract;
-				function GetName : string;
-				function SetAccess(ParMode : TAccessMode):TAccessStatus;virtual;abstract;
-				procedure AssumeIsWriten;
-				procedure SetDefault(ParRead :boolean);virtual;abstract;
-				function IsUnused:boolean;virtual;abstract;
-				procedure SetToSometimes;virtual;abstract;
-            function GetSubList : TDefinitionUseList;virtual;
-            function IsCompleetInitialised : TDefinitionUseMode;virtual;abstract;
-			   procedure CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);virtual;abstract;
-            function GetDefinition : TBaseDefinition;virtual;abstract;
-         end;
-
-TDefinitionUseItem_tmp=class(TDefinitionUseItemBase)
+TDefinitionUseItemBase=class(TUseItem)
 		private
 				voDefinition : TBaseDefinition;
-				property iDefinition : TBaseDefinition        read voDefinition write voDefinition;
+				property iDefinition : TBaseDefinition read voDefinition write voDefinition;
 		public
+				property fDefinition : TBaseDefinition read voDefinition;
 				function GetDefinition  : TBaseDefinition;override;
 				constructor Create(ParDefinition : TBaseDefinition);
 		end;
 
-TDefinitionUseItem=class(TDefinitionUseItem_tmp)
+TDefinitionUseItem=class(TDefinitionUseItemBase)
             private
     			voWrite      : TDefinitionUseMode;
 				voRead		 : TDefinitionUseMode;
@@ -84,48 +53,22 @@ TDefinitionUseItem=class(TDefinitionUseItem_tmp)
 				property fRunRead   : TDefinitionUseMode read voRunRead;
 				property fWrite     : TDefinitionUseMode read voWrite;
 				procedure CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition); override;
-				procedure CombineFlow(ParOther : TDefinitionUseItemBase);override;
-				function  Clone : TDefinitionUseItemBase;override;
-				procedure SetLike(ParItem : TDefinitionUseItemBase);override;
+				procedure CombineFlow(ParOther : TUseItem);override;
+				function  Clone : TUseItem;override;
+				procedure SetLike(ParItem : TUseItem);override;
 				function  SetAccess(ParMode : TAccessMode):TAccessStatus;override;
 				procedure SetDefault(ParRead :boolean);override;
 				function  IsUnused:boolean;override;
 				procedure SetToSometimes;override;
             function  IsCompleetInitialised : TDefinitionUseMode;override;
-			   procedure CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);override;
+			   procedure CombineIfWithElseUse(ParElse : TUseItem);override;
 				function  CombineIfAndElseUseModes(ParModeIf,ParModeElse : TDefinitionUseMode) : TDefinitionUseMode;
 end;
 
 
 
-TDefinitionUseList=class(TSMList)
-		private
-				voOwner      : TBaseDefinition;
-            voContext     : TDefinitionUseItembase;
 
-				property iOwner     : TBaseDefinition read voOwner write voOwner;
-            property iContext : TDefinitionUseItemBase read voContext write voContext;
- 		protected
-      		procedure commonsetup;override;
-				procedure AddListTo(ParList : TDefinitionUseList);
-
-			public
-            property fContext : TDefinitionUseItemBase read voContext write voContext;
-
-				function GetItemByDefinition(parDefinition :TBaseDefinition):TDefinitionUseItemBase;
-				function SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TDefinitionUseItemBase) : TAccessStatus;
-				function Clone:TDefinitionUseList;
-            procedure CloneIntoList(ParList : TDefinitionUseList);
-				procedure CombineFlow(ParTo : TDefinitionUseList);
-				procedure CheckUnused(ParCre : TCreator);
-				constructor Create(ParDefinition : TBaseDefinition);
-				procedure   SetToSometimes;
-         	procedure AddItem(ParItem : TDefinitionUseItemBase);
-				function GetOrAddUseItem(ParDefinition : TBaseDefinition) : TDefinitionUseItemBase;
-       		procedure CombineIfWithElseUse(ParList : TDefinitionUseList);
-			end;
-
-	TStructDefinitionUseSubList=class(TDefinitionUseList)
+	TStructDefinitionUseSubList=class(TUseList)
 		public
 				procedure SetAllDefault(ParRead :boolean);
 				function AreAllInitialised : TDefinitionUseMode;
@@ -133,7 +76,7 @@ TDefinitionUseList=class(TSMList)
 				function AreAllUnused:boolean;
 	end;
 
-TStructDefinitionUseItem=class(TDefinitionUseItem_tmp)
+TStructDefinitionUseItem=class(TDefinitionUseItemBase)
 private
 	voSubList : TStructDefinitionUseSubList;
 protected
@@ -142,29 +85,29 @@ protected
 	procedure Clear;override;
 public
 	property fSubList : TStructDefinitionUseSubList read voSubList;
-	function GetSubList : TDefinitionUseList;override;
-	procedure CombineFlow(ParOther : TDefinitionUseItemBase);override;
+	function GetSubList : TUseList;override;
+	procedure CombineFlow(ParOther : TUseItem);override;
 	procedure SetToSometimes;override;
 	function SetAccess(ParMode : TAccessMode):TAccessStatus;override;
 	procedure CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);override;
-   function Clone : TDefinitionUseItemBase;override;
+   function Clone : TUseItem;override;
    function IsCompleetInitialised : TDefinitionUseMode;override;
 	procedure SetDefault(ParRead:boolean);override;
-	procedure CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);override;
+	procedure CombineIfWithElseUse(ParElse : TUseItem);override;
 	function IsUnused:boolean;override;
 end;
 
 implementation
-uses ddefinit;
-{----}
 
-constructor TDefinitionUseItem_tmp.Create(ParDefinition : TBaseDefinition);
+{----(TDefinitionUseItemBase)-----------------------------------------------------------------}
+
+constructor TDefinitionUseItemBase.Create(ParDefinition : TBaseDefinition);
 begin
 	inherited Create;
 	iDefinition := ParDefinition;
 end;
 
-function TDefinitionUseItem_tmp.GetDefinition : TBaseDefinition;
+function TDefinitionUseItemBase.GetDefinition : TBaseDefinition;
 begin
 	exit(iDefinition);
 end;
@@ -172,39 +115,39 @@ end;
 {---( TStructDefinitionUseSubList )-----------------------------------------------------------}
 procedure TStructDefinitionUseSubList.SetAllDefault(ParRead:boolean);
 var
-	vlCurrent : TDefinitionUseItemBase;
+	vlCurrent : TUseItem;
 begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
+	vlCurrent := TUseItem(fStart);
 	while vlCurrent <> nil do begin
 		vlCurrent.SetDefault(ParRead);
-		vlCurrent  := TDefinitionUseItemBase(vlCurrent.fNxt);
+		vlCurrent  := TUseItem(vlCurrent.fNxt);
 	end;
 end;
 
 procedure TStructDefinitionUseSubList.SetAllAccessSilent(ParMode : TAccessMode);
 var
-	vlCurrent : TDefinitionUseItemBase;
+	vlCurrent : TUseItem;
 begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
+	vlCurrent := TUseItem(fStart);
 	while vlCurrent <> nil do begin
 			vlCurrent.SetAccess(ParMode);
-			vlCurrent := TDefinitionUseItemBase(vlCurrent.fNxt);
+			vlCurrent := TUseItem(vlCurrent.fNxt);
 	end;
 end;
 
 function TStructDefinitionUseSubList.AreAllInitialised : TDefinitionUseMode;
 var
-	vlCurrent : TDefinitionUseItemBase;
+	vlCurrent : TUseItem;
 	vlResultStatus  : TDefinitionUseMode;
    vlStatus        : TDefinitionUseMode;
 begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
+	vlCurrent := TUseItem(fStart);
    vlResultStatus := VM_Used;
 	while(vlCurrent <> nil) do begin
 		vlStatus := vlCurrent.IsCompleetInitialised;
 		if(vlStatus = VM_not) then exit(VM_Not);
 		if(vlStatus = VM_SomeTimes) and (vlResultStatus=VM_Used) then vlResultStatus := VM_SomeTimes;
-		vlCurrent := TDefinitionUSeItemBase(vlCurrent.fNxt);
+		vlCurrent := TUseItem(vlCurrent.fNxt);
 	end;
 	exit(vlResultStatus);
 end;
@@ -212,13 +155,13 @@ end;
 
 function TStructDefinitionUseSubList.AreAllUnused : boolean;
 var
-	vlCurrent : TDefinitionUseItemBase;
+	vlCurrent : TUseItem;
 begin
-	vlCurrent := TDefinitionUSeItemBase(fStart);
+	vlCurrent := TUseItem(fStart);
 	while vlCurrent <> nil do begin
 
 		if not(vlCurrent.IsUnused) then exit(false);
-		vlCurrent := TDefinitionUSeItemBAse(vlCurrent.fNxt);
+		vlCurrent := TUseItem(vlCurrent.fNxt);
 	end;
 	exit(true);
 end;
@@ -232,7 +175,7 @@ begin
 	exit(iSubList.AreAllUnUsed);
 end;
 
-procedure TStructDefinitionUseItem.CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);
+procedure TStructDefinitionUseItem.CombineIfWithElseUse(ParElse : TUseItem);
 begin
 	if not(ParElse is TStructDefinitionUseItem) then fatal(FAT_Combine_Wrong_Type_DU,ParElse.classname);
 	iSubList.CombineIfWithElseUse(TStructDefinitionUseItem(ParElse).fSubList);
@@ -250,16 +193,16 @@ begin
 end;
 
 
-function TStructDefinitionUseItem.GetSubList : TDefinitionUseList;
+function TStructDefinitionUseItem.GetSubList : TUseList;
 begin
 	exit(iSubList);
 end;
 
-function TStructDefinitionUseItem.Clone : TDefinitionUseItemBase;
+function TStructDefinitionUseItem.Clone : TUseItem;
 var
 	vlItem : TStructDefinitionUseItem;
 begin
-	vlItem := TStructDefinitionUseItem.Create(GetDefinition);
+	vlItem := TStructDefinitionUseItem.Create(iDefinition);
    iSubList.CloneIntoList(vlItem.fSubList);
    exit(vlItem);
 end;
@@ -317,7 +260,7 @@ begin
 end;
 
 
-procedure TStructDefinitionUseItem.CombineFlow(ParOther : TDefinitionUseItemBase);
+procedure TStructDefinitionUseItem.CombineFlow(ParOther : TUseItem);
 begin
 	if not(ParOther is TStructDefinitionUseItem) then fatal(FAT_Combine_Wrong_Type_DU,classname+'=>'+ParOther.className);
 	iSubList.CombineFlow(TStructDefinitionUseItem(ParOther).iSubList);
@@ -329,199 +272,6 @@ begin
 end;
 
 
-{---( TDefinitionUseListBase )------------------------------------------------------------------}
-
-procedure TDefinitionUseList.CombineIfWithElseUse(ParList : TDefinitionUseList);
-var
-	vlCurrent : TDefinitionUseItemBase;
-	vlElse    : TDefinitionUseItemBase;
-begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
-   while (vlCurrent <> nil) do begin
-		vlElse := ParList.GetItemByDefinition(vlCurrent.GetDefinition);
-		if (vlElse <> nil) then begin
-			vlCurrent.CombineIfWithElseUse(vlElse);
-			ParList.DeleteLink(vlElse);
-		end else begin
-			vlCurrent.SetToSomeTimes;
-		end;
-		vlCurrent := TDefinitionUseItemBase(vlCurrent.fNxt);
-	end;
-	if not(ParList.IsEmpty) then begin
-		ParList.SetToSomeTimes;
-		ParList.AddListTo(self);
-	end;
-end;
-
-procedure TDefinitionUseList.AddListTo(ParList : TDefinitionUseList);
-var
-	vlCurrent : TDefinitionUseItemBase;
-begin
-	while fStart <> nil do begin
-		vlCurrent := TDefinitionUseItemBase(fStart);
-		CutOut(vlCurrent);
-		ParList.AddItem(vlCurrent);
-	end;
-end;
-
-
-procedure TDefinitionUseList.Commonsetup;
-begin
-	inherited Commonsetup;
-   iContext := nil;
-end;
-
-procedure TDefinitionUseList.AddItem(ParItem : TDefinitionUseItemBase);
-begin
-	insertat(nil,ParItem);
-   ParItem.fContext := fContext;
-end;
-
-procedure TDefinitionUseLIst.SetToSometimes;
-var
-	vlCurrent : TDefinitionUseItemBase;
-begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
-	while (vlCurrent <> nil) do begin
-		vlCurrent.SetToSomeTimes;
-		vlCurrent := TDefinitionUseItemBase(vlCurrent.fNxt);
-	end;
-end;
-
-
-
-constructor TDefinitionUseList.Create(ParDefinition : TBaseDefinition);
-begin
-	iOwner := ParDefinition;
-	inherited Create;
-end;
-
-procedure TDefinitionUseList.CheckUnused(ParCre : TCreator);
-var
-	vlCurrent : TDefinitionUseItemBase;
-begin
-	vlCurrent := TDefinitionUseItem(fStart);
-
-	while vlCurrent <> nil do begin
-		vlCurrent.CheckUnused(ParCre,iOwner);
-		vlCUrrent := TDefinitionUseItem(vlCurrent.fNxt);
-	end;
-end;
-
-
-procedure TDefinitionUseList.CombineFlow(ParTo : TDefinitionUseList);
-var
-	vlCurrent1 : TDefinitionUseItemBase;
-	vlCurrent3 : TDefinitionUseItemBase;
-	vlCurrent2 : TDefinitionUseITemBase;
-begin
-	vlCurrent1 := TDefinitionUseItem(fStart);
-	while vlCurrent1 <> nil do begin
-		vlCurrent3 := ParTo.GetItemByDefinition(vlCurrent1.GetDefinition);
-		if vlCurrent3 <> nil then begin
-			 vlCurrent3.CombineFlow(vlCurrent1);
-		end else begin
-			vlCurrent2 := vlCurrent1.clone;
-			vlCurrent2.SetToSomeTimes;
-			ParTo.AddItem(vlCurrent2);
-		end;
-		vlCurrent1 := TDefinitionUseItem(vlCurrent1.fNxt);
-	end;
-end;
-
-function TDefinitionUseList.Clone:TDefinitionUseList;
-var
-	vlCurrent : TDefinitionUseItemBase;
-	vlList :TDefinitionUseList;
-begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
-	vlList := TDefinitionUseList.Create(iOwner);
-	while vlCurrent <> nil do begin
-		vlList.AddItem(vlCurrent.Clone);
-		vlCurrent := TDefinitionUseItemBase(vlCUrrent.fNxt);
-	end;
-	exit(vlList);
-end;
-
-procedure TDefinitionUseList.CloneIntoList(ParList : TDefinitionUseList);
-var
-	vlCurrent : TDefinitionUseItemBase;
-begin
-	vlCurrent := TDefinitionUseItemBase(fStart);
-	while vlCurrent <> nil do begin
-		ParList.AddItem(vlCurrent.Clone);
-		vlCurrent := TDefinitionUseItemBase(vlCUrrent.fNxt);
-	end;
-end;
-
-
-function TDefinitionUseList.GetItemByDefinition(parDefinition :TBaseDefinition):TDefinitionUseItemBase;
-var
-	vlCurrent : TDefinitionUseItem;
-begin
-	vlCurrent := TDefinitionUseItem(fStart);
-	while (vlCurrent <> nil) and not(vlCurrent.IsDefinition(ParDefinition)) do vlCurrent := TDefinitionUseItem(vlCurrent.fNxt);
-	exit(vlCurrent);
-end;
-
-
-function TDefinitionUseList.GetOrAddUseItem(ParDefinition : TBaseDefinition) : TDefinitionUseItemBase;
-var
-	vlItem : TDefinitionUseItemBase;
-begin
-	vlItem := GetItemByDefinition(ParDefinition);
-	if vlItem = nil then begin
-		vlItem := TDefinition(ParDefinition).CreateDefinitionUseItem;{TODO remove casting}
-		AddItem(vlItem);
-	end;
-	if(iOwner <> nil) and (TDefinition(iOwner).AssumeInitDu(TDefinition(ParDefinition))) then begin {TODO remove casting}
-		vlItem.AssumeIsWriten;
-	end;
-   exit(vlItem);
-end;
-
-function TDefinitionUseList.SetAccess(ParDefinition : TBaseDefinition;ParMode :TAccessMode; var ParItem : TDefinitionUseItemBase) : TAccessStatus;
-var
-	vlItem : TDefinitionUseItemBase;
-	vlStatus : TAccessStatus;
-begin
-   vlItem := GetOrAddUseItem(ParDefinition);
-	vlStatus := vlItem.SetAccess(ParMode);
-   ParItem := vlItem;
-	exit(vLStatus);
-end;
-
-
-
-
-{---------------------( TDefinitionUseItemBase )------------------------------------------}
-
-procedure TDefinitionUseItemBase.AssumeIsWriten;
-begin
-	SetAccess(AM_Silent_Write_Read);
-end;
-
-procedure TDefinitionUseItemBase.Commonsetup;
-begin
-	inherited Commonsetup;
-   iContext := nil;
-end;
-
-function TDefinitionUseItemBase.IsDefinition(ParDefinition : TBaseDefinition) : boolean;
-begin
-	exit(GetDefinition = ParDefinition);
-end;
-
-function TDefinitionUseItemBase.GetName : string;
-begin
-	exit(GetDefinition.GetErrorName);
-end;
-
-
-function TDefinitionUseItemBase.GetSubList : TDefinitionUseList;
-begin
-	exit(nil);
-end;
 
 
 
@@ -587,7 +337,7 @@ begin
 		end else begin
       	EmptyString(vlOwner);
       end;
-		vlDef := iDefinition;
+		vlDef := iDefinition;{TODO Can be better}
 		if(iContext <> nil) then vlDef := iContext.GetDefinition;
 		ParCre.AddDefinitionWarning(vlDef,ERR_Variable_Not_Used,vlOwner+GetName);
 	end;
@@ -632,7 +382,7 @@ begin
 	exit(vlOut);
 end;
 
-procedure TDefinitionUseItem.CombineIfWithElseUse(ParElse : TDefinitionUseItemBase);
+procedure TDefinitionUseItem.CombineIfWithElseUse(ParElse : TUseItem);
 begin
 	if not(ParElse is TDefinitionUseItem) then fatal(FAT_Combine_Wrong_Type_DU,ParElse.classname);
    iRead :=CombineIfAndELseUseModes(iRead,TDefinitionUseItem(ParElse).fRead);
@@ -640,7 +390,7 @@ begin
 	iRunRead :=CombineITRRUseModes(iRunRead,TDefinitionUseItem(ParElse).fRunRead);
 end;
 
-procedure TDefinitionUseItem.CombineFlow(ParOther :TDefinitionUseItemBase);
+procedure TDefinitionUseItem.CombineFlow(ParOther :TUseItem);
 var
 	vlModeR : TDefinitionUseMode;
 	vlModeW : TDefinitionUseMode;
@@ -657,17 +407,17 @@ end;
 
 
 
-procedure TDefinitionUseItem.SetLIke(ParItem : TDefinitionUseItemBase);
+procedure TDefinitionUseItem.SetLIke(ParItem : TUseItem);
 begin
 	if not(ParItem is TDefinitionUseItem) then fatal(FAT_Combine_Wrong_Type_DU,'');
 
-	iDefinition := TDefinitionUseItem(ParItem).GetDefinition;
+	iDefinition := TDefinitionUseItem(ParItem).fDefinition;
 	iRead       := TDefinitionUseItem(ParItem).fRead;
 	iWrite      := TDefinitionUseITem(ParItem).fWrite;
 	iRunRead    := TDefinitionUseItem(ParItem).fRunRead;
 end;
 
-function TDefinitionUseItem.Clone : TDefinitionUseItemBase;
+function TDefinitionUseItem.Clone : TUseItem;
 var
 	vlItem : TDefinitionUseItem;
 begin

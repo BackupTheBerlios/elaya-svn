@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit varbase;
 interface
 uses stdobj,streams,linklist,compbase,elacons,progutil,macobj,elatypes,elacfg,ddefinit,
-formbase,asmcreat,asmdata,node,display,pocobj,asminfo,error,largenum,varuse;
+formbase,asmcreat,asmdata,node,display,pocobj,asminfo,error,largenum,useitem;
 type
 	TVarBase=class(TFormulaDefinition)
 	private
@@ -53,7 +53,7 @@ type
 		function    IsSame(ParOther : TVarBase):boolean;virtual;
 		function   	IsOptUnsave:boolean;virtual;
 		function   	GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
-    	function    CreateDefinitionUseItem : TDefinitionUseItemBase;override;
+    	function    CreateDefinitionUseItem : TUseItem;override;
 	end;
 	
 	TVarNode=class(TValueNode)
@@ -72,7 +72,7 @@ type
 		procedure   PrintNode(ParDis:TDisplay);override;
 		function    GetType  :TType;override;
 		function    IsOptUnsave:boolean;override;
-		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 		function    GetDefinition : TDefinition;override;
 	end;
 	
@@ -93,10 +93,10 @@ begin
 end;
 
 
-procedure  TVarNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure  TVarNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 var
 	vlStatus : TAccessStatus;
-	vlItem : TDefinitionUseItemBase;
+	vlItem : TUseItem;
 begin
 	vlStatus := ParUSeList.SetAccess(iVariable,ParMode,vlItem);
 	DefinitionUseStatusToError(ParCre,vlStatus,vlItem);
@@ -170,9 +170,9 @@ end;
 {------( TVarBase )-------------------------------------------------}
 
 
-function  TVarBase.CreateDefinitionUseItem : TDefinitionUseItemBase;
+function  TVarBase.CreateDefinitionUseItem : TUseItem;
 var
-	vlUse : TDefinitionUseItemBase;
+	vlUse : TUseItem;
 begin
 	vlUse := (fType.CreateVarOfTypeUse(self));
 	exit(vlUse);

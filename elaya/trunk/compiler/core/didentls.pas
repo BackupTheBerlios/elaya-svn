@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit DIdentLs;
 
 interface
-uses varuse,strmbase,streams,cmp_type,stdobj,linklist,compbase,display,elacons,hashing,DDefault,DDefinit,elatypes,error;
+uses useitem,strmbase,streams,cmp_type,stdobj,linklist,compbase,display,elacons,hashing,DDefault,DDefinit,elatypes,error;
 	
 type
 	TIdentList=class(TList)
@@ -61,7 +61,7 @@ type
 		function  Validate(ParDef:TDefinition):TErrorType;virtual;
 		procedure  commonsetup;override;
 		procedure  AddToHashing;
-		procedure AddItemsToUseList(ParUse : TDefinitionUseList);
+		procedure AddItemsToUseList(ParUse : TUseList);
 
 	end;
 	
@@ -71,7 +71,7 @@ implementation
 
 
 
-procedure TIdentList.AddItemsToUseList(ParUse : TDefinitionUseList);
+procedure TIdentList.AddItemsToUseList(ParUse : TUseList);
 var
 	vlCurrent : TDefinition;
 begin

@@ -1,4 +1,4 @@
-{
+{                                                                                                               5;3~
    Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
@@ -23,7 +23,7 @@ unit Node;
 
 interface
 uses largenum,compbase,linklist,error,display,elaCons,pocobj,cmp_type,
-	macobj,progutil,elatypes,stdobj,objlist,varuse,strlist;
+	macobj,progutil,elatypes,stdobj,objlist,strlist,useitem;
 type
 	
 TConstantValidationProc=function(ParValue : TValue):TConstantValidation of object;
@@ -43,7 +43,7 @@ public
 	function  DeleteIfCan(ParCre : TCreator):boolean;
 	procedure ValidateAfter(ParCre : TCreator);
 	procedure AddNodeAt(ParAt,ParNode : TNodeIdent);
-	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);
 	procedure Proces(ParCre : TCreator);virtual;
 end;
@@ -85,8 +85,8 @@ public
 	procedure ValidateAfter(ParCre : TCreator);virtual;
 	procedure ValidateConstant(ParCre :TCreator;ParProc : TConstantValidationProc);virtual;
 	procedure Optimize(ParCre : TCreator);virtual;
-	procedure DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus : TAccessStatus;ParItem : TDefinitionUseItemBase);
-	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);virtual;
+	procedure DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus : TAccessStatus;ParItem : TUseItem);
+	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);virtual;
 	procedure Proces(ParCre : TCreator);virtual;
 	procedure FinishNode(ParCre : TCreator;ParIsSec : boolean);
 
@@ -611,7 +611,7 @@ begin
 	end;
 end;
 
-procedure TNodeList.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TNodeList.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 var
 	vlCurrent:TNodeIdent;
 begin
@@ -647,15 +647,15 @@ begin
 	fParts.Proces(ParCre);
 end;
 
-procedure TNodeIdent.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList  : TDefinitionUseList);
+procedure TNodeIdent.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList  : TUseList);
 begin
 end;
 
-procedure TNodeIdent.DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus : TAccessStatus;ParItem : TDefinitionUseItemBase);
+procedure TNodeIdent.DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus : TAccessStatus;ParItem : TUseItem);
 
 var vlStatus : TAccessStatus;
 	 vlErr : TErrorType;
-	 vlItem : TDefinitionUseItemBase;
+	 vlItem : TUseItem;
 	 vlName : string;
 begin
 		vlStatus :=ParStatus;

@@ -22,7 +22,7 @@ unit params;
 interface
 
 uses ndcreat,varuse,strmbase,streams,cmp_type,ddefinit,didentls,compbase,formbase,node,error,elatypes,display,macobj,pocobj,elacons,
-	vars,stdobj,varbase,linklist,types,asminfo,frames,progutil;
+	vars,stdobj,varbase,linklist,types,asminfo,frames,progutil,useitem;
 	
 type
 	TParamNode       =class;
@@ -99,7 +99,7 @@ type
 		function   IsOptUnsave:boolean;override;
 		function   IsCompWithParamExprType(ParExact : boolean;ParType : TType):boolean;
 		function   IsCompWithParamExpr(ParExact : boolean;ParNode : TFormulaNode):boolean;
-		function   CreateDefinitionUseItem: TDefinitionUseItemBase;override;
+		function   CreateDefinitionUseItem: TUseItem;override;
 		procedure  ProduceFrame(ParCre : TSecCreator;ParContext : TDefinition);
 		procedure  InitParameter(ParOwner : TDefinition);virtual;
    	procedure  SetOffset(ParOffset :TOffset);
@@ -227,7 +227,7 @@ type
 		procedure   ValidateAfter(ParCre : TCreator);override;
 		function    IsCompWithType(ParType :TType):boolean;override;
 		function	 CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 		procedure ConvertNode(ParCre : TCreator);
 		function IsAutomatic : boolean;
 	end;
@@ -1811,7 +1811,7 @@ begin
 end;
 
 
-procedure  TParamNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure  TParamNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 var
 	vlMode :TAccessMode;
 begin
@@ -2183,9 +2183,9 @@ begin
 	end;
 end;
 
-function TParameterVar.CreateDefinitionUseItem: TDefinitionUseItemBase;
+function TParameterVar.CreateDefinitionUseItem: TUseItem;
 var
-	vlItem : TDefinitionUseItemBase;
+	vlItem : TUseItem;
 begin
 	vlItem := inherited CreateDefinitionUseItem;
 	vlItem.SetDefault(fTranType = PV_Var);

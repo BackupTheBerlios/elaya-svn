@@ -98,14 +98,14 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RConstantStringAdd ( var ParString : TString);
       Procedure _RConstantStringExpr ( var ParString : TString);
       Procedure _RH_Type ( var ParType:TType);
-      Procedure _RNum_Or_Const ( var ParVal:TValue;var ParInvalid : boolean);
-      Procedure _RDirectFact ( var ParVal:TValue;var ParInValid:boolean);
-      Procedure _RDirectNeg ( var ParVal : TValue;var ParInvalid : boolean);
-      Procedure _RDirectMul ( var ParVal:TValue;var ParInValid:boolean);
-      Procedure _RDirectAdd ( var ParVal:TValue;var ParInValid:boolean);
-      Procedure _RDirectLogic ( var ParVal : TValue;var ParInvalid:boolean);
+      Procedure _RNum_Or_Const ( var ParVal:TValue;var ParValid : boolean);
+      Procedure _RDirectFact ( var ParVal:TValue;var ParValid:boolean);
+      Procedure _RDirectNeg ( var ParVal : TValue;var ParValid : boolean);
+      Procedure _RDirectMul ( var ParVal:TValue;var ParValid:boolean);
+      Procedure _RDirectAdd ( var ParVal:TValue;var ParValid:boolean);
+      Procedure _RDirectLogic ( var ParVal : TValue;var ParValid:boolean);
       Procedure _RDirectExpr ( var ParVal:TValue);
-      Procedure _RNumberConstant ( var ParValue : TValue;var ParInvalid : boolean);
+      Procedure _RNumberConstant ( var ParValue : TValue;var ParValid : boolean);
       Procedure _RStringConstant ( var ParValue : TValue);
       Procedure _RDirectNumber ( var ParNum:TNumber);
       Procedure _RCharConst ( var ParValue : TValue);
@@ -218,7 +218,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RAlign;
       Procedure _RDefIdentObj ( var ParDef : TDefinition;ParAccCheck : boolean);
       Procedure _RIdentObj ( var ParDef:TDefinition);
-      Procedure _RNumber ( var ParNum : TNumber;var ParValid : boolean);
+      Procedure _RNumber ( var ParNum : TNumber;ParValid : boolean);
       Procedure _RDec_Number ( var ParNum:TNumber; var ParValid:boolean);
       Procedure _RBin_Number ( var ParNum:TNumber;var ParValid : boolean);
       Procedure _RHex_Number ( var ParNum:TNumber;var ParValid : boolean);
@@ -496,7 +496,6 @@ begin
                         _RNumber( vlNum,vlValid);
                          
                         	if not(LargeInRange(vlNum ,Min_Longint, Max_Cardinal)) then SemError(Err_Num_Out_Of_Range);
-                        	if not vlValid then SemError(Err_int_Invalid_number);
                         	ParDigi := TNUmberDigiItem.Create(vlNum);
                         ;
                   end;
@@ -2705,8 +2704,9 @@ begin
       
       begin
              
-             ParVal  := nil;
-             vlNeg   := false;
+            ParVal  := nil;
+            vlNeg   := false;
+            vlInvalid := false;
             ;
             if (GetSym in [3 , 4 , 5 , 105 , 106]) then begin
                   if (GetSym in [105 , 106]) then begin
@@ -2854,15 +2854,13 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RNum_Or_Const ( var ParVal:TValue;var ParInvalid : boolean);
+      Procedure TELA_Parser._RNum_Or_Const ( var ParVal:TValue;var ParValid : boolean);
         var vlConst : TConstant;
-      			       vlValid : boolean;
       			
       begin
-                ParVal := nil;
-            			     vlValid := true; ;
+                ParVal := nil;;
             if (GetSym in [3 , 4 , 5]) then begin
-                  _RNumberConstant( ParVal,ParInvalid);
+                  _RNumberConstant( ParVal,ParValid);
             end
              else if (GetSym = 1) then begin
                   _RDefIdentObj( TDefinition(vlConst),false);
@@ -2887,25 +2885,25 @@ begin
             ; 
             if ParVal = nil then begin
             ParVal := TLongint.Create(1);
-            ParInvalid := true;
+            ParValid := false;
             end;
             ;
       end;
       
-      Procedure TELA_Parser._RDirectFact ( var ParVal:TValue;var ParInValid:boolean);
+      Procedure TELA_Parser._RDirectFact ( var ParVal:TValue;var ParValid:boolean);
        
       var
       	vlNum :TSize;
       	vlType:TType;
       
       begin
-              ParVal     := nil; ;
+              ParVal     := nil;  ;
             if vgDynSet[13].isSet(GetSym) then begin
-                  _RNum_Or_Const( ParVal,ParInvalid);
+                  _RNum_Or_Const( ParVal,ParValid);
             end
              else if (GetSym = 103) then begin
                   Get;
-                  _RDirectLogic( ParVal,ParInValid);
+                  _RDirectLogic( ParVal,ParValid);
                   Expect(104);
             end
              else if (GetSym = 58) then begin
@@ -2918,9 +2916,13 @@ begin
              else if (GetSym = 60) then begin
                   _INot;
                   Expect(103);
-                  _RDirectLogic( ParVal,ParInvalid);
+                  _RDirectLogic( ParVal,ParValid);
                   Expect(104);
-                    if CalculationStatusToError(ParVal.NotVal) then ParInvalid := true; ;
+                   
+                  	if(ParValid) then begin
+                  		if CalculationStatusToError(ParVal.NotVal) then ParValid := false;
+                  	end;
+                  ;
             end
              else if (GetSym = 83) then begin
                   _ISizeOf;
@@ -2932,7 +2934,7 @@ begin
                   		vlNum := vlType.fSize
                   	end  else begin
                   		vlNum := 0;
-                  		ParInvalid := true;
+                  		ParValid := false;
                   	end;
                   	ParVal := TLongint.Create(vlNum);
                   ;
@@ -2943,13 +2945,17 @@ begin
             ;  if ParVal = nil then ParVal := (TLongint.Create(1));;
       end;
       
-      Procedure TELA_Parser._RDirectNeg ( var ParVal : TValue;var ParInvalid : boolean);
+      Procedure TELA_Parser._RDirectNeg ( var ParVal : TValue;var ParValid : boolean);
        
       Var
       	vlNeg : boolean;
+      	vlValid :boolean;
       
       begin
-              vlNeg := false;;
+             
+            vlNeg := false;
+            ParValid := true;
+            ;
             WHILE (GetSym in [105 , 106]) do begin
                   if (GetSym = 106) then begin
                         Get;
@@ -2959,90 +2965,166 @@ begin
                         Get;
                   end
                   ;end;
-            _RDirectFact( ParVal,ParInvalid);
+            _RDirectFact( ParVal,vlValid);
              
-             if vlNeg then  ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Neg);
+            if(vlValid) then begin
+            	if vlNeg then  begin
+            		if CalculationStatusToError(ParVal.Neg) then ParValid := false;
+            	end;
+            end else begin
+            	ParValid := false;
+            end;
             ;
       end;
       
-      Procedure TELA_Parser._RDirectMul ( var ParVal:TValue;var ParInValid:boolean);
-        var vlVal:TValue;   
+      Procedure TELA_Parser._RDirectMul ( var ParVal:TValue;var ParValid:boolean);
+       
+      var
+      	vlVal   : TValue;
+      	vlValid : boolean;
+      
       begin
-            _RDirectNeg( ParVal,ParInValid);
+             
+            	ParValid := true;
+            ;
+            _RDirectNeg( ParVal,ParValid);
             WHILE (GetSym in [34 , 56 , 107]) do begin
                   if (GetSym = 107) then begin
                         Get;
-                        _RDirectNeg( vlval,ParInValid);
-                          ParInValid := ParInValid or CalculationStatusToError(ParVal.Mul(vlVal)); ;
+                        _RDirectNeg( vlval,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.Mul(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else if (GetSym = 34) then begin
                         _IDiv;
-                        _RDirectNeg( vlVal,ParInValid);
-                          ParInValid := ParInValid or CalculationStatusToError(ParVal.DivVal(vlVal)); ;
+                        _RDirectNeg( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.DivVal(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else begin
                         _IMod;
-                        _RDirectNeg( vlVal,ParInvalid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ModVal(vlVal));;
+                        _RDirectNeg( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.ModVal(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
-                  ;  vlVal.destroy; ;
+                  ;  if vlVal <> nil then vlVal.destroy; ;
             end;
       end;
       
-      Procedure TELA_Parser._RDirectAdd ( var ParVal:TValue;var ParInValid:boolean);
+      Procedure TELA_Parser._RDirectAdd ( var ParVal:TValue;var ParValid:boolean);
        
       var
       	vlVal:TValue;
+      	vlValid : boolean;
       
       begin
-            _RDirectMul( ParVal,ParInValid);
+            _RDirectMul( ParVal,ParValid);
             WHILE (GetSym in [79 , 80 , 105 , 106]) do begin
                   if (GetSym = 105) then begin
                         Get;
-                        _RDirectMul( vlVal,ParInValid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Add(vlVal)); ;
+                        _RDirectMul( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.Add(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else if (GetSym = 106) then begin
                         Get;
-                        _RDirectMul( vlval,ParInValid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.Sub(vlVal)); ;
+                        _RDirectMul( vlval,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.Sub(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else if (GetSym = 80) then begin
                         _IShl;
-                        _RDirectMul( vlVal,ParInValid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ShiftLeft(vlVal)); ;
+                        _RDirectMul( vlVal,vlValid);
+                         
+                        if ParValid and  vlValid then begin
+                         if CalculationStatusToError(ParVal.ShiftLeft(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else begin
                         _IShr;
-                        _RDirectMul( vlVal,ParInValid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.ShiftRight(vlVal)); ;
+                        _RDirectMul( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.ShiftRight(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
-                  ;   vlVal.destroy;;
+                  ;   if vlVal <> nil then vlVal.destroy;;
             end;
       end;
       
-      Procedure TELA_Parser._RDirectLogic ( var ParVal : TValue;var ParInvalid:boolean);
+      Procedure TELA_Parser._RDirectLogic ( var ParVal : TValue;var ParValid:boolean);
        
       var
       	vlVal : TValue;
+      	vlValid: boolean;
       
       begin
-            _RDirectAdd( ParVal,ParInvalid);
+              vlVal := nil; ;
+            _RDirectAdd( ParVal,ParValid);
             WHILE (GetSym in [14 , 64 , 102]) do begin
                   if (GetSym = 14) then begin
                         _IAnd;
-                        _RDirectAdd( vlVal,ParInvalid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.AndVal(vlVal)); ;
+                        _RDirectAdd( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.AndVal(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else if (GetSym = 64) then begin
                         _IOr;
-                        _RDirectAdd( vlVal,ParInvalid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.OrVal(vlVal)); ;
+                        _RDirectAdd( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.OrVal(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                    else begin
                         _IXor;
-                        _RDirectAdd( vlVal,ParInvalid);
-                          ParInvalid := ParInvalid or CalculationStatusToError(ParVal.XorVal(vlVal)); ;
+                        _RDirectAdd( vlVal,vlValid);
+                         
+                        if ParValid and vlValid then begin
+                         if CalculationStatusToError(ParVal.XorVal(vlVal)) then ParValid := false;
+                        end else begin
+                         ParValid := false;
+                        end;;
+                        ;
                   end
                   ;  if vlVal <> nil then vlVal.Destroy; ;
             end;
@@ -3051,26 +3133,26 @@ begin
       Procedure TELA_Parser._RDirectExpr ( var ParVal:TValue);
        
       var
-      	vlInvalid:boolean;
+      	vlValid:boolean;
       
       begin
-              vlInValid := false; ;
-            _RDirectLogic( ParVal,vlInValid);
-              if vlInValid then SemError(Err_Invalid_Operation); ;
+            _RDirectLogic( ParVal,vlValid);
       end;
       
-      Procedure TELA_Parser._RNumberConstant ( var ParValue : TValue;var ParInvalid : boolean);
+      Procedure TELA_Parser._RNumberConstant ( var ParValue : TValue;var ParValid : boolean);
        
       var
       	vlNumber : TNumber;
       	vlValid  : boolean;
       
       begin
-            _RNumber( vlNumber,vlValid);
+            _RNumber( vlNumber,ParValid);
              
-            if not(LargeInRange(vlNumber, Min_Longint,Max_Cardinal)) then ErrorText(Err_Num_Out_Of_Range,'2');
+            if not(LargeInRange(vlNumber, Min_Longint,Max_Cardinal)) then begin
+            	ErrorText(Err_Num_Out_Of_Range,'');
+            	ParValid := false;
+            end;
             ParValue := TLongint.Create(vlNumber);
-            if not(vlValid) then ParInvalid := true;
             ;
       end;
       
@@ -4093,9 +4175,12 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RNumber ( var ParNum : TNumber;var ParValid : boolean);
+      Procedure TELA_Parser._RNumber ( var ParNum : TNumber;ParValid : boolean);
       begin
-              	 loadlong(ParNum,0); ;
+             
+            	loadlong(ParNum,0);
+            	ParValid := false;
+            ;
             if (GetSym = 3) then begin
                   _RDec_Number( ParNum,ParValid);
             end
@@ -4108,7 +4193,10 @@ begin
             else begin
                   SynError(158);
             end;
-            ;end;
+            ; 
+            	if not(ParValid) then SemError(Err_int_Invalid_Number);
+            ;
+      end;
       
       Procedure TELA_Parser._RDec_Number ( var ParNum:TNumber; var ParValid:boolean);
        

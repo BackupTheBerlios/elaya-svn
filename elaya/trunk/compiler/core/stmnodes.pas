@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit stmnodes;
 interface
-uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,varuse,execobj,rtnenp;
+uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,useitem,execobj,rtnenp;
 
 type
 
@@ -42,7 +42,7 @@ type
 		procedure   ValidateAfter(parCre : TCreator);override;
 		procedure   Optimize(ParCre:TCreator);override;
 		procedure   clear;override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 
 	end;
 
@@ -60,7 +60,7 @@ type
 
 		function  GetBreakLabel : TLabelPoc;
 		function  GetContinueLabel :TLabelPoc;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
 
 
@@ -103,7 +103,7 @@ type
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure Proces(ParCre : TCreator);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
 	
 	TConditionNode=class(TLoopCBNode)
@@ -121,7 +121,7 @@ type
 		procedure  ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure  ValidateAfter(ParCre  : TCreator);override;
 		procedure Proces(ParCre : TCreator);override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
 	
 	TWhileNode=class(TConditionNode)
@@ -157,7 +157,7 @@ type
 		procedure  ValidateAfter(ParCre  : TCreator);override;
 		procedure  ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure  Proces(ParCre : TCreator);override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 
 	end;
 
@@ -172,7 +172,7 @@ type
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
 		function CheckConvertTest(ParType1,ParType2 : TType) : boolean;override;
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 		function  CanSec : boolean;override;
 	end;
 
@@ -244,7 +244,7 @@ implementation
 
 {---( TExitNode )-------------------------------------------------}
 
-procedure TExitNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TExitNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
    if iReturnInstruction <> nil then iReturnInstruction.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 end;
@@ -338,7 +338,7 @@ begin
 	end;
 end;
 
-procedure TConditionNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TConditionNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	iCond.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 	inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
@@ -485,7 +485,7 @@ begin
 	iEnd := ParNode;
 end;
 
-procedure TForNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TForNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 	iEnd.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
@@ -569,7 +569,7 @@ begin
 	end;
 end;
 
-procedure TCountNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TCountNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	if iBegin <> nil then iBegin.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
 	if iCount <> nil then iCount.ValidateDefinitionUse(ParCre,AM_Write,ParUseList);
@@ -914,7 +914,7 @@ begin
 	end;
 end;
 
-procedure TLoadNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TLoadNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 var
 	vlFirst  : TFormulaNode;
 	vlSecond : TFormulaNode;
@@ -1064,7 +1064,7 @@ begin
 	iContinueLabel := nil;
 end;
 
-procedure TLoopCBNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TLoopCBNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	iParts.ValidateDefinitionUse(ParCre,AM_Execute,ParUseList);
 end;

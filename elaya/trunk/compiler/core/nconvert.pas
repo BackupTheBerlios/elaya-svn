@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit nconvert;
 
 interface
-uses varuse,stdobj,node,elacons,formbase,macobj,pocobj,compbase,error,display;
+uses useitem,stdobj,node,elacons,formbase,macobj,pocobj,compbase,error,display;
 
 type   TConvertnode=class(TFormulaNode)
 	end;
@@ -38,14 +38,14 @@ type   TConvertnode=class(TFormulaNode)
 		procedure   Print(ParDis:TDIsplay); override;
 		function    GetValue : TValue;override;
 		function    Can(ParCan : TCan_Types):boolean;override;
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 
 	end;
 	
 implementation
 
 {--( TLoadConvert )----------------------------------------------------------------}
-procedure TLoadConvert.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TLoadConvert.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	iParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 end;

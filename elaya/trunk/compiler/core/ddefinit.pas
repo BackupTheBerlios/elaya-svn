@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 unit DDefinit ;
 interface
-uses varuse,streams,cmp_type,elacons,progutil,compbase,hashing,display,node,stdobj,elatypes,error,asmdata;
+uses useitem,varuse,streams,cmp_type,elacons,progutil,compbase,hashing,display,node,stdobj,elatypes,error,asmdata;
 type
 	TDefinition=class(TBaseDefinition)
 	private
@@ -123,8 +123,8 @@ type
 		procedure   DoneDotFrame;virtual;
 		function    HasOwner(ParIdent : TDefinition) : boolean;
 		function    IsSameIdentCode(ParIdent:TDefinition):boolean;
-      procedure   AddToUseList(ParUse : TDefinitionUseList);virtual;
-		function    CreateDefinitionUseItem : TDefinitionUseItemBase;virtual;
+      procedure   AddToUseList(ParUse : TUseList);virtual;
+		function    CreateDefinitionUseItem : TUseItem;virtual;
 		function    NeedReadableRecord : boolean;virtual;
 		function    AssumeInitDU(ParIdent : TDefinition):boolean;virtual;
 	end;
@@ -142,7 +142,7 @@ begin
 	exit(ParIdent.GetRealOwner <> self);
 end;
 
-function  TDefinition.CreateDefinitionUseItem : TDefinitionUseItemBase;
+function  TDefinition.CreateDefinitionUseItem : TUseItem;
 begin
 	exit(TDefinitionUseItem.Create(self));
 end;
@@ -158,7 +158,7 @@ begin
 	exit(false);
 end;
 
-procedure TDefinition.AddToUseList(ParUse : TDefinitionUseList);
+procedure TDefinition.AddToUseList(ParUse : TUseList);
 begin
 	ParUse.InsertAt(nil,CreateDefinitionUseItem);
 end;

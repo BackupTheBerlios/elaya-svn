@@ -177,7 +177,7 @@ type
 	
 implementation
 
-uses varbase,procs,vars,execobj,cblkbase,ela_user,classes,doperfun,stmnodes;
+uses procs,vars,execobj,cblkbase,ela_user,classes,doperfun,stmnodes;
 
 
 {---( TNDCreator )-----------------------------------------------------}

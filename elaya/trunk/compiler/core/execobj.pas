@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit ExecObj;
 interface
 uses  classes,largenum,ddefinit,procs,nconvert,types,error,elacons,progutil,vars, display,compbase,
-	elatypes,pocobj,macobj,node,formbase,varbase,ndcreat,stdobj,asminfo,confval,varuse;
+	elatypes,pocobj,macobj,node,formbase,varbase,ndcreat,stdobj,asminfo,confval,useitem;
 	
 type
 		
@@ -93,7 +93,7 @@ type
 		function  CheckConvertTest(ParType1,ParType2 : TType) : boolean;virtual;
 		function  DefaultNodeCheck : boolean;virtual;
 		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
 	
 	TArrayIndexNode=class(TOperatorNode)
@@ -115,7 +115,7 @@ type
 		function  GetType:TType;override;
 		procedure SetBase(ParCre : TNDCreator;ParNode : TFormulaNode);
 		procedure ValidateAfter(ParCre : TCreator);override;
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
 	
 	TByPtrNode=class(TOperatorNode)
@@ -367,7 +367,7 @@ type
 		function    GetValue:TValue;override;
 		function    IsConstant : boolean;override;
 		function  DefaultNodeCheck : boolean;override;
-		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList) ;override;
+		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList) ;override;
 	end;
 	
 	TValuePointerNode=class(TOperatorNode)
@@ -411,7 +411,7 @@ type
 		function    Can(ParCan:TCan_Types):boolean;override;
 		function    GetType:TType;override;
 		constructor Create(ParNode : TFormulaNode;ParType :TType);
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList); override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 
 	end;
 	
@@ -431,7 +431,7 @@ type
 		function    GetType:TType;override;
 		procedure   PrintNode(ParDis:TDIsplay);override;
 		function  DefaultNodeCheck : boolean;override;
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 	end;
 
 
@@ -689,7 +689,7 @@ end;
 {TODO ArrayIndexNodeLIST?}
 
 
-procedure TArrayIndexNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TArrayIndexNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	inherited ValidateFormulaDefinitionUse(ParCre,ParMode,ParUseList);
 	iBase.ValidateFormulaDefinitionUse(ParCre,AM_Nothing,ParUseList);
@@ -924,7 +924,7 @@ end;
 {---(TTypeNode )------------------------------------------------------------------}
 
 
-procedure TTypeNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TTypeNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	iParts.ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 end;
@@ -1134,7 +1134,7 @@ begin
 end;
 
 
-procedure TSizeOfNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TSizeOfNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	iParts.ValidateDefinitionUse(ParCre,AM_Nothing,ParUseList);
 end;
@@ -1260,7 +1260,7 @@ end;
 
 {---( TObjectPointerNode )----------------------------------------------------------------}
 
-procedure TObjectPointerNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TObjectPointerNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	inherited ValidateFormulaDefinitionUse(ParCre,ParMode,ParUseList);
 	iExpression.ValidateFormulaDefinitionUse(ParCre,AM_PointerOf,ParUseList);
@@ -2350,7 +2350,7 @@ end;
 
 
 
-procedure TOperatorNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure TOperatorNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	iParts.ValidateDefinitionUse(ParCre,AM_Read,ParUseList);
 end;

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit FormBase;
 interface
 uses  Largenum,streams,elacons,elatypes,error,Pocobj,MacObj,node,stdobj,asminfo,
-compbase,display,ProgUtil,DSbLsDef,ddefinit,confval,varuse;
+compbase,display,ProgUtil,DSbLsDef,ddefinit,confval,useitem,varuse;
 type
 	TFormulaNode=class;
 	TTypeClass=class of TType;
@@ -83,7 +83,7 @@ type
     	{}
 		function   IsMinimum(ParValue : TValue):boolean;virtual;{TODO return YES,ERROR,FALSE}
 		function   IsMaximum(ParValue : TValue):boolean;virtual;{TODO 2 implement with other types inst of number}
-		function   CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;virtual;
+		function   CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;virtual;
 	end;
 	
 	TFormulaList=class(TNodeList)
@@ -174,8 +174,8 @@ type
 		procedure Proces(ParCre :TCreator);override;
     	function CanSec:boolean;virtual;
   		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
-		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);override;
-		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);virtual;
+		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
+		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);virtual;
 
 		function  GetDefinition : TDefinition;virtual;
 end;
@@ -260,10 +260,10 @@ end;
 		exit(nil);
 	end;
 
-	procedure TFormulaNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	procedure TFormulaNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	var
-		vlList : TDefinitionUseList;
-		vlUse  : TDefinitionUseItemBase;
+		vlList : TUseList;
+		vlUse  : TUseItem;
 		vlDef  : TDefinition;
 	begin
 			vlList := ParUseList;
@@ -278,7 +278,7 @@ end;
 		   ValidateFormulaDefinitionUse(ParCre,ParMode,vlList);
 	end;
 
-	procedure TFormulaNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+	procedure TFormulaNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	begin
 			inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 	end;
@@ -677,7 +677,7 @@ end;
 
 {----( TType )---------------------------------------------------}
 
-function TType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TDefinitionUseItemBase;
+function TType.CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;
 begin
 	exit(TDefinitionUseItem.Create(ParVar));
 end;

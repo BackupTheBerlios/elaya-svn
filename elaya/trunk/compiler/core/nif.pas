@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit Nif;
 interface
-uses display,node,pocobj,elacons,varuse,stmnodes;
+uses display,node,pocobj,elacons,useitem,stmnodes;
 
 
 
@@ -32,7 +32,7 @@ type
 		procedure   InitParts;override;
 		procedure   PrintNode(ParDis:TDisplay);override;
 		function    CreateSec(ParCre:TSecCreator):boolean;override;
-		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList) ;override;
+		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList) ;override;
 
 	end;
 	
@@ -49,7 +49,7 @@ type
 		function  CreateSec(ParCre:TSecCreator):boolean;override;
 		procedure print(ParDis:TDisplay);override;
 		constructor Create(ParThenElse:boolean);
-		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList) ;override;
+		procedure   ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList) ;override;
 
 	end;
 	
@@ -84,7 +84,7 @@ begin
 	iThenElse := ParThenElse;
 end;
 
-procedure  TThenElseNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure  TThenElseNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 begin
 	fParts.ValidateDefinitionUse(ParCre,ParMode,ParUSeList);
 end;
@@ -141,10 +141,10 @@ begin
 	exit(false);
 end;
 
-procedure  TIfNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TDefinitionUseList);
+procedure  TIfNode.ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 var
-	vlUse           : TDefinitionUseList;
-	vlUseElse       : TDefinitionUseLIst;
+	vlUse           : TUseList;
+	vlUseElse       : TUseList;
 	vlTrueBlock     : TNodeIdent;
 	vlFalseBlock    : TNodeIdent;
 begin
