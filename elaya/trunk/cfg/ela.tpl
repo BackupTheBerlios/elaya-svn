@@ -22,10 +22,10 @@
   -------------------------------------------------------- 
 }
 
-var NO    := 'N';
+const No    := 'N';
 const False := 'N';
-var True  := 'Y';
-var Yes   := 'Y';
+const True  := 'Y';
+const Yes   := 'Y';
 
 
 var can_cross_compile:= '@Can_Cross_Compile@';
@@ -47,31 +47,34 @@ section
 	Linker_Path		     := '/usr/bin/ld';
 	Is_Elf_target		:= 'N' ;
 	Auto_Load     := 'core;strings;sys;classes;memory';
+	Object_Path   := '@Dir_Ela_Rtl_Base@/'+Target_Platform;
+	Assembler_Path := '@Dir_as@';
+	Linker_Path    := '@Dir_ld@';
 END;
 
 
 
-var t_Is_win32:='n';
-var t_os_ok:='n';
+
+
 
 {target linux}
 
 
 SECTION(Target_Platform='linux')
 	Linker_Options	 := '-dynamic-linker=/lib/ld-linux.so.2';
-	t_os_ok:='y';
 	Is_Elf_Target := 'Y' ;
+	Can_Use_Dll := 'N';
 END;
 
 
-SECTION (operating_system = 'linux')
-	Object_Path := '@Dir_Ela_Rtl_Base@/'+Rtl_Sub_Dir;
-      	Assembler_Path     := '@Dir_as@';
-	Linker_Path        := '@Dir_ld@';
-END;
+
+
+
+
+
 
 
 {Error Checking}
 
 
-END;
+END;                                                           

@@ -29,9 +29,8 @@ const False := 'N';
 const Yes   := 'Y';
 const True  := 'Y';
 
-var Object_Path_Base := '@Dir_Ela_Rtl_Base@';
 var Can_Cross_Compile:= '@Can_Cross_Compile@';
-var Req_Cross_Compile:= 'n';
+
 section
 
 	write('File name :',source_name);
@@ -39,77 +38,33 @@ section
 	Always_Stack_Frame           := 'N';
 	Print_Register_Res           := 'N';
 	Remember_External_Param_name := 'Y';	
-	Is_Elf_Target := 'N';
-	Auto_Load           := 'core;sys;classes;memory;strings';
+	Is_Elf_Target                := 'N';
+	Auto_Load                    := 'core;sys;classes;memory;strings';
+        Assembler_Path               := '@Dir_as@';
+	object_Path	             := '@Dir_Ela_Rtl_Base@/'+Target_Platform;
 END;
 
 var MySql_Lib_Type := '';
 var MySql_Lib_Name := '';
 var MySql_Lib_CallType := '';
-var Kernel_Lib_Type := '';
-var Kernel_Lib_Name := '';
-var Kernel_Lib_CallType := '';
-var t_os_Ok   :='n';
-var t_Is_win32:='n';
 
 
 SECTION(Target_Platform='linux')
 	MySql_Lib_Type     := 'LINKED';
 	MySql_Lib_Name     := 'libmysqlclient.so';
 	MySql_Lib_CallType := 'CDecl';
-	Can_Use_Dll	 := 'N';
-	Output_Object_Path   :='@Dir_Rtl@';
-	Is_Elf_Target := 'Y' ;
-
-
-	SECTION(source_name='linux')
-		AUto_Load := '';
-	END;
-
-
-	object_Path	     := Output_Object_Path;
-
+	Can_Use_Dll  	   := 'N';
+	Is_Elf_Target      := 'Y' ;
 END;
 
 
 
-SECTION(operating_system='linux')
-	SECTION(Target_Platform='linux')
-		Assembler_Path  := '@Dir_as@';
-	END;
 	
 END;
 
 
 
 
-SECTION(source_name='strings') 
-	Auto_Load := ''; 
-END; 
-
-SECTION(source_name='sys_int') 
-	Auto_Load := ''; 
-END; 
-
-SECTION(source_name='sys')
-	Auto_Load := '';
-END;
-
-SECTION(source_name='core')
-	Auto_Load := '';
-END;
-
-SECTION(source_name='classes')
-	Auto_Load := '';
-END;
-
-SECTION(source_name='memory')
-	Auto_Load := '';
-END;
-
-SECTION(source_name='sockets')
-	Auto_Load := '';
-END;
 
 
 END;
