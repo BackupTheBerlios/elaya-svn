@@ -58,7 +58,7 @@ type
 		function   GetFirstInstruction : TSMListItem;
 		procedure  AddInstructionAt(ParAt,ParItem : TSMListItem);
 		procedure  Print(ParDis : TAsmDisplay);
-		constructor Create(const ParShortName,ParProcedureName,ParParentName : string;ParFirstLine : cardinal;ParIsPublic:boolean);
+		constructor Create(const ParShortName,ParProcedureName,ParParentName : ansistring;ParFirstLine : cardinal;ParIsPublic:boolean);
 		procedure  PrintPReFrame(ParDis:TAsmDisplay);
 	end;
 	
@@ -94,7 +94,7 @@ end;
 
 procedure TRoutineAsm.PrintPReFrame(ParDis:TAsmDisplay);
 var vlRemark : char;
-  	 vlName   : string;
+  	 vlName   : ansistring;
 begin
 	vlRemark := GetAssemblerInfo.GetRemarkChar;
 	ParDis.Write(vlRemark);
@@ -121,10 +121,10 @@ end;
 
 
 procedure   TRoutineAsm.procbegin;
-var vlName  : string;
-    vlShort : string;
-    vlParent:string;
-	vlLabel : string;
+var vlName  : ansistring;
+    vlShort : ansistring;
+    vlParent:ansistring;
+	vlLabel : ansistring;
 begin
 	iProcedureName.GetString(VlName);
 	if GetConfig.fIsElfTarget then begin
@@ -163,7 +163,7 @@ begin
 	exit(iInstructionList.fStart);
 end;
 
-constructor TROutineAsm.Create(const ParShortName,ParProcedureName,ParParentName : string;ParFirstLine : cardinal;ParIsPublic:boolean);
+constructor TROutineAsm.Create(const ParShortName,ParProcedureName,ParParentName : ansistring;ParFirstLine : cardinal;ParIsPublic:boolean);
 begin
 	iProcedureName := TString.Create(ParProcedureName);
 	iShortName     := TString.Create(ParShortName);

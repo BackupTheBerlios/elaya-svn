@@ -34,48 +34,46 @@ type
 	
 	TTextIdent=class(TIdentBAse)
 	private
-		voText:TString;
+		voText:ansiString;
 	protected
-		property iText:Tstring read voText write voText;
+		property iText:ansiString read voText write voText;
 		procedure commonsetup;override;
-		procedure clear;override;
 
 	public
-		property  fText:TString read voText;
+		property  fText:ansistring read voText;
 		
 		function  SaveItem(ParStr:TObjectStream):boolean;override;
 		function  LoadItem(PArStr:TObjectStream):boolean;override;
-		procedure GetTextStr(var ParStr:String);
-		procedure SetText(const ParStr:string);
+		procedure SetText(const ParStr:ansistring);
 		function  IsSameText(const ParStr : TString):boolean;
-		function  IsSameText(const ParStr : string):boolean;
+		function  IsSameText(const ParStr : ansistring):boolean;
 	end;
 
 
 	TBaseDefinition=class(TTextIdent)
 	private
 		voDefinitionModes : TDefinitionModes;
-		voPos					: cardinal;
-		voCol					: cardinal;
-		voLine				: cardinal;
+		voPos             : cardinal;
+		voCol             : cardinal;
+		voLine            : cardinal;
 
 	protected
 		property     iDefinitionModes : TDefinitionModes read voDefinitionModes write voDefinitionModes;
 		procedure Commonsetup;override;
-		property     iPos             : cardinal         read voPos             write voPos;
-		property     iCol					: cardinal			 read voCol					write voCol;
-		property     iLine				: cardinal			 read voLine				write voLine;
+		property     iPos   : cardinal read voPos  write voPos;
+		property     iCol   : cardinal read voCol  write voCol;
+		property     iLine  : cardinal read voLine write voLine;
 	
 	public
-		property     fPos        : cardinal         read voPos             write voPos;
-		property     fCol			 : cardinal			 read voCol					write voCol;
-		property     fLine		 : cardinal			 read voLine				write voLine;
+		property     fPos  : cardinal read voPos  write voPos;
+		property     fCol  : cardinal read voCol  write voCol;
+		property     fLine : cardinal read voLine write voLine;
 
-		property	fDefinitionModes : TDefinitionModes read voDefinitionModes;
-		function 	LoadItem(ParStream :TObjectStream) : boolean;override;
-    	function    SaveItem(ParStream :TObjectStream) : boolean;override;
-		function    GetDescForAnonymousIdent : string;virtual;
-		function    GetErrorName : string;
+		property    fDefinitionModes : TDefinitionModes read voDefinitionModes;
+		function    LoadItem(ParStream :TObjectStream) : boolean;override;
+	    	function    SaveItem(ParStream :TObjectStream) : boolean;override;
+		function    GetDescForAnonymousIdent : ansistring;virtual;
+		function    GetErrorName : ansistring;
 	end;
 	
 	
@@ -104,9 +102,9 @@ type
 		property    iCompiler  : TCompiler_Base read voCOmpiler write voCompiler;
 	public
 		property    fCompiler:TCompiler_Base read voCompiler;
-		procedure   AddError(ParError:TErrorType;ParLine,ParCol,ParPos:Longint;const ParText:String);
-		procedure   AddWarning(ParError:TErrorType;ParLine,ParCol,ParPos:Longint;const ParText:String);
-		procedure 	AddDefinitionWarning(ParDef : TBaseDefinition;ParError : TErrorTYpe;const ParText:string);
+		procedure   AddError(ParError:TErrorType;ParLine,ParCol,ParPos:Longint;const ParText:ansistring);
+		procedure   AddWarning(ParError:TErrorType;ParLine,ParCol,ParPos:Longint;const ParText:ansistring);
+		procedure 	AddDefinitionWarning(ParDef : TBaseDefinition;ParError : TErrorTYpe;const ParText:ansistring);
 
 
 		constructor Create(ParCompiler:TCompiler_Base);
@@ -117,20 +115,20 @@ type
 		TNameItem=class(TSmStringItem);
 		TNameList=class(TSmStringList)
 		public
-			procedure AddName(const ParName:string);
+			procedure AddName(const ParName:ansistring);
 		end;
 		
-	procedure GetNewAnonName(var ParName:string);
+	procedure GetNewAnonName(var ParName:ansistring);
 	function GetNewResNo:longint;
 	function GetNewLabelNo:longint;
 	function IsMorePublicAs(ParAc1,ParAc2 : TDefAccess):boolean;
 	function IsLessPublicAs(PArAc1,ParAc2 : TDefAccess):boolean;
 	function CombineAccess(ParAc1,ParAc2 : TDefAccess) : TDefAccess;
-	procedure SetLabelBase(const ParName :string);
+	procedure SetLabelBase(const ParName :ansistring);
 	function GetNextProcStabNo : cardinal;
-	procedure AddTextToTextList(var ParName : string;ParExtra : string);
+	procedure AddTextToTextList(var ParName : ansistring;ParExtra : ansistring);
 	function SizeToMax(ParSize : TSize) : cardinal;
-	procedure OperatorToDesc(Const ParName : string;var ParDesc : string);
+	procedure OperatorToDesc(Const ParName : ansistring;var ParDesc : ansistring);
 	
 implementation
 	uses asminfo;
@@ -140,7 +138,7 @@ implementation
 		vgHashSearch : cardinal;
 		vgHashCount  : cardinal;
 		vgSearches   : cardinal;
-		vgLabBase    : string;
+		vgLabBase    : ansistring;
 		vgProcStabNo : cardinal;
 		
 
@@ -154,7 +152,7 @@ implementation
 		exit(0);
 	end;
 
-	procedure AddTextToTextList(var ParName : string;ParExtra : string);
+	procedure AddTextToTextList(var ParName : ansistring;ParExtra : ansistring);
 	begin
 		if length(ParName) <> 0 then ParName := ParName + ',';
 		ParName := ParName + ParExtra;
@@ -167,7 +165,7 @@ implementation
 	end;
 	
 	
-	procedure GetNewAnonName(var ParName:string);
+	procedure GetNewAnonName(var ParName:ansistring);
 	begin
 		str(GetNewLabelNo,ParName);
 		ParName := GetAssemblerInfo.GetManglingChar + ParName;
@@ -201,29 +199,23 @@ end;
 
 
 
-function  TBaseDefinition.GetDescForAnonymousIdent : string;
-var
-	vlName : string;
+function  TBaseDefinition.GetDescForAnonymousIdent : ansistring;
 begin
-	GetTextStr(vlName);
-	exit(vlName);
+	exit(fText);
 end;
 
-function  TBaseDefinition.GetErrorName : string;
-var
-	vlName : string;
+function  TBaseDefinition.GetErrorName : ansistring;
 begin
 	if(DM_Anonymous in iDefinitionModes) then begin
 		exit(GetDescForAnonymousIdent);
 	end else begin
-		GetTextStr(vlName);
-		exit(vlName);
+		exit(iText);
 	end;
 end;
 
 	{----- (TNameList)---------------------------------------------}
 	
-	procedure TNamelist.AddName(const ParName:string);
+	procedure TNamelist.AddName(const ParName:ansistring);
 	begin
 		InsertAtTop(TNameItem.Create(Parname));
 	end;
@@ -232,62 +224,46 @@ end;
 	
 	{------( TTextIdent )-------------------------------------------------}
 	
-	function  TTextIdent.IsSameText(const ParStr : string):boolean;
+	function  TTextIdent.IsSameText(const ParStr : ansistring):boolean;
 	begin
-		exit(fText.IsEqualStr(ParStr));
+		exit(fText=ParStr);
 	end;
 	
 	function  TTextIdent.IsSameText(const ParStr : TString):boolean;
 	begin
-		exit(ParStr.IsEqual(fText));
+		exit(ParStr.IsEqualStr(iText));
 	end;
 	
 	procedure TTextIdent.commonsetup;
 	begin
 		inherited commonsetup;
-		iText := nil;
+		EmptyString(voText);
 	end;
 	
 	function  TTextIdent.SaveItem(ParStr:TObjectStream):boolean;
 	begin
 		SaveItem :=true;
 		if inherited SaveItem(ParStr) then exit;
-		if ParStr.WritePSt(fText) then exit;
+		if ParStr.WriteString(fText) then exit;
 		SaveItem := false;
 	end;
 	
 	
 	function TTextIdent.LoadItem(PArStr:TObjectStream):boolean;
-	var vlStr:String;
+	var vlStr:ansistring;
 	begin
 		LoadItem := true;
 		if inherited LoadItem(ParStr) then exit;
 		if ParStr.ReadString(vlStr) then exit;
-		SetText(vlStr);
+		iText := vlStr;
 		LoadItem := false;
 	end;
 	
-	procedure TTextIdent.GetTextStr(var ParStr:String);
+	procedure TTextIdent.SetText(const ParStr:ansistring);
 	begin
-		if iText <> nil then begin
-			 iText.GetString(ParStr)
-		end else begin
-			EmptyString(ParStr);
-		end;
+		iText := ParStr;
 	end;
-	
-	procedure TTextIdent.SetText(const ParStr:string);
-	begin
-		if iText <> nil then iText.Destroy;
-		iText := TString.Create(ParStr);
-	end;
-	
-	procedure TTextIdent.clear;
-	begin
-		inherited clear;
-		if iText <> nil then iText.Destroy;
-	end;
-	
+		
 	{------( TCreator )---------------------------------------------------}
 	
 
@@ -296,18 +272,18 @@ end;
 		exit(iCompiler.Successful);
 	end;
 
-	procedure TCreator.AddError(ParError:TErrorType;ParLine,ParCol,ParPos:longint;const ParText:String);
+	procedure TCreator.AddError(ParError:TErrorType;ParLine,ParCol,ParPos:longint;const ParText:ansistring);
 	begin
 		iCompiler.Error(parError,ParLine,PArcol,ParPos,ParText);
 	end;
 	
-	procedure TCreator.AddWarning(ParError:TErrorType;ParLine,ParCol,ParPos:longint;const ParText:String);
+	procedure TCreator.AddWarning(ParError:TErrorType;ParLine,ParCol,ParPos:longint;const ParText:ansistring);
 	begin
 		iCompiler.AddWarning(parError,ParLine,PArcol,ParPos,ParText);
 	end;
 
 
-	procedure TCreator.AddDefinitionWarning(ParDef : TBaseDefinition;ParError : TErrorTYpe;const ParText:string);
+	procedure TCreator.AddDefinitionWarning(ParDef : TBaseDefinition;ParError : TErrorTYpe;const ParText:ansistring);
 	var
 		vlLine : cardinal;
 		vlCol  : cardinal;
@@ -482,13 +458,13 @@ begin
 	exit(vgLabNo);
 end;
 
-procedure SetLabelBase(const ParName :string);
+procedure SetLabelBase(const ParName :ansistring);
 begin
 	vgLabBase := ParName;
 end;
 
 
-procedure OperatorToDesc(Const ParName : string;var ParDesc : string);
+procedure OperatorToDesc(Const ParName : ansistring;var ParDesc : ansistring);
 begin
 	if ParName = '#' then ParDesc := 'fence'          else
 	if ParName = '=' then ParDesc := 'equal'          else

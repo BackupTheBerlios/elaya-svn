@@ -1,4 +1,4 @@
-	{    Elaya, the compiler for the elaya language;
+{    Elaya, the compiler for the elaya language;
 Copyright (C) 1999-2003  J.v.Iddekinge.
 web : www.elaya.org
 
@@ -118,18 +118,18 @@ type
 	private
 		voContext    : TDefinition;
 		voComplexity : cardinal;
-      voRecord     : TFormulaNode;
+		voRecord     : TFormulaNode;
 	protected
 		property iContext    : TDefinition read voContext     write voContext;
 		property iComplexity : cardinal    read voComplexity  write voComplexity;
-      property iRecord     : TFormulaNode read voRecord write voRecord;
+		property iRecord     : TFormulaNode read voRecord write voRecord;
 		procedure   Commonsetup;override;
 		procedure   Clear;override;
 		function    DoCreateMac(ParOption : TMacCreateOption;ParCre : TSecCreator):TMacBase;virtual;
 	public
 		property    fContext    : TDefinition read voContext    write voContext;
 		property    fComplexity : cardinal    read voComplexity;
-      property    fRecord     : TFormulaNode read voRecord write voRecord;
+		property    fRecord     : TFormulaNode read voRecord write voRecord;
 
 		{is same}
 		function    IsCompByIdentCode(ParCode : TIdentCode):boolean;
@@ -150,7 +150,7 @@ type
 		function    CreateSec(ParCre:TSecCreator):boolean;override;
 		function    DoCreateSec(ParCre:TSecCreator):boolean;virtual;
 		function    CreateMac(ParOption : TMacCreateOption;ParCre : TSecCreator):TMacBase;override;
-		procedure   GetTypeName(var ParName : string);
+		procedure   GetTypeName(var ParName : ansistring);
 		function    GetTypeSIze : TSize;
 		function    GetTypeSign : boolean;
 		procedure   ValidateConstant(ParCre :TCreator;ParProc : TConstantValidationProc);override;
@@ -171,7 +171,7 @@ type
 		function   IsMaximum(ParValue : TValue):boolean;
 		function   RecordReadCheck : boolean;
 		procedure Proces(ParCre :TCreator);override;
-    	function CanSec:boolean;virtual;
+	    	function CanSec:boolean;virtual;
   		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);virtual;
@@ -410,7 +410,7 @@ end;
 	begin
 		inherited ValidatePre(ParCre,ParIsSec);
 		if(ParIsSec) and not(CanSec) then TNDCreator(ParCre).AddNodeError(self,ERR_Cant_Execute,classname);{TODO:Something better}
-   end;
+	end;
 
    function TFormulaNode.CanSec:boolean;
    begin
@@ -430,7 +430,7 @@ end;
 		if iRecord <> nil then iRecord.Destroy;
 	end;
 
-   function TFormulaNode.RecordReadCheck : boolean;
+	function TFormulaNode.RecordReadCheck : boolean;
 	begin
 		if iRecord <> nil then begin
 			if not iRecord.Can([Can_Read]) then exit(true);
@@ -592,7 +592,7 @@ begin
 end;
 
 
-procedure  TFormulaNode.GetTypeName(var  ParName : string);
+procedure  TFormulaNode.GetTypeName(var  ParName : ansistring);
 begin
 	if GetType = nil then begin
 		ParName := 'Empty';
@@ -884,7 +884,7 @@ end;
 
 function TType.IsLargeType:boolean;
 begin
-	IsLargeType := fSize > GetAssemblerInfo.GetSystemSize;
+	exit(fSize > GetAssemblerInfo.GetSystemSize);
 end;
 
 function TType.IsCompByIdentCode(ParCode : TIdentCode):boolean;

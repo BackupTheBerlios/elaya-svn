@@ -33,16 +33,16 @@ type
 		voLine     : longint;
 		voCol      : Longint;
 		voPos      : longint;
-		voExtra    : TString;
-		voFileName : TString;
-		voWarning: boolean;
+		voExtra    : ansistring;
+		voFileName : ansistring;
+		voWarning  : boolean;
 		procedure   SetInfo(ParCode:TErrorType;
 		ParLine,ParCol,ParPos:Longint;
-		const ParExtra:string);
+		const ParExtra:ansistring);
 		property iWarning  : boolean   read voWarning  write voWarning;
-		property iFileName : TString   read voFileName write voFileName;
-		property iExtra    : TString   read voExtra    write voExtra;
-   	property iLine     : longint   read voLine     write voLine;
+		property iFileName : ansiString   read voFileName write voFileName;
+		property iExtra    : ansiString   read voExtra    write voExtra;
+	   	property iLine     : longint   read voLine     write voLine;
 		property iCol      : longint   read voCol      write voCol;
 		property iCode     : TErrorType read voCode    write voCode;
 		property iPos      : longint   read voPos      write voPos;
@@ -50,33 +50,33 @@ type
 		procedure   Commonsetup;override;
 
 	public
+		property    fPos     : longint    read voPos;
 		property    fLine    : longint    read voLine;
 		property    fCol     : longint    read voCol;
 		property    fCode    : TErrorType read voCode;
 		property    fWarning : boolean    read voWarning;
 
-		procedure   GetInfo(var ParFileName : string;
+		procedure   GetInfo(var ParFileName : ansistring;
 		var ParCode:TErrorType;
 		var ParLine,ParCol,ParPos:Longint;
-		var ParExtra:string);
+		var ParExtra:ansistring);
 
-		constructor create(const  ParFileName : string;
+		constructor create(const  ParFileName : ansistring;
 		ParCode:TErrorType;
 		ParLine,ParCol,ParPos:Longint;
-		const ParExtra:string);
+		const ParExtra:ansistring);
 
 		procedure   SetWarning;
 		function    IsBefore(ParCol,ParLine:Longint):boolean;
-		destructor  destroy;override;
 	end;
 	
 	
 	TErrorList =class(TSMList)
 		function AddError(
-		const ParFileName : string;
+		const ParFileName : ansistring;
 		ParCode : TErrorType;
 		ParLine,ParCol,ParPos : Longint;
-		const ParExtra:string) : TErrorItem;
+		const ParExtra:ansistring) : TErrorItem;
 		FUNCTION    Successful : boolean;
 	end;
 	
@@ -108,7 +108,7 @@ private
 	voCurrentChar      : char;
 	voCurrentSym       : integer;
 	voOwnDynSet        : boolean;
-	voFileName         : TString;
+	voFileName         : AnsiString;
 	voCase             : boolean;
 
 	procedure SetInitialised(ParOpend:boolean);
@@ -117,7 +117,7 @@ protected
 	property fScanBuffer  : TScanBuffer read voScanBuffer write voScanBuffer;
 	
 	property iSourceFileTime : longint read voSourceFileTime write voSourceFileTime;
-	property iFileName       : TString read voFileName    write voFileName;
+	property iFileName       : AnsiString read voFileName    write voFileName;
 	property fCurrentSym     : integer read voCurrentSym  write voCurrentSym;
 	property Ch              : char    read voCurrentChar write voCurrentChar;
 	property GetSym          : integer read voCurrentSym;
@@ -130,7 +130,7 @@ protected
 
 public
 	property  fSourceFileTime    : longint read voSourceFileTime;
-	property  fFileName          : TString read voFileName    write voFileName;
+	property  fFileName          : AnsiString read voFileName    write voFileName;
 	property  GetCurrentPosition : longint read pos;
 	property  fInitialised       : boolean read voInitialised;
 	
@@ -142,7 +142,7 @@ public
 	function	   GetLineStart(ParPos:longint):longint;
 	procedure   SetSourceFileTime(ParTime:longint);
 	procedure   InitErrorList;virtual;
-	function    Error(ParErr:TErrorType;ParLine, ParCol,parPos:longint; const ParText:string):TErrorItem;virtual;
+	function    Error(ParErr:TErrorType;ParLine, ParCol,parPos:longint; const ParText:ansistring):TErrorItem;virtual;
 	PROCEDURE   NextCh;
 	FUNCTION    CharAt (ParPos: LONGINT): CHAR;
 	PROCEDURE   ExpectWeak (ParN : integer; ParFollow: TDynamicSet);
@@ -152,27 +152,29 @@ public
 	PROCEDURE   Get;
 	PROCEDURE   SynError (ParErrNo: TErrorType);virtual;
 	PROCEDURE   SemError (ParErrNo: TErrorType);virtual;
-	function    ErrorText(ParErr:TErrorType;const ParText:string):TErrorItem;virtual;
-	procedure   AddWarning(ParErrNo : TErrorType;const ParText : String);
+	function    ErrorText(ParErr:TErrorType;const ParText:ansistring):TErrorItem;virtual;
+	procedure   AddWarning(ParErrNo : TErrorType;const ParText : ansistring);
 	procedure   AddWarning(ParErrNo : TErrorTYpe);
-	procedure   AddWarning(ParErrNo : TErrorType;ParLine,ParCol,ParPos:longint;const ParText : string);
+	procedure   AddWarning(ParErrNo : TErrorType;ParLine,ParCol,ParPos:longint;const ParText : ansistring);
 	
 	procedure   Symget(var ParSym:integer);virtual;
-	PROCEDURE   GetName (ParPos: LONGINT; ParLen: INTEGER; var ParStr: STRING);
-	PROCEDURE   GetString (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: STRING);
-	procedure   GetBufString(ParPos:longint;ParSize : cardinal;var ParStr:string);
+	PROCEDURE   GetName (ParPos: LONGINT; ParLen: INTEGER; var ParStr: ansistring);
+	PROCEDURE   GetName (ParPos: LONGINT; ParLen: INTEGER; var ParStr: string);
+	PROCEDURE   GeTString (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: ansistring);
+	procedure   GetBufansistring(ParPos:longint;ParSize : cardinal;var ParStr:ansistring);
 	function    SetupCompiler:boolean;virtual;
-	PROCEDURE   LexName (VAR Lex : STRING);
-	PROCEDURE   LexString (VAR Lex : STRING);
-	PROCEDURE   LookAheadName (VAR Lex : STRING);
-	PROCEDURE   LookAheadString (VAR Lex : STRING);
+	PROCEDURE   LexName (VAR Lex : ansistring);
+	PROCEDURE   Lexstring (VAR Lex : ansistring);
+	PROCEDURE   LookAheadName (VAR Lex : ansistring);
+	PROCEDURE   LookAheadansistring (VAR Lex : ansistring);
 	function    HasMessages : boolean;
 	FUNCTION    Successful : boolean;virtual;
-	function    NewCompiler(const ParFileName:string):TCompiler_Base;virtual;
+	function    NewCompiler(const ParFileName:ansistring):TCompiler_Base;virtual;
 	procedure   Compile;virtual;
 	procedure   GetBufBlock(ParPos:longint;ParSize : cardinal;var ParPtr:pointer);
 	procedure   GetBufBlock(ParPos:longint;ParSize : cardinal;ParBuf : TMemoryBlock);
 	procedure   NewLine(ParLine:cardinal);virtual;
+	procedure   GetErrorText(ParNo:longint;var ParErr:ansistring);
 	procedure   GetErrorText(ParNo:longint;var ParErr:string);virtual;
 	procedure   HandleErrors;
 	procedure   ErrorHeader;virtual;
@@ -190,8 +192,8 @@ public
 	procedure   PostCompile;virtual;
 	procedure   PreParse;virtual;
 	procedure   PostParse;virtual;
-	procedure    GetSourcePath(var ParPath:string);virtual;
-	procedure   GetLine(ParPos : longint;var ParLine : string);
+	procedure    GetSourcePath(var ParPath:ansistring);virtual;
+	procedure   GetLine(ParPos : longint;var ParLine : ansistring);
 	procedure   CreateDynSet(var ParSets : array of TDynamicSet);
 procedure   DestroyDynSet(var ParSets : array of TDynamicSet);
 procedure   OpenFileFailed(ParError :TErrorType);virtual;
@@ -217,12 +219,12 @@ begin
 end;
 
 
-function TErrorList.AddError(const ParFileName : string;
+function TErrorList.AddError(const ParFileName : ansistring;
 ParCode     : TErrorType;
 ParLine     : longint;
 ParCol      : longint;
 ParPos      : Longint;
-const ParExtra     : string):TErrorItem;
+const ParExtra     : ansistring):TErrorItem;
 var vlCurrent:TErrorItem;
 begin
 	vlCurrent := TErrorItem(fStart);
@@ -240,50 +242,43 @@ begin
 	exit((iLine < ParLine) or ((iLine = ParLine)  and (iCol < ParCol)));
 end;
 
-destructor TErrorITem.destroy;
-begin
-	inherited destroy;
-	if iExtra <> nil    then iExtra.destroy;
-	if iFileName <> nil then iFileName.Destroy;
-end;
 
-procedure  TErrorItem.SetInfo(ParCode:TErrorType;ParLine,ParCol,ParPos:Longint;const ParExtra:string);
+procedure  TErrorItem.SetInfo(ParCode:TErrorType;ParLine,ParCol,ParPos:Longint;const ParExtra:ansistring);
 begin
 	iCode := ParCode;
 	iLine := ParLine;
 	iPos  := ParPos;
 	iCOl  := ParCol;
-	if iExtra <> nil then iExtra.destroy;
-	iExtra := TString.Create(ParExtra);
+	iExtra := ParExtra;
 end;
 
 
 
 procedure  TErrorItem.GetInfo(
-var ParFileName  : string;
+var ParFileName  : ansistring;
 var ParCode:TErrorType;
 var ParLine,ParCol,ParPos:Longint;
-var ParExtra:string);
+var ParExtra:ansistring);
 begin
-	iFileName.GetString(ParFileName);
+	ParFileName := iFileName;
 	ParCode     := iCode;
 	ParLine     := iLine;
 	ParCol      := iCol;
 	ParPos      := iPos;
-	voExtra.GetString(ParExtra);
+	ParExtra    := iExtra;
 end;
 
 constructor TErrorITem.create(
-const ParFileName : string;
-ParCode     : TErrorType;
-ParLine     : longint;
-ParCol      : longint;
-ParPos      : Longint;
-const ParExtra:string);
+	const ParFileName : ansistring;
+	ParCode     : TErrorType;
+	ParLine     : longint;
+	ParCol      : longint;
+	ParPos      : Longint;
+	const ParExtra:ansistring);
 begin
 	inherited create;
 	SetInfo(ParCode,ParLine,ParCol,ParPos,ParExtra);
-	iFileName := TString.Create(ParFileName);
+	iFileName := ParFileName;
 end;
 
 
@@ -296,8 +291,8 @@ end;
 procedure   TErrorItem.Commonsetup;
 begin
 	inherited Commonsetup;
-	voExtra   := nil;
-	iFileName := nil;
+	EmptyString(voExtra);
+	EmptyString(voFileName);
 	iWarning  := false;
 end;
 
@@ -305,7 +300,7 @@ end;
 {-----( TCompiler_Base )-----------------------------------------------}
 
 
-procedure   TCompiler_Base.AddWarning(ParErrNo : TErrorType;ParLine,ParCol,ParPos:longint;const ParText : string);
+procedure   TCompiler_Base.AddWarning(ParErrNo : TErrorType;ParLine,ParCol,ParPos:longint;const ParText : ansistring);
 var
 	vlError :TErrorItem;
 begin
@@ -313,7 +308,7 @@ begin
 	if vlError <> nil then vlError.SetWarning;
 end;
 
-procedure   TCompiler_Base.AddWarning(ParErrNo : TErrorType;const ParText : string);
+procedure   TCompiler_Base.AddWarning(ParErrNo : TErrorType;const ParText : ansistring);
 var
 	vlError : TErrorItem;
 begin
@@ -346,7 +341,7 @@ begin
 	end;
 end;
 
-procedure  TCompiler_Base.GetLine(ParPos : longint;var ParLine : string);
+procedure  TCompiler_Base.GetLine(ParPos : longint;var ParLine : ansistring);
 var
 	vlCnt : cardinal;
 	vlPos : longint;
@@ -354,21 +349,18 @@ var
 begin
 	vlPos := ParPos;
 	vlCnt := 0;
-	while(true) do begin
-		vlCh := charat(vlPos);
-		if(vlCh in LineEnds) then break;
-		inc(vlCnt);
-		ParLine[vlCnt] := vlCh;
-		if vlCnt = 255 then break;
-		inc(vlPos);
+	if(vlPos > 0) then begin
+		while	not(charat(vlPos) in LineEnds) do inc(vlPos);
+		GetString(ParPos,vlPos - ParPos,ParLine);	
+	end else begin
+		SetLength(ParLine,0);
 	end;
-	SetLength(ParLine,vlCnt);
 end;
 
 
-procedure TCOmpiler_Base.GetSourcePath(var ParPath:string);
+procedure TCOmpiler_Base.GetSourcePath(var ParPath:ansistring);
 begin
-	EmptyString(ParPath);
+	Emptystring(ParPath);
 end;
 
 procedure  TCompiler_Base.PreParse;
@@ -455,6 +447,13 @@ Procedure  TCompiler_Base.ErrorFooter(ParNum : cardinal);
 begin
 end;
 
+procedure TCompiler_Base.GetErrorText(ParNo:longint;var ParErr:ansistring);
+var
+	vlStr : string;
+begin
+	GetErrorText(ParNo,vlStr);
+	ParErr := vlStr;
+end;
 procedure TCompiler_Base.GetErrorText(ParNo:longint;var ParErr:string);
 begin
 end;
@@ -490,21 +489,20 @@ end;
 
 
 
-function  TCompiler_base.NewCompiler(const ParFileName:string):TCompiler_Base;
+function  TCompiler_base.NewCompiler(const ParFileName:ansistring):TCompiler_Base;
 begin
 	NewCompiler := nil;
 end;
 
-procedure TCompiler_Base.GetBufString(ParPos:longint;ParSize : cardinal;var ParStr:string);
+procedure TCompiler_Base.GetBufansistring(ParPos:longint;ParSize : cardinal;var ParStr:ansistring);
 var
 	vlMovedSize : cardinal;
-	vlSize      : cardinal;
+	vlString    : ansistring;
 begin
-	vlSize := ParSize;
-	if vlSize > 255 then vlSize := 255;
-	fScanBuffer.MoveTo(ParPos,vlSize,vlMovedSize,ParStr[1]);
-	if vlMovedSize < vlSize then vlSize := vlMovedSize;
-	SetLength(PArStr,vlSize);
+	SetLength(vlString,ParSize);
+	if ParSize > 0 then fScanBuffer.MoveTo(ParPos,ParSize,vlMovedSize,vlString[1]);
+	SetLength(vlString,vlMovedSize);
+	ParStr := vlString;
 end;
 
 procedure  TCompiler_Base.GetBufBlock(ParPos:longint;ParSize : cardinal;ParBuf : TMemoryBlock);
@@ -522,16 +520,22 @@ end;
 
 
 
-PROCEDURE TCompiler_Base.GetString (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: STRING);
+PROCEDURE TCompiler_Base.GeTString (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: ansistring);
 begin
-	if ParLen > 255 then ParLen :=255;
-	GetBufString(ParPos,ParLen,ParStr);
+	GetBufansistring(ParPos,ParLen,ParStr);
 end;
 
-PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: STRING);
+PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: string);
+var
+	vlString : ansistring;
 begin
-	IF ParLen > 255 THEN ParLen := 255;
-	GetBufString(ParPos,ParLen,ParStr);
+	GetName(ParPos,ParLen,vlString);
+	ParStr := vlString;
+end;
+
+PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: ansistring);
+begin
+	GetBufansistring(ParPos,ParLen,ParStr);
 	if not voCase then UpperStr(ParStr);
 end;
 
@@ -560,7 +564,7 @@ BEGIN
 END;
 
 
-function   TCOmpiler_Base.ErrorText(ParErr:TErrorType;const ParText:string):TErrorItem;
+function   TCOmpiler_Base.ErrorText(ParErr:TErrorType;const ParText:ansistring):TErrorItem;
 var
 	vlItem      : TErrorItem;
 begin
@@ -569,13 +573,13 @@ begin
 end;
 
 
-function  TCompiler_BAse.Error(ParErr:TErrorType;ParLine, ParCol,ParPos:longint; const ParText:string):TErrorItem;
+function  TCompiler_BAse.Error(ParErr:TErrorType;ParLine, ParCol,ParPos:longint; const ParText:ansistring):TErrorItem;
 var
-	vlFIleName  : string;
+	vlFIleName  : ansistring;
 	vlCol       : TNormal;
 	vlLineStart : longint;
 begin
-	fFileName.GetString(vlFileName);
+	vlFileName := iFileName;
 	vlLineStart := GetLineStart(ParPos);
 	vlCol := ParPos-vlLineStart + 1;
 	exit(iErrorList.AddError(vlFileName,ParErr,ParLine,vlCol,vlLineStart,ParText));
@@ -586,7 +590,6 @@ begin
 	inherited clear;
 	if iErrorList  <> nil then iErrorList.destroy;
 	if fScanBuffer <> nil then fScanBuffer.Destroy;
-	if iFileName   <> nil then iFileName.Destroy;
 end;
 
 
@@ -684,10 +687,10 @@ end;
 
 function TCompiler_Base.SetupCompiler:boolean;
 VAR
-	vlFileName : string;
-	vlPath     : string;
+	vlFileName : ansistring;
+	vlPath     : ansistring;
 begin
-	iFileName.GetString(vlFileName);
+	vlFileName := iFileName;
 	GetSourcePath(vlPath);
 	if fScanBuffer.InitBuffer(vLPath,vlFileName) then begin
 		OpenFileFailed(fScanBuffer.fError);
@@ -701,24 +704,24 @@ begin
 	exit(false);
 END;
 
-PROCEDURE TCompiler_Base.LexName (VAR Lex : STRING);
+PROCEDURE TCompiler_Base.LexName (VAR Lex : ansistring);
 BEGIN
 	GetName(pos, len, Lex)
 END;
 
-PROCEDURE TCompiler_Base.LexString (VAR Lex : STRING);
+PROCEDURE TCompiler_Base.Lexstring (VAR Lex : ansistring);
 BEGIN
-	GetString(pos, len, Lex)
+	GeTString(pos, len, Lex)
 END;
 
-PROCEDURE TCompiler_Base.LookAheadName (VAR Lex : STRING);
+PROCEDURE TCompiler_Base.LookAheadName (VAR Lex : ansistring);
 BEGIN
 	GetName(nextPos, nextLen, Lex)
 END;
 
-PROCEDURE TCompiler_Base.LookAheadString (VAR Lex : STRING);
+PROCEDURE TCompiler_Base.LookAheadansistring (VAR Lex : ansistring);
 BEGIN
-	GetString(nextPos, nextLen, Lex)
+	GeTString(nextPos, nextLen, Lex)
 END;
 
 

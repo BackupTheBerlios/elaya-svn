@@ -25,8 +25,8 @@ type
 	TExternalAppl = Class(TRoot)
 	protected
 		procedure Success;virtual;
-		procedure Prepare(var ParOption:string);virtual;
-		procedure GetExecName(var ParName:string);virtual;
+		procedure Prepare(var ParOption:ansistring);virtual;
+		procedure GetExecName(var ParName:ansistring);virtual;
 		
 	public
 		function    Execute:TErrorType;virtual;
@@ -43,7 +43,7 @@ type
 	public
 		property fInputFile : TString read voInputFile;
 		property fOutputDir : TString read voOutputDir;
-		constructor Create(const ParInputFile,ParOutputDir:string);
+		constructor Create(const ParInputFile,ParOutputDir:ansistring);
 		destructor Destroy;override;
 	end;
 	
@@ -53,28 +53,28 @@ type
 		property iRemoveAsmFile : boolean read voRemoveAsmFile write voRemoveAsmFile;
 	protected
 		procedure Success;override;
-		procedure GetExecName(var ParName:String);override;
-		procedure PrePare(var ParOptioN:string);override;
+		procedure GetExecName(var ParName:ansistring);override;
+		procedure PrePare(var ParOptioN:ansistring);override;
 	public
-		constructor Create(const ParInputFile,ParOutputDir:string;ParRemoveAsmFile : boolean);
+		constructor Create(const ParInputFile,ParOutputDir:ansistring;ParRemoveAsmFile : boolean);
 	end;
 	
 	TAs86Appl=class(TCompAppl)
 	protected
-		procedure GetExecName(var ParName:String);override;
-		procedure PrePare(var ParOptioN:string);override;
+		procedure GetExecName(var ParName:ansistring);override;
+		procedure PrePare(var ParOptioN:ansistring);override;
 	end;
 	
 	TNasmAppl=class(TCompAppl)
 	protected
-		procedure GetExecName(var ParName:string);override;
-		procedure Prepare(var ParOption:string);override;
+		procedure GetExecName(var ParName:ansistring);override;
+		procedure Prepare(var ParOption:ansistring);override;
 	end;
 	
 	TLdwAppl = Class(TCompAppl)
 	protected
-		procedure GetExecName(var ParName:string);override;
-		procedure PrePare(var ParOption:string);override;
+		procedure GetExecName(var ParName:ansistring);override;
+		procedure PrePare(var ParOption:ansistring);override;
 	end;
 	
 implementation
@@ -89,21 +89,21 @@ begin
 end;
 
 
-procedure   TExternalAppl.GetExecName(var ParName:string);
+procedure   TExternalAppl.GetExecName(var ParName:ansistring);
 begin
 	EmptyString(ParName);
 end;
 
-procedure TExternalAppl.Prepare(var ParOption:string);
+procedure TExternalAppl.Prepare(var ParOption:ansistring);
 begin
 	EmptyString(ParOption);
 end;
 
 function TExternalAppl.Execute:TErrorType;
-var vlState : string;
-	vlOpt   : string;
+var vlState : ansistring;
+	vlOpt   : ansistring;
 	vlErr   : TErrorType;
-	vlErrStr: string;
+	vlErrStr: ansistring;
 begin
 	GetExecName(vlState);
 	Prepare(vlOpt);
@@ -140,7 +140,7 @@ end;
 
 {----( TCompAppl )-------------------------------------------}
 
-constructor TCompAppl.Create(const ParInputFile,ParOutputDir:string);
+constructor TCompAppl.Create(const ParInputFile,ParOutputDir:ansistring);
 begin
 	inherited Create;
 	iOutputDir := TString.Create(ParOutputDir);
@@ -159,7 +159,7 @@ end;
 {----( TAsmAppl )--------------------------------------------}
 
 
-constructor TAsmAppl.Create(const ParInputFile,ParOutputDir:string;ParRemoveAsmFile : boolean);
+constructor TAsmAppl.Create(const ParInputFile,ParOutputDir:ansistring;ParRemoveAsmFile : boolean);
 begin
 	inherited Create(ParInputFile,ParOutputDir);
 	iRemoveAsmFile := ParRemoveAsmFile;
@@ -167,7 +167,7 @@ end;
 
 procedure TAsmAppl.Success;
 var
-	vlAsm : string;
+	vlAsm : ansistring;
 	vlErr : longint;
 begin
 	if iRemoveAsmFile then begin
@@ -178,17 +178,17 @@ begin
 	end;
 end;
 
-procedure TAsmAppl.GetExecName(var ParName:String);
+procedure TAsmAppl.GetExecName(var ParName:ansistring);
 begin
 	GetConfig.GetAssemblerPath.GetString(ParName);
 end;
 
-procedure TAsmAppl.PrePare(var ParOptioN:string);
+procedure TAsmAppl.PrePare(var ParOptioN:ansistring);
 var
-	vlAsm:string;
-	vlObj:string;
-	vlDir:string;
-	vlOpt:String;
+	vlAsm:ansistring;
+	vlObj:ansistring;
+	vlDir:ansistring;
+	vlOpt:ansistring;
 begin
 	iInputFile.GetString(vlAsm);
 	iOutputDir.GetString(vlDir);
@@ -201,16 +201,16 @@ end;
 
 {---( TAs86Appl )-----------------------------------------------}
 
-procedure TAs86Appl.GetExecName(var ParName:String);
+procedure TAs86Appl.GetExecName(var ParName:ansistring);
 begin
 	ParName := '/usr/bin/as86';
 end;
 
-procedure TAs86Appl.PrePare(var ParOptioN:string);
+procedure TAs86Appl.PrePare(var ParOptioN:ansistring);
 var
-	vlAsm:string;
-	vlObj:string;
-	vlDir:String;
+	vlAsm:ansistring;
+	vlObj:ansistring;
+	vlDir:ansistring;
 begin
 	iInputFile.GetString(vlAsm);
 	iOutputDir.GetString(vlDir);
@@ -224,16 +224,16 @@ end;
 
 {----( TNasmAppl )------------------------------------------}
 
-procedure TNasmAppl.GetExecName(var ParName:string);
+procedure TNasmAppl.GetExecName(var ParName:ansistring);
 begin
 	ParName := '/usr/bin/nasm';
 end;
 
-procedure TNasmAppl.Prepare(var ParOption:string);
+procedure TNasmAppl.Prepare(var ParOption:ansistring);
 var
-	vlAsm:string;
-	vlObj:string;
-	vlDir:String;
+	vlAsm:ansistring;
+	vlObj:ansistring;
+	vlDir:ansistring;
 begin
 	iInputFile.GetString(vlAsm);
 	iOutputDir.GetString(vlDir);
@@ -245,17 +245,17 @@ end;
 
 {----( TLdwAppl )--------------------------------------------}
 
-procedure TLdwAppl.GetExecName(var ParName:string);
+procedure TLdwAppl.GetExecName(var ParName:ansistring);
 begin
 	GetConfig.GetLinkerPathStr(ParName);
 end;
 
-procedure TLdwAppl.PrePare(var ParOption:string);
+procedure TLdwAppl.PrePare(var ParOption:ansistring);
 var
-	 vlObj    : string;
-	vlDir    : string;
-	vlOpt    : string;
-	vlOutput : String;
+	 vlObj    : ansistring;
+	vlDir    : ansistring;
+	vlOpt    : ansistring;
+	vlOutput : ansistring;
 begin
 	iInputfile.GetString(vlObj);
 	iOutputDir.GetString(vlDir);

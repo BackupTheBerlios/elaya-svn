@@ -1,4 +1,4 @@
-{    Elaya, the compilerF for the elaya language     ;
+{    Elaya, the compiler for the elaya language     ;
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -111,7 +111,7 @@ public
 	procedure   SetOtherSize(ParLarger,ParSmall:TRegister);
 	function    IsPartOf(ParRegister:TRegister):boolean;
 	constructor Create(ParMaster : TRegisterMaster;ParRegisterCode:TNormal;ParSize : TSize;ParRegHints : TRegHints;ParCanDo : TAsmStorageCanDo;ParPartBegin,ParPartEnd : cardinal);
-	function    GetName:String;
+	function    GetName:ansistring;
 end;
 
 
@@ -415,8 +415,8 @@ begin
 end;
 
 
-function TRegister.GetName:String;
-var vlDummy:String;
+function TRegister.GetName:ansistring;
+var vlDummy:ansistring;
 begin
 	GetAssemblerInfo.GetRegisterByCode(fRegisterCode,vlDummy);
 	exit( vlDummy);

@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elaya language                                   Root                                                                                                                              j
+{    Elaya, the compiler for the elaya language                                                                                                                                                               j
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit DSbLsDef;
 interface
-uses streams,stdobj,cmp_type,elatypes,display,elacons,ddefinit,error,hashing,didentls;
+uses compbase,streams,stdobj,cmp_type,elatypes,display,elacons,ddefinit,error,hashing,didentls;
 type
 	
 	TSublistDef = class(TDefinition)
@@ -44,10 +44,11 @@ type
 		function    loaditem(ParWrite:TObjectStream):boolean;override;
 		function    saveitem(ParWrite:TObjectStream):boolean;override;
 		procedure   AddGlobalsToHashing(ParHash:THashing);override;
-		function    GetPtrByName(const ParName:string;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
-		function    GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
-		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;ParOption :TSearchOptions;var PArOwner,ParResult : TDefinition) : TObjectFindState;override;
+		function    GetPtrByName(const ParName:ansistring;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
+		function    GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;ParOption :TSearchOptions;var PArOwner,ParResult : TDefinition) : TObjectFindState;override;
 		function    HasGlobalParts : boolean;override;
+		procedure   CheckAfter(ParCre : TCreator);override;
 	end;
 	
 	
@@ -55,6 +56,12 @@ type
 implementation
 
 {-----(TSubListDef )---------------------------------------------}
+
+procedure TSubListDef.CheckAfter(ParCre : TCreator);
+begin
+	inherited CheckAfter(ParCre);
+	iParts.CheckAfter(ParCre);
+end;
 
 function  TSubListDef.HasGlobalParts : boolean;
 begin
@@ -67,7 +74,7 @@ begin
 	exit(true);
 end;
 
-function TSubListDef.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TSubListDef.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	
 	if  iParts.fGlobal or not(SO_Global in ParOption) then begin
@@ -83,7 +90,7 @@ begin
 	exit(Ofs_Different);
 end;
 
-function TSubListDef.GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TSubListDef.GetPtrByArray(const ParName : ansistring;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	
 	if  iParts.fGlobal or not(SO_Global in ParOption) then begin
@@ -130,7 +137,7 @@ begin
 end;
 
 
-function TSubListDef.GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;
+function TSubListDef.GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;
 begin
 	
 	if (iParts <> nil) and (not(SO_Global in ParOption) or iParts.fGlobal) then begin

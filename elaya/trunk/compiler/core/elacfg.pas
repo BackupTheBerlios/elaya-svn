@@ -32,7 +32,7 @@ type
 		voLinkerPath           : TString;
 		voRememberExtParamName : boolean;
 		voIsElfTarget          : boolean;
-		procedure SetLinkerPAth(const ParPath:string);
+		procedure SetLinkerPAth(const ParPath:ansistring);
 	protected
 		procedure   CommonSetup;override;
 		procedure   Clear;override;
@@ -42,16 +42,16 @@ type
 		
 		property  fAlign           : TSize   read voAlign;
 		property  fIsElfTarget     : boolean read voIsElfTarget;
-		procedure GetAssemblerOptions(var ParOptions : string);
-		procedure GetLinkerOptions(var ParOptions:string);
+		procedure GetAssemblerOptions(var ParOptions : ansistring);
+		procedure GetLinkerOptions(var ParOptions:ansistring);
 		function  GetLinkerPAth:TString;
-		procedure GetLinkerPathStr(var ParPath:string);
-		function  GetObjectPath(var ParOut:String):boolean;
-		function  GetAutoLoad(ParNo : cardinal;var ParOut:string):boolean;
-		function  GetPart(const ParIn:string;ParNo : cardinal;var ParOut:string):boolean;
+		procedure GetLinkerPathStr(var ParPath:ansistring);
+		function  GetObjectPath(var ParOut:ansistring):boolean;
+		function  GetAutoLoad(ParNo : cardinal;var ParOut:ansistring):boolean;
+		function  GetPart(const ParIn:ansistring;ParNo : cardinal;var ParOut:ansistring):boolean;
 		procedure SetRememberExtParamName(ParSet:boolean);
 		function  GetRememberExtParamName:boolean;
-		procedure SetAssemblerPath(const ParAsm:string);
+		procedure SetAssemblerPath(const ParAsm:ansistring);
 		function  GetAssemblerPath:TString;
 		procedure SetAlign(parAlign : TSize);
 		
@@ -85,33 +85,33 @@ end;
 {----( TElaConfig )----------------------------------------------------}
 
 
-procedure TElaConfig.GetLinkerOptions(var ParOptions:string);
+procedure TElaConfig.GetLinkerOptions(var ParOptions:ansistring);
 
 begin
-	EmptyString(ParOptions);
+	emptystring(ParOptions);
 	GetVarValue(CONF_Linker_Options,ParOptions);
 end;
 
 
-procedure TElaConfig.GetAssemblerOptions(var ParOptions : string);
+procedure TElaConfig.GetAssemblerOptions(var ParOptions : ansistring);
 begin
-	EmptyString(ParOptions);
+	emptystring(ParOptions);
 	GetVarValue(CONF_Assembler_Options,ParOptions);
 end;
 
-function TElaConfig.GetObjectPath(var ParOut:String):boolean;
-var vlStr:string;
+function TElaConfig.GetObjectPath(var ParOut:ansistring):boolean;
+var vlStr:ansistring;
 begin
-	EmptyString(ParOut);
+	emptystring(ParOut);
 	GetObjectPath := true;
 	if GetVarValue(Conf_Object_Path,vlStr) then ParOut := vlStr;
 end;
 
 
-function TElaConfig.GetAutoLoad(parNo : cardinal;var ParOut:String):boolean;
-var vlStr:string;
+function TElaConfig.GetAutoLoad(parNo : cardinal;var ParOut:ansistring):boolean;
+var vlStr:ansistring;
 begin
-	EmptyString(ParOut);
+	emptystring(ParOut);
 	GetAutoLoad := true;
 	if GetVarValue(CONF_Auto_Load,vlStr) then begin
 		GetAutoLoad := GetPart(vlStr,ParNo,Parout);
@@ -119,7 +119,7 @@ begin
 end;
 
 
-function TElaConfig.GetPart(const ParIn:string;ParNo : cardinal;var ParOut:string):boolean;
+function TElaConfig.GetPart(const ParIn:ansistring;ParNo : cardinal;var ParOut:ansistring):boolean;
 var vlCnt  : cardinal;
 	vlLast : cardinal;
 	vlNo   : cardinal;
@@ -154,7 +154,7 @@ end;
 
 
 
-procedure TElaConfig.SetAssemblerPath(const ParAsm:string);
+procedure TElaConfig.SetAssemblerPath(const ParAsm:ansistring);
 begin
 	if voAssemblerPath <> nil then voAssemblerPath.Destroy;
 	voAssemblerPath := TString.Create(ParAsm);
@@ -171,7 +171,7 @@ begin
 	voAlign := parAlign;
 end;
 
-procedure   TElaConfig.SetLinkerPath(const ParPath:String);
+procedure   TElaConfig.SetLinkerPath(const ParPath:ansistring);
 begin
 	if voLinkerPath <> nil then voLinkerPath.Destroy;
 	voLinkerPath := TString.Create(ParPath);
@@ -182,17 +182,17 @@ begin
 	GetLInkerPAth := voLInkerPAth;
 end;
 
-procedure TElaConfig.GetLinkerPathStr(var ParPath:String);
+procedure TElaConfig.GetLinkerPathStr(var ParPath:ansistring);
 begin
-	EMptyString(ParPath);
-	if GetLinkerPath <> nil then GetLinkerPath.GetString(ParPath);
+	emptystring(ParPath);
+	if GetLinkerPath <> nil then GetLinkerPath.GeTString(ParPath);
 end;
 
 procedure   TElaConfig.CommonSetup;
 var
 	vlCnt   : cardinal;
-	vlName  : string;
-	vlValue : string;
+	vlName  : ansistring;
+	vlValue : ansistring;
 begin
 	inherited CommoNSetup;
 	voAssemblerPath := nil;
@@ -236,20 +236,20 @@ begin
 end;
 
 function TElaConfig.SetValues(ParCfg : TConfigValues) : boolean;
-var vlAsmProg      : string;
-	vlLinkerPath    : string;
+var vlAsmProg      : ansistring;
+	vlLinkerPath    : ansistring;
 	vlNumberOfErrors: cardinal;
 	vlBool	       : boolean;
-	vlPath	       : string;
-	vlAsmPath	    : string;
-	vlSourceName    : string;
-	vlExtName	    : string;
-	vlPathName      : string;
-	vlCheck	       : string;
-	vlFileName      : string;
-	vlHostOs	       : string;
-	vlTargetOs      : string;
-	vlOutPath       : string;
+	vlPath	       : ansistring;
+	vlAsmPath	    : ansistring;
+	vlSourceName    : ansistring;
+	vlExtName	    : ansistring;
+	vlPathName      : ansistring;
+	vlCheck	       : ansistring;
+	vlFileName      : ansistring;
+	vlHostOs	       : ansistring;
+	vlTargetOs      : ansistring;
+	vlOutPath       : ansistring;
 begin
 	if ParCfg.fRunAssembler then vlCheck := 'Y' else vlCheck := 'N';
 	ParCfg.GetInputFileStr(vlFileName);

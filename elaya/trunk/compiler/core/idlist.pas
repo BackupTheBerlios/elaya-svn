@@ -24,15 +24,15 @@ uses cmp_type,compbase,formbase,linklist,elacons,elatypes,stdobj,DDefInit,DIdent
 type
 	TIdentListCollection=class(TList)
 		procedure AddToCurrentDefaultList(ParDef:TDefinition);
-		procedure AddIdentList(const ParName:string;ParLevel : TUnitLevel;ParIdentList:TIdentList;ParPublic:boolean);
-		function  GetPtrByName(const Partext:string;var ParOwner,ParItem:TDefinition):boolean;
+		procedure AddIdentList(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentList:TIdentList;ParPublic:boolean);
+		function  GetPtrByName(const Partext:ansistring;var ParOwner,ParItem:TDefinition):boolean;
 		function  GetDefaultIdent(ParDefault :TDefaultTypeCode;ParSize : TSize;ParSign:boolean):TType;
-		function  GetPtrInCurrentList(ParName:String;var ParOwner,ParItem : TDefinition):boolean;
+		function  GetPtrInCurrentList(ParName:ansistring;var ParOwner,ParItem : TDefinition):boolean;
 		function  AddIDentToCurrentList(ParIdent:TDefinition):TErrorType;
 		function  GetCurrentList:TIdentList;
 		procedure AddInitCall(ParCre:TSecCreator);
-		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-		function GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 	end;
 	
 
@@ -59,15 +59,15 @@ type
 		
 		procedure   SetPublic(ParPub:boolean);
 		procedure   Commonsetup;override;
-		constructor Create(const ParName:string;ParLevel : TUnitLevel;ParIdentListItem:TIdentList);
+		constructor Create(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentListItem:TIdentList);
 		destructor  Destroy;override;
 		function    AddIDent(parIdent:TDefinition):TErrortype;
-		function    GetPtrByName(const ParText:string;var ParOwner : TDefinition;var ParItem:TDefinition):boolean;
+		function    GetPtrByName(const ParText:ansistring;var ParOwner : TDefinition;var ParItem:TDefinition):boolean;
 		function    GetDefaultIdent(ParDefault:TDefaultTypeCode;ParSize : TSize;ParSign:boolean):TType;
 		procedure   AddInitCall(ParCre:TSecCreator);
-		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-		function    GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
-		function    HasSameName(const ParName : string):boolean;
+		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function    GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+		function    HasSameName(const ParName : ansistring):boolean;
 	end;
 
 
@@ -98,12 +98,12 @@ begin
 	if vlIdentListitem <> nil then GetCurrentList := vlIdentListItem.iIdentList;
 end;
 
-function  TIdentListCollection.GetPtrInCurrentList(ParName:String;var ParOwner,ParItem:TDefinition):boolean;
+function  TIdentListCollection.GetPtrInCurrentList(ParName:ansistring;var ParOwner,ParItem:TDefinition):boolean;
 begin
 	exit(TIdentListITem(fTop).GetPtrByName(ParName,ParOwner,ParItem));
 end;
 
-procedure TIdentListCollection.AddIdentList(const ParName:string;ParLevel : TUnitLevel;ParIdentList:TIdentList;ParPublic:boolean);
+procedure TIdentListCollection.AddIdentList(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentList:TIdentList;ParPublic:boolean);
 var vlItem : TIdentListITem;
 	vlCurrent : TIdentListItem;
 begin
@@ -124,7 +124,7 @@ end;
 
 
 
-function TIdentListCollection.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TIdentListCollection.GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var vlCurrent : TIDentListItem;
 	vlState  : TObjectFindState;
 begin
@@ -141,7 +141,7 @@ begin
 end;
 
 
-function TIdentListCOllection.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+function TIdentListCOllection.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 var vlCurrent : TIDentListItem;
 	vlState  : TObjectFindState;
 begin
@@ -157,7 +157,7 @@ begin
 	exit(OFS_Different);
 end;
 
-function TIDentListCollection.GetPtrByName(const ParText:string;var ParOwner,ParItem:TDefinition):boolean;
+function TIDentListCollection.GetPtrByName(const ParText:ansistring;var ParOwner,ParItem:TDefinition):boolean;
 var vlCurrent : TIdentListITem;
 begin
 	vlCurrent := TIdentListITem(fTop);
@@ -191,7 +191,7 @@ end;
 {---------( TIdentListItem )---------------------------------------------------------}
 
 
-function TIdentListItem.HasSameName(const ParName : string):boolean;
+function TIdentListItem.HasSameName(const ParName : ansistring):boolean;
 begin
 	exit(iName.IsEqualStr(ParName));
 end;
@@ -208,7 +208,7 @@ begin
 end;
 
 
-constructor TIdentListItem.Create(const ParName:string;ParLevel : TUnitLevel;ParIdentListItem:TIdentList);
+constructor TIdentListItem.Create(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentListItem:TIdentList);
 begin
 	inherited Create;
 	iIdentList := ParIdentlistItem;
@@ -217,17 +217,17 @@ begin
 end;
 
 
-function TIdentListItem.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TIdentListItem.GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	exit(iIdentList.GetPtrByArray(ParName,ParArray,ParOwner,ParResult));
 end;
 
-function TIdentListItem.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+function TIdentListItem.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 begin
 	exit(iIdentList.GetPtrByObject(ParName,ParObject,ParOwner,ParResult));
 end;
 
-function TIdentListItem.GetPtrByName(const ParText:string;var ParOwner : TDefinition; var ParItem:TDefinition):boolean;
+function TIdentListItem.GetPtrByName(const ParText:ansistring;var ParOwner : TDefinition; var ParItem:TDefinition):boolean;
 begin
 	exit( iIdentList.GetPtrByName(ParText,ParOwner,ParItem));
 end;
@@ -247,7 +247,7 @@ procedure TIdentListitem.AddInitCall(ParCre:TSecCreator);
 var vlDef   : TRoutineCollection;
 	vlRtn   : TRoutine;
 	vlProc  : TCallPoc;
-	vlName  : string;
+	vlName  : ansistring;
 	vlOwner : TDefinition;
 	vlMac   : TLabelMac;
 begin

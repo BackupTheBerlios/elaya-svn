@@ -4,8 +4,8 @@ uses interface,guitypes,twidget,tedit,values;
 public
 type
 	TLineEdit=class inherit TEdit
-		protected
-      	procedure InitWidget;override;
+	protected
+	      	procedure InitWidget;override;
 	end;
 
 

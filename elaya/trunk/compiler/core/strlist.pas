@@ -37,9 +37,9 @@ type
 
 	TStringlist = class(TSMStringList)
 	protected
-		function MakeItem(const ParText : string) : TSmStringItem;override;
+		function MakeItem(const ParText : ansistring) : TSmStringItem;override;
 	public
-		function AddStringItem(const ParText : string):longint;
+		function AddStringItem(const ParText : ansistring):longint;
 		function CreateDb(ParCre:TCreator):boolean;
 	end;
 
@@ -55,9 +55,9 @@ end;
 
 function  TStringListItem.CreateDb(ParCre:TCreator):boolean;
 var
-	vlText:string;
+	vlText:ansistring;
 begin
-   GetString(vlText);
+  	vlText := fString;
 	TAsmCreator(ParCre).AddData(TLabelDef.Create(DAT_Data,iLabel));
 	TAsmCreator(ParCre).AddData(TAsciiDef.Create(DAT_Data,vlText));
 	exit(false);
@@ -66,12 +66,12 @@ end;
 
 {----( TStringList )------------------------------------------------------}
 
-function TStringList.MakeItem(const ParText : string) : TSmStringItem;
+function TStringList.MakeItem(const ParText : ansistring) : TSmStringItem;
 begin
 	exit(TStringListItem.Create(ParText));
 end;
 
-function TStringList.AddStringItem(const ParText : string) : longint;
+function TStringList.AddStringItem(const ParText : ansistring) : longint;
 var
 	vlItem : TStringListItem;
 begin

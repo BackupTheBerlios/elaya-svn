@@ -24,15 +24,15 @@ uses   strmbase,streams,compbase,progutil,elacons,stdobj,linklist;
 
 type
 	TCodeFileItem=class(TTextIdent)
-		voHasAt          : boolean;
-		voAt		     : longint;
+		voHasAt         : boolean;
+		voAt	        : longint;
 		property iAt    : longint read voAt   write voAt;
 		property iHasAt : boolean read voHasAt write voHasAt;
 	public
 		property fAt    : longint read voAt;
 		property fHasAt : boolean read voHasAt;
 		
-		constructor Create(ParFileName:TString);
+		constructor Create(ParFileName:ansiString);
 		function    WriteResLine(var ParFile:text):boolean;virtual;
 		function    SaveItem(ParStream:TObjectStream):boolean;override;
 		function    LoadItem(ParStream:TObjectStream):boolean;override;
@@ -50,15 +50,15 @@ type
 		function  LoadItem(ParStream:TObjectStream):boolean;override;
 		procedure Commonsetup;override;
 		function WriteResLine(var ParFile:Text):boolean;override;
-		constructor Create(ParName:TString;ParIsObjectOfUnit:boolean;ParHasAt : boolean;ParAt :longint);
+		constructor Create(ParName:ansiString;ParIsObjectOfUnit:boolean;ParHasAt : boolean;ParAt :longint);
 	end;
 	
 	TCodeFileList=class(TList)
 		procedure AddFile(ParItem:TCodeFileItem);
 		function  WriteResLines(var ParFile:Text):boolean;
-		function  FindFileByName(const ParName : TString):TCodeObjectItem;
+		function  FindFileByName(const ParName : AnsiString):TCodeObjectItem;
 		procedure AddListToList(ParList:TCodeFileList);
-		function  GetObjectOfUnit:TString;
+		function  GetObjectOfUnit:AnsiString;
 	end;
 	
 	
@@ -67,7 +67,7 @@ implementation
 
 {-----( TCodeObjectItem) -------------------------------------}
 
-constructor TCodeObjectItem.Create(ParName:TString;ParIsObjectOfUnit:boolean;ParHasAt :boolean;ParAt : longint);
+constructor TCodeObjectItem.Create(ParName:ansiString;ParIsObjectOfUnit:boolean;ParHasAt :boolean;ParAt : longint);
 begin
 	inherited Create(ParName);
 	iIsObjectOfUnit := ParIsObjectOfUnit;
@@ -82,14 +82,10 @@ begin
 end;
 
 function TCodeObjectItem.WriteResLine(var ParFile:Text):boolean;
-var vlStr:string;
 begin
-	WriteResLine := true;
-	if inherited WriteResLine(ParFile) then exit;
-	GetTextStr(vlStr);
-	writeln(ParFile,vlStr);
-	if ioresult <> 0 then exit(true);
-	WriteResLine := false;
+	if inherited WriteResLine(ParFile) then exit(true);
+	writeln(ParFile,fText);
+	exit(ioresult <> 0);
 end;
 
 function  TCodeObjectItem.SaveItem(ParStream:TObjectStream):boolean;
@@ -135,7 +131,7 @@ begin
 	exit(false);
 end;
 
-constructor TCodeFileItem.Create(parFileNAme:TString);
+constructor TCodeFileItem.Create(parFileNAme:ansiString);
 begin
 	inherited Create;
 	iText := (ParFileName);
@@ -207,7 +203,7 @@ begin
 end;
 
 
-function TCodeFileList.GetObjectOfUnit:TString;
+function TCodeFileList.GetObjectOfUnit:AnsiString;
 var
 	vlCurrent : TCodeObjectItem;
 begin
@@ -216,11 +212,11 @@ begin
 		if vlCurrent.fIsObjectOfUnit then exit(vlCurrent.fText);
 		vlCurrent := TCodeObjectItem(vlCurrent.fNxt);
 	end;
-	exit(nil);
+	exit('');
 end;
 
 
-function  TCodeFileList.FindFileByName(const ParName:TString):TCodeObjectItem;
+function  TCodeFileList.FindFileByName(const ParName:AnsiString):TCodeObjectItem;
 var vlCurrent:TCodeObjectItem;
 begin
 	vlCurrent := TCodeObjectItem(fStart);

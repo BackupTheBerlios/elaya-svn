@@ -1,0 +1,70 @@
+unit;
+uses tdatabase,dal;
+public
+
+type
+	TQueryStream=class inherit TRoot
+	private
+	var
+		voDatabase : TDatabase;
+		voResource : TDalResource;
+	public
+
+		property Database : TDatabase;
+		begin
+			private write voDatabase;
+			public read voDatabase;
+		end;
+
+		property Resource : TDalResource;
+		begin
+			private write voResource;
+			public read voResource;
+		end;
+
+		function getNumberOfFields : longint;
+		function GetFieldStringByNo(ParNo : long;var ParString : string):boolean;
+		constructor create(ParDatabase : TDatabase);
+		function ParseQuery(ParQuery : string) :boolean;
+		function Next : boolean;
+		function Eof: boolean;
+	end;
+
+end public
+
+function TQueryStream.Eof: boolean;
+begin
+	exit(resource.RowData = nil);
+end;
+
+function TQueryStream.getNumberOfFields : longint;
+begin
+	exit(Resource.NumberOfFields);
+end;
+
+constructor TQueryStream.Create(ParDatabase : TDatabase);
+begin
+	inherited Create;
+	Database := ParDatabase;
+	Resource.RowData := nil;
+	Resource.NumberOfFields := 0;
+end;
+
+function TQueryStream.ParseQuery(ParQuery : string) : boolean;
+begin
+	if (DalQuery(Database.Connection,voResource,ParQuery)) then exit(true);
+	if Next then exit(true);
+	exit(false);
+end;
+
+function TQUeryStream.Next : boolean;
+begin
+	exit(DalFetchResult(Resource));
+end;
+
+function TQueryStream.GetFieldStringByNo(ParNo : long;var ParString : string):boolean;
+begin
+	exit(DalConvertRowDataToString(Resource,ParNo,ParString));
+end;
+
+end.

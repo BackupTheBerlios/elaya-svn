@@ -101,7 +101,7 @@ type
 		function  Can(ParCan : TCan_Types):boolean;override;
 		function  CreateDb(ParCre:TCreator):boolean;override;
 		procedure CommonSetup;override;
-		constructor Create(const ParName : string;const ParString : string;ParType:TType);
+		constructor Create(const ParName : ansistring;const ParString : ansistring;ParType:TType);
 		function  GetString:TString;
 		function  GetLength:cardinal;
 		function  CreateReadNode(ParCre : TCreator;ParContext : TDefinition):TFormulaNode;override;
@@ -112,7 +112,7 @@ type
 	protected
 		procedure commonsetup; override;
 	public
-		constructor Create(const ParName:string;ParVal:TValue);
+		constructor Create(const ParName:ansistring;ParVal:TValue);
 		function GetNumber : TNumber;
 	end;
 	
@@ -150,7 +150,7 @@ end;
 
 function TVariableBase.CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var vlMac : TMacBase;
-	vlStr : string;
+	vlStr : ansistring;
 begin
 	Case ParOption of
 	MCO_Result:begin
@@ -297,8 +297,8 @@ begin
 end;
 
 function  TStringCons.CreateDb(ParCre:TCreator):boolean;
-var vlname:String;
-	vlText:string;
+var vlname:ansistring;
+	vlText:ansistring;
 begin
 	GetMangledName(vlName);
 	fVal.GetString(vlText);
@@ -315,7 +315,7 @@ begin
 end;
 
 
-constructor TStringCons.Create(const ParName : string;const ParString : string;ParType:TType);
+constructor TStringCons.Create(const ParName : ansistring;const ParString : ansistring;ParType:TType);
 begin
 	inherited Create(ParName,ParType);
 	SetValue(TString.Create(ParString));
@@ -335,7 +335,7 @@ end;
 
 function TStringCons.CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
 var vlMac:TMacBase;
-	vlStr:string;
+	vlStr:ansistring;
 begin
 	Case ParOpt  of
 		MCO_Result:begin
@@ -456,7 +456,7 @@ end;
 
 
 {-------( TEnumCons )-----------------------------------------------}
-constructor TEnumCons.Create(const ParName:string;ParVal:TValue);
+constructor TEnumCons.Create(const ParName:ansistring;ParVal:TValue);
 begin
 	SetValue(ParVal);
 	inherited Create(ParName,nil);

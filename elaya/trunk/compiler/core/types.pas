@@ -1,5 +1,5 @@
-{        5;3~
-    Elaya, the compiler for the el;aya language
+{        c
+    Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -122,7 +122,7 @@ type
 		function    GetFirstOffset : TOffset;override;
 		function    Can(ParCan : TCan_Types) : boolean;override;
 		procedure   PrintDefinitionBody(ParDis:TDisplay);override;
-		constructor Create(ParType : TType;ParDefaultSize:boolean;ParNumElements : cardinal;const ParLengthVarName : string;ParLengthVarType :TType);
+		constructor Create(ParType : TType;ParDefaultSize:boolean;ParNumElements : cardinal;const ParLengthVarName : ansistring;ParLengthVarType :TType);
 		function    CreateBasedOn(ParCre : TCreator;ParNewSize : TSize) : TTYpe;override;
 		function    GetIndexTypeMax : cardinal;
 		function    IsLargeType:boolean;override;
@@ -131,7 +131,7 @@ type
 		function    ValidateConstant(ParValue : TValue):TConstantValidation;override;
 		procedure   InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext : TDefinition);override;
 		procedure   DoneDotFrame;override;
-		function    GetDescForAnonymousIdent : string;override;
+		function    GetDescForAnonymousIdent : ansistring;override;
 		function		CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
 	end;
 	
@@ -148,14 +148,12 @@ type
 	END;
 
 
-	TNumberType = class(TOrdinal)
+	TNumberBaseType = class(TOrdinal)
 	private
 		voSign:boolean;
 	protected
 		property iSign:boolean read voSign write voSign;
 		function    IsExactCompatibleSelf(ParTYpe:TType):boolean;override;
-		procedure   commonsetup;override;
-
 	public
 		function    GetSign:boolean;override;
 		function    IsDominant(ParType:TType):TDOmType;override;
@@ -172,9 +170,10 @@ type
 		function   IsMaximum(ParValue : TValue):boolean;override;		
 	end;
 	
-	
-	
-	
+	TNumberType=class(TNumberBaseType)
+	protected
+			procedure   commonsetup;override;
+	end;
 	
 	TArrayType=class(TSecType)
 	private
@@ -222,17 +221,17 @@ type
 
 	public
 		function    IsCompByIdentCode(ParCode : TIdentCode):boolean;override;
-		constructor Create(const ParName: string;ParType : TType);
+		constructor Create(const ParName: ansistring;ParType : TType);
 		function    IsDominant(ParType:TType):TDomType;override;
 		procedure   PrintDefinitionBody(ParDis:TDisplay);override;
 		function    GetBaseType:TType;
 		function    GetSign : boolean;override;
 		function    can(ParCan : TCan_Types):boolean;override;
-		function    GetPtrByName(const ParName:string;ParOption : TSearchOptions ;var ParOwner,ParItem:TDefinition):boolean;override;
+		function    GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions ;var ParOwner,ParItem:TDefinition):boolean;override;
 		function    GetOrgType : TType;override;
 		procedure   InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext : TDefinition);override;
 		procedure   DoneDotFrame;override;
-		function    GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function    GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 		function	CanWriteWith(ParExact : boolean;ParType : TType):boolean;override;
 		function    CreateReadNode(parCre:TCreator;ParContext : TDefinition):TFormulaNode;override;
 		function CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;override;
@@ -262,7 +261,7 @@ type
 		function   CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;override;
 	end;
 	
-	TEnumType= class(TNumberType)
+	TEnumType= class(TNumberBaseType)
 	protected
 		function    IsDirectCompatibleSelf(Partype:TType):boolean;override;
 		procedure   commonsetup;override;
@@ -282,7 +281,7 @@ type
 
 
 	TForwardList=class(TSmStringList)
-		procedure AddBind(const ParName:string;ParBind:TPtrType);
+		procedure AddBind(const ParName:ansistring;ParBind:TPtrType);
 		procedure Bind(ParCreat:TCreator);
 	end;
 	
@@ -312,7 +311,7 @@ type
 		procedure   Clear;override;
 
 	public
-		constructor Create(const parName:string;ParPtr : TPtrType);
+		constructor Create(const parName:ansistring;ParPtr : TPtrType);
 		procedure   Bind(ParCre : TCreator);
 		procedure   AddBind(ParPtr:TPtrType);
 	end;
@@ -327,7 +326,7 @@ type
 		property fFrame : TFrame read voFrame;
 		
 		function Can(ParCan:TCan_Types):boolean;override;
-		function CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
+		function CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;override;
 		procedure Commonsetup;override;
 		procedure Clear;override;
 		function  SaveItem(parStream:TObjectStream):boolean;override;
@@ -344,7 +343,7 @@ type
 		function  AddIdent(ParItem:TDefinition):TErrorType;override;
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;override;
-		function  CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
+		function  CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;override;
 
 	end;
 	
@@ -482,7 +481,7 @@ begin
 end;
 
 
-function TVarStructType.CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;
+function TVarStructType.CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;
 var
 	vlVar :TFrameVariable;
 begin
@@ -515,7 +514,7 @@ end;
 
 {----( TUnionType )-----------------------------------------------------}
 
-function TUnionType.CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;
+function TUnionType.CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;
 var
 	vlVar :TFrameVariable;
 begin
@@ -559,7 +558,7 @@ var
 begin
 	vlItem := TUnionUseItem.Create(ParVar);
 	fParts.AddItemsToUseList(vlItem.fSubList);
-   exit(vlItem);
+	exit(vlItem);
 end;
 
 
@@ -634,11 +633,9 @@ end;
 {----( TForwardBindItem )--------------------------------------------------}
 
 procedure TForwardBindItem.bind(ParCre :TCreator;ParObj:TType);
-var vlName : string;
 begin
 	if ParObj.DependsOn(iBind) then begin
-		iBind.GetTextStr(vlName);
-		TNDCreator(ParCre).ErrorText(Err_Circular_Type_dep,vlName);
+		TNDCreator(ParCre).ErrorText(Err_Circular_Type_dep,iBind.fText);
 	end else begin
 		iBind.SetType(ParObj);
 	end;
@@ -663,7 +660,7 @@ begin
 	DeleteAll;
 end;
 
-procedure TForwardList.AddBind(const ParName:string;ParBind : TPtrType);
+procedure TForwardList.AddBind(const ParName:ansistring;ParBind : TPtrType);
 var vlBind:TForwardItem;
 begin
 	vlBind := TForwardItem(GetItemByString(nil,ParName));
@@ -676,10 +673,10 @@ end;
 {----( TForwardItem )------------------------------------------------------}
 
 procedure  TForwardItem.Bind(ParCre : TCreator);
-var  vlName : string;
+var  vlName : ansistring;
 	vlDef  : TType;
 begin
-	GetString(vlname);
+	vlName := fString;
 	vlDef := TType(TNDCreator(PArCre).GetPtr(vlName));
 	if vlDef <> nil then begin
 		iBindList.Bind(ParCre,vlDef);
@@ -699,7 +696,7 @@ begin
 	iBindList := TForwardBindList.Create;
 end;
 
-constructor TForwardItem.Create(const ParName:string;ParPtr: TPtrType);
+constructor TForwardItem.Create(const ParName:ansistring;ParPtr: TPtrType);
 begin
 	inherited Create(ParName);
 	AddBind(ParPtr);
@@ -809,15 +806,18 @@ begin
 end;
 
 function TArrayType.LoadItem(ParStream:TObjectStream):boolean;
-var vlCurrent : TArrayType;
+var 
+	vlCurrent : TType;
 begin
 	LoadItem := true;
 	if inherited LoadItem(ParStream) then exit;
 	if ParStream.ReadNumber(voLo)    then exit;
 	if ParStream.ReadNumber(voHi)    then exit;
-	vlCurrent := TArrayType(iType);
-	while (vlCurrent <> nil) and (vlCurrent.IsLike(TArrayType)) and (not(iLast)) do vlCurrent := TArrayTYpe(vlCurrent.fType);
-	if vlCurrent.IsLike(TArrayType) then iTop := vlCurrent;
+	vlCurrent := iType;
+	while (vlCurrent <> nil) and  (vlCurrent is TArrayType) and not(TArrayType(vlCurrent).fLast) do begin
+		vlCurrent := TArrayType(vlCurrent).GetOrgSecType;
+	end;
+	if vlCurrent is TArrayType then iTop := TArrayType(vlCurrent);
 	LoadItem := false;
 end;
 
@@ -1034,13 +1034,14 @@ begin
 end;
 
 function TSecType.DependsOn(ParType : TType) : boolean;
-var vlType : TSecType;
+var 
+	vlType : TType;
 begin
 	vlType := self;
 	while (vlType <> nil) do begin
 		if (vlType =ParType) then exit(true);
 		if not (vlType is TSecType) then break;
-		vlType := TSecType(vlType.fType);
+		vlType := TSecType(vlType).fType;
 	end;
 	exit(false);
 end;
@@ -1095,14 +1096,14 @@ end;
 function TCharType.CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;
 var
 	vlNUm : TNUmber;
-	vlStr : string;
+	vlStr : ansistring;
 	vlMac : TMacBase;
 begin
 	if ParOption = MCO_Result then begin
 		ParValue.GetAsString(vlStr);
 		LoadLong(vlNum,byte(vlStr[1]));
 		vlMac := ParCre.CreateNumberMac(0,LargeIsNeg(vlNum),vlNum);
-    end else begin
+	end else begin
 		vlMac := inherited CreateConstantMac(ParOption,parCre,ParValue);
 	end;
 	exit(vlMac);
@@ -1150,15 +1151,15 @@ begin
 	ParDis.Print(['<chardef><Size>',fSize,'<size></chardef>']);
 end;
 
-{----( String Base )----------------------------------------------}
+{----( ansistring Base )----------------------------------------------}
 
 function  TStringBase.CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;
 var
-	vlStr : string;
+	vlStr : ansistring;
 	vlMac : TMacBase;
 	vlMac2: TMemOfsMac;
 	vlLab : longint;
-	vlName: string;
+	vlName: ansistring;
 begin
 	vlMac := nil;
 	ParValue.GetString(vlStr);
@@ -1299,16 +1300,16 @@ end;
 
 
 
-function   TStringType.GetDescForAnonymousIdent : string;
+function   TStringType.GetDescForAnonymousIdent : ansistring;
 var
-	vLName : string;
+	vLName : ansistring;
 begin
 	if iType <> nil then begin
 		vlName := iType.GetErrorName;
 	end else begin
 		vlName := '<unkown type>';
 	end;
-	vlName := 'String size '+IntToStr(iNumElements) + ' of type '+vlName;
+	vlName := 'ansistring size '+IntToStr(iNumElements) + ' of type '+vlName;
 	exit(vlName);
 end;
 
@@ -1382,7 +1383,7 @@ begin
 	exit(false);
 end;
 
-constructor TStringType.Create(ParType : TType;ParDefaultSize:boolean;ParNumElements : cardinal;const ParLengthVarName : string;ParLengthVarType :TType);
+constructor TStringType.Create(ParType : TType;ParDefaultSize:boolean;ParNumElements : cardinal;const ParLengthVarName : ansistring;ParLengthVarType :TType);
 var
 	vlIndex : TFrameVariable;
 begin
@@ -1400,7 +1401,7 @@ end;
 
 function   TStringType.CreateBasedOn(ParCre : TCreator;ParNewSize : TSize) : TTYpe;
 var vlVar     : TVariable;
-	vlName    : string;
+	vlName    : ansistring;
 	vlType    : TType;
 begin
 	if not(iHasDefaultSize) and (iParts = nil) then begin
@@ -1409,7 +1410,7 @@ begin
 	end;
 	vlVar := TVariable(iParts.fStart);
 	if (vLVar <> nil) then begin
-		vlVar.GetTextStr(vlName);
+		vlName := vlVar.fText;
 		vlType := vlVar.fType;
 		if ParNewSize > GetIndexTypeMax then TNDCreator(ParCre).SemError(Err_Num_Out_Of_Range);
 		exit(TStringType.Create(iType,false,ParNewSize,vlName,vlType));
@@ -1436,11 +1437,13 @@ var
 	vlType :TType;
 begin
 	vlType := GetIndexType;
-	if (vlType <> nil) and (vlType.IsLike( TNumberType)) then begin
-		exit(LargeToCardinal(TNumberTYpe(vlType).GetRangeMax));
-	end else begin
-		exit(0);
+	if (vlType <> nil) then begin
+		vlType := vlType.GetOrgType;
+		if (vlType.IsLike( TNumberType)) then begin
+			exit(LargeToCardinal(TNumberType(vlType).GetRangeMax));
+		end
 	end;
+	exit(0);
 end;
 
 function    TStringType.GetIndexType : TType;
@@ -1481,7 +1484,7 @@ end;
 
 procedure TStringType.PrintDefinitionBody(ParDis:TDisplay);
 begin
-	ParDis.Write('String');
+	ParDis.Write('ansistring');
 	inherited PrintDefinitionBody(ParDis);
 end;
 
@@ -1535,10 +1538,17 @@ begin
 end;
 
 
+{----( TNumberTYpe )-------------------------------------------------}
 
-{----( TNumberType )-------------------------------------------------}
+procedure TNumberType.Commonsetup;
+begin
+	inherited Commonsetup;
+	iIdentCode := IC_Number;
+end;
 
-function   TNumberType.IsMinimum(ParValue : TValue):boolean;
+{----( TNumberBaseType )-------------------------------------------------}
+
+function   TNumberBaseType.IsMinimum(ParValue : TValue):boolean;
 var
 	vlNum : TNumber;
 begin
@@ -1547,7 +1557,7 @@ begin
 	exit(LargeCompare(GetRangeMin,vlNum) <> LC_Bigger);
 end;
 
-function   TNumberType.IsMaximum(ParValue : TValue):boolean;
+function   TNumberBaseType.IsMaximum(ParValue : TValue):boolean;
 var
 	vlNum : TNumber;
 begin
@@ -1556,7 +1566,7 @@ begin
 	exit(LargeCompare(GetRangeMax,vlNum) <> LC_Lower);
 end;
 
-function  TNumberType.ValidateConstant(ParValue : TValue):TConstantValidation;
+function  TNumberBaseType.ValidateConstant(ParValue : TValue):TConstantValidation;
 var
 	vlInt : TNUmber;
 begin
@@ -1567,12 +1577,12 @@ end;
 exit(val_Ok);
 end;
 
-function  TNumberType.IsDefaultType(ParDefaultCode : TDefaultTypeCode;ParSize : TSize;ParSign : boolean):boolean;
+function  TNumberBaseType.IsDefaultType(ParDefaultCode : TDefaultTypeCode;ParSize : TSize;ParSign : boolean):boolean;
 begin
 	exit((fDefault  = ParDefaultCode) and (iSign = ParSign) and  ((ParSize = size_DontCare) or (fSize >= ParSize)))
 end;
 
-function TNumberType.IsExactCompatibleSelf(PArType:TType):boolean;
+function TNumberBaseType.IsExactCompatibleSelf(PArType:TType):boolean;
 begin
 	if inherited IsExactCompatibleSelf(ParType) then begin
 		exit( GetSign = (ParType.GetSign));
@@ -1580,37 +1590,32 @@ begin
 	exit(false);
 end;
 
-function TNumberType.GetSign:boolean;
+function TNumberBaseType.GetSign:boolean;
 begin
 	exit(iSign);
 end;
 
 
-constructor TNumberType.Create(ParSize : TSize;ParSign:boolean);
+constructor TNumberBaseType.Create(ParSize : TSize;ParSign:boolean);
 begin
 	inherited Create(ParSize);
 	iSign := ParSign;
 end;
 
-procedure TNumberType.CommonSetup;
-begin
-	inherited CommonSetup;
-	iIdentCode := (ic_Number);
-end;
 
-function TNumberType.IsDominant(ParType:TType):TDOmType;
+function TNumberBaseType.IsDominant(ParType:TType):TDOmType;
 begin
 	IsDominant := DOM_Unkown;
 	if IsSameIdentCode(ParType) then begin
 		IsDominant := DOM_Not;
 		if (fSize > ParType.fSize)
 		and (fSize = ParType.fSize)
-		and (GetSign or not(TNumberType(ParType).GetSign)) then IsDominant := DOM_Yes;
+		and (GetSign or not(TNumberBaseType(ParType).GetSign)) then IsDominant := DOM_Yes;
 	end;
 end;
 
 
-function TNumberType.SaveItem(ParWrite:TObjectStream):boolean;
+function TNumberBaseType.SaveItem(ParWrite:TObjectStream):boolean;
 begin
 	SaveItem := true;
 	if inherited SaveItem(ParWrite) then exit;
@@ -1619,7 +1624,7 @@ begin
 end;
 
 
-function TNumberType.LoadItem(ParWrite:TObjectStream):boolean;
+function TNumberBaseType.LoadItem(ParWrite:TObjectStream):boolean;
 var vlSIgn:boolean;
 begin
 	LoadItem := true;
@@ -1629,7 +1634,7 @@ begin
 	LoadItem := false;
 end;
 
-procedure TNumberType.PrintDefinitionBody(parDis:TDisplay);
+procedure TNumberBaseType.PrintDefinitionBody(parDis:TDisplay);
 begin
 	ParDis.Print(['<numberdef><size>',fSize,'</size><signed>']);
 	if GetSign then ParDis.Write('yes');
@@ -1637,7 +1642,7 @@ begin
 end;
 
 
-procedure TNumberType.GetRangeBySize(ParSize : TSize;ParSign:boolean;var ParMax, ParMin:TNumber);
+procedure TNumberBaseType.GetRangeBySize(ParSize : TSize;ParSign:boolean;var ParMax, ParMin:TNumber);
 var
 	vlNum : TNumber;
 begin
@@ -1657,7 +1662,7 @@ begin
 	end;
 end;
 
-function  TNumberType.GetRangeMax : TNumber;
+function  TNumberBaseType.GetRangeMax : TNumber;
 var vlMax : TNumber;
 	vlMin : TNumber;
 begin
@@ -1665,7 +1670,7 @@ begin
 	exit(vlMax);
 end;
 
-function  TNumberType.GetRangeMin : TNumber;
+function  TNumberBaseType.GetRangeMin : TNumber;
 var vlMax : TNumber;
 	vlMin : TNumber;
 begin
@@ -1727,7 +1732,7 @@ begin
 end;
 
 
-function  TTypeAs.GetPtrByName(const ParName:string;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;
+function  TTypeAs.GetPtrByName(const ParName:ansistring;ParOption :TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;
 begin
 	if fType <> nil then begin
 		exit(fType.GetPtrByName(ParName,ParOption,ParOwner,ParItem));
@@ -1737,7 +1742,7 @@ begin
 end;
 
 
-function  TTypeAs.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TTypeAs.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	if fType <> nil then begin
 		exit(fType.GetPtrByObject(ParName,ParObject,ParOption,parOwner,ParResult));
@@ -1780,7 +1785,7 @@ begin
 end;
 
 
-constructor TTypeAs.Create(const ParName:String;ParType :TTYpe);
+constructor TTypeAs.Create(const ParName:ansistring;ParType :TTYpe);
 var vlSize : TSize;
 begin
 	vlSize := 0;

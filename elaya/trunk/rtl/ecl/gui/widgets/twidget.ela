@@ -24,8 +24,8 @@ type
 			voLeaveEvent : TLeaveEvent;
 			voAllocationChangedEvent : TAllocationChangedEvent;
 	protected
-   	procedure SetXY(ParX,ParY : longint);override;
-      function  GetHandle : TInterface.PWidgetHandle;
+		procedure SetXY(ParX,ParY : longint);override;
+		function  GetHandle : TInterface.PWidgetHandle;
 		procedure ChangeWH(ParW,ParH : long);
 		procedure SetW(ParW : long);
 		procedure SetH(ParH : long);
@@ -35,21 +35,21 @@ type
 		procedure Clear;override;
 		procedure Commonsetup; override;
 		procedure InitWidget;virtual;
-   	procedure SetToolTip(const ParStr :string);
-      function  GetToolTip : string;
+	   	procedure SetToolTip(const ParStr :string);
+		function  GetToolTip : string;
 		procedure SetBgColor(const ParColor : TColor);
-   	procedure Expose;virtual;
+		procedure Expose;virtual;
 		procedure SetupWidget;virtual;
 		procedure ConfigWidget;virtual;
 		procedure CreateWidget;
 
 	public
 		procedure HandleEvent(var ParEvent: TEvent);virtual;
-      constructor Create(ParParent : TWidget);root;
+		constructor Create(ParParent : TWidget);root;
 		has
 		protected
 			procedure Init;virtual;
-         main;
+			main;
 		end;
 		procedure Show(ParShow : boolean);override;
 		procedure ClearWidget;
@@ -92,7 +92,7 @@ type
 		property ToolTip : string;
 		begin
 			public write SetToolTip;
-   		public read GetToolTip;
+			public read GetToolTip;
 		end;
 
 		property Parent : TWidget;
@@ -107,12 +107,12 @@ type
 			protected write voHandleRec;
 		end;
 
-   	property Handle : TInterface.PWidgetHandle;
+		property Handle : TInterface.PWidgetHandle;
 		begin
 			public read GetHandle;
 		end;
 
-   	property Title : string;
+		property Title : string;
 		begin
 			public write SetTitle;
 			public read  GetTitle;

@@ -59,12 +59,12 @@ end;
 function TDefaultItem.IsDefault(ParDefault : TDefaultTypeCode ; ParSize:TSize;ParSign:boolean):boolean;
 var vlType:TType;
 	vlDef : TDefinition;
-	vlName : string;
+	vlName : ansistring;
 begin
 	IsDefault := false;
 	
 	vlDef := TDefinition(fObject);
-	vlDef.GetTextStr(vlName);
+	vlName := vlDef.fText;
 	if TDefinition(fObject).fDefault = ParDefault then begin
 		
 		if fObject is TType then begin

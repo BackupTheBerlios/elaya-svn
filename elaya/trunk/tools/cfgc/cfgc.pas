@@ -21,8 +21,8 @@ uses progutil,stdobj,simplist;
 
 
 type  TVarValuesList=class(TSMList)
-          function  AddVar(const ParName, ParValue : string):boolean;
-          function GetValueByName(const ParName : string;var ParValue :string):boolean;
+          function  AddVar(const ParName, ParValue : ansistring):boolean;
+          function GetValueByName(const ParName : ansistring;var ParValue :ansistring):boolean;
       end;
 
       TVarValueItem=class(TSMListItem)
@@ -32,21 +32,21 @@ type  TVarValuesList=class(TSMList)
              property iValue : TString read voValue write voValue;
              property iVar   : TString read voVar   write voVar;
       public
-             function IsVarName(const ParName : string):boolean;
-             function GetValueStr : string;
-             constructor Create(const ParName, ParValue : string);
+             function IsVarName(const ParName : ansistring):boolean;
+             function GetValueStr : ansistring;
+             constructor Create(const ParName, ParValue : ansistring);
              procedure Clear;override;
       end;
 
 {----( TVarValueItem )--------------------------------------------------------}
 
-function TVarValueItem.IsVarName(const ParName : string):boolean;
+function TVarValueItem.IsVarName(const ParName : ansistring):boolean;
 begin
      exit(iVar.IsEqualStr(ParName));
 end;
 
-function TVarValueItem.GetValueStr : string;
-var vlStr : string;
+function TVarValueItem.GetValueStr : ansistring;
+var vlStr : ansistring;
 begin
      iValue.GetString(vlStr);
      exit(vlStr);
@@ -59,7 +59,7 @@ begin
      if iValue <> nil then iValue.Destroy;
 end;
 
-constructor TVarValueItem.Create(const ParName,ParValue : string);
+constructor TVarValueItem.Create(const ParName,ParValue : ansistring);
 begin
      inherited Create;
      iVar := TString.Create(ParName);
@@ -68,15 +68,15 @@ end;
 
 {---( TVarValueList )-----------------------------------------------------}
 
-function TVarValuesList.AddVar(const ParName, ParValue : string):boolean;
-var vlDummy : string;
+function TVarValuesList.AddVar(const ParName, ParValue : ansistring):boolean;
+var vlDummy : ansistring;
 begin
    	if GetValueByName(ParName,vlDummy) then exit(true);
 	insertAt(nil,TVarValueItem.Create(ParName,ParValue));
 	exit(false);
 end;
 
-function TVarValuesList.GetValueByName(const ParName : string;var ParValue :string):boolean;
+function TVarValuesList.GetValueByName(const ParName : ansistring;var ParValue :ansistring):boolean;
 var
    vlCurrent :TVarValueItem;
 begin
@@ -96,19 +96,19 @@ var
       vgTemplateFile     : text;
       vgVarListFile      : text;
       vgOutputFile       : Text;
-      vgTemplateFileName : string;
-      vgVarListFileName  : string;
-      vgLine             : string;
-      vgOutLine          : string;
+      vgTemplateFileName : ansistring;
+      vgVarListFileName  : ansistring;
+      vgLine             : ansistring;
+      vgOutLine          : ansistring;
       vgPos              : byte;
       vgLineCnt          : cardinal;
-      vgName             : string;
-      vgValue            : string;
+      vgName             : ansistring;
+      vgValue            : ansistring;
       vgVarList          : TVarValuesList;
-      vgOutputFileName   : string;
+      vgOutputFileName   : ansistring;
 
 
-procedure VarListFail(const ParMessage : string);
+procedure VarListFail(const ParMessage : ansistring);
 begin
      writeln('Error in var list file');
      writeln('Line ',vgLineCnt);
@@ -118,7 +118,7 @@ begin
 end;
 
 
-procedure TemplateFail(const ParLine,ParMessage : string;ParColNum : cardinal);
+procedure TemplateFail(const ParLine,ParMessage : ansistring;ParColNum : cardinal);
 begin
      writeln('Error in template file');
      writeln('Line/Pos ',vgLineCnt,'/',ParColNum);
@@ -127,7 +127,7 @@ begin
      halt(1);
 end;
 
-function ValidateVarName(const ParVarName : string):boolean;
+function ValidateVarName(const ParVarName : ansistring):boolean;
 var
    vlCnt : cardinal;
 begin
@@ -142,10 +142,10 @@ begin
      exit(true);
 end;
 
-procedure ProcessLine(const ParLine : string;var ParOut : string);
+procedure ProcessLine(const ParLine : ansistring;var ParOut : ansistring);
 var vgCurPos : cardinal;
-    vgVarName  :string;
-    vgReplace  : string;
+    vgVarName  :ansistring;
+    vgReplace  : ansistring;
     vgVarStart : cardinal;
 begin
      vgCurPos := 1;

@@ -190,7 +190,7 @@ Fpc="ppc386"
 ela="ela"
 eladep="eladep"
 
-Opt_Fpc="-dmalloc -a -O2g -CR  -Ci- -gl -Ch1000000  -S2c  -vrwen -Ratt"
+Opt_Fpc="-dmalloc -a  -O2 -Ci- -gl -Ch1000000  -S2c  -vrwen -Ratt"
 Fpc_Opt_Unit_Path=""
 
 

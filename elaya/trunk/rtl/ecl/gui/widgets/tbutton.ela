@@ -54,9 +54,8 @@ end public
 procedure TButton.SizeToPixmap(ParDeltaX,ParDeltaY : longint);
 begin
 	if pixmap <> nil then begin
-   	W := pixmap.w + parDeltaX;
+	   	W := pixmap.w + parDeltaX;
 		H := Pixmap.h + ParDeltaY;
-		writeln(W,'x',H);
 	end;
 end;
 
@@ -105,7 +104,7 @@ begin
 	end;
 
 	vgInterface.CreateInterButton(X,y,W,H,vlHandle,handle,Title);
-   if Pixmap <> nil then begin
+	if Pixmap <> nil then begin
 		vgInterface.SetButtonPixmap(Handle,Pixmap.Handle);
 	end;
 end;

@@ -34,8 +34,8 @@ var vlA:TLargeNumber;
 
 procedure LoadLong(var ParLarge : TLargeNumber;ParNum : cardinal);
 procedure LoadInt(var ParLarge : TLargeNumber;ParNum : longint);
-procedure LargeToString(const ParLarge : TLargeNumber;var ParStr :string);
-function StringToLarge(const ParStr : string;var ParLarge : TLargeNumber):boolean;
+procedure LargeToString(const ParLarge : TLargeNumber;var ParStr :ansistring);
+function StringToLarge(const ParStr : ansistring;var ParLarge : TLargeNumber):boolean;
 function  LargeMul(var ParLargeOut : TLargeNumber;const ParLargeIn : TLargeNumber):boolean;
 function  LargeMulLong(var ParLargeOut : TLargeNumber;ParNum : cardinal):boolean;
 procedure LargeDiv(var ParLargeOut : TLargeNumber;const ParLargeIn : TLargeNumber);
@@ -238,7 +238,7 @@ begin
 	if ParLarge.vrSign then ParOut := - ParOut;
 end;
 
-function StringToLarge(const ParStr : string;var ParLarge : TLargeNumber): boolean;
+function StringToLarge(const ParStr : ansistring;var ParLarge : TLargeNumber): boolean;
 var vlLi : longint;
 	vlCa : cardinal;
 	vlii : integer;
@@ -349,7 +349,7 @@ begin
 	ParLargeOut.vrSign := ParLargeOut.vrSign xor ParLargeIn.vrSign;
 end;
 
-procedure LargeToString(const ParLarge : TLargeNumber;var ParStr :string);
+procedure LargeToString(const ParLarge : TLargeNumber;var ParStr :ansistring);
 begin
 	str(ParLarge.vrNumber,ParStr);
 	if (ParLarge.vrSign) and (ParLarge.vrNumber <> 0) then ParStr := '-' + ParStr;

@@ -28,7 +28,7 @@ type
 	protected
 		procedure  CommonSetup;override;
 	public
-		function   CreateNewCB(ParCre : TCreator;const ParNAme : string) : TRoutine;  override;
+		function   CreateNewCB(ParCre : TCreator;const ParNAme : AnsiString) : TRoutine;  override;
 		procedure  PrintDefinitionType(ParDIs:TDisplay);override;
 		procedure  CheckIsInheritedComp(ParCre : TCreator;ParCB : TRoutine;ParHasMain : boolean);override;
 		function   CreateExitNode(ParCre : TCreator;ParNode : TFormulaNode) : TNodeIdent;override;
@@ -63,7 +63,7 @@ type
 		
 		{Parsen}
 		function  CreateExitNode(ParCre : TCreator;ParNode : TFormulaNode) : TNodeIdent;override;
-		function   IsSameAsForward(ParCB : TDefinition;var ParText : string):boolean;override;
+		function   IsSameAsForward(ParCB : TDefinition;var ParText : AnsiString):boolean;override;
 		function   CreateReadNode(ParCre : TCreator;ParOwner : TDefinition) : TFormulaNode;override;
 	end;
 
@@ -73,7 +73,7 @@ type
 
     public
 		procedure   ValidateCanOverrideByComp(ParCre :TNDCreator;const ParOther : TRoutine);override;
-		function	CreateNewCB(ParCre : TCreator;const ParName : string) : TRoutine;override;
+		function	CreateNewCB(ParCre : TCreator;const ParName : AnsiString) : TRoutine;override;
 	end;
 	
 
@@ -82,7 +82,7 @@ type
 	protected
 		procedure  COmmonsetup;override;
 	public
-		constructor Create(const ParName : string);
+		constructor Create(const ParName : AnsiString);
 		function   Can(ParCan:TCan_Types):boolean;override;
 		procedure  InitParts;override;
 		function   CreateExecuteNode(ParCre:TCreator;ParContext : TDefinition):TNodeIdent;override;
@@ -92,14 +92,14 @@ type
 		function   CreateDB(ParCre:TCreator):boolean;override;
 		function   GetByDefinition(ParDef :TRoutine):TRoutine;
 		function   GetByDefinition(ParDef :TRoutine;ParType : TParamCompareOptions):TRoutine;
-		function   GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
-		function   GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function   GetPtrByObject(const ParName : AnsiString;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function   GetPtrByArray(const ParName : AnsiString;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 
 		procedure  PrintDefinitionHeader(ParDis:TDisplay);override;
 		procedure  PrintDefinitionBody(ParDis:TDisplay);override;
 		procedure  PrintDefinitionType(ParDis:TDisplay);override;
 		procedure  ProducePoc(ParCre : TCreator);
-		function   IsSameByObject(const ParName : string;ParObject : TRoot):TObjectFindState;override;
+		function   IsSameByObject(const ParName : AnsiString;ParObject : TRoot):TObjectFindState;override;
 		function   GetFirstRoutine :TRoutine;
 		function   GetRoutineByMapping(ParMapping : TParameterMappingList):TRoutine;
 		function   IsOverLoaded : boolean;
@@ -144,8 +144,8 @@ type
 	public
 		
 		constructor Create(ParColl:TIdentListCollection;ParUnitflag:boolean);
-		procedure onMangledName(var ParName : string);override;
-		procedure PreMangledName(var ParName:string);override;
+		procedure onMangledName(var ParName : AnsiString);override;
+		procedure PreMangledName(var ParName:AnsiString);override;
 		procedure CreateInitProc(ParCre:TSecCreator);override;
 		function  LoadItem(ParStr:TObjectStream):boolean;override;
 		function  SaveItem(ParStr:TObjectStream):boolean;override;
@@ -313,7 +313,6 @@ var
 	vlOther   : TRoutine;
 	
 begin
-
 	if (ParDef = nil) or not (ParDef is TRoutine) then exit(Err_No_Error);
 
 	if not (IsEmpty) then begin
@@ -383,9 +382,9 @@ function TRoutineCOllection.Addident(Parident:TDefinition):TErrorType;
 var
 	vlErr : TErrorType;
 begin
-	if not(ParIdent.fText.IsEqual(fText)) then runerror(100);
-	vlErr := (inherited AddIdent(ParIdent));
-    exit(vlErr);
+	if ParIdent.fText<>fText then runerror(100);
+	vlErr := inherited AddIdent(ParIdent);
+	exit(vlErr);
 end;
 
 
@@ -411,7 +410,7 @@ begin
 end;
 
 
-function  TRoutineCollection.IsSameByObject(const ParName : string;ParObject : TRoot):TObjectFindState;
+function  TRoutineCollection.IsSameByObject(const ParName : AnsiString;ParObject : TRoot):TObjectFindState;
 begin
 	if ParObject <> nil then begin
 		if IsSameText(ParName) then begin
@@ -427,7 +426,7 @@ Mapping kan kijkt alleen in de routines in niet in de sub routines!
 }
 
 
-function TROutineCOllection.GetPtrByArray(const ParName : string;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TROutineCOllection.GetPtrByArray(const ParName : AnsiString;const ParArray : Array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var
 	vlCurrent : TRoutine;
 begin
@@ -450,7 +449,7 @@ begin
 	end;
 end;
 
-function  TRoutineCollection.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TRoutineCollection.GetPtrByObject(const ParName : AnsiString;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var
 	vlCurrent : TRoutine;
 begin
@@ -468,8 +467,8 @@ begin
 		{TODO: move tolist}
 		vlCurrent := TRoutine(iParts.fStart);
 		while (vlCurrent<> niL) do begin
-			if THookDigiList(ParObject).IsSameParameters(vlCurrent.GetParList,RTM_Exact_Overload in vlCurrent.fRoutineModes) then break;
-			 vlCurrent := TRoutine(vlCurrent.fNxt);
+			if TIdentHookDigiItem(ParObject).IsSameParameters(vlCurrent.GetParList,RTM_Exact_Overload in vlCurrent.fRoutineModes) then break;
+			vlCurrent := TRoutine(vlCurrent.fNxt);
 		end;
 		ParResult := vlCurrent;
 	end else if ParObject.ClassType=TCallNode then begin
@@ -496,7 +495,7 @@ begin
 	exit(TRoutineCollectionList(iParts).GetRoutineItemByNode(ParNode));
 end;
 
-constructor TRoutineCollection.Create(const ParName : string);
+constructor TRoutineCollection.Create(const ParName : AnsiString);
 begin
 	inherited Create;
 	SetText(parName);
@@ -535,11 +534,10 @@ begin
 end;
 
 function TRoutineCollection.CreateReadNode(ParCre : TCreator;ParContext : TDefinition) : TFOrmulaNode;
-var vlName : string;
+var 
 	vlNode : TCallNode;
 begin
-	GetTextStr(vlName);
-	vlNode  := TCallNode.Create(vlName);
+	vlNode  := TCallNode.Create(fText);
 	TNDCreator(ParCre).SetNodePos(vlNode);
 	if not IsOverloaded then vlNode.SetRoutineItem(TNDCreator(ParCre),GetFirstRoutine,ParContext);
 	exit(vlNode);
@@ -591,7 +589,7 @@ end;
 
 
 
-function  TProcedureObj.CreateNewCB(ParCre : TCreator;const ParName : string) : TRoutine;
+function  TProcedureObj.CreateNewCB(ParCre : TCreator;const ParName : AnsiString) : TRoutine;
 begin
 	exit(TProcedureObj.Create(ParName));
 end;
@@ -772,7 +770,7 @@ end;
 
 
 constructor TStartUpProc.Create(ParColl : TIdentListCollection;ParUnitflag : boolean);
-var vlName : string;
+var vlName : AnsiString;
 begin
 	if ParUnitFlag then begin
 		vlName :=  CNF_Unit_Startup;
@@ -790,15 +788,12 @@ begin
 	iIdentCode := IC_StartupProc;
 end;
 
-procedure TStartupProc.onMangledName(var ParName : string);
-var
-	vlName : string;
+procedure TStartupProc.onMangledName(var ParName : AnsiString);
 begin
-	GetTextStr(vlName);
-	ParName := ParName + vlName;
+	ParName := ParName + fText;
 end;
 
-procedure TStartupProc.PreMangledName(var ParName:string);
+procedure TStartupProc.PreMangledName(var ParName:AnsiString);
 begin
 	if not iIsUnitFlag then begin
 		ParName  := '_';
@@ -815,7 +810,7 @@ begin
 	iIdentCode := (IC_Function);
 end;
 
-function  TFunction.CreateNewCB(ParCre : TCreator;const ParName : string) : TRoutine;
+function  TFunction.CreateNewCB(ParCre : TCreator;const ParName : AnsiString) : TRoutine;
 var
 	vlNewCB : TReturnRoutine;
 begin
@@ -914,7 +909,7 @@ end;
 function  TReturnRoutine.CreateSeperationRoutine(ParCre : TNDCreator): TRoutine;
 var
 	vlFUn : TFUnction;
-	vlName : string;
+	vlName : AnsiString;
 begin
 	GetNewAnonName(vlName);
 	vlFun := TFunction.Create(vlName);
@@ -979,7 +974,7 @@ begin
 	end;
 end;
 
-function TReturnRoutine.IsSameAsForward(ParCB : TDefinition;var ParText : string):boolean;
+function TReturnRoutine.IsSameAsForward(ParCB : TDefinition;var ParText : AnsiString):boolean;
 var
 	vlType : TType;
 begin

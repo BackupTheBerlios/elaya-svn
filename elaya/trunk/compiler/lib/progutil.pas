@@ -22,7 +22,7 @@ interface
 uses largenum,dos,platform;
 
 
-type pst=^string;
+type pst=^ansistring;
 	TSplit=record
 	case byte of
 	1:(vW1,vW2:word);
@@ -47,63 +47,63 @@ TVerbose=set of VRB_Display;
 TFlag=longint;
 TPid=pTPid;
 
-procedure SplitFile(const ParFile:String;var ParPath,ParName,ParExt:string);
-procedure AppendExt(const ParExt:string;const ParFile:String;var ParOut:String);
-procedure PrvDir(var ParName :string);
-procedure AddProgramDir(var ParName:string);
-function  GetProgramDir : string;
+procedure SplitFile(const ParFile:ansistring;var ParPath,ParName,ParExt:ansistring);
+procedure AppendExt(const ParExt:ansistring;const ParFile:ansistring;var ParOut:ansistring);
+procedure PrvDir(var ParName :ansistring);
+procedure AddProgramDir(var ParName:ansistring);
+function  GetProgramDir : ansistring;
 
 function  GetFileTime(var ParFile:File):longint;
-procedure ToOctal(parbyte:byte;var ParOct:string);
-procedure ToASString(const ParStr:string;var ParOut:String);
-procedure Message(const ParMes:string);
-procedure GetWordHex(ParWord:Word;var ParHex:string);
+procedure ToOctal(parbyte:byte;var ParOct:ansistring);
+procedure ToASString(const ParStr:ansistring;var ParOut:ansistring);
+procedure Message(const ParMes:ansistring);
+procedure GetWordHex(ParWord:Word;var ParHex:ansistring);
 function  Max(parG1,ParG2:Longint):Longint;
 function  Min(ParG1,ParG2:Longint):Longint;
-function  InitStr(const ParStr:string):pst;
+function  InitStr(const ParStr:ansistring):pst;
 procedure DoneStr(ParStr:PSt);
-procedure FormatDateTime(var ParTime,ParDate:string);
-procedure UpperStr(var ParStr:string);
-procedure LowerStr(var ParStr:string);
-procedure TRim(var ParStr:string);
+procedure FormatDateTime(var ParTime,ParDate:ansistring);
+procedure UpperStr(var ParStr:ansistring);
+procedure LowerStr(var ParStr:ansistring);
+procedure TRim(var ParStr:ansistring);
 function  GetTimer:cardinal;
-function  PtrToHex(ParPtr:pointer):string;
-procedure NormFileName(var ParName:string);
-function  HexToLongInt(const ParStr:string;var ParError : boolean):TLargeNumber;
-function  BinToLongint(const ParStr:string;var ParError : boolean):TLargeNumber;
-procedure ExecProg(const ParCmd,ParPar:string);
+function  PtrToHex(ParPtr:pointer):ansistring;
+procedure NormFileName(var ParName:ansistring);
+function  HexToLongInt(const ParStr:ansistring;var ParError : boolean):TLargeNumber;
+function  BinToLongint(const ParStr:ansistring;var ParError : boolean):TLargeNumber;
+procedure ExecProg(const ParCmd,ParPar:ansistring);
 procedure Freemem(ParPtr:pointer;ParSize:cardinal);
-procedure Verbose(ParLevel:VRB_Display;const ParText:String);
+procedure Verbose(ParLevel:VRB_Display;const ParText:ansistring);
 procedure Verbose(ParLevel:VRB_Display;const ParArray:Array of const);
 procedure SetVerboseLevel(ParLevel:TVerbose);
-procedure CombinePath(const ParDir,ParFile:string;var ParOut:string);
-function  IntToStr(ParInt:Longint):String;
+procedure CombinePath(const ParDir,ParFile:ansistring;var ParOut:ansistring);
+function  IntToStr(ParInt:Longint):ansistring;
 procedure  GetCpuCycles(var ParLo,ParHi:cardinal);
 procedure GetCpuCycles64(var ParTime : int64);
 
 function  GetExitCode:cardinal;
 function  GetDosError:cardinal;
-procedure ArrayToStr(const ParArray:array of const;var ParStr:String);
-function  SplitWord(var ParPos : cardinal;const ParInStr:string;var ParOut:String):boolean;
-procedure EmptyString(var ParStr:string);
-procedure IncludeIntoString(const ParInString : string;var ParOutString:string;const ParData:array of const);
+procedure ArrayToStr(const ParArray:array of const;var ParStr:ansistring);
+function  SplitWord(var ParPos : cardinal;const ParInStr:ansistring;var ParOut:ansistring):boolean;
+procedure EmptyString(var ParStr:ansistring);
+procedure IncludeIntoString(const ParInString : ansistring;var ParOutString:ansistring;const ParData:array of const);
 function  KillProcess(ParPid : TPid):boolean;
 function  GetProcessId:TPid;
-procedure LinuxTONative(var ParName : string);
-procedure NativeTolinux(var ParName : string);
+procedure LinuxTONative(var ParName : ansistring);
+procedure NativeTolinux(var ParName : ansistring);
 const
 	Dir_Seperator=PDir_Seperator;
 implementation
 
 var vgVerboseLevel:TVerbose;
 
-procedure NativeToLinux(var ParName : string);
+procedure NativeToLinux(var ParName : ansistring);
 begin
 	PNativeToLinux(ParName);
 end;
 	
 
-procedure LinuxTONative(var ParName : string);
+procedure LinuxTONative(var ParName : ansistring);
 begin
 	PLinuxToNative(ParName);
 end;
@@ -118,9 +118,9 @@ begin
 	exit(pKill(ParPid));
 end;
 
-function VarRecTOstring(const ParVar : TVarRec):string;
+function VarRecTOstring(const ParVar : TVarRec):ansistring;
 var
-	vlStr : string;
+	vlStr : ansistring;
 begin
 	EmptyString(vlStr);
 	case ParVar.vType of
@@ -128,7 +128,7 @@ begin
 		vtChar    :vlStr := ParVar.vChar;
 		vtBoolean :if ParVar.vBoolean then vlStr :=  'TRUE' else vlStr :=  'FALSE';
 		vtString  :if ParVar.vString <> nil then vlStr := ParVar.vString^
-		else vlStr := 'null string';
+		else vlStr := 'null ansistring';
 		{                vtObject,vtClass : if ParVar.vClass <> nil then vlStr := ParVar.vClass.ClassName
 		else vlStr := 'null class';
 		}                else vlStr := 'unkown type :' + IntToStr(ParVar.vType);
@@ -136,7 +136,7 @@ begin
 	exit(vlStr);
 end;
 
-procedure IncludeIntoString(const ParInString : string;var ParOutString:string;const ParData:array of const);
+procedure IncludeIntoString(const ParInString : ansistring;var ParOutString:ansistring;const ParData:array of const);
 var vlCnt     : cardinal;
 	vlDataCnt : cardinal;
 begin
@@ -156,12 +156,12 @@ begin
 	end;
 end;
 
-procedure EmptyString(var ParStr : string);
+procedure EmptyString(var ParStr : ansistring);
 begin
 	SetLength(ParStr,0);
 end;
 
-function SplitWord(var ParPos : cardinal;const ParInstr : string;var ParOut : string):boolean;
+function SplitWord(var ParPos : cardinal;const ParInstr : ansistring;var ParOut : ansistring):boolean;
 var vlCnt : cardinal;
 begin
 	vlcnt := 0;
@@ -186,7 +186,7 @@ end;
 
 
 
-procedure ArrayToStr(const ParArray:array of const;var ParStr:String);
+procedure ArrayToStr(const ParArray:array of const;var ParStr:ansistring);
 var vlCnt : cardinal;
 begin
 	EmptyString(ParStr);
@@ -239,11 +239,12 @@ asm
 	pop %edi
 end;
 
-function IntToStr(ParInt:Longint):String;
-var vlStr:string;
+function IntToStr(ParInt:Longint):ansistring;
+var 
+	vlStr:ansistring;
 begin
 	str(parInt,vlStr);
-	IntToStr := vlStr;
+	exit(vlStr);
 end;
 
 
@@ -254,9 +255,9 @@ begin
 	GetFileTime := vlLi;
 end;
 
-procedure CombinePath(const ParDir,ParFile:string;var ParOut:string);
-var vlOut : String;
-	vlFIle : string;
+procedure CombinePath(const ParDir,ParFile:ansistring;var ParOut:ansistring);
+var vlOut : ansistring;
+	vlFIle : ansistring;
 begin
 	vlOut := ParDir;
 	vlFile := ParFile;
@@ -265,7 +266,7 @@ begin
 	ParOut := vlOut + vlFile;
 end;
 
-procedure PrvDir(var ParName :string);
+procedure PrvDir(var ParName :ansistring);
 var vlCnt : byte;
 begin
 	vlCnt := length(ParName);
@@ -285,13 +286,13 @@ begin
 	vgVerboseLEvel := ParLevel;
 end;
 
-procedure Verbose(ParLevel:VRB_Display;const ParText:String);
+procedure Verbose(ParLevel:VRB_Display;const ParText:ansistring);
 begin
 	if ParLevel in vgVerboseLevel then writeln(ParText);
 end;
 
 procedure Verbose(ParLevel:VRB_Display;const ParArray:Array of const);
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	if ParLevel in vgVerboseLevel then begin
 		ArrayToStr(ParArray,vlStr);
@@ -299,12 +300,12 @@ begin
 	end;
 end;
 
-procedure ExecProg(const ParCmd,ParPar:string);
+procedure ExecProg(const ParCmd,ParPar:ansistring);
 begin
 	pExecProgram(parcmd,ParPar);
 end;
 
-procedure ToOctal(parbyte:byte;var ParOct:string);
+procedure ToOctal(parbyte:byte;var ParOct:ansistring);
 var vlCnt  : cardinal;
 	vlByte : byte;
 begin
@@ -319,7 +320,7 @@ begin
 end;
 
 
-function  BinToLongint(const ParStr:string;var ParError : boolean):TLargeNumber;
+function  BinToLongint(const ParStr:ansistring;var ParError : boolean):TLargeNumber;
 var vlCnt : cardinal;
 	vlLi  : TLArgeNumber;
 begin
@@ -341,7 +342,7 @@ ParError :=false;
 exit(vlLi);
 end;
 
-function  HexToLongInt(const ParStr:string;var ParError : boolean):TLargeNumber;
+function  HexToLongInt(const ParStr:ansistring;var ParError : boolean):TLargeNumber;
 var vlCnt  : cardinal;
 	vlLi   : TLargeNumber;
 	vlLI2  : TLargeNumber;
@@ -369,9 +370,9 @@ begin
 	exit(vlLi);
 end;
 
-procedure ToASString(const ParStr:string;var ParOut:String);
+procedure ToASString(const ParStr:ansistring;var ParOut:ansistring);
 var vlCnt:cardinal;
-	vlStr : string;
+	vlStr : ansistring;
 	vlCh:char;
 	vlLe :cardinal;
 begin
@@ -393,12 +394,12 @@ begin
 end;
 end;
 
-procedure Message(const ParMes:string);
+procedure Message(const ParMes:ansistring);
 begin
 	writeln(ParMEs);
 end;
 
-procedure Trim(var ParStr:string);
+procedure Trim(var ParStr:ansistring);
 begin
 	while (length(PArstr) > 0) and ((ParStr[1] =#32) or (Parstr[1] =#9)) do delete(ParStr,1,1);
 	while (length(ParStr) > 0) and ((ParStr[length(ParStr)] = #32) or (ParStr[length(ParStr)] = #9)) do SetLength(ParStr,length(ParStr)-1);
@@ -406,26 +407,26 @@ end;
 
 
 
-function  GetProgramDir : string;
-var vlFIleName,vlProgDir,vlDm1,vlDm2 : string;
+function  GetProgramDir : ansistring;
+var vlFIleName,vlProgDir,vlDm1,vlDm2 : ansistring;
 begin
 	vlFileName := pGetProgramDir;
 	SplitFile(vlFileName,vlProgDir,vlDm1,vlDm2);
 	exit(vlProgDir);
 end;
 
-procedure AddPRogramDir(var ParName:string);
-var vlProgDir,vlDm1,vlDm2,vlDm3:string;
+procedure AddPRogramDir(var ParName:ansistring);
+var vlProgDir,vlDm1,vlDm2,vlDm3:ansistring;
 begin
 	vlProgDir := GetProgramDir;
 	SplitFile(ParName,vlDm1,vlDm2,vlDm3);
 	CombinePath(vlProgDir,vlDm1 + '.' + vlDm3,ParName);
 end;
 
-procedure SplitFile(const ParFile:String;var ParPath,ParName,ParExt:string);
+procedure SplitFile(const ParFile:ansistring;var ParPath,ParName,ParExt:ansistring);
 var vlCnt : cardinal;
 	vlCh  : char;
-	vlStr : string;
+	vlStr : ansistring;
 	
 begin
 	vlCnt := length(ParFile);
@@ -461,16 +462,16 @@ ParPath := copy(ParFile,1,vlCnt);
 end;
 
 
-procedure AppendExt(const ParExt:string;const ParFile:String;var ParOut:String);
+procedure AppendExt(const ParExt:ansistring;const ParFile:ansistring;var ParOut:ansistring);
 var
-	vlS1,vlS2,vlS3:string;
+	vlS1,vlS2,vlS3:ansistring;
 begin
 	SplitFile(ParFile,vlS1,vlS2,vlS3);
 	ParOut := vlS1 + vlS2 + ParExt;
 end;
 
-procedure NormFileName(var ParName:string);
-var vlN1,vlN2,vlN3:string;
+procedure NormFileName(var ParName:ansistring);
+var vlN1,vlN2,vlN3:ansistring;
 begin
 	SplitFile(ParName,vln1,vlN2,vlN3);
 	LoWerStr(vlN2);
@@ -479,10 +480,10 @@ end;
 
 
 
-function PtrToHex(ParPtr:pointer):string;
+function PtrToHex(ParPtr:pointer):ansistring;
 var vlLi   : cardinal;
-	vlStr  : string;
-	vlStr2 : string;
+	vlStr  : ansistring;
+	vlStr2 : ansistring;
 begin
 	vlLi := cardinal(ParPtr);
 	GetWordHex(vlLi,vlStr);
@@ -498,7 +499,7 @@ begin
 end;
 
 
-procedure GetWordHex(ParWord:word;var ParHex:string);
+procedure GetWordHex(ParWord:word;var ParHex:ansistring);
 var vlCnt:word;
 	vlBt:byte;
 begin
@@ -526,7 +527,7 @@ begin
 end;
 
 
-procedure UpperStr(var ParStr:string);
+procedure UpperStr(var ParStr:ansistring);
 var vCnt : cardinal;
 begin
 	vCnt  := length(ParStr);
@@ -538,7 +539,7 @@ begin
 end;
 end;
 
-procedure LowerStr(var ParStr:string);
+procedure LowerStr(var ParStr:ansistring);
 var vCnt : cardinal;
 begin
 	vCnt := length(ParStr);
@@ -550,14 +551,14 @@ begin
 end;
 end;
 
-procedure AppendNumberToStr(ParNum:longint;ParPre:Char;var ParStr:string);
-var vTmp:string;
+procedure AppendNumberToStr(ParNum:longint;ParPre:Char;var ParStr:ansistring);
+var vTmp:ansistring;
 begin
 	str(ParNum,vTmp);
 	ParStr := ParStr +ParPre+ vTmp;
 end;
 
-procedure FormatDateTime(var ParTime,ParDate:string);
+procedure FormatDateTime(var ParTime,ParDate:ansistring);
 var vhh,vmi,vss,vss100 : word;
 	vYYYY,vMM,VDD,VWW : word;
 begin
@@ -575,7 +576,7 @@ end;
 
 
 
-function InitStr(const ParStr:string):pst;
+function InitStr(const ParStr:ansistring):pst;
 var vlTmp:pst;
 begin
 	getmem(vlTmp,length(ParStr) + 1);

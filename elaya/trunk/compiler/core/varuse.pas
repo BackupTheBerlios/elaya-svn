@@ -112,7 +112,6 @@ var
 	vlMode    : TAccessStatus;
 	vlNewMode : TAccessStatus;
 	vlCurrent : TUnionItemUseItem;
-	vlSize    : TSize;
 	vlThis    : TUnionItemUseItem;
 begin
 	vlMode := inherited SetAccess(ParDefinition,ParMode,ParItem);
@@ -121,7 +120,6 @@ begin
 		runerror(1);
 	end;
 	vlThis := TUnionItemUseItem(ParItem);
-	vlSize :=vlThis.fSize;
 	while vlCurrent<> nil do begin
 		if (vlCurrent <> vlTHis) then begin
 			if vlCurrent.fSize <= vlThis.fSIze then begin
@@ -326,7 +324,7 @@ end;
 procedure TStructDefinitionUseItem.CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);{TODO}
 var
 	vlDef   : TBaseDefinition;
-	vlOwner : string;
+	vlOwner : ansistring;
 begin
 	if IsUnused then begin
       if(iContext <> nil) then begin

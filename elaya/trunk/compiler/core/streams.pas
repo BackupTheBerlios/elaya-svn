@@ -57,7 +57,7 @@ type
 	public
 		function    GetNexTIdentNumber:TIdentNumber;
 		procedure   CommonSetup;override;
-		procedure   GetModuleName(var ParName:String);virtual;
+		procedure   GetModuleName(var ParName:ansistring);virtual;
 		procedure   doBind;
 		procedure   AddToPtrList(ParCode : TIdentNumber;ParObject : TStrAbelRoot);
 		procedure   AddToPtrList(ParObject:TStrAbelRoot);
@@ -97,14 +97,14 @@ private
 public
 	property fModuleObj : TModule read voModuleObj;
 	procedure   DoBind;
-	constructor Create(const ParModuleName:string;ParModule:TModule);
+	constructor Create(const ParModuleName:ansistring;ParModule:TModule);
 end;
 
 
 TModuleLoadList=class(TSmStringList)
 public
 	procedure DoBind;
-	procedure AddModule(const ParModule:string;ParModuleObj:TModule);
+	procedure AddModule(const ParModule:ansistring;ParModuleObj:TModule);
 end;
 
 
@@ -113,13 +113,13 @@ TStream=class(TStrAbelRoot)
 private
 	voBufferFile : TFile;
 	voHashing    : longint;
-	voName       : string;
+	voName       : ansistring;
 	voOpen       : boolean;
 	voOsError    : cardinal;
 	voElaErr     : cardinal;
 protected
 	property    iHashing     : longint read voHashing write voHashing;
-	property    iName        : string  read voName    write voName;
+	property    iName        : ansistring  read voName    write voName;
 	property    iOpen		 : boolean read voOpen    write voOpen;
 	property    iOsError	 : cardinal read voOsError write voOsError;
 
@@ -129,31 +129,31 @@ public
 	
 	property    fBufferFile : TFile    read voBufferFile;
 	property    fHashing    : longint  read voHashing write voHashing;
-	property    fName	    : string   read voName;
+	property    fName	    : ansistring   read voName;
 	property    fElaErr	    : cardinal read voElaErr;
 	function    GetFilePos:longint;
 	procedure   WriteDirect(parPos:Longint;var ParInfo;ParSize:cardinal);
 	procedure   ReadDirect(var ParInfo;ParSize:cardinal);
-	function    OpenFile(const ParName:string):boolean;
+	function    OpenFile(const ParName:ansistring):boolean;
 	function    CheckType(ParType:byte):boolean;
 	function    WriteType(ParType:byte):boolean;
-	function    CreateFile(const ParName:string):boolean;
+	function    CreateFile(const ParName:ansistring):boolean;
 	function    WriteLongint(ParLongint:Longint):boolean;
 	function    WriteLOng(ParLong : cardinal):boolean;
-	function    WriteString(const ParStr:string):boolean;
+	function    WriteString(const ParStr:ansistring):boolean;
 	function    WriteBoolean(ParBool : boolean):boolean;
 	function    WriteNumber(ParNumber : TNumber):boolean;
 	function    ReadBoolean(var ParBool : boolean):boolean;
 	function    ReadNumber(var ParNumber : TNumber):boolean;
 	function    ReadLongint(var ParLongint:Longint):boolean;
 	function    ReadLong(var ParLongint:cardinal):boolean;
-	function    ReadString(var ParStr:string):boolean;
+	function    ReadString(var ParStr:ansistring):boolean;
 	function    WriteToFile(const vBuf;ParSize:cardinal):boolean;
 	function    ReadFromFile(var vBuf;ParSize:cardinal;var ParRead:cardinal):boolean;
 	procedure   CloseFile;
 	procedure   UpdateHashing(const ParBuf;ParSize:cardinal);
-	procedure   GetFileNameStr(var ParName:string);
-	procedure   AddPath(const ParDir : string);
+	procedure   GetFileNameStr(var ParName:ansistring);
+	procedure   AddPath(const ParDir : ansistring);
 end;
 
 TObjectStream=class(TStream)
@@ -167,8 +167,8 @@ protected
 public
 
 	constructor Create;
-	procedure   AddModule(const ParModule:string;ParModuleObj:TModule);
-	function    GetModuleLoadItemByName(const ParName:string):TModuleLoadITem;
+	procedure   AddModule(const ParModule:ansistring;ParModuleObj:TModule);
+	function    GetModuleLoadItemByName(const ParName:ansistring):TModuleLoadITem;
 	procedure   ConvertItemPtr(ParItem:TStrAbelRoot;var ParNum,ParModule:TIdentNumber);
 	procedure   AddToPtrList(ParObject:TStrAbelROot);
 	procedure   AddToPtrList(ParCode : TIdentNumber;ParObject : TStrAbelRoot);
@@ -220,7 +220,7 @@ end;
 
 {-----( TModuleLoadItem )-----------------------------------}
 
-constructor TModuleLoadItem.Create(const ParModuleName:string;ParModule:TModule);
+constructor TModuleLoadItem.Create(const ParModuleName:ansistring;ParModule:TModule);
 begin
 	inherited Create(ParModuleName);
 	iModuleObj := ParModule;
@@ -247,7 +247,7 @@ begin
 end;
 
 
-procedure TModuleLoadList.AddModule(const ParModule:string;ParModuleObj:TModule);
+procedure TModuleLoadList.AddModule(const ParModule:ansistring;ParModuleObj:TModule);
 var vlCurrent:TModuleLoadITem;
 begin
 	vlCurrent := TModuleLoadITem(GetItemByString(nil,ParModule));
@@ -320,7 +320,7 @@ begin
 	fPtrList := nil;
 end;
 
-procedure  TModule.GetModuleName(var ParName:String);
+procedure  TModule.GetModuleName(var ParName:ansistring);
 begin
 	EmptyString(ParName);
 end;
@@ -438,7 +438,7 @@ end;
 
 {---( TStream )----------------------------------------------------}
 
-procedure  TStream.GetFileNameStr(var ParName:string);
+procedure  TStream.GetFileNameStr(var ParName:ansistring);
 begin
 	EmptyString(ParName);
 	if fBufferFile <> nil then fBufferFile.GetFileNameStr(ParName);
@@ -466,7 +466,7 @@ begin
 end;
 
 
-procedure  TStream.AddPath(const ParDir : string);
+procedure  TStream.AddPath(const ParDir : ansistring);
 begin
 	fBufferFile.AddPath(ParDir);
 end;
@@ -481,7 +481,7 @@ begin
 	voBufferFile:= TFile.Create(SIZE_ReadBuffer);
 end;
 
-function TStream.OpenFile(const ParName:string):boolean;
+function TStream.OpenFile(const ParName:ansistring):boolean;
 begin
 	fBufferFile.OpenFile(ParName);
 	iOsError := fBufferFile.fError;
@@ -502,7 +502,7 @@ begin
 	WriteToFile := voElaErr <> 0;
 end;
 
-function TStream.CreateFile(const ParName:string):boolean;
+function TStream.CreateFile(const ParName:ansistring):boolean;
 begin
 	CloseFile;
 	fBufferFile.CreateFile(ParName);
@@ -585,14 +585,16 @@ begin
 	exit(false);
 end;
 
-function TStream.WriteString(const ParStr:string):boolean;
-var vlBt:byte;
+function TStream.WriteString(const ParStr:ansistring):boolean;
+var vlBt:cardinal;
 begin
 	WriteString := true;
 	vlBt := length(ParStr);
-	if WriteType(IU_String) then exit;
-	if WriteToFIle(vlBt,1) then exit;
-	if WriteToFile(ParStr[1],length(ParStr)) then exit;
+	if WriteType(iu_string) then exit;
+	if WriteToFIle(vlBt,sizeof(vlBt)) then exit;
+	if(length(ParStr) > 0) then begin
+		if WriteToFile(ParStr[1],length(ParStr)) then exit;
+	end;
 	WriteString := false;
 end;
 
@@ -632,16 +634,20 @@ begin
 	exit(false);
 end;
 
-function TStream.ReadString(var ParStr:string):boolean;
-var vRd:cardinal;
-	vlLe:byte;
+function TStream.ReadString(var ParStr:ansistring):boolean;
+var 	vlRd:cardinal;
+	vlLe:cardinal;
+	vlStr : ansistring;
 begin
-	ReadString := true;
-	if CheckType(IU_String) then exit;
-	if ReadFromFile(vlLe,1,vRd) then exit;
-	SetLength(ParStr,vlLe);
-	if ReadFromFile(ParStr[1],length(ParStr),vRd) then exit;
-	ReadString := false;
+
+	if CheckType(iu_string) then exit(true);
+	if ReadFromFile(vlLe,sizeof(vlLe),vlRd) then exit(true);
+	SetLength(vlStr,vlLe);
+	if(vlLe > 0) then begin
+		if ReadFromFile(vlStr[1],vlLe,vlRd) then exit(true);
+	end;
+	ParStr := vlStr;
+	exit(false);
 end;
 
 
@@ -684,7 +690,7 @@ begin
 end;
 
 
-function    TObjectStream.GetModuleLoadItemByName(const ParName:string):TModuleLoadITem;
+function    TObjectStream.GetModuleLoadItemByName(const ParName:ansistring):TModuleLoadITem;
 begin
 	exit(TModuleLoadITem(iModuleLoadList.GetItemByString(nil,ParName)));
 end;
@@ -712,7 +718,7 @@ var
 	vlRd   : cardinal;
 	vlLong : TNumber;
 	vlBool : boolean;
-	vlStr  : string;
+	vlStr  : ansistring;
 	vlPtr  : cardinal;
 begin
 	ParValue := nil;
@@ -744,7 +750,7 @@ function    TObjectStream.WriteValue(ParValue : TValue) : boolean;
 var
 	vlBool : boolean;
 	vlLong : TNumber;
-	vlStr  : string;
+	vlStr  : ansistring;
 begin
 	if(ParValue is TLongint) then begin
 		ParValue.GetNumber(vlLong);
@@ -831,13 +837,13 @@ begin
 	ParNum := ParItem.fCode;
 end;
 
-procedure TObjectStream.AddModule(const ParModule:string;PArModuleObj:TModule);
+procedure TObjectStream.AddModule(const ParModule:ansistring;PArModuleObj:TModule);
 begin
 	iModuleLoadList.AddModule(parModule,ParModuleObj);
 end;
 
 function TObjectStream.WritePst(ParPst:TString):boolean;
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	if ParPst <> nil then begin
 		ParPst.GetString(vlStr);
@@ -849,7 +855,7 @@ end;
 
 function TObjectStream.ReadPst(var ParPst:TString):boolean;
 var
-	vlStr:string;
+	vlStr:ansistring;
 begin
 	if ReadString(vlStr) then exit(true);
 	ParPst  := TString.Create(vlStr);

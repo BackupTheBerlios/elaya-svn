@@ -106,8 +106,8 @@ protected
 	procedure  CommonSetup;override;
 public
 	property   fName : TString read voName;
-	constructor Create(ParSize:TSize;ParSign:boolean;const ParName : string);
-	procedure  fNameStr(var ParName:String);
+	constructor Create(ParSize:TSize;ParSign:boolean;const ParName : ansistring);
+	procedure  fNameStr(var ParName:ansistring);
 	function   IsSame(ParMac:TSecBase):boolean;override;
 	procedure  Print(parDis:TDisplay);override;
 	function   CreateResource(ParCre:TInstCreator):TResource;override;
@@ -248,7 +248,7 @@ private
 	property iLabelName : TString read voLabelName write voLabelName;
 public
 	property fLabelName : TString read voLabelName;
-	constructor Create(const  ParName:string;ParSize : TSize);
+	constructor Create(const  ParName:ansistring;ParSize : TSize);
 	procedure   Clear;override;
 	procedure   Commonsetup;override;
 	procedure   Print(parDis:TDisplay);override;
@@ -311,7 +311,7 @@ end;
 
 
 function TLabelMac.CreatePtrResource(ParCre : TInstCreator):TResource;
-var vlName : string;
+var vlName : ansistring;
 	vlRes  : TResource;
 begin
 	iLabelName.GetString(vlName);
@@ -328,7 +328,7 @@ begin
 end;
 
 function  TLabelMac.CreateResource(parCre:TInstCreator):TResource;
-var vlName : string;
+var vlName : ansistring;
 	vlRes  : TResource;
 begin
 	iLabelName.GetString(vlName);
@@ -337,7 +337,7 @@ begin
 	exit(vlRes);
 end;
 
-constructor TLabelMac.Create(const ParName : string;ParSize :TSize);
+constructor TLabelMac.Create(const ParName : ansistring;ParSize :TSize);
 begin
 	inherited Create(ParSize,false);
 	iLabelName := TString.Create(ParName);
@@ -610,7 +610,7 @@ begin
 end;
 
 procedure   TCompareMac.Print(ParDis:TDisplay);
-var vlStr : string;
+var vlStr : ansistring;
 begin
 	case iCompCode of
 	IC_Eq		: vlStr := 'Fl_Equal';
@@ -731,7 +731,7 @@ end;
 
 procedure   TNumberMac.Print(ParDis:TDisplay);
 var
-	vlStr : string;
+	vlStr : ansistring;
 begin
 	LargeToString(fInt,vlStr);
 	ParDis.Print([vlStr,'[',fExtraOffset,']']);
@@ -829,13 +829,13 @@ begin
 	iIdentCode := IC_MemMac;
 end;
 
-constructor TMemMac.Create(ParSize:TSize;ParSign:boolean;const ParName : string);
+constructor TMemMac.Create(ParSize:TSize;ParSign:boolean;const ParName : ansistring);
 begin
 	inherited Create(ParSize,ParSign);
 	iName := TString.Create(ParName);
 end;
 
-procedure TMemMac.fNameStr(var ParName:String);
+procedure TMemMac.fNameStr(var ParName:ansistring);
 begin
 	iName.GetString(ParName);
 end;
@@ -848,7 +848,7 @@ begin
 end;
 
 function TMemMac.CreatePtrResource(ParCre : TInstCreator):TResource;
-var vlname : string;
+var vlname : ansistring;
 	vlRes  : TResource;
 begin
 	fNameStr(vlName);
@@ -867,7 +867,7 @@ end;
 
 function TMemMac.CreateResource(parCre:TInstCreator):TResource;
 var vlRes  : TResource;
-	vlName : string;
+	vlName : ansistring;
 begin
 	vlRes := ParCre.ReserveResourceByUse(self);
 	if vlRes = nil then begin

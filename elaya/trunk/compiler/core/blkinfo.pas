@@ -1,6 +1,6 @@
 unit blkinfo;
 interface
-uses simplist;
+uses simplist; 
 implementation
 
 type TBlockInfoList=class(TSMList)

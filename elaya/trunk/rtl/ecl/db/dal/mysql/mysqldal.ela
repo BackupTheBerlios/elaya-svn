@@ -30,12 +30,45 @@ begin
 	exit(false);
 end;
 
+function mysqldal_query(var ParConnection : TDalDBConnection;var ParResult : TDalResource;ParQuery:string):boolean;
+begin
+	if(emysql_query(ParConnection.private_data as PMySql,ParQuery)) then exit(true);
+	ParResult.resource:=mysql_use_result(ParConnection.private_data as PMySql) as long;
+	if(ParResult.Resource = 0) then exit(true);
+	ParResult.Connection := @ParConnection;
+	ParResult.NumberOfFields := mysql_num_fields(ParResult.Resource as PMySql_Res);	
+	ParResult.RowData   := nil;
+	exit(false);
+end;
+
+function mysqldal_fetch_row(var ParResult : TDalResource):boolean;
+begin
+	ParResult.RowData := mysql_fetch_row(ParResult.Resource as PMySql_Res);
+	exit(ParResult.RowData = nil);
+end;
+
+function mysqldal_ConvertRowDataToString(var ParResult : TDalResource;ParNo :long;var ParStr : string) : boolean;
+var
+	vlAsc : PAsc;
+begin
+	ParStr.length := 0;
+	if ParNo >= ParResult.NumberOfFields then exit(true);
+	if ParResult.RowData= nil then exit(true);
+	vlAsc := (ParResult.RowData as PPAsc+ParNo)^;
+	if vlAsc = nil then exit(true);
+	ParStr := vlAsc^;
+	exit(false);
+end;
+
 procedure InitMysqlDal;
 var
 	vlDal : TDalInterface;
 begin
 	vlDal.DbCOnnect := @mysqldal_connect;
 	vlDal.DbClose   := @mysqldal_close;
+	vlDal.dbQuery   := @mysqldal_query;
+	vlDal.dbFetchResult := @mysqldal_fetch_row;
+	vlDal.dbConvertRowDataToString := @mysqldal_ConvertRowDataToString;
 	SetDalInterface(vlDal);
 end;
 

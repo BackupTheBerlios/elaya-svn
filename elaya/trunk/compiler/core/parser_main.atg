@@ -5,17 +5,17 @@
 (* 			Simple Identifiers			*)
 
 
-RConfigVar<var ParString : string>
+RConfigVar<var ParString : ansistring>
 (.
 	var
-		vlIdent :string;
+		vlIdent :ansistring;
 .)
 =
 "&" RIdent<vlIdent>    (.   if not(GetConfig.GetVarValue(vlIdent,ParString)) then ErrorText(Err_Unkown_COnfig_Variable,vlIdent); .)
 .
 
 
-RString<var ParString:String>
+RString<var ParString:ansistring>
 =
 TString
 (.
@@ -24,14 +24,14 @@ TString
 .)
 .
 
-RText:"string"<var ParString : string>
+RText:"ansistring"<var ParString : ansistring>
 =
 	RString<ParString>
 	|RConfigVar<ParString>
 .
 
 
-RIdent<var ParIdent:string>
+RIdent<var ParIdent:ansistring>
 =TIdent				(. LexName(ParIdent); .)
 .
 
@@ -39,7 +39,7 @@ RIdent<var ParIdent:string>
 
 RHex_Number<var ParNum:TNumber;var ParValid : boolean>
 (.
-  var vlTmp : string;
+  var vlTmp : ansistring;
       vlErr : boolean;
 .)
 = THex
@@ -55,7 +55,7 @@ RHex_Number<var ParNum:TNumber;var ParValid : boolean>
 RBin_Number<var ParNum:TNumber;var ParValid : boolean>
 (.
 var
-	vlTmp:string;
+	vlTmp:ansistring;
 	vlErr:boolean;
 .)
 = TBin
@@ -73,7 +73,7 @@ var
 RDec_Number<var ParNum:TNumber; var ParValid:boolean>
 (.
 var
-	vlTmp : String;
+	vlTmp : ansistring;
 .)
 = TInt_Num
 (.
@@ -102,7 +102,7 @@ RNumber:"number"<var ParNum : TNumber;var ParValid : boolean>
 RIdentObj<var ParDef:TDefinition>
 (.
 	var
-		vlname:string;
+		vlname:ansistring;
 .)
 =
 RIdent<vlName>
@@ -117,7 +117,7 @@ RIdent<vlName>
 RDefIdentObj<var ParDef : TDefinition;ParAccCheck : boolean>
 (.
 	var
-		vlName  : string;
+		vlName  : ansistring;
 		vlOwner : TDefinition;
 .)
 =
@@ -153,7 +153,7 @@ IAlign RDirectCardinal<vlAlign>";"  (. GetConfig.SetAlign(vlAlign);.)
 RUsedUnit
 (.
 	var
-		vlName:string;
+		vlName:ansistring;
 .)
 =
 RIdent<vlName>   (.
@@ -180,7 +180,7 @@ RUsedUnit
 RVarDecl:"variable declaration"
 (.
 	var
-		vlIdent : string;
+		vlIdent : ansistring;
 		vlName  : TNameList;
 		vlTYpe  : TType;
  .)

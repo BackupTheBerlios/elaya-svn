@@ -14,10 +14,10 @@ ICharType "(" RDirectNumber<vlNumber> ")"
 .)
 .
 
-RStringConstant:"string constant"<var ParValue : TValue>
+RStringConstant:"ansistring constant"<var ParValue : TValue>
 (.
 	var
-		vlStr : string;
+		vlStr : ansistring;
 .)
 =
 RCharConst<ParValue>
@@ -51,7 +51,7 @@ RStructDirectExpr<ParValue : TStructValue;ParType : TType>
 (.
 	var
 		vlValue : TValue;
-		vlName  : string;
+		vlName  : ansistring;
 .)
 =
 "{" (("." RIdent<vlName> '=')|( (. EmptyString(vlName);.)))
@@ -60,12 +60,22 @@ RStructDirectExpr<ParValue : TStructValue;ParType : TType>
 .
 *)
 
-RDirectTString<var ParStr : TString>
+RDirectString<var ParStr : AnsiString>
+(.
+	var
+		vlValue : TValue;
+.)
 =
-	RDirectExpr<ParStr>
+	RDirectExpr<vlValue>
 	(.
-		if ParStr <> nil then begin
-			if not(ParStr is TString) then SemError(Err_Not_A_String_Constant);
+		EmptyString(ParStr);
+		if vlValue <> nil then begin
+			if not(vlValue is TString) then begin
+				SemError(Err_Not_A_ansistring_Constant);
+			end else begin
+				ParStr := TString(vlValue).fText;
+			end;	
+			vlValue.destroy;
 		end;
 	.)
 .
@@ -122,9 +132,7 @@ RDirectLogic<var ParVal : TValue;var ParValid:boolean>
 		vlValid: boolean;
 .)
 =
-(.
-	vlVal := nil;
-.)
+(. vlVal := nil;.)
 RDirectAdd<ParVal,ParValid>
 {((IAnd RDirectAdd<vlVal,vlValid>
 (.
@@ -258,23 +266,21 @@ RDirectNeg<var ParVal : TValue;var ParValid : boolean>
 (.
 	Var
 		vlNeg : boolean;
-		vlValid :boolean;
+		
 .)
 =
 (. vlNeg := false; .)
 
-{('-'				 (. vlNeg := true; .))
+{('-'	 (. vlNeg := true; .))
 |('+')
 }
 
-RDirectFact<ParVal,vlValid>
+RDirectFact<ParVal,ParValid>
 (.
-	if(vlValid) then begin
+	if(ParValid) then begin
 		if vlNeg then  begin
 			if CalculationStatusToError(ParVal.Neg) then ParValid := false;
 		end;
-	end else begin
-		ParValid := false;
 	end;
 .)
 .
@@ -327,7 +333,7 @@ RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 .
 
 
-(*===( Constant String Expr )==================================================*)
+(*===( Constant ansistring Expr )==================================================*)
 
 
 
@@ -337,8 +343,8 @@ RConstantDecl
 (.
  var
    vlNameList : TNameList;
-   vlStr      : String;
-   vlIdent    : string;
+   vlStr      : ansistring;
+   vlIdent    : ansistring;
    vlVal      : TValue;
 .)
 =				(. vlNameList := TNameList.Create;.)
@@ -350,7 +356,7 @@ RConstantDecl
   RDirectExpr<vlVal>(* |RStructDirectExpr *)
 
 (.
-	if vlVal.fType = VT_String then begin
+	if vlVal.fType = VT_ansistring then begin
 		vlVal.GetString(vlStr);
 		fNDCreator.AddStringConst(vlNameList,vlStr);
 	end else begin
@@ -387,7 +393,7 @@ RNumberConstant<ParVal,ParValid>
 		end;
 		if ParVal = nil then ParVal := TLongint.Create(1);
 	.)
-)|RStringConstant<ParVal>
+)|(RStringConstant<ParVal> (. ParValid := true; .))
 )
 (.
  if ParVal = nil then begin
@@ -403,7 +409,7 @@ RNum_Or_Const_2:"identifier"<var ParVal:TValue>
 (. var
        vlValid   : boolean;
        vlNum     : TNumber;
-       vlStr     : String;
+       vlStr     : ansistring;
        vlNeg     : boolean;
 .)
 =

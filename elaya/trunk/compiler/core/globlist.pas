@@ -33,8 +33,8 @@ type TGlobalItem=class(TListItem)
 		constructor Create(ParIdent : TDefinition);
 		function SaveItem(ParRead : TObjectStream):boolean;override;
 		function LoadItem(ParRead : TObjectStream):boolean;override;
-		procedure GetIdentName(var ParName : string);
-		function HasSameName(const ParName :String):boolean;
+		procedure GetIdentName(var ParName : ansistring);
+		function HasSameName(const ParName :ansistring):boolean;
 	end;
 	
 	TGlobalList=class(TList)
@@ -60,7 +60,7 @@ uses ndcreat;
 function  TGlobalList.ExistsIdent(ParDef : TDefinition):boolean;
 var
 	vlCurrent2 : TGlobalItem;
-	vlThisName : string;
+	vlThisName : ansistring;
 begin
 	
 	ParDef.GetMangledName(vlThisName);
@@ -81,7 +81,7 @@ end;
 procedure TGlobalList.ValidateGlobal(ParCre : TCreator;ParItem : TGlobalItem);
 var
 	vlCurrent2 : TGlobalItem;
-	vlThisName : string;
+	vlThisName : ansistring;
 begin
 	ParItem.GetIdentName(vlTHisName);
 	vlCurrent2 := ParItem.fNextHash;
@@ -94,7 +94,7 @@ end;
 
 procedure TGlobalList.AddGlobal(ParCre : TCreator;ParItem : TDefinition);
 var
-	vlThisName : string;
+	vlThisName : ansistring;
 	vlCurrent  : TGlobalItem;
 begin
 	vlCurrent := TGLobalItem.Create(ParItem);
@@ -108,7 +108,7 @@ end;
 procedure TGlobalList.AddListToHash(ParCre :TCreator;ParHashing : THashing);
 var
 	vlCurrent : TGLobalItem;
-	vlThisName : string;
+	vlThisName : ansistring;
 begin
 	vlCurrent := TGlobalItem(fStart);
 	iHashing := ParHashing;
@@ -125,15 +125,15 @@ end;
 
 
 
-procedure TGLobalItem.GetIdentName(var ParName : string);
+procedure TGLobalItem.GetIdentName(var ParName : ansistring);
 begin
 
 	iIdent.GetMangledName(ParName);
 end;
 
-function TGlobalItem.HasSameName(const ParName :String):boolean;
+function TGlobalItem.HasSameName(const ParName :ansistring):boolean;
 var
-	vlName :string;
+	vlName :ansistring;
 begin
 	GetIdentName(vlName);
 	exit(vlName=ParNAme);

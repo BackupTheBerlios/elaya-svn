@@ -228,13 +228,13 @@ type
 		{Resource mg}
 		function ReserveRegisterDirect(ParSize : TSize;ParSign : boolean):TRegisterRes;
 		
-		procedure  GetProcedureName(var parNAme : string);
+		procedure  GetProcedureName(var parNAme : ansistring);
 		procedure  AddObject(ParITem : TRoot);
 		{rest}
 		procedure   Print(parDis:TAsmDisplay);
 		
 		function    GetPrintRegisterRes:boolean;
-		constructor Create(const ParName:string;ParCompiler:TCompiler_Base;ParRoutine : TRoutineAsm);
+		constructor Create(const ParName:ansistring;ParCompiler:TCompiler_Base;ParRoutine : TRoutineAsm);
 		{ptr/offset}
 		function    GetOffsetOf(ParRes:TResource;ParSize : TSize;ParSign:boolean):TResource;
 		function    GuaranteeRegister(ParRes : Tresource):TRegisterRes;
@@ -298,16 +298,15 @@ type
 	
 	TLabelRes=class(TResource)
 	private
-		voLabelName : TString;
-		property iLabelName : TString read voLabelName write voLabelName;
+		voLabelName : AnsiString;
+		property iLabelName : AnsiString read voLabelName write voLabelName;
 	protected
 		procedure   Commonsetup;override;
-		procedure   Clear;override;
 
 	public
-		property GetLabelName : TString read voLabelName;
+		property    fLabelName : AnsiString read voLabelName;
 		
-		constructor Create(const ParName:String;ParSize : TSize);
+		constructor Create(const ParName:ansistring;ParSize : TSize);
 		function    IsSame(ParRes:TResource):boolean;override;
 		function    IsPart(ParRes:TResource):boolean;override;
 		function    IsUsing(parRes:TResource):boolean;override;
@@ -406,19 +405,17 @@ type
 	
 	TMemoryRes=class(TStorageRes)
 	private
-		voName:TString;
+		voName:AnsiString;
 		
 	protected
-		property    iName : TString read voName write voName;
+		property    iName : AnsiString read voName write voName;
 		procedure   CommonSetup;override;
 
 	public
-		property    fName : TString read voName;
+		property    fName : AnsiString read voName;
 		function    IsSame(ParRes:TResource):boolean;override;
 		function    IsPart(ParRes:TResource):boolean;override;
-		constructor Create(const ParName:String;ParSize : TSize;ParSign:boolean);
-		procedure   SetName(const ParName:String);
-		destructor  destroy;override;
+		constructor Create(const ParName:ansistring;ParSize : TSize;ParSign:boolean);	
 		procedure   Print(parDis:TAsmDisplay);override;
 		function    CanSoftChangeSize(ParSize:TSize):boolean;override;
 		function    TryChangeSize(ParSize:TSize):TResource;override;
@@ -571,7 +568,7 @@ type
 		procedure  Print(ParDis:TAsmDisplay);virtual;
 		function   GetResByIdent(ParIdent :TFlag):TResource;
 		procedure  InstructionFase(ParCre:TInstCreator);virtual;
-		procedure  GetInstructionName(var ParName : string);virtual;
+		procedure  GetInstructionName(var ParName : ansistring);virtual;
 	end;
 	
 	
@@ -611,23 +608,17 @@ begin
 	iCode := Rt_LabelRes;
 end;
 
-constructor TLabelRes.Create(const ParName:String;ParSize : TSize);
+constructor TLabelRes.Create(const ParName:ansistring;ParSize : TSize);
 begin
 	inherited Create;
-	iLabelName := TString.Create(ParName);
-	SetSize(ParSize);
-end;
-
-procedure  TLabelRes.Clear;
-begin
-	inherited Clear;
-	if iLabelName <> nil then iLabelName.Destroy;
+	iLabelName := ParName;
+	iSize      := ParSize;
 end;
 
 function    TLabelRes.IsSame(ParRes:TResource):boolean;
 begin
 	if inherited IsSame(ParRes) then begin
-		if iLabelName.IsEqual(TLabelRes(ParRes).GetLabelName) then exit(true);
+		if iLabelName = TLabelRes(ParRes).fLabelName then exit(true);
 	end;
 	exit(false);
 end;
@@ -645,7 +636,7 @@ end;
 
 procedure TLabelRes.Print(ParDis:TAsmDisplay);
 begin
-	ParDis.WritePst(iLabelName);
+	ParDis.WriteString(iLabelName);
 end;
 
 {----( TChangeItem )--------------------------------}
@@ -747,8 +738,8 @@ end;
 
 
 procedure   TChangeItem.OptimizeChange;
-var 	vlNewSizeStr : String;
-	vlResName    : String;
+var 	vlNewSizeStr : ansistring;
+	vlResName    : ansistring;
 begin
 	if iOperand.GetSize  = iSize then begin
 		if iChangeRegisterCode = RC_Change_TO_Self then iChangeRegisterCode := RC_None;
@@ -809,10 +800,8 @@ begin
 end;
 
 procedure TMemoryOffsetres.Print(parDis:TAsmDisplay);
-var vlStr :string;
 begin
-	fName.GetString(vlStr);
-	ParDis.AsPrintOffset(vlStr,GetExtraOffset);
+	ParDis.AsPrintOffset(fName,GetExtraOffset);
 end;
 
 
@@ -823,14 +812,11 @@ end;
 
 
 function   TMemoryOffsetRes.TryChangeSize(ParSize:TSize):TResource;
-var vlname : String;
+var 
 	vlRes  : TResource;
 begin
 	vlRes := nil;
-	if CanSoftChangeSize(ParSize) then begin
-		fName.GetString(vlName);
-		vlRes := TMemoryOffsetRes.Create(vlName,fSize,fSign);
-	end;
+	if CanSoftChangeSize(ParSize) then vlRes := TMemoryOffsetRes.Create(fName,fSize,fSign);
 	exit(vlRes);
 end;
 
@@ -964,7 +950,7 @@ end;
 
 
 procedure  TByPtrRes.Print(PArDis:TAsmDisplay);
-var    vlName:string;
+var    vlName:ansistring;
 begin
 	if GetPointer.fRegister = nil then vlName := '[unkown]'
 	else vlName := iPointer.fRegister.GetName;
@@ -1094,7 +1080,7 @@ end;
 
 procedure TCmpFlagRes.print(ParDis:TAsmDisplay);
 var
-	vlStr:string[6];
+	vlStr:ansistring;
 begin
 	vlStr := 'UNKOWN';
 	case iCmpCode of
@@ -1298,7 +1284,7 @@ end;
 function  TMemoryRes.IsPart(PArRes:TResource):boolean;
 begin
 	IsPart := false;
-	if inherited IsPart(ParRes) then isPart := (fName.IsEqual(TMemoryRes(ParRes).fName));
+	if inherited IsPart(ParRes) then isPart := (fName=TMemoryRes(ParRes).fName);
 end;
 
 
@@ -1306,59 +1292,45 @@ function TMemoryRes.ISSame(ParRes:TResource):boolean;
 begin
 	IsSame :=false;
 	if inherited IsSame(ParRes) then begin
-		IsSame := (fName.IsEqual(TMemoryRes(ParRes).fName))
-		and(TMemoryRes(ParRes).GetExtraOffset = GetExtraOffset);
+		IsSame := (fName=TMemoryRes(ParRes).fName) and (TMemoryRes(ParRes).GetExtraOffset = GetExtraOffset);
 	end;
 end;
 
 
 function   TMemoryRes.TryChangeSize(ParSize:TSize):TResource;
-var vlName : string;
+var vlName : ansistring;
 	vlRes  : TMemoryRes;
 begin
 	vlRes := nil;
 	if CanSoftChangeSize(ParSize) then begin
-		iName.GetString(vlName);
-		vlRes  := TMemoryRes.Create(vlName,ParSize,fSign);
+		vlRes  := TMemoryRes.Create(iName,ParSize,fSign);
 		vlRes.SetExtraOffset(GetExtraOffset);
 	end;
 	exit(vlRes);
 end;
 
-procedure   TMemoryRes.SetName(const ParName:String);
-begin
-	if iName <> Nil then iName.destroy;
-	iName :=TString.Create(ParName);
-end;
 
 procedure TMemoryRes.Print(ParDis:TAsmDisplay);
-var vlStr,vlName : string;
+var 
+	vlName : ansistring;
 begin
-	str(GetExtraOffset,vlStr);
-	iName.GetString(vlName);
-	if GetExtraOffset= 0 then vlStr := vlName
-	else vlStr := IntToStr(GetExtraOffset) + '+'+vlName;
-	ParDis.AsPrintMemVar(fSize,vlStr);
+	vlName := iName;
+	if GetExtraOffset<> 0 then vlName := vlName + ' + '+IntToStr(GetExtraOffset);
+	ParDis.AsPrintMemVar(fSize,vlName);
 end;
 
 
-constructor TMemoryRes.Create(const ParName:String;ParSize : TSize;ParSign:boolean);
+constructor TMemoryRes.Create(const ParName:ansistring;ParSize : TSize;ParSign:boolean);
 begin
 	inherited Create(ParSize,ParSign);
-	SetName(PArName);
+	iName := ParName;
 end;
 
 procedure   TMemoryRes.CommonSetup;
 begin
 	inherited COmmoNSetup;
-	iName := nil;
+	EmptyString(voName);
 	iCode := RT_Memory;
-end;
-
-destructor TMemoryRes.destroy;
-begin
-	inherited destroy;
-	if iName <> nil then iName.destroy;
 end;
 
 
@@ -1566,7 +1538,7 @@ end;
 
 
 {----( TInstruction )--------------------------------------------------}
-procedure  TInstruction.GetInstructionName(var ParName : string);
+procedure  TInstruction.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := 'Unkown';
 end;
@@ -1618,7 +1590,7 @@ end;
 
 procedure TInstruction.Print(ParDis:TAsmDisplay);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	GetInstructionName(vlName);
 	GetAssemblerInfo.GetInstruction(vlName,iOperandList.GetOpperSize,0);
@@ -1678,7 +1650,7 @@ var vlOldSize,vlNewSize:TSize;
 	vlReg        : TRegisterRes;
 	vlRes        : TResource;
 	vlOut        : TOperand;
-	vlResName    : String;
+	vlResName    : ansistring;
 begin
 	vlOldSize := ParResItem.GetSize;
 	vlChange  := ParChangeItem.fChangeRegisterCode;
@@ -1802,7 +1774,7 @@ begin
 		ParRes.ReplaceResource(vlRes);
 	end else if(ParRes.GetResCode = RT_ByPtr) and
 		(TByPtrRes(ParRes.fResource).GetPointer.fCode =RT_Stack) then begin
-		vlRes := ParCre.PopRes(TStackRes(TByPtrRes(ParRes.fResource).GetPointer),false);{TIDI:dbg type or result GetPointer is not related to TSackRes}
+		vlRes := ParCre.PopRes(TStackRes(TResource(TByPtrRes(ParRes.fResource).GetPointer)),false);{TIDI:dbg type or result GetPointer is not related to TSackRes}
 		ParCre.ChangeResource(TByPtrRes(ParRes.fResource).GetPointer,vlRes);
 		TByPtrRes(ParRes.fResource).SetPointer(TRegisterRes(vlres));
 	end;
@@ -1964,7 +1936,7 @@ begin
 			vlRes3 := vlRes;
 			vlRes  := vlRes2;
 		end;
-		if (vlRes.fSize > vlRes3.fSize) and (vlRes3 is TRegisterRes) then begin
+		if (vlRes.fSize > vlRes3.fSize) and (vlRes3 is TRegisterRes) then begin			
 			vlRes3 := Parcre.GetAsRegister(TRegisterRes(vlRes3),vlRes.fSize,vlRes.fSign);
 			if vlRes3 = nil then Fatal(Fat_Cant_Get_Register_Res,'');
 		end;
@@ -2010,16 +1982,26 @@ begin
 		vlOpp.MakeFixed;
 	end;
 end;
-
+{TODO Change to ForceResource To?
+	make a vlOut.IsRegister methode
+}
 procedure TOperandList.ForceOutputTo(ParCre:TInstCreator;ParOperand : TOperand;const PArReg:TRegister);
-var vLOut    : TOperand;
+var 	vLOut    : TOperand;
 	vlRegRes : TRegisterRes;
 	vlSign   : boolean;
 	vlRegName: TNormal;
+	vlCHange  :boolean;
 begin
 	vlOut := ParOperand;
 	if (vlOut <> nil) and (vLOut.GetResCode <> RT_Register) and (vlOut.GetAccess(RA_Output))  then fatal(FAT_Out_Is_Not_Register,'AT:TOperandList.ForceOutputTo');
-	if ( TRegisterRes(vlOut.fResource).fRegister <> ParReg) then begin
+	vlChange := false;
+	if vlOut.fResource is TRegisterRes then begin
+		vlChange := TRegisterRes(vlOut.fResource).fRegister <> ParReg;
+	end else begin
+		vlChange := true;
+	end;
+
+	if vlChange then begin
 		vlSign    := vlOut.GetSign;
 		vlRegName := ParReg.fRegisterCode;
 		vlRegRes  := Parcre.ForceReserveRegister(ParCre,vlRegName,vlSign);
@@ -2054,7 +2036,7 @@ end;
 
 
 function  TOperandList.GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	GetPrintPosition := true;
 	if ParRes.TestIdentNumber(In_In_1)     then ParPosition := 2
@@ -2285,7 +2267,7 @@ end;
 {----( TInstCreator )--------------------------------------------}
 
 
-procedure  TInstCreator.GetProcedureName(var parNAme : string);
+procedure  TInstCreator.GetProcedureName(var parNAme : ansistring);
 begin
 	iRoutineAsm.fProcedureName.GetString(ParName);
 end;
@@ -2418,7 +2400,7 @@ end;
 
 function TInstCreator.CreateLabel(ParNumber:longint):TInstruction;
 var vlName:Longint;
-	vlNameStr:string;
+	vlNameStr:ansistring;
 begin
 	vlName := ParNUmber;
 	if vlName = lab_NewName then vlName := GetNewLabelNo;
@@ -2490,7 +2472,7 @@ begin
 	end;
 end;
 
-constructor TInstCreator.Create(const ParName:string;ParCompiler:TCompiler_Base;ParRoutine : TRoutineAsm);
+constructor TInstCreator.Create(const ParName:ansistring;ParCompiler:TCompiler_Base;ParRoutine : TRoutineAsm);
 begin
 	iRoutineAsm := ParRoutine;
 	inherited Create(ParCompiler);
@@ -2577,7 +2559,7 @@ end;
 
 
 procedure TInstCreator.PushInst(ParInst:TInstruction);
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	if (Parinst.fNxt=nil) and (ParInst.fPrv=nil)
 	and (ParInst <> TInstruction(iRoutineAsm.GetFirstInstruction)) then begin
@@ -2689,7 +2671,7 @@ end;
 function  TInstCreator.ForceReserveRegister(ParCre:TInstCreator;parRegister:TNormal;ParSign:boolean):TRegisterRes;
 var vlRes : TRegisterRes;
 	vlReg : TRegister;
-	vlStr : String;
+	vlStr : ansistring;
 begin
 	vlreg := voRegisterList.GetRegisterByCOde(ParRegister);
 	if vlReg = nil then begin

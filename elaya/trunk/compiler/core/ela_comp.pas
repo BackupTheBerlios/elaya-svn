@@ -24,10 +24,10 @@ uses cmp_cons,elacfg,confval,progutil,stdobj,options,error,elap,elacons,cmp_base
 type
 	TElaCompiler=class(TEla_Parser)
 	public
-		voSaveTicksLo : cardinal;
-		voSaveTicksHi : cardinal;
-		voCompTicksLo : cardinal;
-		voCompTicksHi : cardinal;
+		voSaveTicksLo : int64;
+		voSaveTicksHi : int64;
+		voCompTicksLo : int64;
+		voCompTicksHi : int64;
 		voSaveTime    : cardinal;
 		voCompTime    : cardinal;
 		voPrvErrLine  : longint;
@@ -39,14 +39,14 @@ type
 		property iPrvErrLine  : longint read voPrvErrLine write voPrverrLine;
 		property fSaveTime    : cardinal read voSaveTime  write voSaveTime;
 		property fCompTime    : cardinal read voCompTime  write voCompTime;
-		property fSaveTicksLo : cardinal read voSaveTicksLo write voSaveTicksLo;
-		property fSaveTicksHi : cardinal read voSaveTicksHi write voSaveTicksHi;
-		property fCompTicksLo : cardinal read voCompTicksLo write voCompTicksLo;
-		property fCompTicksHi : cardinal read voCompTicksHi write voCompTicksHi;
-		procedure   GetConfigFileName(var ParName : string);override;
-		PROCEDURE   PrintErr (const ParLine : STRING;  ParCol: INTEGER);
+		property fSaveTicksLo : int64 read voSaveTicksLo write voSaveTicksLo;
+		property fSaveTicksHi : int64 read voSaveTicksHi write voSaveTicksHi;
+		property fCompTicksLo : int64 read voCompTicksLo write voCompTicksLo;
+		property fCompTicksHi : int64 read voCompTicksHi write voCompTicksHi;
+		procedure   GetConfigFileName(var ParName : ansistring);override;
+		PROCEDURE   PrintErr (const ParLine : ansistring;  ParCol: INTEGER);
 		procedure   GetErrorDescr(ParErr : TErrorType;var ParText:string);
-		function    NewCompiler(const ParFile:string):TCompiler_Base;override;
+		function    NewCompiler(const ParFile:ansistring):TCompiler_Base;override;
 		procedure   ErrorHeader;override;
 		procedure   ErrorMessage(ParItem : TErrorItem);override;
 		Procedure   ErrorFooter(ParNum : cardinal);override;
@@ -76,10 +76,10 @@ begin
 	fSaveTime    := 0;
 	fCompTime    := 0;
 	iPrvErrLine := -1;
-    iPrvErrCol  := -1;
+	iPrvErrCol  := -1;
 end;
 
-procedure  TElaCompiler.GetConfigFileName(var ParName : string);
+procedure  TElaCompiler.GetConfigFileName(var ParName : ansistring);
 begin
 	GetCOnfigValues.GetConfigFIleStr(ParName);
 end;
@@ -96,12 +96,11 @@ begin
 end;
 
 procedure TElaCompiler.PreParse;
-var vlName : string;
+var 
 	vlLo   : cardinal;
 	vlHi   : cardinal;
 begin
-	fFileName.GetString(vlName);
-	verbose(vrb_source_file,vlName);
+	verbose(vrb_source_file,fFileName);
 	verbose(vrb_what_I_Do,'Starting parser');
 	fCompTime := GetTimer;
 	GetCpuCycles(vlLo,vlHi);
@@ -115,18 +114,13 @@ end;
 
 
 procedure TELaCOmpiler.CalculateTimes;
-var vlLo : cardinal;
+var     vlLo : cardinal;
 	vlHi : cardinal;
 begin
 	fCompTime := GetTimer - fCompTime;
-	GetCpuCycles(vlLo,vlHi);
+	GetCpuCycles(vlLo,vlHi);	
 	fCompTicksHi := vlHi - fCompTicksHi;
-	if fCompTicksLo > vlLo then begin
-	    fCompTicksHi := fCompTicksHi - 1;
-		fCompTicksLo := not(fCompTicksLo - vlLo);
-	end else  begin
-		fCompTicksLo := vlLo - fCompTicksLo;
-	end;
+	fCompTicksLo := vlLo - fCompTicksLo;
 end;
 
 
@@ -163,27 +157,32 @@ begin
 end;
 
 procedure  TElaCompiler.PostCompile;
-begin
+begin	
 	verbose(vrb_Timing,'Compile Time....:'+IntToStr(fCompTime));
-	verbose(vrb_Timing,'Compile Ticks...:'+IntToStr((fCompTicksLo div 1000) +fCompTicksHi*4294967- fCompTicksHi div 3) + ' KTicks');
+	verbose(vrb_Timing,'Compile Ticks...:'+IntToStr((fCompTicksLo div 1000000) +fCompTicksHi*4294) + ' MTicks');
 	verbose(vrb_Timing,'Save Time.......:'+IntToStr(fSaveTime));
 	verbose(vrb_Timing,'Save Ticks......:'+IntToStr((fSaveTicksLo div 1000) + fSaveTicksHi*4294967- fSaveTicksHi div 3) + ' KTicks');
 end;
 
-function TElaCompiler.NewCompiler(const ParFile:string):TCompiler_Base;
+function TElaCompiler.NewCompiler(const ParFile:ansistring):TCompiler_Base;
 begin
 	NewCompiler := (TElaCompiler.Create(ParFile));
 end;
 
 
 procedure TElaCompiler.GetErrorDescr(ParErr : TErrorType;var ParText:string);
+var 
+	vlString : ansistring;
 begin
-	EmptyString(ParText);
+	SetLength(ParText,0);
 	GetErrorText(ParErr,Partext);
-	if length(partext) = 0 then GetError(ParErr,ParText);
+	if length(partext) = 0 then begin
+		GetError(ParErr,vlString);
+		ParText := vlString;{TODO clean up use of string when GetErrorText=ansistring}
+	end;
 end;
 
-PROCEDURE TElaCompiler.PrintErr (const ParLine : STRING; ParCol: INTEGER);
+PROCEDURE TElaCompiler.PrintErr (const ParLine : ansistring; ParCol: INTEGER);
 var
 	vlCnt : cardinal;
 BEGIN
@@ -210,10 +209,10 @@ var
 	vlErrorLine : longint;
 	vlErrorCol  : longint;
 	vlErrorCode : TErrorType;
-	vLExtra     : string;
+	vLExtra     : ansistring;
 	vlError     : string;
-	vlLine      : string;
-	vlFileName  : string;
+	vlLine      : ansistring;
+	vlFileName  : ansistring;
 begin
 	ParItem.GetInfo(vlFileName,vlErrorCode,vlErrorLine,vlErrorCol,vlErrorPos,vlExtra);
 	GetLine(vlErrorPos,vlLine);

@@ -55,11 +55,11 @@ type
 		property  fName  : TString      read voName;
 		property  fSecCre   : TSecCreator  read voSecCre;
 		property  fPoc   : TFileDisplay read voPoc;
-		procedure   GetNameStr(var ParName:String);
-		function    CreateOutput(const Parname:string):boolean;
-		constructor Create(ParLink : boolean;const ParName : string;ParCompiler : TCompiler_Base;var ParError:boolean);
+		procedure   GetNameStr(var ParName:ansistring);
+		function    CreateOutput(const Parname:ansistring):boolean;
+		constructor Create(ParLink : boolean;const ParName : ansistring;ParCompiler : TCompiler_Base;var ParError:boolean);
 		procedure   ChangeDataAlign(ParAll : TSize);
-		procedure   PrintSection(ParDisplay : TAsmDisplay;const ParTitle : string;ParSecType : TDatType);
+		procedure   PrintSection(ParDisplay : TAsmDisplay;const ParTitle : ansistring;ParSecType : TDatType);
 		function    ProduceAsm(ParList : TIdentList) : TErrorType;
 		procedure   AddData(ParData : TAssemDef);
 		function    RunAsm : TErrorType;
@@ -72,15 +72,15 @@ uses asminfo;
 {------( TAsmcreator )--------------------------------------------------}
 
 
-procedure   TAsmCreator.GetNameStr(var ParName : String);
+procedure   TAsmCreator.GetNameStr(var ParName : ansistring);
 begin
 	iName.GetString(ParName);
 end;
 
 
 function TAsmCreator.RunAsm:TErrorType;
-var vlAsmName : string;
-	vlObjOut  : string;
+var vlAsmName : ansistring;
+	vlObjOut  : ansistring;
 	vlAsm     : TCompAppl;
 	vlLdw     : TLdwAppl;
 	vlErr     : TErrorType;
@@ -128,8 +128,8 @@ begin
 	iData.AddData(PArData);
 end;
 
-constructor TAsmCreator.Create(ParLink:boolean;const ParName:string;ParCompiler:TCompiler_Base;var ParError:boolean);
-var vlName : String;
+constructor TAsmCreator.Create(ParLink:boolean;const ParName:ansistring;ParCompiler:TCompiler_Base;var ParError:boolean);
+var vlName : ansistring;
 begin
 	vlName := ParName;
 	LowerStr(vlname);
@@ -151,9 +151,9 @@ begin
 end;
 
 
-function TAsmCreator.CreateOutput(const ParName : String):boolean;
+function TAsmCreator.CreateOutput(const ParName : ansistring):boolean;
 var vlError : TErrorType;
-	vlFileName : string;
+	vlFileName : ansistring;
 begin
 	iLis := nil;
 	iPoc := nil;
@@ -180,7 +180,7 @@ begin
 	exit(false);
 end;
 
-procedure TAsmCreator.PrintSection(ParDisplay:TAsmDisplay;const ParTitle:string;ParSecType:TDatType);
+procedure TAsmCreator.PrintSection(ParDisplay:TAsmDisplay;const ParTitle:ansistring;ParSecType:TDatType);
 begin
 	ParDisplay.Nl;
 	if length(ParTitle) <> 0 then ParDisplay.Write(GetAssemblerInfo.GetSectionText(ParTitle));
@@ -191,7 +191,7 @@ end;
 
 
 function TAsmCreator.ProduceAsm(ParList:TIdentList) : TErrorType;
-var vlName : String;
+var vlName : ansistring;
 begin
 	if GetConfigValues.fGenerateDebug then begin
 		GetNameStr(vlName);
@@ -217,7 +217,7 @@ begin
 	PrintSection(iAsm,MN_IData6,DAT_External_Names);
 	PrintSection(iAsm,MN_IData7,DAT_Lib_Names);
 	iAsm.nl;
-	iAsm.WriteNl('#String list');
+	iAsm.WriteNl('#ansistring list');
 
 	iAsm.Destroy;
 	iAsm := nil;

@@ -23,10 +23,10 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RIdentMention ( var ParDigi : TIdentHookDigiItem);
       Procedure _RShortProcDef ( ParRoutine : TRoutine);
       Procedure _RParameterList ( ParList : THookDigiList);
-      Procedure _RIdentObject ( ParLocal :TRoutine;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type);
+      Procedure _RIdentObject ( ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type);
       Procedure _RInherited ( var ParDigi : TDigiItem);
       Procedure _ROwner ( var ParLocal : TDefinition);
-      Procedure _RShortDRoutine ( ParRoutine : TRoutineCollection;ParItem :TIdentHookDigiItem);
+      Procedure _RShortDRoutine ( ParRoutine : TDefinition;ParItem :TIdentHookDigiItem);
       Procedure _RParameters ( ParOut : TIdentHookDigiItem);
       Procedure _RFact ( var ParDigi : TDigiItem);
       Procedure _RComp ( var ParDigi : TDigiItem);
@@ -50,10 +50,10 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RCount ( var ParNode:TSubListStatementNode);
       Procedure _RCode ( ParNode:TSubListStatementNode);
       Procedure _RWhile ( var ParNode:TSubListStatementNode);
-      Procedure _RExit ( var ParNode:TSubListStatementNode);
+      Procedure _RExit ( var ParNode:TNodeIdent);
       Procedure _RFormula ( var ParExp:TFormulaNode);
       Procedure _RIncDec ( var ParNode : TSubListStatementNode);
-      Procedure _RParam ( var ParExpr : TFormulaNode;var ParName : string);
+      Procedure _RParam ( var ParExpr : TFormulaNode;var ParName : ansistring);
       Procedure _RWrite ( ParNode:TSubListStatementNode);
       Procedure _RContinue ( var ParNode : TSubListStatementNode);
       Procedure _RBreak ( var ParNode : TSubListStatementNode);
@@ -66,11 +66,11 @@ TELA_Parser=class(TELA_scanner)
       Procedure _ROperatorHead ( var ParRoutine:TRoutine);
       Procedure _ROperParDef ( ParRoutine:TRoutine);
       Procedure _RProcedureHead ( var ParRoutine:TRoutine;var ParHasses : cardinal);
-      Procedure _RRoutineName ( var ParName : string;var ParAccess : TDefAccess;var ParHasses:cardinal);
-      Procedure _RRoutineDotName ( var ParName : string;var ParHasses : cardinal);
+      Procedure _RRoutineName ( var ParName : ansistring;var ParAccess : TDefAccess;var ParHasses:cardinal);
+      Procedure _RRoutineDotName ( var ParName : ansistring;var ParHasses : cardinal);
       Procedure _RParamVarDef ( vlRoutine:TRoutine;var vlVirCheck:boolean);
       Procedure _RProperty;
-      Procedure _RClassType ( const ParName : string;var ParType : TType);
+      Procedure _RClassType ( const ParName : ansistring;var ParType : TType);
       Procedure _RTypeDecl;
       Procedure _RTypeAs ( var ParType : TType);
       Procedure _RAnonymousType ( var ParTYpe : TType);
@@ -80,7 +80,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RParamDef ( ParRoutine:TRoutine);
       Procedure _RRoutineTypeDecl ( var ParType:TType);
       Procedure _ROrdDecl ( var ParType:TType);
-      Procedure _RStringTypeDecl ( var ParType:TStringType);
+      Procedure _RStringTypeDecl ( var ParType:TType);
       Procedure _RAsciizDecl ( var ParType:TType);
       Procedure _RRecord ( var PArType:TType);
       Procedure _RUnion ( var ParType :TType);
@@ -100,7 +100,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RDirectAdd ( var ParVal:TValue;var ParValid:boolean);
       Procedure _RDirectLogic ( var ParVal : TValue;var ParValid:boolean);
       Procedure _RDirectExpr ( var ParVal:TValue);
-      Procedure _RDirectTString ( var ParStr : TString);
+      Procedure _RDirectString ( var ParStr : AnsiString);
       Procedure _RNumberConstant ( var ParValue : TValue;var ParValid : boolean);
       Procedure _RStringConstant ( var ParValue : TValue);
       Procedure _RDirectNumber ( var ParNum:TNumber);
@@ -218,10 +218,10 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RDec_Number ( var ParNum:TNumber; var ParValid:boolean);
       Procedure _RBin_Number ( var ParNum:TNumber;var ParValid : boolean);
       Procedure _RHex_Number ( var ParNum:TNumber;var ParValid : boolean);
-      Procedure _RText ( var ParString : string);
-      Procedure _RString ( var ParString:String);
-      Procedure _RIdent ( var ParIdent:string);
-      Procedure _RConfigVar ( var ParString : string);
+      Procedure _RText ( var ParString : ansistring);
+      Procedure _RString ( var ParString:ansistring);
+      Procedure _RIdent ( var ParIdent:ansistring);
+      Procedure _RConfigVar ( var ParString : ansistring);
 end;
 
 
@@ -269,7 +269,7 @@ begin
             if (GetSym = 67) then begin
                   _ROwner( vlLocal);
             end;
-            _RIdentObject( TRoutine(vlLocal),vlDef,vlDigi,vlMention);
+            _RIdentObject( vlLocal,vlDef,vlDigi,vlMention);
              
             ParDigi := TIdentHookDigiItem.Create(vlDigi);
             ParDigi.fLocal := vlLocal;
@@ -279,7 +279,7 @@ begin
                   _RParameters( ParDigi);
             end;
             if (GetSym = 96) then begin
-                  _RShortDRoutine( TRoutineCollection(vlDef),ParDigi);
+                  _RShortDRoutine( vlDef,ParDigi);
             end;
       end;
       
@@ -290,7 +290,7 @@ begin
       vlNode    : TFormulaNode;
       vlError   : boolean;
       vlPrn     : TRoutineNode;
-      vlName    : string;
+      vlName    : ansistring;
       vlLineInfo : TNodeident;
       
       begin
@@ -334,7 +334,7 @@ begin
       Procedure TELA_Parser._RParameterList ( ParList : THookDigiList);
        
       var vlExpr : TFormulaNode;
-          vlName : string;
+          vlName : ansistring;
       
       begin
             Expect(103);
@@ -348,10 +348,10 @@ begin
             Expect(104);
       end;
       
-      Procedure TELA_Parser._RIdentObject ( ParLocal :TRoutine;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type);
+      Procedure TELA_Parser._RIdentObject ( ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type);
        
       var
-      	vlIdent : string;
+      	vlIdent : ansistring;
       
       begin
             _RIdent( vlident);
@@ -388,9 +388,8 @@ begin
                   _RIdentObject( nil,vlDef,vlDigi,vlMention);
                    
                   	vlOut := TIdentHookDigiItem.Create(vlDigi);
-                      SetDigiPos(vlOut);
+                    SetDigiPos(vlOut);
                   	vlOut.fInheritLevel := vlLevel;
-                  
                   ;
                   if (GetSym = 103) then begin
                         _RParameters( vlOut);
@@ -426,11 +425,11 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RShortDRoutine ( ParRoutine : TRoutineCollection;ParItem :TIdentHookDigiItem);
+      Procedure TELA_Parser._RShortDRoutine ( ParRoutine : TDefinition;ParItem :TIdentHookDigiItem);
        
       var
       	vlRoutine : TRoutine;
-           vlPrvAcc  : TDefAccess;
+      	vlPrvAcc  : TDefAccess;
       	vlItem    : TShortNotationDigiItem;
       	vlContext : TDefinition;
       
@@ -471,9 +470,10 @@ begin
       var
       vlNum   : TNumber;
       vlValid : boolean;
-      vlPSt   : String;
-      vlName  : string;
+      vlPSt   : ansistring;
+      vlName  : ansistring;
       vlExpr  : TDigiItem;
+      vlDigi  : TIdentHookDigiItem;
       
       begin
              
@@ -482,10 +482,12 @@ begin
             ;
             case GetSym of
                   1, 67 : begin
-                        _RIdentMention( TIdentHookDigiItem(ParDigi));
+                        _RIdentMention( vlDigi);
+                          ParDigi :=vlDigi; ;
                   end;
                   52 : begin
-                        _RInherited( TIdentHookDigiItem(ParDigi));
+                        _RInherited( vlDigi);
+                          ParDigi := vlDigi; ;
                   end;
                   3..5 : begin
                         _RNumber( vlNum,vlValid);
@@ -535,7 +537,7 @@ begin
        
       var
       vlNode2     : TFormulaNode;
-      vlIdent     : String;
+      vlIdent     : ansistring;
       vlIndex     : TArrayDigiItem;
       vlOut       : TIdentHookDigiItem;
       vlDotOper   : TDotOperDigiItem;
@@ -582,13 +584,11 @@ begin
                         end;
                         if (GetSym = 96) then begin
                                
-                              		vlDotOper.HandleRfi(fNDCreator);
-                              		fNDCreator.AddCurrentDefinitionEx(vlDotOper.GetRecordType,false,true);
-                              	;
-                              _RShortDRoutine( TRoutineCollection(vlDotOper.GetFieldIdentItem),vlDotOper.fField);
-                               
-                              if vlDotOper.GetRecordType <> nil then fNDCreator.EndIdent;
-                              	;
+                              	vlDotOper.HandleRfi(fNDCreator);
+                              	fNDCreator.AddCurrentDefinitionEx(vlDotOper.GetRecordType,false,true);
+                              ;
+                              _RShortDRoutine( vlDotOper.GetFieldIdentItem,vlDotOper.fField);
+                                if vlDotOper.GetRecordType <> nil then fNDCreator.EndIdent;	;
                         end;
                   end
                    else begin
@@ -660,7 +660,7 @@ begin
       var
       vlOperator : TRefNodeIdent;
       vlneg      : boolean;
-      vlName     : string;
+      vlName     : ansistring;
       vlDigi1    : TDigiItem;
       vlDigi2    : TDigiItem;
       
@@ -735,7 +735,7 @@ begin
       	vlOperator : TRefNodeIdent;
       	vlDigi1 : TDigiItem;
       	vlDigi2 : TDigiItem;
-      	vlName : string;
+      	vlName : ansistring;
       
       begin
             _RTerm( vlDigi1);
@@ -761,7 +761,7 @@ begin
        
       var
       vlOperator : TRefNodeident;
-      vlName     : String;
+      vlName     : ansistring;
       vlDigi1    : TDigiItem;
       vlDigi2    : TDigiItem;
       
@@ -793,7 +793,7 @@ begin
       var
       vlDigi1    : TDigiItem;
        vlDigi2    : TDigiItem;
-      vlName     : string;
+      vlName     : ansistring;
       
       begin
             _RAdd( vlDigi1);
@@ -816,7 +816,7 @@ begin
       var
       	vlDigi1    : TDigiItem;
       	vlDigi2    : TDigiItem;
-      	vlName     : string;
+      	vlName     : ansistring;
       	vlOperator : TRefNodeIdent;
       
       begin
@@ -846,11 +846,11 @@ begin
       	vlDigiL : TDigiItem;
       	vlDigiR : TDigiItem;
       	vlCode  : TIdentCode;
-      	vlName:String;
+      	vlName:ansistring;
       
       begin
             _RLogic( vlDigiL);
-            WHILE vgDynSet[3].isSet(GetSym) do begin
+            WHILE(GetSym=108) or ((GetSym>=112) and (GetSym<=116)) do begin
                   case GetSym of
                         112 : begin
                               Get;
@@ -892,7 +892,7 @@ begin
       var
       	vlDigiL : TDigiItem;
       	vlDigiR : TDigiItem;
-      	vlName  : string;
+      	vlName  : ansistring;
       
       begin
             _RCompare( vlDigiL);
@@ -911,7 +911,7 @@ begin
       begin
               ParNode := TBlockNode.Create;;
             _IBegin;
-            WHILE vgDynSet[4].isSet(GetSym) do begin
+            WHILE vgDynSet[3].isSet(GetSym) do begin
                   _RCode( ParNode);
                   Expect(8);
             end;
@@ -930,7 +930,7 @@ begin
       vlI1 : TDigiItem;
       vlI2 : TDigiItem;
       vlI3 : TDigiItem;
-      vlName : string;
+      vlName : ansistring;
       
       begin
             _RIdentOper( vlI1);
@@ -954,7 +954,7 @@ begin
       
       Procedure TELA_Parser._RLoad ( var Parexp:TFormulaNode);
         var
-      vlName   : string;
+      vlName   : ansistring;
       vlDigiL  : TDigiItem;
       vlDigiR  : TDigiItem;
       
@@ -992,7 +992,7 @@ begin
             _IRepeat;
               ParNode := TRepeatNode.Create;
             	   fNDCreator.AddCurrentNode(ParNode); ;
-            WHILE vgDynSet[4].isSet(GetSym) do begin
+            WHILE vgDynSet[3].isSet(GetSym) do begin
                   _RCode( ParNode);
                   Expect(8);
             end;
@@ -1088,7 +1088,7 @@ begin
       
       begin
              
-            vlUp           := false;
+            vlUp           := true;
             vlEndCondition := nil;
             vlEnd          := nil;
             vlAllOf        := nil;
@@ -1108,10 +1108,10 @@ begin
                   if (GetSym in [36 , 86]) then begin
                         if (GetSym = 86) then begin
                               _ITo;
-                                 vlUp := true; ;
                         end
                          else begin
                               _IDownTo;
+                                vlUp := false;;
                         end
                         ;_RFormula( vlEnd);
                   end;
@@ -1155,20 +1155,22 @@ begin
       vlNode     : TSubListStatementNode;(* TODO Solve this*)
       vlForm     : TFormulanode;
       vlLineInfo : TNodeident;
+      vlBaseNode : TNodeIdent;
       
       begin
              
              vlNode := nil;
              vlForm := nil;
+             vlBaseNode := nil;
              if (GetConfigValues.fGenerateDebug) and (ParNode <> nil)  then begin
              	vlLineInfo := TLineNumberNode.create;
              	vlLineInfo.fLine := nextLine;
-            	ParNode.AddNode(vlLineInfo);
+                 ParNode.AddNode(vlLineInfo);
              end;
             ;
             case GetSym of
                   1..6, 52, 58, 60, 67, 83, 103, 105..106, 118 : begin
-                        _RLoad( TFormulaNode(vlForm));
+                        _RLoad( vlForm);
                   end;
                   17 : begin
                         _RAsmBlock( vlNode);
@@ -1195,7 +1197,7 @@ begin
                         _RRepeat( vlNode);
                   end;
                   41 : begin
-                        _RExit( vlNode);
+                        _RExit( vlBaseNode);
                   end;
                   31, 50 : begin
                         _RIncDec( ParNode);
@@ -1216,6 +1218,7 @@ begin
              
             if vlNode <> nil then ParNode.AddNode(vlNode);
             if vlForm <> nil then ParNode.AddNode(vlForm);
+            if vlBaseNode <> nil then ParNode.AddNode(vlBaseNode);
             ;
       end;
       
@@ -1237,13 +1240,13 @@ begin
               fNDCreator.EndNode; ;
       end;
       
-      Procedure TELA_Parser._RExit ( var ParNode:TSubListStatementNode);
+      Procedure TELA_Parser._RExit ( var ParNode:TNodeIdent);
        
       var
-      	vlExp : TFormulaNode;
+      vlExp : TFormulaNode;
       
       begin
-             	vlExp := nil;;
+             vlExp := nil;;
             _IExit;
             if (GetSym = 103) then begin
                   Get;
@@ -1251,7 +1254,7 @@ begin
                   Expect(104);
             end;
              
-            ParNode :=TSubListStatementnode( CreateExitNode(vlExp));(* TODO Change exit type? *)
+            ParNode :=CreateExitNode(vlExp);
             ;
       end;
       
@@ -1297,7 +1300,7 @@ begin
             ; ParNode.AddNode( TIncDecNode.Create(vlIncFlag,vlIncrNode,vlValueNode));;
       end;
       
-      Procedure TELA_Parser._RParam ( var ParExpr : TFormulaNode;var ParName : string);
+      Procedure TELA_Parser._RParam ( var ParExpr : TFormulaNode;var ParName : ansistring);
       begin
               EmptyString(ParName); ;
             _RExpr( ParExpr);
@@ -1315,7 +1318,7 @@ begin
       vlRoutine : TDefinition;
       vlOwner   : TDefinition;
       vlExpr    : TFormulaNode;
-      vlName    : string;
+      vlName    : ansistring;
       vlNode    : TCallNode;
       
       begin
@@ -1375,9 +1378,9 @@ begin
       vlDef         : TRoutine;
       vlRootCB      : boolean;
       vlInherit     : boolean;
-      vlParentName  : string;
+      vlParentName  : ansistring;
       vlVirtual     : TVirtualMode;
-      vlName        : string;
+      vlName        : ansistring;
       vlOverLoad    : TOverloadMode;
       vlTmpAccess   : TDefAccess;
       vlHasses      : cardinal;
@@ -1491,8 +1494,7 @@ begin
                   Expect(8);
             end;
              
-            	vlDef.GetTextStr(vlName);
-            	verbose(VRB_Procedure_Name,'** Procedure name  :'+vlName);
+            	verbose(VRB_Procedure_Name,'** Procedure name  :'+vlDef.FText);
             	if (ParForward) and (vlDef <> nil) then vlDef.SignalForwardDefined;
             	ParRoutine := ProcessRoutineItem(vlDef,vlIsolate,vlROotCb,vlInhFinal,vlInherit,vlParentName,vlVirtual,vlOverload,vlIsAbstract,vlIsWrite);
             ;
@@ -1508,7 +1510,7 @@ begin
                   vlTmpAccess := fNDCreator.fCurrentDefAccess;
                   fNDCreator.fCurrentDefAccess := AF_Private;
                   ;
-                  WHILE vgDynSet[5].isSet(GetSym) do begin
+                  WHILE vgDynSet[4].isSet(GetSym) do begin
                         case GetSym of
                               72 : begin
                                     _IPrivate;
@@ -1573,7 +1575,7 @@ begin
       Procedure TELA_Parser._RParameterMappingItem ( ParRoutine :TRoutine);
        
       var
-      vlName : string;
+      vlName : ansistring;
       vlVal  : TValue;
       vlMode : TMappingOption;
       
@@ -1596,7 +1598,7 @@ begin
                   end
                   ;  if parRoutine <> nil then ParRoutine.AddNormalParameterMapping(fNDcreator,vlName,vlMode);;
             end
-             else if vgDynSet[6].isSet(GetSym) then begin
+             else if vgDynSet[5].isSet(GetSym) then begin
                   _RNum_Or_Const_2( vlVal);
                     if ParRoutine <> nil then ParRoutine.AddConstantParameterMapping(fNDCreator,vlVal); ;
             end
@@ -1615,7 +1617,7 @@ begin
             _IAsm;
             get;
               vlPos  := GetCurrentPosition;;
-            WHILE vgDynSet[7].isSet(GetSym) do begin
+            WHILE((GetSym>=1) and (GetSym<=37)) or ((GetSym>=39) and (GetSym<=121)) do begin
                   get;
             end;
              
@@ -1630,7 +1632,7 @@ begin
        
       var
       vlType   : TType;
-      vlIdent  : string;
+      vlIdent  : ansistring;
       vlFun    : TFunction;
       vlAccess : TDefAccess;
       
@@ -1660,7 +1662,7 @@ begin
       Procedure TELA_Parser._RConstructorHead ( var ParRoutine : TRoutine;var ParHasses : cardinal);
        
       var
-      vlIdent  : string;
+      vlIdent  : ansistring;
       vlAccess : TDefAccess;
       vlCDFlag : boolean;
       
@@ -1693,7 +1695,7 @@ begin
        
       var
       vlType      : TType;
-      vlName      : string;
+      vlName      : ansistring;
       vlHasReturn : boolean;
       vlWrite		: boolean;
       
@@ -1701,8 +1703,8 @@ begin
             _IOperator;
              
             					vlHasReturn := false;
-                            vlWrite := false;
-            					TOperatorFunction(ParRoutine) := TOperatorFunction.Create('');
+            					vlWrite := false;
+            					ParRoutine := TOperatorFunction.Create('');
             					EmptyString(vlName);
             				;
             if (GetSym in [60 , 106]) then begin
@@ -1833,7 +1835,7 @@ begin
        
       var
       vlType  : TType;
-      vlIdent : string;
+      vlIdent : ansistring;
       vlConst : boolean;
       vlVar   : boolean;
       vlName  : TNameList;
@@ -1869,7 +1871,7 @@ begin
       Procedure TELA_Parser._RProcedureHead ( var ParRoutine:TRoutine;var ParHasses : cardinal);
        
       var
-      	vlIdent:string;
+      	vlIdent:ansistring;
       	vlAccess : TDefAccess;
       
       begin
@@ -1890,10 +1892,10 @@ begin
             end;
       end;
       
-      Procedure TELA_Parser._RRoutineName ( var ParName : string;var ParAccess : TDefAccess;var ParHasses:cardinal);
+      Procedure TELA_Parser._RRoutineName ( var ParName : ansistring;var ParAccess : TDefAccess;var ParHasses:cardinal);
        
       var
-      	vlname : string;
+      	vlname : ansistring;
       
       begin
              
@@ -1942,7 +1944,7 @@ begin
               ParName := vlName; ;
       end;
       
-      Procedure TELA_Parser._RRoutineDotName ( var ParName : string;var ParHasses : cardinal);
+      Procedure TELA_Parser._RRoutineDotName ( var ParName : ansistring;var ParHasses : cardinal);
       begin
             _RIdent( ParName);
             WHILE (GetSym = 7) do begin
@@ -1958,8 +1960,8 @@ begin
       Procedure TELA_Parser._RParamVarDef ( vlRoutine:TRoutine;var vlVirCheck:boolean);
        
       var
-      	vlIdent   : string;
-      	vlAlias   : string;
+      	vlIdent   : ansistring;
+      	vlAlias   : ansistring;
       	vlType    : TType;
       	vlVar     : boolean;
       	vlConst   : boolean;
@@ -2012,7 +2014,7 @@ begin
       Procedure TELA_Parser._RProperty;
        
       var
-      	vlName         : string;
+      	vlName         : ansistring;
       	vlProperty     : TProperty;
       	vlAcc          : TDefAccess;
       	vlPropertyType : TPropertyType;
@@ -2065,10 +2067,10 @@ begin
             Expect(8);
       end;
       
-      Procedure TELA_Parser._RClassType ( const ParName : string;var ParType : TType);
+      Procedure TELA_Parser._RClassType ( const ParName : ansistring;var ParType : TType);
        
       var
-      	vlParent     : string;
+      	vlParent     : ansistring;
       	vlPrvAccess  : TDefAccess;
       	vlVirtual    : TVirtualMode;
       	vlIsolate    : boolean;
@@ -2101,7 +2103,7 @@ begin
                   _IValue;
                     vlOfValue := true; ;
             end;
-            if vgDynSet[8].isSet(GetSym) then begin
+            if vgDynSet[6].isSet(GetSym) then begin
                   if (GetSym = 51) then begin
                         _IInherit;
                         _RIdent( vlParent);
@@ -2111,7 +2113,7 @@ begin
                   vlPrvAccess := fNDCreator.fCurrentDefAccess;
                   fNDCreator.fCurrentDefAccess := AF_Private;
                   ;
-                  WHILE vgDynSet[9].isSet(GetSym) do begin
+                  WHILE vgDynSet[7].isSet(GetSym) do begin
                         case GetSym of
                               72 : begin
                                     _IPrivate;
@@ -2161,7 +2163,7 @@ begin
       
       Procedure TELA_Parser._RTypeDecl;
        var
-      vlIdent    : string;
+      vlIdent    : ansistring;
       vlType     : TType;
       vlPtrType  : TPtrType;
       vlDefType  : TDefaultTypeCode;
@@ -2183,8 +2185,8 @@ begin
                           vlDefType := DT_Meta; ;
                   end;
             end;
-            if vgDynSet[10].isSet(GetSym) then begin
-                  if vgDynSet[11].isSet(GetSym) then begin
+            if vgDynSet[8].isSet(GetSym) then begin
+                  if vgDynSet[9].isSet(GetSym) then begin
                         case GetSym of
                               59 : begin
                                     _ROrdDecl( vlType);
@@ -2216,7 +2218,7 @@ begin
                                     	   				 ;
                               end;
                               84 : begin
-                                    _RStringTypeDecl( TStringType(vlType));
+                                    _RStringTypeDecl( vlType);
                                       HandleDefaultType(vlDefType,DT_String,[DT_String]); ;
                               end;
                               18 : begin
@@ -2310,7 +2312,7 @@ begin
                         _RAsciizDecl( ParType);
                   end;
                   84 : begin
-                        _RStringTypeDecl( TStringType(ParType));
+                        _RStringTypeDecl( ParType);
                   end;
                   74 : begin
                         _RPtrTypeDecl( ParType,false );
@@ -2331,7 +2333,7 @@ begin
       Procedure TELA_Parser._RPtrTypeDecl ( var ParType:TType;ParCanForward : boolean);
        
       var
-      vlName : string;
+      vlName : ansistring;
       vlConstFlag : boolean;
       vlType : TType;
       
@@ -2345,7 +2347,7 @@ begin
                   _IConst;
                     vlConstFlag := true; ;
             end;
-            if vgDynSet[12].isSet(GetSym) then begin
+            if vgDynSet[10].isSet(GetSym) then begin
                   _RAnonymousType( vlType);
                     ParType := CreatePointerType(vlType,vlConstFlag); ;
             end
@@ -2476,14 +2478,14 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RStringTypeDecl ( var ParType:TStringType);
+      Procedure TELA_Parser._RStringTypeDecl ( var ParType:TType);
        
       var
       	vlSize       : TSize;
       	vlType       : TType;
       	vlHasSize    : boolean;
       	vlHasDefaultSize : boolean;
-      	vlLengthVarName  : string;
+      	vlLengthVarName  : ansistring;
       	vlLengthVarType  : TTYpe;
       
       begin
@@ -2562,7 +2564,7 @@ begin
       Procedure TELA_Parser._RBooleanType ( var ParType : TType);
        
       var
-      	vlName : string;
+      	vlName : ansistring;
            vlSize : cardinal;
       	vlVal :TValue;
       
@@ -2596,7 +2598,7 @@ begin
       var
       	vlVal :TNumber;
       	vlCollection :TENumCollection;
-      	vlName : string;
+      	vlName : ansistring;
       
       begin
             _IEnum;
@@ -2620,7 +2622,7 @@ begin
       Procedure TELA_Parser._REnumident ( var ParVal:TNumber);
        
       	var
-      			vlIdent : string;
+      			vlIdent : ansistring;
       			vlVal : TValue;
       
       begin
@@ -2653,7 +2655,7 @@ begin
                         _RPtrTypeDecl( ParType,false );
                   end
                    else begin
-                        _RStringTypeDecl( TStringType(ParType));
+                        _RStringTypeDecl( ParType);
                   end
                   ;  AddAnonItem(ParType); ;
             end
@@ -2684,6 +2686,9 @@ begin
             _IOf;
             _RRoutineType( vltype);
              
+            if vlType <> nil then begin
+            	if vlType.fSize = 0 then SynError(err_cant_determine_size);
+            end;
             vlAr.SetTopType(vlType);
             ParArray := vlAr;
             if vlAr.CalculateSize then SemError(Err_Array_Too_Big);
@@ -2702,7 +2707,7 @@ begin
         var
           vlValid   : boolean;
           vlNum     : TNumber;
-          vlStr     : String;
+          vlStr     : ansistring;
           vlNeg     : boolean;
       
       begin
@@ -2736,8 +2741,8 @@ begin
        
       var
       vlNameList : TNameList;
-      vlStr      : String;
-      vlIdent    : string;
+      vlStr      : ansistring;
+      vlIdent    : ansistring;
       vlVal      : TValue;
       
       begin
@@ -2752,7 +2757,7 @@ begin
             Expect(108);
             _RDirectExpr( vlVal);
              
-            if vlVal.fType = VT_String then begin
+            if vlVal.fType = VT_ansistring then begin
             	vlVal.GetString(vlStr);
             	fNDCreator.AddStringConst(vlNameList,vlStr);
             end else begin
@@ -2806,6 +2811,7 @@ begin
             end
              else if (GetSym in [2 , 6 , 25]) then begin
                   _RStringConstant( ParVal);
+                    ParValid := true; ;
             end
             else begin
                   SynError(149);
@@ -2829,7 +2835,7 @@ begin
             ParVal  := nil;
             ParValid := false;
             ;
-            if vgDynSet[13].isSet(GetSym) then begin
+            if((GetSym>=1) and (GetSym<=6)) or (GetSym=25) then begin
                   _RNum_Or_Const( ParVal,ParValid);
             end
              else if (GetSym = 103) then begin
@@ -2882,7 +2888,7 @@ begin
        
       Var
       	vlNeg : boolean;
-      	vlValid :boolean;
+      	
       
       begin
               vlNeg := false; ;
@@ -2895,14 +2901,12 @@ begin
                         Get;
                   end
                   ;end;
-            _RDirectFact( ParVal,vlValid);
+            _RDirectFact( ParVal,ParValid);
              
-            if(vlValid) then begin
+            if(ParValid) then begin
             	if vlNeg then  begin
             		if CalculationStatusToError(ParVal.Neg) then ParValid := false;
             	end;
-            end else begin
-            	ParValid := false;
             end;
             ;
       end;
@@ -3017,9 +3021,7 @@ begin
       	vlValid: boolean;
       
       begin
-             
-            vlVal := nil;
-            ;
+              vlVal := nil;;
             _RDirectAdd( ParVal,ParValid);
             WHILE (GetSym in [14 , 64 , 102]) do begin
                   if (GetSym = 14) then begin
@@ -3068,12 +3070,22 @@ begin
             _RDirectLogic( ParVal,vlValid);
       end;
       
-      Procedure TELA_Parser._RDirectTString ( var ParStr : TString);
+      Procedure TELA_Parser._RDirectString ( var ParStr : AnsiString);
+       
+      var
+      	vlValue : TValue;
+      
       begin
-            _RDirectExpr( ParStr);
+            _RDirectExpr( vlValue);
              
-            	if ParStr <> nil then begin
-            		if not(ParStr is TString) then SemError(Err_Not_A_String_Constant);
+            	EmptyString(ParStr);
+            	if vlValue <> nil then begin
+            		if not(vlValue is TString) then begin
+            			SemError(Err_Not_A_ansistring_Constant);
+            		end else begin
+            			ParStr := TString(vlValue).fText;
+            		end;	
+            		vlValue.destroy;
             	end;
             ;
       end;
@@ -3098,7 +3110,7 @@ begin
       Procedure TELA_Parser._RStringConstant ( var ParValue : TValue);
        
       var
-      	vlStr : string;
+      	vlStr : ansistring;
       
       begin
             if (GetSym = 25) then begin
@@ -3601,7 +3613,7 @@ begin
                   fNDCreator.fCurrentDefAccess := AF_Private;
                   vlMainCB := vlRoutine;
             ;
-            WHILE vgDynSet[14].isSet(GetSym) do begin
+            WHILE vgDynSet[11].isSet(GetSym) do begin
                   case GetSym of
                         72 : begin
                               _IPrivate;
@@ -3693,7 +3705,7 @@ begin
       
       Procedure TELA_Parser._RExternal;
        var
-      vlIdent   : Tstring;
+      vlIdent   : ansistring;
       vlExt     : TExternalInterface;
       vlType    : TExternalType;
       vlRoutine : TRoutine;
@@ -3701,10 +3713,9 @@ begin
       vlAt      : cardinal;
       vlHasAt   : boolean;
       vlHasses  : cardinal;
-      vlExType : TString;
-      vlName    : String;
-      vlCDeclTxt: TString;
-      vlStr     : string;
+      vlExType  : ansistring;
+      vlName    : ansistring;
+      vlStr     : ansistring;
       
       begin
              
@@ -3712,7 +3723,6 @@ begin
             vlAt    := 0;
             vlType  := ET_Linked;
             vlCDecl := false;
-            vlCDeclTxt := nil;
             ;
             _IExternal;
             _RIdent( vlName);
@@ -3730,10 +3740,10 @@ begin
                         _RFunctionHead( vlRoutine,vlHasses);
                   end
                   ;_IName;
-                  _RDirectTString( vlIdent);
+                  _RDirectString( vlIdent);
                   Expect(8);
                    
-                         if vlRoutine <>  nil then begin
+                  		if vlRoutine <>  nil then begin
                   			fNDCreator.EndIdentNum(vlHasses);
                   			vlRoutine.PreProcessParameterList(nil,nil,fNDcreator);
                   			CreateExternalInterfaceObject(vlCDecl,vlRoutine,vlExt,vlIdent);
@@ -3817,7 +3827,7 @@ begin
                   fNDCreator.fInPublicSection  := true;
                   fNDCreator.fCUrrentDefAccess := AF_Public;
                   ;
-                  WHILE vgDynSet[15].isSet(GetSym) do begin
+                  WHILE vgDynSet[12].isSet(GetSym) do begin
                         if (GetSym = 88) then begin
                               _RTypeBlock;
                         end
@@ -3844,14 +3854,14 @@ begin
             if not(fNDCreator.GetIsUnitFlag) and (vlHasPublic) then SemError(Err_Prog_Cant_Have_Pubs) else
             if fNDCreator.GetIsUnitFlag and not(vlHasPublic) then SemError(Err_Unit_Must_Have_Pubs);
             ;
-            WHILE vgDynSet[15].isSet(GetSym) do begin
+            WHILE vgDynSet[12].isSet(GetSym) do begin
                   if (GetSym = 88) then begin
                         _RTypeBlock;
                   end
                    else if (GetSym = 94) then begin
                         _RVarBlock;
                   end
-                   else if vgDynSet[16].isSet(GetSym) then begin
+                   else if vgDynSet[13].isSet(GetSym) then begin
                         _RRoutine;
                   end
                    else if (GetSym = 42) then begin
@@ -3937,7 +3947,7 @@ begin
              
             ParType := nil;
             ;
-            if vgDynSet[17].isSet(GetSym) then begin
+            if vgDynSet[14].isSet(GetSym) then begin
                   if (GetSym = 1) then begin
                         _RH_Type( ParType);
                   end
@@ -3958,7 +3968,7 @@ begin
       Procedure TELA_Parser._RVarDecl;
        
       var
-      	vlIdent : string;
+      	vlIdent : ansistring;
       	vlName  : TNameList;
       	vlTYpe  : TType;
       
@@ -4001,7 +4011,7 @@ begin
       Procedure TELA_Parser._RUsedUnit;
        
       var
-      	vlName:string;
+      	vlName:ansistring;
       
       begin
             _RIdent( vlName);
@@ -4044,7 +4054,7 @@ begin
       Procedure TELA_Parser._RDefIdentObj ( var ParDef : TDefinition;ParAccCheck : boolean);
        
       var
-      	vlName  : string;
+      	vlName  : ansistring;
       	vlOwner : TDefinition;
       
       begin
@@ -4067,7 +4077,7 @@ begin
       Procedure TELA_Parser._RIdentObj ( var ParDef:TDefinition);
        
       var
-      	vlname:string;
+      	vlname:ansistring;
       
       begin
             _RIdent( vlName);
@@ -4103,7 +4113,7 @@ begin
       Procedure TELA_Parser._RDec_Number ( var ParNum:TNumber; var ParValid:boolean);
        
       var
-      vlTmp : String;
+      vlTmp : ansistring;
       
       begin
             Expect(3);
@@ -4117,7 +4127,7 @@ begin
       Procedure TELA_Parser._RBin_Number ( var ParNum:TNumber;var ParValid : boolean);
        
       var
-      vlTmp:string;
+      vlTmp:ansistring;
       vlErr:boolean;
       
       begin
@@ -4132,7 +4142,7 @@ begin
       
       Procedure TELA_Parser._RHex_Number ( var ParNum:TNumber;var ParValid : boolean);
        
-      var vlTmp : string;
+      var vlTmp : ansistring;
          vlErr : boolean;
       
       begin
@@ -4145,7 +4155,7 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RText ( var ParString : string);
+      Procedure TELA_Parser._RText ( var ParString : ansistring);
       begin
             if (GetSym = 2) then begin
                   _RString( ParString);
@@ -4158,7 +4168,7 @@ begin
             end;
             ;end;
       
-      Procedure TELA_Parser._RString ( var ParString:String);
+      Procedure TELA_Parser._RString ( var ParString:ansistring);
       begin
             Expect(2);
              
@@ -4167,16 +4177,16 @@ begin
             ;
       end;
       
-      Procedure TELA_Parser._RIdent ( var ParIdent:string);
+      Procedure TELA_Parser._RIdent ( var ParIdent:ansistring);
       begin
             Expect(1);
               LexName(ParIdent); ;
       end;
       
-      Procedure TELA_Parser._RConfigVar ( var ParString : string);
+      Procedure TELA_Parser._RConfigVar ( var ParString : ansistring);
        
       var
-      	vlIdent :string;
+      	vlIdent :ansistring;
       
       begin
             Expect(6);
@@ -4374,7 +4384,7 @@ begin
                   		150: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
                   			+'mber,integer number,string,identifier,"(","NIL","NOT","SIZEO'
                   			+'F" expected';
-                  		151: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
+                  		151: ParErr :='Invalid ansistring constant:"CHARTYPE","&",string expected';
                   		152: ParErr :='Invalid routine:"BEGIN","END" expected';
                   		153: ParErr :='Invalid type declaration:identifier,"ALIGN" expected';
                   		154: ParErr :='Invalid program definition:"BEGIN","END" expected';
@@ -4384,7 +4394,7 @@ begin
                   			+'ION" expected';
                   		157: ParErr :='Invalid number:integer number,binary number ,hexidecimal num'
                   			+'ber expected';
-                  		158: ParErr :='Invalid string:string,"&" expected';
+                  		158: ParErr :='Invalid ansistring:string,"&" expected';
             end;
       end;
       
@@ -4398,21 +4408,18 @@ begin
       vgSetFill0:ARRAY[1..1] of cardinal=(0);
       vgSetFill1:ARRAY[1..15] of cardinal=(1,2,3,4,5,6,52,58,60,67,83,103,105,106,118);
       vgSetFill2:ARRAY[1..7] of cardinal=(1,28,33,47,63,68,97);
-      vgSetFill3:ARRAY[1..6] of cardinal=(108,112,113,114,115,116);
-      vgSetFill4:ARRAY[1..30] of cardinal=(1,2,3,4,5,6,17,20,23,29,30,31,41,43,45,49,50,52,58,60,67,77,83,97,98,100,103,105,106,118);
-      vgSetFill5:ARRAY[1..13] of cardinal=(27,28,33,47,54,63,68,70,71,72,88,94,97);
-      vgSetFill6:ARRAY[1..8] of cardinal=(2,3,4,5,6,25,105,106);
-      vgSetFill7:ARRAY[1..120] of cardinal=(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121);
-      vgSetFill8:ARRAY[1..15] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,88,94,97);
-      vgSetFill9:ARRAY[1..13] of cardinal=(27,28,33,47,63,68,70,71,72,73,88,94,97);
-      vgSetFill10:ARRAY[1..16] of cardinal=(1,15,18,21,25,26,39,53,59,66,74,76,84,90,95,99);
-      vgSetFill11:ARRAY[1..14] of cardinal=(1,18,25,26,39,53,59,66,74,76,84,90,95,99);
-      vgSetFill12:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
-      vgSetFill13:ARRAY[1..7] of cardinal=(1,2,3,4,5,6,25);
-      vgSetFill14:ARRAY[1..11] of cardinal=(28,33,47,63,68,70,71,72,88,94,97);
-      vgSetFill15:ARRAY[1..10] of cardinal=(27,28,33,42,47,63,68,88,94,97);
-      vgSetFill16:ARRAY[1..6] of cardinal=(28,33,47,63,68,97);
-      vgSetFill17:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
+      vgSetFill3:ARRAY[1..30] of cardinal=(1,2,3,4,5,6,17,20,23,29,30,31,41,43,45,49,50,52,58,60,67,77,83,97,98,100,103,105,106,118);
+      vgSetFill4:ARRAY[1..13] of cardinal=(27,28,33,47,54,63,68,70,71,72,88,94,97);
+      vgSetFill5:ARRAY[1..8] of cardinal=(2,3,4,5,6,25,105,106);
+      vgSetFill6:ARRAY[1..15] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,88,94,97);
+      vgSetFill7:ARRAY[1..13] of cardinal=(27,28,33,47,63,68,70,71,72,73,88,94,97);
+      vgSetFill8:ARRAY[1..16] of cardinal=(1,15,18,21,25,26,39,53,59,66,74,76,84,90,95,99);
+      vgSetFill9:ARRAY[1..14] of cardinal=(1,18,25,26,39,53,59,66,74,76,84,90,95,99);
+      vgSetFill10:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
+      vgSetFill11:ARRAY[1..11] of cardinal=(28,33,47,63,68,70,71,72,88,94,97);
+      vgSetFill12:ARRAY[1..10] of cardinal=(27,28,33,42,47,63,68,88,94,97);
+      vgSetFill13:ARRAY[1..6] of cardinal=(28,33,47,63,68,97);
+      vgSetFill14:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
       
       
       procedure TELA_Parser.Commonsetup;
@@ -4439,9 +4446,6 @@ begin
                   vgDynSet[12].SetByArray(vgSetFill12);
                   vgDynSet[13].SetByArray(vgSetFill13);
                   vgDynSet[14].SetByArray(vgSetFill14);
-                  vgDynSet[15].SetByArray(vgSetFill15);
-                  vgDynSet[16].SetByArray(vgSetFill16);
-                  vgDynSet[17].SetByArray(vgSetFill17);
             end;
       end;
 end

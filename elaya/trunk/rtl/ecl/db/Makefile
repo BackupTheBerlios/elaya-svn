@@ -4,8 +4,8 @@ all:
 	$(MAKE) all -C classes
 
 install:
-	$(MAKE) all -C dal
-	$(MAKE) all -C classes
+	$(MAKE) install -C dal
+	$(MAKE) install -C classes
 
 clean:
 	$(MAKE) clean -C dal

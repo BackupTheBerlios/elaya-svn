@@ -24,7 +24,7 @@ uses progutil,confval,stdobj,elatypes,elacons,simplist;
 
 procedure InitOptions;
 procedure DoneOptions;
-function GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : string) : boolean;
+function GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : ansistring) : boolean;
 implementation
 {uses elacfg,i386asin,asminfo;}
 
@@ -39,23 +39,23 @@ type  TOptionConfigVariable=class(TSMListItem)
 	  public
 		property fVariable : TString read voVariable;
 		property fValue    : TString read voValue;
-		constructor Create(const ParVariable,ParValue : string);
-		function IsVariable(const ParVariable : string) : boolean;
-		procedure SetValue(const ParValue : string);
-		function  GetValue : string;
-		function  GetName  : string;
+		constructor Create(const ParVariable,ParValue : ansistring);
+		function IsVariable(const ParVariable : ansistring) : boolean;
+		procedure SetValue(const ParValue : ansistring);
+		function  GetValue : ansistring;
+		function  GetName  : ansistring;
 	  end;
 
       TOptionConfigVariableList=class(TSMList)
-		function  GetVariable(const ParName : string) : TOptionConfigVariable;
-		function  GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : string) : boolean;
-	   	procedure AddVariable(const ParName,ParValue : string);
+		function  GetVariable(const ParName : ansistring) : TOptionConfigVariable;
+		function  GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : ansistring) : boolean;
+	   	procedure AddVariable(const ParName,ParValue : ansistring);
 	  end;
 
 var vgOptionVariableList : TOptionConfigVariableList;
 
 
-function  TOptionConfigVariableList.GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : string) : boolean;
+function  TOptionConfigVariableList.GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : ansistring) : boolean;
 var
 	vlOption : TOptionConfigVariable;
 begin
@@ -70,7 +70,7 @@ begin
 	exit(vlOptioN <> nil);
 end;
 
-function  TOptionConfigVariableList.GetVariable(const ParName : string) : TOptionConfigVariable;
+function  TOptionConfigVariableList.GetVariable(const ParName : ansistring) : TOptionConfigVariable;
 var
 	vlCurrent : TOptionConfigVariable;
 begin
@@ -79,7 +79,7 @@ begin
 	exit(vlCurrent);
 end;
 
-procedure TOptionConfigVariableList.AddVariable(const ParName,ParValue : string);
+procedure TOptionConfigVariableList.AddVariable(const ParName,ParValue : ansistring);
 var
 	vlVar : TOptionCOnfigVariable;
 begin
@@ -101,41 +101,41 @@ begin
 	if iValue <> nil then iValue.Destroy;
 end;
 
-constructor TOptionConfigVariable.Create(const ParVariable,ParValue : string);
+constructor TOptionConfigVariable.Create(const ParVariable,ParValue : ansistring);
 begin
 	inherited Create;
 	iVariable := TString.Create(ParVariable);
 	iValue    := TString.Create(ParValue);
 end;
 
-function TOptionConfigVariable.IsVariable(const ParVariable : string) : boolean;
+function TOptionConfigVariable.IsVariable(const ParVariable : ansistring) : boolean;
 begin
 	exit(iVariable.IsEqualStr(ParVariable));
 end;
 
-procedure TOptionConfigVariable.SetValue(const ParValue : string);
+procedure TOptionConfigVariable.SetValue(const ParValue : ansistring);
 begin
 	iValue.Destroy;
 	iValue := TString.Create(ParValue);
 end;
 
-function TOptionConfigVariable.GetValue : string;
+function TOptionConfigVariable.GetValue : ansistring;
 var
-	vlStr :string;
+	vlStr :ansistring;
 begin
-	iValue.GetString(vlStr);
+	iValue.GeTString(vlStr);
 	exit(vlStr);
 end;
 
-function TOptionConfigVariable.GetName  : string;
+function TOptionConfigVariable.GetName  : ansistring;
 var
-	vlStr : string;
+	vlStr : ansistring;
 begin
-	iVariable.GetString(vLStr);
+	iVariable.GeTString(vLStr);
 	exit(vlStr);
 end;
 
-function GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : string) : boolean;
+function GetVariableByPosition(ParNum : cardinal;var ParName,ParValue : ansistring) : boolean;
 begin
     exit(vgOptionVariableList.GetVariableByPosition(ParNum,ParName,ParValue));
 end;
@@ -192,7 +192,7 @@ begin
 	}
 end;
 
-function GetNextParamStr(var ParCnt:cardinal;var ParStr:string):boolean;
+function GetNextParamStr(var ParCnt:cardinal;var ParStr:ansistring):boolean;
 begin
 	inc(ParCnt);
 	if ParCnt > ParamCount then GetNextParamStr := true
@@ -203,7 +203,7 @@ begin
 end;
 
 
-function GetVerboseLEvel(const ParStr:string):boolean;
+function GetVerboseLEvel(const ParStr:ansistring):boolean;
 var vlCnt    : cardinal;
 	vlLevel : TVerbose;
 begin
@@ -236,7 +236,7 @@ exit(false);
 end;
 
 
-function HandleNodeListing(const ParStr:String):boolean;
+function HandleNodeListing(const ParStr:ansistring):boolean;
 var vlCnt : cardinal;
 begin
 	HandleNodeLIsting := false;
@@ -251,7 +251,7 @@ begin
 end;
 end;
 
-function ScanAsmOption(const ParStr:string):boolean;
+function ScanAsmOption(const ParStr:ansistring):boolean;
 var vlCnt : cardinal;
 begin
 	ScanAsmOption := false;
@@ -266,8 +266,8 @@ begin
 end;
 end;
 
-function GetParParameter(var ParParam : cardinal;var ParParameter:string):boolean;
-var vlParam:string;
+function GetParParameter(var ParParam : cardinal;var ParParameter:ansistring):boolean;
+var vlParam:ansistring;
 begin
 	EmptyString(ParParameter);
 	GetParParameter := false;
@@ -286,7 +286,7 @@ begin
 end;
 
 
-function GetAssemblerType(const ParParam:string):boolean;
+function GetAssemblerType(const ParParam:ansistring):boolean;
 begin
 	if length(ParPAram) > 1 then exit(true);
 	if GetConfigValues.fAssemblerType <> AT_None then exit(true);
@@ -303,7 +303,7 @@ end;
 
 
 
-function HandleKeepOpt(var ParCnt : cardinal;const ParParam : string):boolean;
+function HandleKeepOpt(var ParCnt : cardinal;const ParParam : ansistring):boolean;
 var
 	vlCH : char;
 	vlFl : char;
@@ -333,7 +333,7 @@ end;
 exit(false);
 end;
 
-function HandleCheck(const ParParam : string) : boolean;
+function HandleCheck(const ParParam : ansistring) : boolean;
 var
 	vlCnt : cardinal;
 begin
@@ -350,7 +350,7 @@ begin
 	exit(false);
 end;
 
-function HandleOptimize(const ParParam : string):boolean;
+function HandleOptimize(const ParParam : ansistring):boolean;
 var
 	vlCnt : cardinal;
 	vlCh  : char;
@@ -367,11 +367,11 @@ end;
 exit(false);
 end;
 
-function HandleOptionConfigVariables(const ParParameter : string ) : boolean;
+function HandleOptionConfigVariables(const ParParameter : ansistring ) : boolean;
 var
 	vlIsPos : cardinal;
-	vlName  : string;
-	vlValue : string;
+	vlName  : ansistring;
+	vlValue : ansistring;
 begin
 	vlIsPos := pos('=',ParParameter);
 	if vlIsPos = 0 then exit(true);
@@ -384,7 +384,7 @@ begin
 end;
 
 
-function HandleUnitOptions(const ParParameter: string) : boolean;
+function HandleUnitOptions(const ParParameter: ansistring) : boolean;
 var
 	vlCnt : cardinal;
 begin
@@ -402,9 +402,9 @@ end;
 
 function GetParameters:boolean;
 var vlCnt   : cardinal;
-	vStr    : string;
-	vlParam : String;
-	vlTarget: string;
+	vStr    : ansistring;
+	vlParam : ansistring;
+	vlTarget: ansistring;
 begin
 	GetParameters := false;
 	vlCnt         := 0;

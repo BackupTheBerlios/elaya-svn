@@ -83,13 +83,13 @@ type
 		procedure Print(ParDis : TDisplay);override;
 		function SaveItem(ParStream : TObjectStream):boolean;override;
 		function LoadItem(PArStream : TObjectStream):boolean;override;
-		function  GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
+		function  GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
 		function  Can(ParCan : TCan_Types):boolean;override;
 		procedure DoneDotFrame;override;
 		procedure DoneClassDotFrame;
 		procedure InitClassDotFrame(ParCre : TSecCreator;ParContext : TDefinition);
-		function  CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
-		function  GetPtrInCurrentList(const ParName : string;var ParOwner,ParItem :TDefinition):boolean;override;
+		function  CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;override;
+		function  GetPtrInCurrentList(const ParName : ansistring;var ParOwner,ParItem :TDefinition):boolean;override;
 		function  CreateDB(ParCre:TCreator):boolean;override;
 		procedure GetOVData(ParCre :TCreator;ParRoutine : TDefinition;var ParOther :TDefinition;var ParModes : TOVModes;var ParMeta : TDefinition);override;
 		procedure ConsiderForward(ParCre : TCreator;ParIn : TDefinition;var ParOut : TDefinition);override;
@@ -98,8 +98,8 @@ type
 		function GetClassSize : TSize;
 		function GetParent : TDefinition;override;
 		function CreateReadNode(parCre:TCreator;ParContext : TDefinition):TFormulaNode;override;
-		function GetPtrByArray(const ParName : string;const ParArray  : array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
-		function GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function GetPtrByArray(const ParName : ansistring;const ParArray  : array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
 		procedure FinishClass;
 		function CanWriteWith(ParExact : boolean;ParType : TType):boolean;override;
 		function GetRelativeLevel : cardinal;override;
@@ -127,7 +127,7 @@ type
 		procedure AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);override;
 		procedure InitDotFrame(ParCre : TSecCreator;ParNode : TNodeIdent;ParContext :TDefinition);override;
 		constructor Create(ParParent : TClassType;ParInCompleet : boolean);
-		function  CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;override;
+		function  CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;override;
 		function LoadItem(ParStream : TObjectStream) : boolean;override;
 		function SaveItem(ParStream : TObjectStream) : boolean;override;
 
@@ -158,18 +158,19 @@ type
 		property iClass : TClassType read voClass write voClass;
 	public
 		property fClass : TClasstype read voClass;
-		constructor create(const ParName : string;ParClass :TClassType);
+		constructor create(const ParName : ansistring;ParClass :TClassType);
 		function SaveItem(ParStream : TObjectStream):boolean;override;
 		function LoadItem(PArStream : TObjectStream):boolean;override;
 		function GetParent : TObjectRepresentor;override;
 		function GetAccessLevelTo(ParOther : TDefinition) : TDefAccess;override;
-        function GetPtrByName(const ParName:string;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;override;
-		function GetPtrByArray(const ParName : string;const ParArray :array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
-		function GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
+        function GetPtrByName(const ParName:ansistring;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;override;
+		function GetPtrByArray(const ParName : ansistring;const ParArray :array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;override;
+		function GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
 	end;
 	
 	TCDTorsRoutine = class(TReturnRoutine)
 	public
+		function CanUseInherited : boolean;override;
 		procedure ValidateSelf(ParCre : TNDCreator);override;
 	end;
 
@@ -181,8 +182,8 @@ type
 	public
 		procedure CreatePreCode(ParCre : TNDCreator);override;
 		procedure CreatePostCode(ParCre : TNDCreator);override;
-		function  CreateNewCB(ParCre : TCreator;const ParName : string) : TRoutine;override;
-      function    NeedReadableRecord : boolean;override;
+		function  CreateNewCB(ParCre : TCreator;const ParName : ansistring) : TRoutine;override;
+      		function    NeedReadableRecord : boolean;override;
 	end;
 	
 	TDestructor = class(TCDTorsRoutine)
@@ -498,7 +499,7 @@ begin
 end;
 
 
-constructor TObjectRepresentor.create(const ParName : string;ParClass :TClassType);
+constructor TObjectRepresentor.create(const ParName : ansistring;ParClass :TClassType);
 begin
 	inherited Create(ParName,ParClass);
 	iClass := ParClass;
@@ -525,7 +526,7 @@ begin
 end;
 
 
-function TObjectRepresentor.GetPtrByName(const ParName:string;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;
+function TObjectRepresentor.GetPtrByName(const ParName:ansistring;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;
 var
 	vlFlag : boolean;
 begin
@@ -540,7 +541,7 @@ begin
 end;
 
 
-function TObjectRepresentor.GetPtrByArray(const ParName : string;const ParArray :array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TObjectRepresentor.GetPtrByArray(const ParName : ansistring;const ParArray :array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var
 	vlFlag : TObjectFindState;
 begin
@@ -555,7 +556,7 @@ begin
 end;
 
 
-function TObjectRepresentor.GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;
+function TObjectRepresentor.GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;
 var
 	vlFlag : TObjectFindState;
 begin
@@ -577,6 +578,10 @@ begin
 	if(RTS_ForwardDefined in fRoutineStates) and (fDefAccess <> AF_Public) then ParCre.ErrorDef(Err_CD_Must_Be_Public,self);
 end;
 
+function TCDTorsRoutine.CanUseInherited : boolean;
+begin
+	exit(true);
+end;
 
 
 {---( TClassMeta )---------------------------------------------------------------------------------}
@@ -802,7 +807,7 @@ begin
 	inherited Create(0,ParParent,ParInCompleet);
 end;
 
-function TValueClassType.CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;
+function TValueClassType.CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;
 var
 	vlVar : TDefinition;
 begin
@@ -906,7 +911,7 @@ end;
 
 
 
-function TClassTYpe.GetPtrByArray(const ParName:string;const ParArray : array of TRoot;ParOption  : TSearchOptions;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+function TClassTYpe.GetPtrByArray(const ParName:ansistring;const ParArray : array of TRoot;ParOption  : TSearchOptions;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 var	vlCurrent : TClassType;
 	vlState   : TObjectFindState;
 begin
@@ -941,7 +946,7 @@ begin
 end;
 
 
-function  TClassType.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TClassType.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var	vlCurrent : TClassType;
 	vlState   : TObjectFindState;
 begin
@@ -978,14 +983,12 @@ end;
 
 procedure  TClassType.ConsiderForward(ParCre : TCreator;ParIn : TDefinition;var ParOut : TDefinition);
 var  vlDef    : TRoutine;
-	vlName    : string;
-	vlDifText : string;
+	vlDifText : ansistring;
 	vlOwner   : TDefinition;
 begin
 	ParOut := nil;
 	if ParIn = nil then exit;
-	ParIn.GetTextStr(vlName);
-	inherited GetPtrByObject(vlName,ParIn,[SO_Local],vlOwner,TDefinition(vlDef));
+	inherited GetPtrByObject(ParIn.fText,ParIn,[SO_Local],vlOwner,TDefinition(vlDef));
 	if (vlDef <> nil) and (vlDef is TRoutine) and vlDef.GetForwardDefined then begin
 		if not( vlDef.IsCompleet) then begin
 			ParIn.fDefAccess := vlDef.fDefAccess;
@@ -1000,25 +1003,23 @@ begin
 			exit;
 		end;
 	end;
-	TNDCreator(ParCre).ErrorText(Err_Methode_Expected,vlName);
+	TNDCreator(ParCre).ErrorText(Err_Methode_Expected,ParIn.fText);
 end;
 
 procedure TClassType.SetMetaFramePtr(ParCre : TCreator);
 var
 	vlParentMeta : TClassMeta;
-	vlName       : string;
 	vlType       : TType;
 	vlVmtType    : TTYpe;
 begin
-	GetTextStr(vlName);
-	fObject.SetText(vlName+'_representor');
+	fObject.SetText(fText+'_representor');
 	vlParentMeta := nil;
 	if iParent <> nil then vlParentMeta := iParent.fMeta;
 	vlType := TNDCreator(ParCre).GetDefaultIdent(DT_Meta,0,false);
 	vlVmtType := TNDCreator(ParCre).GetDefaultIdent(DT_Pointer,0,false);
 	if vlType    = nil then TNDCreator(ParCre).SemError(Err_No_Meta_Data_type);
 	if vlVmtType = nil then TNDCreator(ParCre).SemError(Err_Cant_Find_Ptr_type);
-	iMeta        := TClassMeta.Create(vlParentMeta,vlName,vlType,vlVmtType);
+	iMeta        := TClassMeta.Create(vlParentMeta,fText,vlType,vlVmtType);
 	iMeta.SetModule(fModule);
 	iMeta.fOwner := self;
 	iMeta.fDefAccess := AF_Public;
@@ -1027,11 +1028,10 @@ end;
 
 procedure TClassType.GetOVData(ParCre :TCreator;ParRoutine : TDefinition;var ParOther :TDefinition;var ParModes : TOVModes;var ParMeta : TDefinition);
 var
-	vlMeta 		    : TMeta;
-	vlMotherParent  : TDefinition;
-	vlName          : string;
-	vlOther		    : TRoutine;
-	vlOwner		    : TDefinition;
+	vlMeta         : TMeta;
+	vlMotherParent : TDefinition;
+	vlOther        : TRoutine;
+	vlOwner        : TDefinition;
 begin
 	ParModes       := [];
 	vlMeta         := fMeta;
@@ -1039,10 +1039,8 @@ begin
 	ParOther	      := nil;
 	
 	if vlMotherParent <> nil then begin
-		
-		ParRoutine.GetTextStr(vlName);
-		
-		vlMotherParent.GetPtrByObject(vlName,ParRoutine,[SO_Local],vlOwner,vlOther);
+			
+		vlMotherParent.GetPtrByObject(ParRoutine.fText,ParRoutine,[SO_Local],vlOwner,vlOther);
 		if (vlOther <> nil) then begin
 			
 			ParModes := ParModes + [OVM_Found];
@@ -1068,13 +1066,13 @@ begin
 	exit(false);
 end;
 
-function   TClassType.GetPtrInCurrentList(const ParName : string;var ParOwner,ParItem :TDefinition):boolean;
+function   TClassType.GetPtrInCurrentList(const ParName : ansistring;var ParOwner,ParItem :TDefinition):boolean;
 begin
 	exit(inherited GetPtrByName(ParName,[SO_Local],ParOwner,Paritem));
 end;
 
 
-function TClassType.CreateVar(ParCre:TCreator;const ParName:string;ParType:TDefinition):TDefinition;
+function TClassType.CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TDefinition;
 var vlSize : TSize;
 	vlAll  : TSize;
 	vlRes  : TSize;
@@ -1125,6 +1123,7 @@ begin
 	LoadLong(vlLi,0);
 	vlMac := TNumberMac.Create(1,false,vlLi);
 	ParCre.AddObject(vlMac);
+
 	iFrame.AddAddressing(self,self,vlMac,true);
 	iMeta.AddAddressing(self,iMeta.CreateMac(ParContext,ParContext,MCO_ValuePointer,ParCre),true);
 	iMetaFrame.AddAddressing(self,self,iMeta.CreateMac(ParContext,ParContext,MCO_ValuePointer,ParCre),true);
@@ -1220,7 +1219,7 @@ begin
 end;
 
 
-function   TClassType.GetPtrByName(const ParName:string;ParOption : TSearchOPtions;var ParOwner,ParItem:TDefinition):boolean;
+function   TClassType.GetPtrByName(const ParName:ansistring;ParOption : TSearchOPtions;var ParOwner,ParItem:TDefinition):boolean;
 var vlRes     : boolean;
 	vlCurrent : TClassType;
 begin
@@ -1273,7 +1272,7 @@ begin
 end;
 
 
-function  TConstructor.CreateNewCB(ParCre : TCreator;const ParName : string) : TRoutine;
+function  TConstructor.CreateNewCB(ParCre : TCreator;const ParName : ansistring) : TRoutine;
 var
 	vlRoutine : TConstructor;
 begin

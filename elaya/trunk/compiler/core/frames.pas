@@ -42,7 +42,7 @@ type
 		function    CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;virtual;
 		function    CreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;virtual;
 		procedure   DestroyFramePointer;virtual;
-		function    GetContextName : string;
+		function    GetContextName : ansistring;
 
 	end;
 	
@@ -57,7 +57,7 @@ type
 	
 	TNodeAddressing=class(TAddressing)
 	private
-        voNode : TNodeIdent;
+	        voNode : TNodeIdent;
 		property iNode : TNodeIdent read voNode write voNode;
 	public
 		function    CreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;override;
@@ -137,7 +137,7 @@ type
 		property    fFrame  : TFrame  read voFrame  write voFrame;
 		property    fOffset : TOffset read voOffset write voOffset;
 		
-		constructor Create(const ParName : String;ParFrame:TFrame;ParOffset : TOffset;ParType:TType);
+		constructor Create(const ParName : ansistring;ParFrame:TFrame;ParOffset : TOffset;ParType:TType);
 		function    CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase; override;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
 		function    SaveItem(ParWrite:TObjectStream):boolean;override;
@@ -183,7 +183,6 @@ end;
 
 
 
-
 {--------( TFrameVariable )------------------------------------}
 
 procedure TFrameVariable.DoneVariable(PArOwner : TDefinition;ParFrame : TFrame);
@@ -206,7 +205,7 @@ begin
 end;
 
 
-constructor TFrameVariable.Create(const ParName : String;PArFrame : TFrame;ParOffset : TOffset;ParType:TType);
+constructor TFrameVariable.Create(const ParName : ansistring;PArFrame : TFrame;ParOffset : TOffset;ParType:TType);
 begin
 	inherited Create(ParName,ParType);
 	fFrame  := ParFrame;
@@ -214,10 +213,10 @@ begin
 end;
 
 function   TFrameVariable.CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
-var vlMac : TMacBase;
-	vlName : string;
+var
+	vlMac : TMacBase;
 begin
-	GetTextStr(vlName);
+
 	if fFrame = nil then fatal(fat_No_Frame_Defined,'At:TFrameVariable.CreateMac');
 	if ParOpt in [MCO_Result,MCO_ValuePointer,MCO_ObjectPointer] then begin
 		vlMac := fFrame.CreateMac(ParContext,ParOpt,ParCre,fOffset,iType.fSize,iType.GetSign);
@@ -250,7 +249,7 @@ end;
 {---( TAddresssing )---------------------------------------------------------------}
 
 
-function  TAddressing.GetContextName : string;
+function  TAddressing.GetContextName : ansistring;
 begin
 	if iContext = nil then begin
 		exit('<NULL>');
@@ -369,19 +368,21 @@ end;
 
 function TAddressingList.GetCheckAddressingByOwner(ParOwner :TDefinition):TAddressing;
 var
-	vlName    : string;
+	vlName    : ansistring;
 	vlAddressing : TAddressing;
 begin
 	if fTop = nil then fatal(fat_no_addressing_Defined,'');
 	vlAddressing := GetAddressingByOwner(ParOwner);
+
 	if vlAddressing  = nil then begin
 		vlAddressing := TAddressing(fTop);
+		writeln('Adressing:');
 		while(vlAddressing <> nil) do begin
 			writeln(cardinal(vlAddressing.fContext),' ',cardinal(ParOwner),' ',vlAddressing.GetContextName);
 			vlAddressing := TAddressing(vlAddressing.fPrv);
 		end;
 		if(ParOwner <> nil) then begin
-			ParOwner.GetTextStr(vlName);
+			vlName := ParOwner.fText;
 		end else begin
 			vlName := '<NULL>';
 		end;
@@ -415,17 +416,17 @@ end;
 
 procedure TAddressingList.PopAddressing(ParOwner : TDefinition);
 var
-	vlName1 : string;
-	vlName2 : string;
+	vlName1 : ansistring;
+	vlName2 : ansistring;
 begin
 	if fTop = nil then begin
-		ParOwner.GetTextStr(vlName1);
+		vlName1 := ParOwner.fText;
 		Fatal(Fat_No_Addressing_defined ,[' name = ',vlName1]);
 	end else if TAddressing(fTop).fOwner <> ParOwner then begin
 		vlName1 := '<NULL>';
-		if ParOwner <> nil then ParOwner.GetTextStr(vlName1);
+		if ParOwner <> nil then vlName1 := ParOwner.fText;
 		vlName2 := '<NULL>';
-		if TAddressing(fTop).fOwner<> nil then TAddressing(fTop).fOwner.GetTextStr(vlName2);
+		if TAddressing(fTop).fOwner<> nil then vlName2 := TAddressing(fTop).fOwner.fText;
 		Fatal(FAT_Invalid_Pop_Addressing,['Owner: Parameter = ',vlName1,' and must be  Name2=',vlName2]);
 	end;
 	DeleteLink(fTop);

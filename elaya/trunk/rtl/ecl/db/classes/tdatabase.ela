@@ -4,7 +4,7 @@ public
 type
 	PTString=ptr TString;
 	TDatabase=class inherit TRoot
-	public
+	private
 	var
 		voIsOpen     : boolean;
 		voConnection : TDalDBConnection;
@@ -12,20 +12,30 @@ type
 		voDbObj      : TString;
 		voUserObj    : TString;
 		voPasswordObj: TString;
+	protected
+		procedure Commonsetup;override;
+		procedure Clear;override;
+
+	public
+
 
 
 		function ReadTStr(virtual ParObj : TString) : string;root;
 		procedure SetTStr(const ParStr : string;virtual ParObj : PTString);root;
+
 		function GetDB       : string;inherit ReadTStr(voDbObj);
 		function GetHost     : string;inherit ReadTStr(voHostObj);
-      function GetUser     : string;inherit ReadTStr(voUserObj);
+		function GetUser     : string;inherit ReadTStr(voUserObj);
 		function GetPassword : string;inherit ReadTStr(voPasswordObj);
 		procedure SetHost(const ParStr : string);inherit SetTStr(ParStr,@voHostObj);
 		procedure SetDB (const ParStr : string);inherit SetTStr(ParStr,@voDBObj);
 		procedure SetUser(const ParStr : string);inherit SetTStr(ParStr,@voUserObj);
 		procedure SetPassword(const ParStr : string);inherit SetTStr(ParStr,@voPasswordObj);
+		procedure CloseConnection;
+		procedure OpenConnection;
 
-	property HostObj : TString;
+
+		property HostObj : TString;
 		begin
 			private read voHostObj;
 			private write voHostObj;
@@ -37,14 +47,6 @@ type
 			private write voDbObj;
 		end;
 
-	protected
-		procedure Commonsetup;override;
-		procedure Clear;override;
-
-	public
-		procedure CloseConnection;
-		procedure OpenConnection;
-
 		property Connection : TDalDbConnection;
 		begin
 			private write voConnection;
@@ -54,7 +56,7 @@ type
 		property IsOpen : boolean;
 		begin
 			private write voIsOpen;
-         public read voIsOpen;
+		        public read voIsOpen;
 		end;
 
 		property Host : string;
@@ -85,10 +87,9 @@ type
 end public
 
 
-procedure TDatabase.OpenConnection;{TODO:exception when elaya can do exception}
+procedure TDatabase.OpenConnection;
 begin
 	if not(IsOpen) then begin
-		writeln('##',GetHost,'>>');
 		if not(DalConnect(voConnection,GetHost,GetDb,GetUser,GetPassword)) then IsOpen:= true;
 	end;
 end;

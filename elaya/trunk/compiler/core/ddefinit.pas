@@ -58,17 +58,17 @@ type
 		function     Addident(Parident:TDefinition):TErrorType;virtual;
 		function     Can(ParCan:TCan_Types):boolean;virtual;
 		function     CreateDB(ParCre:TCreator):boolean;virtual;
-		function     CreateVar(ParCre:TCreator;const ParName:String;ParDef:TDefinition):TDefinition;virtual;
+		function     CreateVar(ParCre:TCreator;const ParName:ansistring;ParDef:TDefinition):TDefinition;virtual;
 		function     GetDefaultIdent(ParCode:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
 		
-		procedure    GetTextName(var ParName : string);virtual;
-		procedure    GetForParentMangleName(var ParName : string);virtual;
-		function     GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;virtual;
-		function	 MustNameAddAsOwner:boolean; virtual;
-		procedure    GetMangledName(var ParName:string);
-		procedure    PreMangledName(var Parname:String); virtual;
-		procedure    OnMangledName(var ParName:string); virtual;
-		procedure    PostMangledName(var ParName:string);virtual;
+		procedure    GetTextName(var ParName : ansistring);virtual;
+		procedure    GetForParentMangleName(var ParName : ansistring);virtual;
+		function     GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;virtual;
+		function      MustNameAddAsOwner:boolean; virtual;
+		procedure    GetMangledName(var ParName:ansistring);
+		procedure    PreMangledName(var Parname:ansistring); virtual;
+		procedure    OnMangledName(var ParName:ansistring); virtual;
+		procedure    PostMangledName(var ParName:ansistring);virtual;
 		
 		function     loaditem(ParWrite:TObjectStream):boolean;override;
 		function     Saveitem(ParWrite:TObjectStream):boolean;override;
@@ -86,37 +86,37 @@ type
 		procedure    PrintDefinitionBody(ParDis : TDisplay);virtual;
 		procedure    PrintDefinitionEnd(ParDis : TDisplay);virtual;
 		{get}
-		function 	 GetRealOwner:TDefinition;virtual;
-		function     GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;virtual;
-		function     GetPtrByArray(const ParName : string;const ParArray:array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;virtual;
+		function     GetRealOwner:TDefinition;virtual;
+		function     GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;virtual;
+		function     GetPtrByArray(const ParName : ansistring;const ParArray:array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;virtual;
 
 		function     GetAccessTo(ParDef : TDefinition): TDefAccess;
 		function     GetUnitLevelAccess : TDefAccess;
-		procedure    GetDisplayName(var ParName :string);virtual;
-		function   	 GetPtrInCurrentList(const ParName : string;var ParOwner,ParItem :TDefinition):boolean;virtual;
+		procedure    GetDisplayName(var ParName :ansistring);virtual;
+		function     GetPtrInCurrentList(const ParName : ansistring;var ParOwner,ParItem :TDefinition):boolean;virtual;
 
 		{Is function}
-		function     IsSameByObject(const ParName : string;ParObject : TRoot):TObjectFindState;virtual;
+		function     IsSameByObject(const ParName : ansistring;ParObject : TRoot):TObjectFindState;virtual;
 		function     IsCompleet:boolean;virtual;
 		function     IsIsolated : boolean;virtual;
 		procedure    AddGlobalsToHashing(ParHash:THashing);virtual;
 		procedure    ConsiderForward(ParCre : TCreator;ParIn : TDefinition;var ParOut : TDefinition);virtual;
-		function     IsSameAsForward(ParCB : TDefinition;var ParText : string):boolean;virtual;
+		function     IsSameAsForward(ParCB : TDefinition;var ParText : ansistring):boolean;virtual;
 		procedure    SetDefinitionModes(ParMode : TDefinitionModes;ParOn : boolean);
 		function     SignalCPublic:boolean;virtual;
 		procedure    GetOVData(ParCre :TCreator;ParRoutine : TDefinition;var ParOther : TDefinition;var ParModes : TOVModes;var ParMeta : TDefinition);virtual;
 		procedure    AddParameterToNested(ParCre : TCreator;ParNested :TDefinition);virtual;
-		function 	 GetParent : TDefinition;virtual;
-		function 	 GetOwnerLevelTo(ParItem : TDefinition;var ParLevel : cardinal):boolean;
+		function     GetParent : TDefinition;virtual;
+		function     GetOwnerLevelTo(ParItem : TDefinition;var ParLevel : cardinal):boolean;
 		function     GetRelativeLevel : cardinal;virtual;
-		function   IsParentOf(ParIdent : TDefinition):boolean;
-		function   GetObjectByLevel(ParLevel : cardinal;ParOrg : TDefinition):TDefinition;
-		function   HasAbstracts : boolean;virtual;
-		function  IsOrHasAbstracts:boolean;
-		function    HasGlobalParts : boolean;virtual;
+		function     IsParentOf(ParIdent : TDefinition):boolean;
+		function     GetObjectByLevel(ParLevel : cardinal;ParOrg : TDefinition):TDefinition;
+		function     HasAbstracts : boolean;virtual;
+		function     IsOrHasAbstracts:boolean;
+		function     HasGlobalParts : boolean;virtual;
 
 		{Set Modes}
-        procedure  SetAnonymousIdent;
+        	procedure  SetAnonymousIdent;
 		function   CreateExecuteNode(ParCre:TCreator;ParParent : TDefinition):TNodeIdent;virtual;
 		function   CreateObjectPointerNode(ParCre : TCreator;ParParent :TDefinition):TNodeIdent;virtual;
 		{Address stuf}
@@ -125,11 +125,12 @@ type
 		procedure   DoneDotFrame;virtual;
 		function    HasOwner(ParIdent : TDefinition) : boolean;
 		function    IsSameIdentCode(ParIdent:TDefinition):boolean;
-      procedure   AddToUseList(ParUse : TUseList);virtual;
+      		procedure   AddToUseList(ParUse : TUseList);virtual;
 		function    CreateDefinitionUseItem : TUseItem;virtual;
 		function    NeedReadableRecord : boolean;virtual;
 		function    AssumeInitDU(ParIdent : TDefinition):boolean;virtual;
-	   function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;virtual;
+	   	function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;virtual;
+		procedure  CheckAfter(ParCre : TCreator);virtual;
 	end;
 
 	TRefDefinition=class of TDefinition;
@@ -139,6 +140,9 @@ implementation
 uses asminfo,asmcreat,ndcreat;
 
 {-----( TDefinition )-------------------------------------------------------------------}
+procedure  TDefinition.CheckAfter(ParCre : TCreator);
+begin
+end;
 
 function TDefinition.IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
 begin
@@ -238,7 +242,7 @@ end;
 
 procedure TDefinition.AddVmtLabel(ParCre : TCreator);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	GetMangledName(vlName);
 	TAsmCreator(ParCre).AddData(TAddressDef.CREATE(DAT_Code,vlName));
@@ -338,9 +342,9 @@ begin
 end;
 
 
-procedure   TDefinition.GetDisplayName(var ParName :string);
+procedure   TDefinition.GetDisplayName(var ParName :ansistring);
 begin
-	GetTextStr(ParName);
+	ParName := fText;
 end;
 
 function  TDefinition.IsCompleet:boolean;
@@ -349,7 +353,7 @@ begin
 end;
 
 
-function  TDefinition.IsSameAsForward(ParCB : TDefinition;var ParText : string):boolean;
+function  TDefinition.IsSameAsForward(ParCB : TDefinition;var ParText : ansistring):boolean;
 begin
 	exit(true);
 end;
@@ -382,7 +386,7 @@ begin
 	exit(vlDef);
 end;
 
-function TDefinition.GetPtrByArray(const ParName : string;const ParArray:array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function TDefinition.GetPtrByArray(const ParName : ansistring;const ParArray:array of TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	ParResult := nil;
    ParOwner  := nil;
@@ -390,14 +394,14 @@ begin
 end;
 
 
-function  TDefinition.GetPtrByObject(const ParName : string;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TDefinition.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;ParOption : TSearchOptions;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	ParResult := nil;
 	ParOwner  := nil;
 	exit(ofs_Different);
 end;
 
-function  TDefinition.IsSameByObject(const ParName : string;ParObject : TRoot):TObjectFindState;
+function  TDefinition.IsSameByObject(const ParName : ansistring;ParObject : TRoot):TObjectFindState;
 begin
 	if IsSameText(ParName) then exit(OFS_Same);
 	exit(OFS_Different);
@@ -457,18 +461,14 @@ begin
 end;
 
 
-procedure TDefinition.GetForParentMangleName(var ParName : string);
+procedure TDefinition.GetForParentMangleName(var ParName : ansistring);
 begin
-	if fText = nil then begin
-		ParName := '<NULL>';
-		exit;
-	end;
-	fText.GetString(ParName);
+	ParName := fText;
 end;
 
-procedure TDefinition.GetTextName(var ParName : string);
+procedure TDefinition.GetTextName(var ParName : ansistring);
 begin
-	fText.GetString(ParName);
+	ParName := fText;
 end;
 
 
@@ -479,12 +479,10 @@ end;
 
 procedure   TDefinition.AddToHashing(ParHash:THashing);
 var
-	vlName : string;
 	vlDef  : TDefinition;
 begin
 	if ParHash <> nil then begin
-		GetTextStr(vlName);
-		vlDef := TDefinition(ParHash.SetHashIndex(vlname,self));
+		vlDef := TDefinition(ParHash.SetHashIndex(fText,self));
 		AddGlobalsToHashing(ParHash);
 		if vlDef = self then runerror(253);
 		SetHashNext(vlDef);
@@ -504,16 +502,16 @@ begin
 	voHashNext := ParDef;
 end;
 
-procedure   TDefinition.OnMangledName(var ParName:string);
-var vlName : string;
+procedure   TDefinition.OnMangledName(var ParName:ansistring);
+var vlName : ansistring;
 begin
 	GetTextName(vlName);
 	GetAssemblerInfo.AddMangling(ParName,vlName);
 end;
 
-procedure   TDefinition.PreMangledName(var Parname:String);
+procedure   TDefinition.PreMangledName(var Parname:ansistring);
 var
-	vlName : string;
+	vlName : ansistring;
 	vlDef  : TDefinition;
 begin
 	Setlength(ParName,1);
@@ -535,18 +533,18 @@ begin
 	
 end;
 
-function TDefinition.CreateVar(ParCre:TCreator;const ParName:string;ParDef:TDefinition):TDefinition;
+function TDefinition.CreateVar(ParCre:TCreator;const ParName:ansistring;ParDef:TDefinition):TDefinition;
 begin
 	CreateVar := nil;
 	TNDCreator(ParCre).SemError(Err_Cant_Define_Vars);
 end;
 
 
-procedure  TDefinition.PostMangledName(var ParName:string);
+procedure  TDefinition.PostMangledName(var ParName:ansistring);
 begin
 end;
 
-procedure TDefinition.GetMangledName(var parName:string);
+procedure TDefinition.GetMangledName(var parName:ansistring);
 begin
 	if not (dm_CPublic in fDefinitionModes)  then begin
 		PreMangledName(ParName);
@@ -631,7 +629,7 @@ end;
 
 
 
-function TDefinition.GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem : TDefinition):boolean;
+function TDefinition.GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions;var ParOwner,ParItem : TDefinition):boolean;
 begin
 	ParOwner := nil;
 	ParItem  := nil;
@@ -639,7 +637,7 @@ begin
 end;
 
 
-function   TDefinition.GetPtrInCurrentList(const ParName : string;var ParOwner,ParItem :TDefinition):boolean;
+function   TDefinition.GetPtrInCurrentList(const ParName : ansistring;var ParOwner,ParItem :TDefinition):boolean;
 begin
 	exit(GetPtrByName(ParName,[SO_Local],ParOwner,ParItem));
 end;
@@ -665,7 +663,7 @@ end;
 
 procedure TDefinition.PrintName(ParDis:TDisplay);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	GetDisplayName(vlName);
 	ParDis.Write(vlName);

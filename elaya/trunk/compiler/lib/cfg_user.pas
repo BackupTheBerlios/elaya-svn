@@ -32,23 +32,23 @@ type  TCFG_User=class(TCOmpiler_Base)
 	protected
 		property fConfig: TConfig read voConfig;
 
-		procedure AddVar(const ParName,ParValue  : string;ParReadOnly:boolean);
-		function GetVar(const ParName : string) : TConfigVarItem;
-		function  GetVarNode(const ParName : string) : TVarConfigNode;
-		function  GetCheckVar(const ParName :string) : TCOnfigVarItem;
-		function  CreateLoadNode(const ParName : string) : TLoadConfigNode;
-		function  CreateStringConstantNode(const ParVal :string) : TConstantConfigNode;
-		function  CreateIntConstantNode(const ParVal :string) : TConstantConfigNode;
+		procedure AddVar(const ParName,ParValue  : ansistring;ParReadOnly:boolean);
+		function GetVar(const ParName : ansistring) : TConfigVarItem;
+		function  GetVarNode(const ParName : ansistring) : TVarConfigNode;
+		function  GetCheckVar(const ParName :ansistring) : TCOnfigVarItem;
+		function  CreateLoadNode(const ParName : ansistring) : TLoadConfigNode;
+		function  CreateStringConstantNode(const ParVal :ansistring) : TConstantConfigNode;
+		function  CreateIntConstantNode(const ParVal :ansistring) : TConstantConfigNode;
 		procedure   AddDualNode(var ParPrvCode : TOperatorCode;var ParNode : TSubListNode;ParCode : TOperatorCode;ParParam : TMathConfigNode);
 		procedure clear;override;
 	public
-		constructor Create(const ParPath,ParName : string;ParCfg : TConfig);
+		constructor Create(const ParPath,ParName : ansistring;ParCfg : TConfig);
 		procedure   ErrorMessage(ParItem : TErrorItem);override;
-		procedure   GetOwnError(ParCode : TErrorType;var ParText:string);
-		procedure   GetErrorDescr(ParCode :TErrorType;var ParText:string);
+		procedure   GetOwnError(ParCode : TErrorType;var ParText:ansistring);
+		procedure   GetErrorDescr(ParCode :TErrorType;var ParText:ansistring);
 		procedure   ErrorHeader;override;
-		function    SetVar(const ParVar,ParValue : string):boolean;
-		procedure   GetSourcePath(var ParPath : string);  override;
+		function    SetVar(const ParVar,ParValue : ansistring):boolean;
+		procedure   GetSourcePath(var ParPath : ansistring);  override;
 		procedure   SetNodePos(ParNode : TConfigNode);
 		procedure   Execute;
 		procedure   AddNodeToNode(ParTo : TSubListNode;var ParNode : TConfigNode);
@@ -84,7 +84,7 @@ begin
 	end;
 end;
 
-procedure  TCfg_User.GetSourcePath(var ParPath : string);
+procedure  TCfg_User.GetSourcePath(var ParPath : ansistring);
 begin
 	iFilePath.GetString(ParPath);
 end;
@@ -108,7 +108,7 @@ begin
 	ParNode.AddNode(ParParam);
 end;
 
-function TCfg_User.CreateStringConstantNode(const ParVal :string) : TConstantConfigNode;
+function TCfg_User.CreateStringConstantNode(const ParVal :ansistring) : TConstantConfigNode;
 var vlNode : TConstantConfigNode;
 begin
 	vlNode := TConstantConfigNode.Create(TString.Create(ParVal));
@@ -116,7 +116,7 @@ begin
 	exit(vlNode);
 end;
 
-function TCfg_User.CreateIntConstantNode(const ParVal :string) : TConstantConfigNode;
+function TCfg_User.CreateIntConstantNode(const ParVal :ansistring) : TConstantConfigNode;
 var
 	vlLi : TLargeNumber;
 	vlNode : TConstantConfigNode;
@@ -127,7 +127,7 @@ begin
 	exit(vlNode);
 end;
 
-function  TCfg_user.GetVarNode(const ParName : string) : TVarConfigNode;
+function  TCfg_user.GetVarNode(const ParName : ansistring) : TVarConfigNode;
 var vlVar : TConfigVarItem;
 	vlNode : TVarConfigNode;
 begin
@@ -137,7 +137,7 @@ begin
 	exit(vlNode);
 end;
 
-function  TCfg_User.CreateLoadNode(const ParName : string) : TLoadConfigNode;
+function  TCfg_User.CreateLoadNode(const ParName : ansistring) : TLoadConfigNode;
 var vlVar  : TConfigVarItem;
 	vlNode : TLoadConfigNode;
 begin
@@ -147,7 +147,7 @@ begin
 	exit(vlNode);
 end;
 
-function  TCfg_User.GetCheckVar(const ParName : string) : TConfigVarItem;
+function  TCfg_User.GetCheckVar(const ParName : ansistring) : TConfigVarItem;
 var
 	vlItem : TConfigVarItem;
 begin
@@ -157,7 +157,7 @@ begin
 end;
 
 
-procedure TCfg_User.AddVar(const ParName,ParValue  : string;ParReadOnly : boolean);
+procedure TCfg_User.AddVar(const ParName,ParValue  : ansistring;ParReadOnly : boolean);
 begin
 	if GetVar(ParName)<> nil then ErrorText(Err_Duplicate_ident,ParName)
 	else begin
@@ -165,7 +165,7 @@ begin
 	end;
 end;
 
-function    TCfg_User.SetVar(const ParVar,ParValue : string):boolean;
+function    TCfg_User.SetVar(const ParVar,ParValue : ansistring):boolean;
 begin
 	exit(iConfig.SetVar(ParVar,ParValue));
 end;
@@ -176,7 +176,7 @@ begin
 end;
 
 
-function TCfg_User.GetVar(const ParName : string) : TConfigVarItem;
+function TCfg_User.GetVar(const ParName : ansistring) : TConfigVarItem;
 begin
 	exit(iConfig.GetVar(ParName));
 end;
@@ -187,12 +187,12 @@ begin
 	writeln('Errors :');
 end;
 
-procedure   TCfg_User.GetOwnError(ParCode : TErrorType;var ParText:string);
+procedure   TCfg_User.GetOwnError(ParCode : TErrorType;var ParText:ansistring);
 begin
 	CfgGetErrorText(ParCode,ParText);
 end;
 
-procedure   TCfg_User.GetErrorDescr(ParCode :TErrorType;var ParText:string);
+procedure   TCfg_User.GetErrorDescr(ParCode :TErrorType;var ParText:ansistring);
 begin
 	Emptystring(ParText);
 	GetErrorText(ParCode,ParText);
@@ -200,10 +200,10 @@ begin
 end;
 
 
-constructor TCfg_User.Create(const ParPath,ParName : string;ParCfg : TConfig);
+constructor TCfg_User.Create(const ParPath,ParName : ansistring;ParCfg : TConfig);
 begin
 	inherited Create;
-	iFileName := TString.Create(ParName);
+	iFileName := ParName;
 	iFilePath := TString.Create(ParPath);
 	iConfig   := ParCfg;
 end;
@@ -215,10 +215,10 @@ var
 	vlLine     : longint;
 	vlPos      : longint;
 	vlCol      : longint;
-	vlExtra    : string;
-	vlLineText : string;
-	vlError    : string;
-	vlFileName : string;
+	vlExtra    : ansistring;
+	vlLineText : ansistring;
+	vlError    : ansistring;
+	vlFileName : ansistring;
 begin
 	ParItem.GetInfo(vlFileName,vlCode,vlLine,vlCol,vlPos,vlExtra);
 	GetLine(vlPos,vlLineText);

@@ -24,7 +24,7 @@ type
 				protected write voMainWidget;
 			end;
 
-      	property WidgetLIst : TWidgetList;
+		      	property WidgetLIst : TWidgetList;
 			begin
 				private read voWidgetList;
 				private write voWidgetList;

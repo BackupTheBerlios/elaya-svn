@@ -1,3 +1,27 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {    Elaya, thecompiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 web : www.elaya.org
@@ -41,10 +65,10 @@ type
 
 		function    CreateDB(ParCre:TCreator):boolean;override;
 		function    CreateMac(ParContext :TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;virtual;
-		constructor Create(const ParName : string;ParType:TType);
+		constructor Create(const ParName : ansistring;ParType:TType);
 		function    CAN(PArCan:TCAN_Types):boolean;override;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
-		function    GetPtrByName(const ParName:string;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
+		function    GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;override;
 		function    GetSize:TSize;
 		function    GetSign:boolean;
 		function    SaveItem(ParWrite:TObjectStream):boolean;override;
@@ -52,7 +76,7 @@ type
 		function    IsLargeType : boolean;
 		function    IsSame(ParOther : TVarBase):boolean;virtual;
 		function   	IsOptUnsave:boolean;virtual;
-		function   	GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
+		function   	GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
     	function    CreateDefinitionUseItem : TUseItem;override;
 	end;
 	
@@ -160,7 +184,12 @@ end;
 
 function TVarNode.Can(ParCan:TCan_Types):boolean;
 begin
-	if  ([Can_Read,Can_Write,Can_Index,Can_Pointer] * ParCan <> []) and (iVariable.NeedReadableRecord) then begin
+	if(Can_Write in ParCan) then begin
+		if iRecord <> nil then begin
+			if not iRecord.can([Can_Write]) then exit(false);
+		end;
+	end;
+	if  ([Can_Read,Can_Index,Can_Pointer] * ParCan <> []) and (iVariable.NeedReadableRecord) then begin
 		if RecordReadCheck then exit(false);
 	end;
 	exit(iVariable.Can(PArCan));
@@ -205,7 +234,7 @@ begin
 end;
 
 function    TVarBase.CreateDB(ParCre:TCreator):boolean;
-var vLName:string;
+var vLName:ansistring;
 	vlSize:Longint;
 begin
 	vlSize := GetSize;
@@ -242,7 +271,7 @@ begin
 	exit( inherited Can(ParCan));
 end;
 
-constructor TVarBase.Create(const ParNAme : string ;ParType:TType);
+constructor TVarBase.Create(const ParNAme : ansistring ;ParType:TType);
 begin
 	SetType(ParType);
 	inherited Create;
@@ -301,7 +330,7 @@ begin
 end;
 
 
-function TVarBase.GetPtrByName(const ParName:string;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;
+function TVarBase.GetPtrByName(const ParName:ansistring;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : boolean;
 begin
 	ParItem := nil;
 	ParOwner := nil;
@@ -311,7 +340,7 @@ begin
 	exit(false);
 end;
 
-function TVarBase.GetPtrByObject(const ParName:string;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;
+function TVarBase.GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;
 begin
 	ParItem := nil;
 	ParOwner := nil;

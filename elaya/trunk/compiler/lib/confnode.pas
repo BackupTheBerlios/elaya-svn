@@ -45,7 +45,7 @@ type
 		end;
 		
 		EDuplicatedVariable=class(ECOnfig)
-			constructor Create(const ParVar:string;ParCol,ParLIne : cardinal);
+			constructor Create(const ParVar:AnsiString;ParCol,ParLIne : cardinal);
 		end;
 		
 		ECantWrite=class(EConfig)
@@ -53,7 +53,7 @@ type
 		end;
 		
 		EFailed=class(EConfig)
-			constructor Create(ParMessage : string);
+			constructor Create(ParMessage : AnsiString);
 		end;
 		
 		TConfigNode=class(TSmListItem)
@@ -201,7 +201,7 @@ type
 	
 	{--( EDuplicatedVariable )-----------------------------------------}
 	
-	constructor EDuplicatedVariable.Create(const ParVar : string;ParCol,ParLIne : cardinal);
+	constructor EDuplicatedVariable.Create(const ParVar : AnsiString;ParCol,ParLIne : cardinal);
 	
 	begin
 		inherited Create('Duplicated Variable :' + ParVar+' in ' +IntToStr(ParCol)+'/'+IntToStr(ParLine));
@@ -233,7 +233,7 @@ type
 	{--( EFailed )-----------------------------------------------------}
 	
 	
-	constructor EFailed.Create(ParMessage : string);
+	constructor EFailed.Create(ParMessage : AnsiString);
 	begin
 		inherited Create(ParMessage);
 	end;
@@ -244,7 +244,7 @@ type
 	
 	procedure TFailNode.Execute;
 	var
-		vlText : string;
+		vlText : AnsiString;
 		vlNode : TConfigNode;
 		vlValue : TValue;
 	begin
@@ -253,7 +253,7 @@ type
 		if vlNode <> nil then begin
 			vlValue := vlNode.GetValue;
 			if vlValue <> nil then begin
-				vlValue.GetString(vlText);
+				vlValue.GeTString(vlText);
 				vlValue.Destroy;
 			end;
 		end else begin
@@ -374,7 +374,7 @@ end;
 procedure TWriteConfigNode.Execute;
 var vlCurrent : TConfigNode;
 	vlVal     : TValue;
-	vlStr     : string;
+	vlStr     : AnsiString;
 begin
 	vlCurrent := TConfigNode(fSubList.fStart);
 	while vlCurrent <> nil do begin
@@ -382,7 +382,7 @@ begin
 		try
 			vlVal := vlCurrent.GetValue;
 			if vlVal <>nil then begin
-				vlVal.GetString(vlStr);
+				vlVal.GeTString(vlStr);
 				write(vlStr);
 			end;
 		finally
@@ -553,8 +553,8 @@ end;
 procedure TLoadConfigNode.Execute;
 var
 	vlVal  : TValue;
-	vlName : string;
-	vlText : string;
+	vlName : AnsiString;
+	vlText : AnsiString;
 	vlVar  : TMathConfigNode;
 begin
 	vlVal := nil;
@@ -563,7 +563,7 @@ begin
 		try
 			vlVal  := vlVar.GetValue;
 			iVar.GetNameStr(vlName);
-			vlVal.GetString(vlText);
+			vlVal.GeTString(vlText);
 			Verbose(VRB_Config,vlText+' => '+vlName);
 			if iVar <> nil then begin
 				if iVar.SetValue(vlVal) then raise ECantWrite.Create(iCol,iLine);

@@ -56,10 +56,10 @@ type
 	TCurrentDefinitionList=class(TCurrentList)
 		
 	public
-		function  GetPtrByName(const ParName:string;var ParOwner,ParItem :TDefinition):boolean;
+		function  GetPtrByName(const ParName:ansistring;var ParOwner,ParItem :TDefinition):boolean;
 		function  GetDefault(ParDefault : TDefaultTypeCode;ParSIze:TSize;ParSign:boolean):TDefinition;
-		function  GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function  GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 		procedure AddCurrentNode(ParItem : TCurrentNodeItem);
 		procedure PopCurrentNode;
 		function  GetNodeByType(ParType :TRefRoot) : TNodeIdent;
@@ -93,10 +93,10 @@ type
 		property    fQueryOnly  : boolean     read voQueryOnly;
 		
 		constructor Create(ParDef:TDefinition;ParIsolated,ParQueryOnly : boolean);
-		function    GetPtr(const ParName:string;var ParOwner, ParItem : TDefinition):boolean;
+		function    GetPtr(const ParName:ansistring;var ParOwner, ParItem : TDefinition):boolean;
 		function    GetDefault(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
-		function    GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function    GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 
 		procedure   AddCurrentNode(ParItem : TCurrentNodeItem);
 		procedure   PopCurrentNode;
@@ -164,7 +164,7 @@ begin
 	iNodes.AddItem(parItem);
 end;
 
-function TCurrentDefinitionItem.GetPtr(const ParName:string;var ParOwner,ParItem:TDefinition):boolean;
+function TCurrentDefinitionItem.GetPtr(const ParName:ansistring;var ParOwner,ParItem:TDefinition):boolean;
 begin
 	exit(iDefinition.GetPtrByName(ParName,[SO_Local,SO_Current_List],ParOwner,ParItem));
 end;
@@ -190,13 +190,13 @@ begin
 end;
 
 
-function  TCurrentDefinitionItem.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TCurrentDefinitionItem.GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
    exit(iDefinition.GetPtrByArray(ParName,ParArray,[SO_Local,SO_Current_List],ParOwner,ParResult));
 end;
 
 
-function  TCurrentDefinitionItem.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TCurrentDefinitionItem.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 begin
 	exit(iDefinition.GetPtrByObject(ParName,ParObject,[SO_Local,SO_Current_List],ParOwner,ParResult));
 end;
@@ -339,7 +339,7 @@ begin
 	vlStart.PopCurrentNode;
 end;
 
-function  TCurrentDefinitionList.GetPtrByName(const ParName:string;var ParOwner,ParItem:TDefinition):boolean;
+function  TCurrentDefinitionList.GetPtrByName(const ParName:ansistring;var ParOwner,ParItem:TDefinition):boolean;
 var vlCurrent : TCurrentDefinitionItem;
 begin
 	vlCurrent := TCurrentDefinitionItem(fStart);
@@ -357,7 +357,7 @@ end;
 
 
 
-function  TCurrentDefinitionList.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TCurrentDefinitionList.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var vlCurrent : TCurrentDefinitionItem;
 begin
 	vlCurrent := TCurrentDefinitionItem(fStart);
@@ -371,7 +371,7 @@ begin
 	exit(Ofs_Different);
 end;
 
-function  TCurrentDefinitionList.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+function  TCurrentDefinitionList.GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 var vlCurrent : TCurrentDefinitionItem;
 begin
 	vlCurrent := TCurrentDefinitionItem(fStart);

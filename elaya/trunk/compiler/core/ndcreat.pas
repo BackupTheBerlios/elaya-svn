@@ -59,13 +59,13 @@ type
 		property    fCurrentUnit       : TUnit                  read voUnit;
 		procedure   SetSourceTime(ParTime:longint);
 		function    GetSourceTime:longint;
-		procedure   GetModuleName(var ParName:string);
-		constructor Create(const ParName:string;ParCompiler:TCompiler_Base);
-		function    AddDepUse(const ParUnit,ParDep:string):TErrorType;
-		function    AddUnitUse(const parUnit:string;ParState:TUnitLoadStates):boolean;
-		procedure   AddUnitInUse(const ParUnit:string);
+		procedure   GetModuleName(var ParName:ansistring);
+		constructor Create(const ParName:ansistring;ParCompiler:TCompiler_Base);
+		function    AddDepUse(const ParUnit,ParDep:ansistring):TErrorType;
+		function    AddUnitUse(const parUnit:ansistring;ParState:TUnitLoadStates):boolean;
+		procedure   AddUnitInUse(const ParUnit:ansistring);
 		function    GetWriteProc(ParNl:boolean;var ParItem,ParOwner:TDefinition):boolean;
-		function    AddUnit(const ParUnit:string;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
+		function    AddUnit(const ParUnit:ansistring;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
 		procedure   AutoLoadModule;
 		procedure   InitForwardList;
 		procedure   InitUnitUseList;
@@ -76,16 +76,16 @@ type
 		function  MakeLoadNode(ParSource,ParDest : TFormulaNode) : TFormulaNode;
 		
 		{Create new constants}
-		procedure   AddStringConst(ParName:TNameList;const PArStr:string);
+		procedure   AddStringConst(ParName:TNameList;const PArStr:ansistring);
 		procedure   AddConstant(ParName:TNameList;const ParCon:TValue);
-		function    AddConstant(const ParName : string;const ParCon : TValue): TDefinition;
-		function    AddConstant(const ParName : string;const ParCon : TValue;ParType : TType):TDefinition;
+		function    AddConstant(const ParName : ansistring;const ParCon : TValue): TDefinition;
+		function    AddConstant(const ParName : ansistring;const ParCon : TValue;ParType : TType):TDefinition;
 
 		function    ConvertTextToNode( ParStr : TStringBaseValue) : TNodeIdent;
 		
 		function    AddUnion:TType;
-		function    AddType(const ParNames:string;ParType:TType):TType;
-		procedure   InitModule(const ParName:String);
+		function    AddType(const ParNames:ansistring;ParType:TType):TType;
+		procedure   InitModule(const ParName:ansistring);
 		procedure   AddIdent(ParItem:TDefinition);
 		procedure   AddToDefault(ParDef:TDefinition);
 		function    SetEnumBegin:TType;
@@ -95,17 +95,17 @@ type
 		procedure   EndNode;
 		procedure   EndIdentNum(ParNum : cardinal);
 		procedure   EndEnum;
-		function    GetNewCompiler(const ParFileName:String):TCompiler_Base;
+		function    GetNewCompiler(const ParFileName:ansistring):TCompiler_Base;
 		function    GetIntSizeByRange(const Pari1,ParI2:TNumber;var ParSize:TSize;var ParSign:boolean):boolean;
 		procedure   InitLoader;
-		function    LoadUnit(ParLoader:TObjectStream;const ParUnit:string;ParLevel :TUnitLevel;ParPublic:boolean):TUnit;
+		function    LoadUnit(ParLoader:TObjectStream;const ParUnit:ansistring;ParLevel :TUnitLevel;ParPublic:boolean):TUnit;
 		procedure   Save;
-		procedure   ErrorText(ParError:TErrorType;const ParText:string);
-		procedure   ErrorDefText(ParError : TErrorType;const ParPre,ParAfter : string;ParDef : TDefinition);
+		procedure   ErrorText(ParError:TErrorType;const ParText:ansistring);
+		procedure   ErrorDefText(ParError : TErrorType;const ParPre,ParAfter : ansistring;ParDef : TDefinition);
 		procedure   ErrorDef(ParError : TErrorType;ParDef : TDefinition);
 		procedure   SemError(ParError:TErrorType);
-		procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
-		procedure   AddNodeListError(ParNode : TNodeList;ParError : TErrorType;const ParText : string);
+		procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:ansistring);
+		procedure   AddNodeListError(ParNode : TNodeList;ParError : TErrorType;const ParText : ansistring);
 		procedure   AddNodeDefError(ParNode:TNodeIdent;ParError:TErrorType;ParDef : TDefinition);
 		destructor  Destroy;override;
 		function    CreateRecord:TType;
@@ -113,24 +113,24 @@ type
 		function    WriteResFile:boolean;
 		function    GetIsUnitFlag:boolean;
 		procedure   AddAtCurrentList(ParIdent:TDefinition);
-		procedure   AddForwardBind(const ParName:string;ParBind:TPtrType);
+		procedure   AddForwardBind(const ParName:ansistring;ParBind:TPtrType);
 		procedure   BindForward;
 		procedure   ProcessUseClause;
 		procedure   CreateSec;
 		procedure   AddRoutineItem(ParCode:TDefinition);
 		function    GetCurrentUnitLevelAccess :TDefAccess;
 		procedure   CheckAccessLevel(ParItem : TDefinition);
-		function    AddStringConst(const ParName : string;const ParStr : string) : TDefinition;
+		function    AddStringConst(const ParName : ansistring;const ParStr : ansistring) : TDefinition;
 		procedure   ConsiderForward(ParIn : TDefinition;var ParOut : TDefinition);
 		procedure   SetCurrentDefModes(ParModes : TDefinitionModes;ParOn : boolean);
 		{get}
-		function    GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
-		function    GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+		function    GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 
-		function    GetPtr(const ParName:string):TDefinition;
-		function    GetIdentByName(const ParName : string;var ParOwner,ParItem : TDefinition):boolean;
-		function    GetCheckitem(const ParName:string):TDefinition;
-		function    GetPtrInCurrentList(const ParName:String;var ParOwner,ParItem : TDefinition):boolean;
+		function    GetPtr(const ParName:ansistring):TDefinition;
+		function    GetIdentByName(const ParName : ansistring;var ParOwner,ParItem : TDefinition):boolean;
+		function    GetCheckitem(const ParName:ansistring):TDefinition;
+		function    GetPtrInCurrentList(const ParName:ansistring;var ParOwner,ParItem : TDefinition):boolean;
 		
 		{Get Default idents}
 		function    GetDefaultIdent(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TType;
@@ -138,7 +138,7 @@ type
 		function    GetDefaultDestroy : TDefinition;
 		function    GetIntType(ParNum1,ParNum2:TNumber):TType;
 		function    GetDefaultChar : TType;
-		function    GetCheckDefaultType(ParDef : TDefaultTypeCode;ParSize : TSize;ParSign : boolean;const ParMsg : string) : TType;
+		function    GetCheckDefaultType(ParDef : TDefaultTypeCode;ParSize : TSize;ParSign : boolean;const ParMsg : ansistring) : TType;
 		
 		{adding current}
 		
@@ -157,12 +157,12 @@ type
 		function  FindRoutineByDef(ParRoutine:TDefinition;var ParOwner,ParCB:TDefinition):TCFoundResult;
 		{Node function}
 		function   GetPointerCons(ParPtr:pointer):TNodeIdent;
-		function  ProcessOperator(const ParParameters  : array of TRoot;var   ParPrvPar      : TNodeIdent;const ParOperStr     : string;ParError : boolean):TOperatorProcessResult;
+		function  ProcessOperator(const ParParameters  : array of TRoot;var   ParPrvPar      : TNodeIdent;const ParOperStr     : ansistring;ParError : boolean):TOperatorProcessResult;
 
-		procedure ProcessBetweenOperator( ParO1,ParO2,ParO3    : TNodeIdent; var ParPrvPar: TNodeIdent;const ParOprStr    : String);
-		procedure ProcessCompOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParCode	     : TIdentCode);
-		procedure ProcessSingleOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParOperObj   : TRefNodeIdent);
-		procedure ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : string;ParNode : TRefNodeIdent);
+		procedure ProcessBetweenOperator( ParO1,ParO2,ParO3    : TNodeIdent; var ParPrvPar: TNodeIdent;const ParOprStr    : ansistring);
+		procedure ProcessCompOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : ansistring;ParCode	     : TIdentCode);
+		procedure ProcessSingleOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : ansistring;ParOperObj   : TRefNodeIdent);
+		function  ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : ansistring;ParNode : TRefNodeIdent): TFormulaNode;
 		function  CreateIntNode(ParNum : TNumber) : TNodeIdent;{TODO CreateNumberNode}
 		function  CreateIntNodeLong(ParNUm : cardinal) : TNodeIdent;
 		procedure SetNodePos(ParNode : TNodeIdent);
@@ -170,6 +170,7 @@ type
 
 		procedure AddGlobalOnce(ParItem : TDefinition);
 		procedure AddGlobal(ParItem : TDefinition);
+		procedure CheckAfter;
 	end;
 	
 	
@@ -219,14 +220,12 @@ procedure  TNDCreator.ConsiderForward(ParIn : TDefinition;var ParOut : TDefiniti
 var
 	vlDef        : TDefinition;
 	vlDefinition : TDefinition;
-	vlDifText    : string;
+	vlDifText    : ansistring;
 	vlOwner      : TDefinition;
-	vlName       : string;
 begin
 	
 	ParOut := nil;
 	vlDef := GetCurrentDefinition;
-	ParIn.GetTextStr(vlName);
 	
 	if vlDef = nil then begin
 		
@@ -284,37 +283,34 @@ begin
 end;
 
 
-function  TNDCreator.ProcessOperator(const ParParameters  : array of TRoot;var   ParPrvPar      : TNodeIdent;const ParOperStr     : string;ParError : boolean):TOperatorProcessResult;
+function  TNDCreator.ProcessOperator(const ParParameters  : array of TRoot;var   ParPrvPar      : TNodeIdent;const ParOperStr     : ansistring;ParError : boolean):TOperatorProcessResult;
 begin
 	exit(TELa_user(fCompiler).ProcessOperator(ParParameters,ParPrvPar,ParOperStr,ParError));
 end;
 
-procedure TNDCreator.ProcessBetweenOperator( ParO1,ParO2,ParO3    : TNodeIdent; var ParPrvPar: TNodeIdent;const ParOprStr    : String);
+procedure TNDCreator.ProcessBetweenOperator( ParO1,ParO2,ParO3    : TNodeIdent; var ParPrvPar: TNodeIdent;const ParOprStr    : ansistring);
 begin
 	TEla_User(fCOmpiler).ProcessBetweenOPerator(ParO1,ParO2,ParO3,ParPrvPar,ParOprStr);
 end;
 
-procedure TNDCreator.ProcessCompOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParCode	     : TIdentCode);
+procedure TNDCreator.ProcessCompOperator(ParNewPar    : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : ansistring;ParCode	     : TIdentCode);
 begin
 	TEla_User(fCompiler).ProcessCompOperator(ParNewPar,ParPrvPar,ParOprStr,ParCode);
 end;
 
-procedure TNDCreator.ProcessSingleOperator(ParNewPar : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : String;ParOperObj   : TRefNodeIdent);
+procedure TNDCreator.ProcessSingleOperator(ParNewPar : TNodeIdent;var ParPrvPar: TNodeIdent;const ParOprStr    : ansistring;ParOperObj   : TRefNodeIdent);
 begin
 	TEla_user(fCompiler).ProcessSingleOperator(ParNewPar,ParPrvPar,ParOprStr,TSingelOperatorNodeClass(ParOperObj));
 end;
 
-procedure TNDCreator.ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : string;ParNode : TRefNodeIdent);
+function TNDCreator.ProcessDualOperator(ParSource : TFormulaNode;var ParOut : TFormulaNode;const ParOperStr : ansistring;ParNode : TRefNodeIdent) : TFormulaNode;
 begin
-	TEla_User(fCompiler).ProcessDualOperator(ParSource,TSubListOperatorNode(ParOut),ParOperStr,ParNode);
+	exit(TEla_User(fCompiler).ProcessDualOperator(ParSource,ParOut,ParOperStr,ParNode));
 end;
 
 function TNDCreator.MakeLoadNode(ParSource,ParDest : TFormulaNode) : TFormulaNode;
-var vlLoad : TFormulaNode;
 begin
-	vlLoad := ParDest;
-	ProcessDualOperator(ParSource,vlLoad,':=',TLoadNode);
-	exit(vlLoad);
+	exit(ProcessDualOperator(ParSource,ParDest,':=',TLoadNode));
 end;
 
 
@@ -351,11 +347,11 @@ end;
 
 function  TNDCreator.FindRoutineByDef(ParRoutine:TDefinition;var ParOwner,ParCB:TDefinition): TCFoundResult;
 var vlDef   : TDefinition;
-	vlName  : string;
+	vlName  : ansistring;
 	vlOwner : TDefinition;
 begin
 	ParCb  := nil;
-	ParRoutine.GetTextStr(vlName);
+	vlName := ParRoutine.fText;
 	if not GetPtrInCurrentList(vlName,vlOwner,vlDef) then exit(CF_NotFound);
 	if not(vlDef is TRoutineCollection) then exit(CF_Other_Type);
 	vlDef.GetPtrByObject(vlName,TRoutine(ParRoutine),[],ParOwner,ParCB);
@@ -414,11 +410,11 @@ end;
 
 procedure TNDCreator.AddRoutineItem(ParCode:TDefinition);
 var vlRoutine : TRoutineCollection;
-	vlName    : string;
-	vlAnon    : string;
+	vlName    : ansistring;
+	vlAnon    : ansistring;
 	vlOwner   : TDefinition;
 begin
-	ParCode.GetTextStr(vlName);
+	vlName:= ParCode.fText;
 	if GetPtrInCurrentList(vlName,vlOwner,vlRoutine) then begin
 		if not(vlRoutine is TRoutineCollection) then begin
 			GetNewAnonName(vlAnon);
@@ -434,7 +430,7 @@ begin
 	EndIdent;
 end;
 
-function  TNDCreator.GetPtrInCurrentList(const ParName:String;var ParOwner,ParItem : TDefinition):boolean;
+function  TNDCreator.GetPtrInCurrentList(const ParName:ansistring;var ParOwner,ParItem : TDefinition):boolean;
 var
 	vlDef : TDefinition;
 begin
@@ -456,7 +452,7 @@ begin
 	GetSourceTime := fCurrentUnit.GetSourceTime;
 end;
 
-function   TNDCreator.GetNewCompiler(const ParFileName:String):TCompiler_Base;
+function   TNDCreator.GetNewCompiler(const ParFileName:ansistring):TCompiler_Base;
 begin
 	GetNewCompiler := fCompiler.NewCompiler(ParFileName);
 end;
@@ -474,14 +470,14 @@ begin
 	end;
 end;
 
-procedure  TNDCreator.GetModuleName(var ParName:string);
+procedure  TNDCreator.GetModuleName(var ParName:ansistring);
 begin
 	fCurrentUnit.GetNameStr(ParName);
 end;
 
 
 function   TNDCreator.GetWriteProc(ParNl:boolean;var ParItem,ParOwner:TDefinition):boolean;
-var vlStr : string;
+var vlStr : ansistring;
 begin
 	if ParNl then
 	vlStr := Cnf_Write_Nl
@@ -502,7 +498,7 @@ begin
 end;
 
 
-function  TNDCreator.AddUnit(const ParUnit:string;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
+function  TNDCreator.AddUnit(const ParUnit:ansistring;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
 var    vlUnit:TUnit;
 begin
 	verbose(vrb_load_unit,'Load unit :'+ParUnit);
@@ -514,7 +510,7 @@ end;
 
 procedure  TNDCreator.AutoLoadModule;
 var vlCnt:cardinal;
-	vlStr:String;
+	vlStr:ansistring;
 begin
 	vlCnt :=1;
 	while (not GetConfig.GetAutoLoad(vlCnt,vlStr)) and (GetConfigValues.fAutoload) do begin
@@ -529,7 +525,7 @@ end;
 
 
 
-procedure  TNDCreator.AddForwardBind(const ParName:string;ParBind:TPtrType);
+procedure  TNDCreator.AddForwardBind(const ParName:ansistring;ParBind:TPtrType);
 begin
 	
 	fForwardList.addBind(ParName,ParBind);
@@ -563,7 +559,7 @@ end;
 
 function TNDCreator.WriteResFile:boolean;
 var vlCnt  : cardinal;
-	vlPath : string;
+	vlPath : ansistring;
 	vlFile : text;
 	vlList : TSearchPathList;
 begin
@@ -698,7 +694,7 @@ begin
     EndIdent;
 end;
 
-function TNDCreator.GetCheckitem(const ParName:string):TDefinition;
+function TNDCreator.GetCheckitem(const ParName:ansistring):TDefinition;
 var
 	vlItem : TDefinition;
 begin
@@ -712,9 +708,9 @@ begin
 	GetCheckitem := vlitem;
 end;
 
-procedure  TNDCreator.InitModule(const ParName:string);
-var vlName : string;
-	vlUnitName : string;
+procedure  TNDCreator.InitModule(const ParName:ansistring);
+var vlName : ansistring;
+	vlUnitName : ansistring;
 begin
 	vlName:= ParName;
 	NormFileName(vlName);
@@ -733,7 +729,7 @@ end;
 
 procedure TNDCreator.InitLoader;
 var
-	vlPath : string;
+	vlPath : ansistring;
 begin
 	voLoader :=TObjectStream.Create;
 	GetConfig.GetObjectPath(vlPath);
@@ -761,7 +757,7 @@ begin
 	GetDefaultIdent := vlIdent;
 end;
 
-function   TNDCreator.AddType(const ParNames:string;ParType:TType):TType;
+function   TNDCreator.AddType(const ParNames:ansistring;ParType:TType):TType;
 begin
 	if (ParType <> nil)  then begin
 		ParType.SetText(ParNames);
@@ -770,7 +766,7 @@ begin
 	exit(ParType);
 end;
 
-procedure  TNDCreator.ErrorText(ParError:TErrorType;const ParText:string);
+procedure  TNDCreator.ErrorText(ParError:TErrorType;const ParText:ansistring);
 begin
 	if (ParError <> Err_No_Error) and (fCompiler <> nil) then fCompiler.ErrorText(ParError,ParText);
 end;
@@ -781,9 +777,9 @@ begin
 	ErrorDefText(ParError,'','',ParDef);
 end;
 
-procedure  TNDCreator.ErrorDefText(ParError : TErrorType;const ParPre,ParAfter : string;ParDef : TDefinition);
+procedure  TNDCreator.ErrorDefText(ParError : TErrorType;const ParPre,ParAfter : ansistring;ParDef : TDefinition);
 var
-	vlText :string;
+	vlText :ansistring;
 begin
 	if ParDef <> nil then begin
 		vlText := ParDef.GetErrorName;
@@ -795,22 +791,23 @@ end;
 
 
 
-procedure  TNDCreator.AddNodeListError(ParNode : TNodeList;ParError : TErrorType;const ParText : string);
+procedure  TNDCreator.AddNodeListError(ParNode : TNodeList;ParError : TErrorType;const ParText : ansistring);
 begin
 	AddNodeError(TNodeIdent(ParNode.fStart),ParError,ParText);
 end;
 
 
-procedure TNDCreator.AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
+procedure TNDCreator.AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:ansistring);
 var vlLine,vlCol,vlPos:Longint;
 begin
+
 	ParNode.GetPos(vlLine,vlCol,vlPos);
 	AddError(ParError,vlLine,vlCol,vlPos,ParText);
 end;
 
 procedure TNDCreator.AddNodeDefError(ParNode:TNodeIdent;ParError:TErrorType; ParDef : TDefinition);
 var
-	vlText : string;
+	vlText : ansistring;
 begin
 	if ParDef <> nil then begin
 		vlText := ParDef.GetErrorName;
@@ -831,14 +828,14 @@ begin
 	iUnitUseList := TUnitUseList.Create;
 end;
 
-function TNDCreator.AddDepUse(const ParUnit,ParDep:string):TErrorType;
+function TNDCreator.AddDepUse(const ParUnit,ParDep:ansistring):TErrorType;
 begin
 	AddDepUse := iUnitUseList.AddDependence(ParUnit,ParDep,0);
 end;
 
 
-procedure TNDcreator.AddUnitInUse(const ParUnit:string);
-var vlName:string;
+procedure TNDcreator.AddUnitInUse(const ParUnit:ansistring);
+var vlName:ansistring;
 	vlErr:TErrorType;
 begin
 	GetModuleName(vlName);
@@ -847,7 +844,7 @@ begin
 end;
 
 
-function TNDCreator.AddUnitUse(const parUnit:string;ParState:TUnitLoadStates):boolean;
+function TNDCreator.AddUnitUse(const parUnit:ansistring;ParState:TUnitLoadStates):boolean;
 begin
 	AddUnitUse := iUnitUseList.AddUnit(ParUnit,ParState);
 end;
@@ -868,7 +865,7 @@ begin
 	InitLoader;
 end;
 
-function TNDCreator.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+function TNDCreator.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 var vlState : TObjectFindState;
 begin
 	vlState := fCurrentItemList.GetPtrByObject(ParName,ParObject,ParOwner,ParResult);
@@ -878,7 +875,7 @@ begin
 	exit(vlState);
 end;
 
-function TNDCreator.GetPtrByArray(const ParName : string;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
+function TNDCreator.GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 var vlState : TObjectFindState;
 begin
 	vlState := fCurrentItemList.GetPtrByArray(ParName,ParArray,ParOwner,ParResult);
@@ -891,7 +888,7 @@ end;
 
 
 
-function TNDCreator.GetIdentByName(const ParName :string;var ParOwner,ParItem : TDefinition):boolean;
+function TNDCreator.GetIdentByName(const ParName :ansistring;var ParOwner,ParItem : TDefinition):boolean;
 begin
 	if fCurrentItemList.GetPtrByName(ParName,parOwner,ParItem) then begin
 		exit(true);
@@ -899,7 +896,7 @@ begin
 	exit(iCollection.GetPtrByName(ParName,ParOwner,ParItem));
 end;
 
-function TNDCreator.GetPtr(const ParName:string):TDefinition;
+function TNDCreator.GetPtr(const ParName:ansistring):TDefinition;
 var vlOwner :  TDefinition;
 	vlRes   :  TDefinition;
 begin
@@ -1018,7 +1015,7 @@ begin
 end;
 
 
-function TNDCreator.GetCheckDefaultType(ParDef : TDefaultTypecode;ParSize : TSize;ParSign : boolean;const ParMsg : string) : TType;
+function TNDCreator.GetCheckDefaultType(ParDef : TDefaultTypecode;ParSize : TSize;ParSign : boolean;const ParMsg : ansistring) : TType;
 var vlType : TType;
 begin
 	vlType := GetDefaultIdent(ParDef,ParSize,ParSign);
@@ -1081,7 +1078,7 @@ begin
 end;
 
 
-function TNDCreator.AddStringConst(const ParName : string;const ParStr : string) : TDefinition;
+function TNDCreator.AddStringConst(const ParName : ansistring;const ParStr : ansistring) : TDefinition;
 var vlType        : TType;
 	vlStringConst : TStringCons;
 begin
@@ -1095,20 +1092,20 @@ begin
 	exit(vlStringConst);
 end;
 
-procedure TNDCreator.AddStringConst(ParName:TNameList;const PArStr:string);
+procedure TNDCreator.AddStringConst(ParName:TNameList;const PArStr:ansistring);
 var vlCurrent : TNameItem;
-	vlName    : string;
+	vlName    : ansistring;
 begin
 	vlCurrent := TNameItem(ParName.fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.GetString(vlName);
+		vlName := vlCurrent.fString;
 		AddStringConst(vlName,ParStr);
 		vlCurrent := TNameItem(vlCUrrent.fNxt);
 	end;
 end;
 
 
-function  TNDCreator.AddConstant(const ParName : string;const ParCon : TValue;ParType : TType):TDefinition;
+function  TNDCreator.AddConstant(const ParName : ansistring;const ParCon : TValue;ParType : TType):TDefinition;
 var
 	vlIntConst : TConstant;
 begin
@@ -1118,7 +1115,7 @@ begin
 	exit(vlIntConst);
 end;
 
-function  TNDCreator.AddConstant(const ParName : string;const ParCon : TValue):TDefinition;
+function  TNDCreator.AddConstant(const ParName : ansistring;const ParCon : TValue):TDefinition;
 var vlType     : TType;
 	vlNum      : TNumber;
 begin
@@ -1143,11 +1140,11 @@ end;
 
 procedure TNDCreator.AddConstant(ParName:TNameList;const ParCon:TValue);
 var vlCurrent  : TNameItem;
-	vlName     : string;
+	vlName     : ansistring;
 begin
 	vlCurrent := TNameItem(ParName.fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.GetString(vlName);
+		vlName := vlCurrent.fString;
 		AddConstant(vlName,ParCon);
 		vlCurrent := TNameItem(vlCUrrent.fNxt);
 	end;
@@ -1155,7 +1152,7 @@ end;
 
 procedure TNDCreator.AddVar(ParNameList:TNameList;ParType:TType);
 var vlCurrent : TNameItem;
-	vlStr     : string;
+	vlStr     : ansistring;
 	vlVar     : TVariable;
 	vlCurDef  : TDefinition;
 begin
@@ -1164,7 +1161,7 @@ begin
 		vlCurrent := TNameItem(ParNameList.fStart);
 		vlCurDef := GetCurrentDefinition;
 		while vlCurrent <> nil do begin
-			vlCurrent.GetString(vlStr);
+			vlStr := vlCurrent.fString;
 			if vlCurDef <> nil then begin
 				vlVar := TVariable(vlCurDef.CreateVar(self,vlStr,ParType))
 			end else begin
@@ -1180,7 +1177,7 @@ begin
 end;
 
 
-function TNDCreator.LoadUnit(ParLoader:TObjectStream;const ParUnit:string;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
+function TNDCreator.LoadUnit(ParLoader:TObjectStream;const ParUnit:ansistring;ParLevel : TUnitLevel;ParPublic:boolean):TUnit;
 var vlUnit:TUnit;
 begin
 	LoadUnit := nil;
@@ -1205,10 +1202,15 @@ begin
 	if vlErr <> err_No_Error then SemError(vlErr);
 end;
 
-constructor TNDCreator.Create(const ParName:String;ParCompiler:TCompiler_Base);
+constructor TNDCreator.Create(const ParName:ansistring;ParCompiler:TCompiler_Base);
 begin
 	inherited Create(ParCompiler);
 	InitModule(ParName);
+end;
+
+procedure TNDCreator.CheckAfter;
+begin
+	fCurrentUnit.CheckAfter(self);
 end;
 
 procedure TNDCreator.CreateSec;

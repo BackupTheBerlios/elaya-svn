@@ -81,7 +81,7 @@ public
 	procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);virtual;
 	procedure Proces(ParCre : TCreator);virtual;
 	procedure FinishNode(ParCre : TCreator;ParIsSec : boolean);
-   function  IsSubNodesSec:boolean;virtual;
+	function  IsSubNodesSec:boolean;virtual;
 end;
 
 TRefNodeIdent =class of  TNodeIdent;
@@ -91,7 +91,7 @@ TRefNodeIdent =class of  TNodeIdent;
 	protected
 		property iParts : TNodeList read voParts write voParts;
 		procedure InitParts;virtual;
-      procedure clear;override;
+      		procedure clear;override;
 		procedure commonsetup;override;
 	public
 		property fParts     : TNodeList read voParts;
@@ -151,13 +151,13 @@ public
 	function    SetbooleanLoad(ParMac:TMacBase;ParNum:longint):TPocBase;
 	procedure   SwapLabels;
 	procedure   SetPoc(ParPoc:TSubPoc);
-	procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
-	procedure   AddNodeWarning(ParNode : TNodeIdent;ParError : TErrorType;const ParText : string);
+	procedure   AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:ansistring);
+	procedure   AddNodeWarning(ParNode : TNodeIdent;ParError : TErrorType;const ParText : ansistring);
 	procedure   AddSec(ParSec:TSecBase);
 	function    CreateLabeL:TLabelPoc;
 	function    AddLabel:TLabelPoc;
 	procedure   AddObject(ParItem : TRoot);
-	function    AddStringConstant(const ParStr : string):longint;
+	function    AddStringConstant(const ParStr : ansistring):longint;
 	procedure   ProduceStringConstantSection(ParCre : TCreator);
 end;
 
@@ -168,9 +168,9 @@ protected
 	procedure CommonSetup;override;
 
 public
-	procedure SetMessage(const ParMsg:string);
+	procedure SetMessage(const ParMsg:ansistring);
 	function  GetMessage:TString;
-	constructor Create(const ParMsg:String);
+	constructor Create(const ParMsg:ansistring);
 end;
 
 implementation
@@ -189,7 +189,7 @@ begin
 	voMsg := nil;
 end;
 
-procedure   TErrorNode.SetMessage(const ParMsg:string);
+procedure   TErrorNode.SetMessage(const ParMsg:ansistring);
 begin
 	if GetMessage<> nil then GetMessage.Destroy;
 	voMsg := TString.Create(ParMsg);
@@ -200,7 +200,7 @@ begin
 	GetMessage := voMsg;
 end;
 
-constructor TErrorNode.Create(const ParMsg:String);
+constructor TErrorNode.Create(const ParMsg:ansistring);
 begin
 	inherited Create;
 	SetMessage(ParMsg);
@@ -223,7 +223,7 @@ begin
 	end;
 end;
 
-function  TSecCreator.AddStringConstant(const ParStr : string):longint;
+function  TSecCreator.AddStringConstant(const ParStr : ansistring):longint;
 begin
 	exit(iStringList.AddStringItem(ParStr));
 end;
@@ -255,7 +255,7 @@ end;
 
 { Error handling special for nodes}
 
-procedure TSecCreator.AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:string);
+procedure TSecCreator.AddNodeError(ParNode:TNodeIdent;ParError:TErrorType;const partext:ansistring);
 var
 	vlLine,vlCol,vlPos:Longint;
 begin
@@ -264,7 +264,7 @@ begin
 end;
 
 
-procedure  TSecCreator.AddNodeWarning(ParNode : TNodeIdent;ParError : TErrorType;const ParText : string);
+procedure  TSecCreator.AddNodeWarning(ParNode : TNodeIdent;ParError : TErrorType;const ParText : ansistring);
 var
 	vlLine,vlCol,vlPos:Longint;
 begin
@@ -311,7 +311,7 @@ var   vlLod : TPocBase;
 	vlMac : TMacBase;
 	vlLi  : TNumber;
 begin
-	LoadLong(vlLi,ParNum);
+	LoadInt(vlLi,ParNum);
 	vlMac := TNumberMac.create(ParMac.fSize,false,vlLi);
 	AddObject(vlMac);
 	vlLod := MakeLOadPoc(ParMac,vlMac);
@@ -646,7 +646,7 @@ end;
 
 
 procedure TNodeIdent.FinishNode(ParCre : TCreator;ParIsSec : boolean);
-begin
+begin	
 	Proces(ParCre);
 	ValidatePre(ParCre,ParIsSec);
 	Optimize(ParCre);
@@ -663,7 +663,7 @@ procedure TNodeIdent.DefinitionUseStatusToError(ParCre : TSecCreator;ParStatus :
 var vlStatus : TAccessStatus;
 	 vlErr : TErrorType;
 	 vlItem : TUseItem;
-	 vlName : string;
+	 vlName : ansistring;
 begin
 		vlStatus :=ParStatus;
 		vlItem := ParItem;

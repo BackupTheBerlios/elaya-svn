@@ -31,15 +31,15 @@ const
 type
 	
 	TSearchPath=class(TSmStringItem)
-		procedure GetPath(var ParPath:string);
+		procedure GetPath(var ParPath:ansistring);
 	end;
 	
 	TSearchPathList=class(TSMStringList)
 	private
-		function MakeItem(const ParString : String) : TSmStringItem;override;
+		function MakeItem(const ParString : ansistring) : TSmStringItem;override;
 	public
-		procedure AddPath(const parPath:string);
-		function  GetPathByNum(ParNum : cardinal;var ParStr:String):boolean;
+		procedure AddPath(const parPath:ansistring);
+		function  GetPathByNum(ParNum : cardinal;var ParStr:ansistring):boolean;
 	end;
 	
 	TFIleBuffer=class(TMemoryBlock)
@@ -62,7 +62,7 @@ type
 		voSearchPathList : TSearchPathList;
 		
 		procedure SetError(ParError:TErrorType);
-		procedure SetFileName(const ParName:String);
+		procedure SetFileName(const ParName:ansistring);
 		
 		property  iLaCh           : char            read voLaCh           write voLaCh;
 		property  iHasLa          : boolean         read voHasLa          write voHasLa;
@@ -91,13 +91,13 @@ type
 		procedure   DoneBuffer;
 		
 		
-		function    GetPathByNum(ParNum :cardinal;var ParStr : string):boolean;
-		procedure   AddPath(const ParStr : string);
+		function    GetPathByNum(ParNum :cardinal;var ParStr : ansistring):boolean;
+		procedure   AddPath(const ParStr : ansistring);
 		procedure   AddProgramDirToPath;
-		procedure   GetFileNameStr(var ParName:string);
+		procedure   GetFileNameStr(var ParName:ansistring);
 		procedure   SetBuffer(ParSize : cardinal);
-		function    OpenFile(const ParFileName:string):boolean;
-		function    CreateFile(const PArFileNAme:String):boolean;
+		function    OpenFile(const ParFileName:ansistring):boolean;
+		function    CreateFile(const PArFileNAme:ansistring):boolean;
 		function    close:boolean;
 		function    ReadBlock(var ParBlk;ParSize : cardinal;var parRead : cardinal):boolean;
 		function    WriteBlock(var ParBlk;ParSize : cardinal;var ParWrite : cardinal):boolean;
@@ -116,7 +116,7 @@ type
 		function    WriteToBuffer(ParSize:cardinal;const PArBuffer):boolean;
 		procedure   SetEof(ParEof:boolean);
 		procedure   SetReadWrite(ParReadWrite:boolean);
-		function    ReadLine(var ParStr : string):boolean;
+		function    ReadLine(var ParStr : ansistring):boolean;
 		function    ReadFromFile(var ParBuf ;ParSize : cardinal;var ParRet:cardinal):boolean;
 		function    WriteFromFile(var ParBuf;ParSize : cardinal;var ParRet:cardinal):boolean;
 		function    GetEof:boolean;
@@ -128,24 +128,24 @@ implementation
 {----( TSearchPath )----------------------------------------------}
 
 
-procedure TSearchPath.GetPath(var ParPath:string);
+procedure TSearchPath.GetPath(var ParPath:ansistring);
 begin
-	GetString(ParPath);
+	ParPath  := fString;
 end;
 
 {----( TSearchPathList )------------------------------------------}
 
 
-function TSearchPathList.MakeItem(const ParString : String) : TSmStringItem;
+function TSearchPathList.MakeItem(const ParString : ansistring) : TSmStringItem;
 begin
 	exit(TSearchPath.Create(ParString));
 end;
 
 
-procedure TSearchPathList.AddPath(const ParPath:string);
-var vlPath : string;
+procedure TSearchPathList.AddPath(const ParPath:ansistring);
+var vlPath : ansistring;
 	vlPos  : byte;
-	vlStr  : string;
+	vlStr  : ansistring;
 begin
 	vlPath := ParPath;
 	while (length(vlPath) <> 0) do begin
@@ -157,14 +157,14 @@ begin
 	end;
 end;
 
-function TSearchPathList.GetPathByNum(ParNum : cardinal;var ParStr:String):boolean;
+function TSearchPathList.GetPathByNum(ParNum : cardinal;var ParStr:ansistring):boolean;
 begin
 	exit(not(GetStringByPosition(ParNum,ParStr)));
 end;
 
 {----( TFile )----------------------------------------------------}
 
-function TFile.GetPathByNum(ParNum :cardinal;var ParStr : string):boolean;
+function TFile.GetPathByNum(ParNum :cardinal;var ParStr : ansistring):boolean;
 begin
 	exit(iSearchPathList.GetPathByNum(ParNum,ParStr));
 end;
@@ -175,9 +175,9 @@ begin
 	AddPath(GetProgramDir);
 end;
 
-procedure TFile.AddPath(const ParStr : string);
+procedure TFile.AddPath(const ParStr : ansistring);
 var 
-	vlPath : string;
+	vlPath : ansistring;
 begin
 	vlPath := ParStr;
 	NativeToLinux(vlPath);
@@ -214,13 +214,13 @@ begin
 	exit(GetFileTime(voFile));
 end;
 
-procedure TFile.SetFileName(const ParName:String);
+procedure TFile.SetFileName(const ParName:ansistring);
 begin
 	if iFIleName <> nil then iFileName.Destroy;
 	iFileName := TString.Create(ParName);
 end;
 
-procedure TFIle.GetFileNameStr(var ParName:string);
+procedure TFIle.GetFileNameStr(var ParName:ansistring);
 begin
 	EmptyString(ParName);
 	if iFileName <> nil then begin
@@ -263,13 +263,13 @@ begin
 end;
 
 
-function TFile.OpenFile(const ParFileName:string):boolean;
+function TFile.OpenFile(const ParFileName:ansistring):boolean;
 var vlErr      : TErrorType;
 	vlNum      : longint;
-	vlFileName : string;
-	vlBaseName : string;
-	vlD1,vlD2,vlD3 : string;
-	vlDir      : string;
+	vlFileName : ansistring;
+	vlBaseName : ansistring;
+	vlD1,vlD2,vlD3 : ansistring;
+	vlDir      : ansistring;
 begin
 	OpenFile := true;
 	vlNum    := 0;
@@ -305,10 +305,10 @@ begin
 	OpenFile := false;
 end;
 
-function  TFile.CreateFile(const PArFileNAme:String):boolean;
+function  TFile.CreateFile(const PArFileNAme:ansistring):boolean;
 var 	
 	vlErr:TErrorTYpe;
-	vlFIleName : string;
+	vlFIleName : ansistring;
 begin	
 	vlFileName := ParFileName;
 	LinuxToNative(vlFileName);
@@ -568,7 +568,7 @@ begin
 end;
 
 
-function TFile.ReadLine(var ParStr:string):boolean;
+function TFile.ReadLine(var ParStr:ansistring):boolean;
 var vlCh  : char;
 	vlRet : cardinal;
 	vlcnt : cardinal;

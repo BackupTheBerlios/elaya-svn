@@ -24,13 +24,13 @@ type pTPid=longint;
 	
 function  PGetExitCode : cardinal;
 function  pGetDosError : cardinal;
-procedure PExecProgram(const ParName,ParParam:string);
-function  pGetProgramDir :string;
+procedure PExecProgram(const ParName,ParParam:ansistring);
+function  pGetProgramDir :ansistring;
 function  pGetTimer:cardinal;
 function  pGetPid :pTPid;
 function  pKill(const ParPid : pTPid):boolean;
-procedure PLinuxTONative(var ParName : string);
-procedure PNativeToLinux(var ParName : string);
+procedure PLinuxTONative(var ParName : ansistring);
+procedure PNativeToLinux(var ParName : ansistring);
 
 const
 	pDir_Seperator='\';
@@ -39,7 +39,7 @@ implementation
 uses windows,dos;
 
 
-procedure PLinuxTONative(var ParName : string);
+procedure PLinuxTONative(var ParName : ansistring);
 var
 	vlCnt : cardinal;
 begin
@@ -77,8 +77,8 @@ begin
 	exit(DosError);
 end;
 
-procedure PExecProgram(const ParName,ParParam:string);
-var vlStr:string;
+procedure PExecProgram(const ParName,ParParam:ansistring);
+var vlStr:ansistring;
 begin
 	vlStr := ParName;
 	PLinuxToNative(vlStr);
@@ -87,7 +87,7 @@ begin
 	sleep(250);
 end;
 
-procedure PNativeToLinux(var ParName : string);
+procedure PNativeToLinux(var ParName : ansistring);
 var
 	vlCnt : cardinal;
 begin
@@ -96,9 +96,9 @@ begin
 	end;
 end;
 
-function pGetprogramDir : string;
+function pGetprogramDir : ansistring;
 var
-	vlDir : string;
+	vlDir : ansistring;
 	vlCnt : cardinal;
 begin
 	vlDir := paramstr(0);

@@ -38,29 +38,29 @@ type
 		property    fValue  : TValue  read voValue;
 		property    fReadOnly : boolean read voReadOnly;
 		
-		procedure   GetNameStr(var ParNAme : string);
-		function    IsName(const ParName:string):boolean;
-		procedure   SetName(const ParName:String);
+		procedure   GetNameStr(var ParNAme : ansistring);
+		function    IsName(const ParName:ansistring):boolean;
+		procedure   SetName(const ParName:ansistring);
 		function    SetValueUnchecked(ParValue : TValue):boolean;
 		function    SetValue(ParValue : TValue):boolean;
-		constructor Create(const ParName :string;ParValue : TValue;ParReadOnly:boolean);
+		constructor Create(const ParName :ansistring;ParValue : TValue;ParReadOnly:boolean);
 		function    IsSame(ParValue : TValue) :boolean;
 		
 	end;
 	
 	TConfigVarList= Class(TSMList)
-		function AddVar(const ParName,ParValue : string;ParReadOnly:boolean):TConfigVarItem;virtual;
-		function GetPtrByName(const ParName : string):TConfigVarItem;
-		function GetValueByName(const ParName:String;var ParValue : string):boolean;
+		function AddVar(const ParName,ParValue : ansistring;ParReadOnly:boolean):TConfigVarItem;virtual;
+		function GetPtrByName(const ParName : ansistring):TConfigVarItem;
+		function GetValueByName(const ParName:ansistring;var ParValue : ansistring):boolean;
 	end;
 	
 implementation
 
 {----( TConfigVarItem )--------------------------------------}
 
-procedure TConfigVarItem.GetNameStr(var ParNAme : string);
+procedure TConfigVarItem.GetNameStr(var ParNAme : ansistring);
 begin
-	iName.GetString(ParName);
+	iName.GeTString(ParName);
 end;
 
 function TConfigVarItem.IsSame(ParValue : TValue) :boolean;
@@ -76,14 +76,14 @@ begin
 	iReadOnly := false;
 end;
 
-function TConfigVarItem.IsName(const ParName : string):boolean;
+function TConfigVarItem.IsName(const ParName : ansistring):boolean;
 begin
 	exit(iName.IsEqualStr(ParName));
 end;
 
 
-procedure   TConfigVarItem.SetName(const ParName:String);
-var vlName : string;
+procedure   TConfigVarItem.SetName(const ParName:ansistring);
+var vlName : ansistring;
 begin
 	vlName := ParName;
 	UpperStr(vlName);
@@ -106,7 +106,7 @@ begin
 	exit(false);
 end;
 
-constructor TConfigVarItem.Create(const ParName     : string;
+constructor TConfigVarItem.Create(const ParName     : ansistring;
 ParValue    : TValue;
 ParReadOnly : boolean);
 begin
@@ -125,15 +125,15 @@ end;
 
 {----( TLoadNodeList )------------------------------------------------------}
 
-function TConfigVarList.AddVar(const ParName,ParValue:string;ParReadOnly:boolean) :TConfigVarItem;
+function TConfigVarList.AddVar(const ParName,ParValue:ansistring;ParReadOnly:boolean) :TConfigVarItem;
 begin
 	exit(TConfigVarItem(InsertAtTop(TCOnfigVarItem.Create(ParName,TString.Create(ParValue),ParReadOnly))));
 end;
 
 
-function TConfigVarList.GetPtrByName(const ParName:string):TConfigVarItem;
+function TConfigVarList.GetPtrByName(const ParName:ansistring):TConfigVarItem;
 var vlCurrent : TConfigVarItem;
-	vlName    : string;
+	vlName    : ansistring;
 begin
 	vlName := ParName;
 	UpperStr(vlName);
@@ -142,15 +142,15 @@ begin
 	exit( vlCurrent);
 end;
 
-function TConfigVarList.GetValueByName(const ParName:String;var ParValue: string):boolean;
+function TConfigVarList.GetValueByName(const ParName:ansistring;var ParValue: ansistring):boolean;
 var vlCurrent : TConfigVarItem;
 	vlValue   : TValue;
 begin
-	EmptyString(ParValue);
+	Emptystring(ParValue);
 	vlCurrent := GetPtrByName(ParName);
 	if vlCurrent <> nil then begin
 		vlValue := vlCurrent.fValue;
-		vlValue.GetString(ParValue);
+		vlValue.GeTString(ParValue);
 		vlValue.Destroy;
 	end;
 	exit (vlCurrent = nil);

@@ -6,24 +6,42 @@ const
 	DalErr_No_Interface=1;
 
 type
+	PDalDBConnection=ptr TDalDBConnection;
 	TDalDBConnection=record
 		Native_Error : long;
 		Dal_Error    : long;
-   	private_data : pointer;
+	   	private_data : pointer;
 	end;
 
+	TDalResource=record
+		connection        : PDalDBConnection;
+		NumberOfFields    : longint;
+		RowData           : pointer;
+		resource          : longint;
+	end;
+	
 	TDalConnectRoutine=function(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
 	TDalCloseRoutine=function(var ParConnection : TDalDBConnection):boolean;
-
+	TDalQueryRoutine=function(var ParConnection : TDalDBConnection;var ParResult : TDalResource;ParQuery:string):boolean;
+	TDalFetchResultRoutine=function(var ParResource : TDalResource):boolean;
+	TDalFreeResultRoutine=function(var ParResource : TDalResource):boolean;
+	TDalConvertRowDataToStringRoutine=function (var ParResult : TDalResource;ParNo :long;var ParStr : string) : boolean;
  TDalInterface=record
 	DbConnect : TDalConnectRoutine;
 	DbClose   : TDalCloseRoutine;
+	DbQuery   : TDalQueryRoutine;
+	DbFetchResult : TDalFetchResultRoutine;
+	DbFreeResult : TDalFreeResultRoutine;
+	DbConvertRowDataToString : TDalConvertRowDataToStringRoutine;
  end;
 
 	procedure SetDalInterface(var ParInterface : TDalInterface);
-	function	DalConnect(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
+	function DalConnect(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
 	function DalClose(var ParConnection : TDalDBConnection):boolean;
-
+	function DalQuery(var ParConnection : TDalDBConnection;var ParResult : TDalResource;ParQuery:string):boolean;
+	function DalFetchResult(var ParResult :TDalResource) : boolean;
+	function DalFreeResult(var ParResult :TDalResource) : boolean;
+	function DalConvertRowDataToString(var ParResult : TDalResource;ParNo :long;var ParStr : string) : boolean;
 end public
 
 var
@@ -36,18 +54,61 @@ begin
 	end;
 	ParConnection.Native_Error := 0;
 	ParConnection.Dal_Error := DalErr_No_Interface;
-   exit(true);
+	exit(true);
 end;
 
-function	DalConnect(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
+function DalConnect(var ParConnection : TDalDBConnection;const ParHost,ParDb,ParUser,ParPw : string):boolean;
 begin
    if DalInterface.DBConnect <> nil then begin
-		writeln('Host=',ParHost);
 		exit(DalInterface.DbConnect^(ParConnection,ParHost,ParDb,ParUser,ParPw));
 	end;
 	ParConnection.Native_Error := 0;
 	ParConnection.Dal_Error := DalErr_No_Interface;
    exit(true);
+end;
+
+function DalQuery(var ParConnection : TDalDBConnection;var ParResult : TDalResource;ParQuery:string):boolean;
+begin
+	if DalInterface.DBQuery <> nil then begin
+		exit(DalInterface.DBQuery^(ParConnection,ParResult,ParQuery));
+	end;
+	ParConnection.Native_Error := 0;
+	ParConnection.Dal_Error := DAlErr_No_Interface;
+	exit(true);
+end;
+
+
+function DalFetchResult(var ParResult :TDalResource) : boolean;
+begin
+	if DalInterface.DBFetchResult <> nil then begin
+		exit(DalInterface.DbFetchResult^(ParResult));
+	end;
+	ParResult.Connection^.Native_Error := 0;
+	ParResult.Connection^.Dal_Error := DalErr_No_Interface;
+	exit(true);
+end;
+
+
+
+function DalFreeResult(var ParResult :TDalResource) : boolean;
+begin
+	if DalInterface.DbFreeresult <> nil then begin
+		exit(DalInterface.DbFreeResult^(ParResult));
+	end;
+	ParResult.Connection^.Native_Error := 0;
+	ParResult.Connection^.Dal_Error := DalErr_No_Interface;
+	exit(True);
+end;
+
+
+function DalConvertRowDataToString(var ParResult : TDalResource;ParNo :long;var ParStr : string) : boolean;
+begin
+	if DalInterface.DbConvertRowDataToString <> nil then begin
+		exit(DalInterface.DBConvertRowDataToString^(ParResult,ParNo,ParStr));
+	end;
+	ParResult.Connection^.Native_Error := 0;
+	ParResult.Connection^.Dal_Error := DalErr_No_Interface;
+	exit(true);
 end;
 
 procedure SetDalInterface(var ParInterface : TDalInterface);
@@ -57,6 +118,10 @@ end;
 
 
 begin
-	DalInterface.DbConnect := nil;
-	DalInterface.DbClose := nil;
+	DalInterface.DbConnect     := nil;
+	DalInterface.DbClose       := nil;
+	DalInterface.DbQuery       := nil;
+	DalInterface.DbFreeResult  := nil;
+	DalInterface.DbFetchResult := nil;
+	DalInterface.dbConvertRowDataToString := nil;
 end.

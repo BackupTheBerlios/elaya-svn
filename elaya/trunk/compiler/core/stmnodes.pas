@@ -166,9 +166,8 @@ type
 		procedure Commonsetup;override;
 
 	public
-		procedure GetOperStr(var ParOper:string);override;
+		procedure GetOperStr(var ParOper:ansistring);override;
 		function  CreateSec(ParCre:TSecCreator):boolean;override;
-		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateAfter(ParCre : TCreator);override;
 		function CheckConvertTest(ParType1,ParType2 : TType) : boolean;override;
 		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
@@ -630,10 +629,10 @@ begin
 	inherited Proces(ParCre);
 	if iEndCOndition <> nil then iEndCondition.Proces(ParCre);
 	if iStep <> nil then iStep.Proces(ParCre);
-   if iCount <> nil then iCount.Proces(ParCre);
+	if iCount <> nil then iCount.Proces(ParCre);
 	if (iAllOf <> nil) and (iEnd =nil) then begin
 		iAllOf.Proces(ParCre);
-      vlType  := TArrayType(iAllOf.GetType);
+	        vlType  := iAllOf.GetType;
 		if vlType is TStringType then begin
 			SetBegin(TFormulaNode(TNDCreator(ParCre).CreateIntNodeLong(TStringTYpe(vlType).GetFirstOffset)));
 			vlEndNode := TStringType(vlType).GetIndexVar.CreateReadNode(ParCre,vlType);
@@ -873,25 +872,20 @@ begin
 end;
 
 
-procedure TLoadNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
-begin
-	inherited ValidatePre(ParCre,ParIsSec);
-
-end;
-
 procedure TLOadNode.ValidateAfter(ParCre : TCreator);
 var vlFirst  : TFormulaNode;
 	vlSecond : TFormulaNode;
 	vlType   : TType;
-	vlName1     : string;
-	vlName2     :string;
+	vlName1     : ansistring;
+	vlName2     :ansistring;
 
 begin
 	inherited ValidateAfter(ParCre);
 	vlFirst  := TFormulaNode(GetPartByNUm(1));
 	vlSecond := TFormulaNode(GetPartByNum(2));
-	vlType := GetType;
+
 	if (vlFirst <> nil) and (vlSecond <> nil) then begin
+		vlType := vlFirst.GetType;
 		if vlFirst.GetSize = 0 then TNDCreator(ParCre).AddNodeError(vlFirst,Err_Cant_Determine_Size,'2');
 		if vlSecond.GetSize = 0 then TNDCreator(ParCre).AddNodeError(vlSecond,Err_Cant_Determine_Size,'3');
 		if not vlFirst.Can([Can_Write]) then TNDCreator(ParCre).AddNodeError(vlFirst,Err_Cant_Write_To_Item,'');
@@ -904,7 +898,7 @@ begin
 				if vlType <>nil then  vlName1 := vlType.GetErrorName;
 				if vlSecond.GetType <> nil then  vlName2 := vlSecond.GetType.GetErrorName;
 				TNDCreator(ParCre).AddNodeError(vlFirst,Err_Incompatible_types,'Expression '+vlName2+' loaded into '+vlName1);
-			end;
+			end;	
 		end;
 	end;
 	vlFirst  := TFormulaNode(fParts.fStart);
@@ -951,7 +945,7 @@ begin
 end;
 
 
-procedure TLoadNode.getOperStr(Var ParOper:string);
+procedure TLoadNode.getOperStr(Var ParOper:ansistring);
 begin
 	ParOper := ':=';
 end;

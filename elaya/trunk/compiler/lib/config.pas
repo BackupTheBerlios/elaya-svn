@@ -36,21 +36,21 @@ type
 		procedure Commonsetup;override;
 	public
 		property  fProgram   : TRootConfigNode read voProgram;
-		function  AddVar(const ParVar,ParValue:string):TConfigVarItem;
-		function  AddVar(const ParVar,ParValue:string;ParReadOnly:boolean):TCOnfigVarItem;
-		function  GetVar(const ParVar :string) : TConfigVarItem;
-		function  GetVarValue(const ParVar : string;var ParValue : string):boolean;
-		function  GetVarUpperValue(const ParVar : string;var ParValue : string):boolean;
-		function  GetVarUpperBool(const ParVar : string;var ParValue : boolean):boolean;
-		function  GetVarInt(const ParVar : string;var ParValue : longint):boolean;
-		function  SetVarConst(const ParVar,ParValue:string):boolean;
-		function  SetVar(const ParVar,ParValue : string) : boolean;
+		function  AddVar(const ParVar,ParValue:ansistring):TConfigVarItem;
+		function  AddVar(const ParVar,ParValue:ansistring;ParReadOnly:boolean):TCOnfigVarItem;
+		function  GetVar(const ParVar :ansistring) : TConfigVarItem;
+		function  GetVarValue(const ParVar : ansistring;var ParValue : ansistring):boolean;
+		function  GetVarUpperValue(const ParVar : ansistring;var ParValue : ansistring):boolean;
+		function  GetVarUpperBool(const ParVar : ansistring;var ParValue : boolean):boolean;
+		function  GetVarInt(const ParVar : ansistring;var ParValue : longint):boolean;
+		function  SetVarConst(const ParVar,ParValue:ansistring):boolean;
+		function  SetVar(const ParVar,ParValue : ansistring) : boolean;
 		procedure Execute;
-		procedure AddOrSetVar(const ParName,ParValue : string;ParReadOnly : boolean);
+		procedure AddOrSetVar(const ParName,ParValue : ansistring;ParReadOnly : boolean);
 	end;
 	
 implementation
-procedure TConfig.AddOrSetVar(const ParName,ParValue : string;ParReadOnly : boolean);
+procedure TConfig.AddOrSetVar(const ParName,ParValue : ansistring;ParReadOnly : boolean);
 begin
 	if GetVar(ParName) <> nil then begin
 		SetVar(ParName,ParValue);
@@ -59,7 +59,7 @@ begin
 	end;
 end;
 
-function TConfig.GetVarUpperValue(const ParVar : string;var ParValue : string):boolean;
+function TConfig.GetVarUpperValue(const ParVar : ansistring;var ParValue : ansistring):boolean;
 var
 	vlCheck : boolean;
 begin
@@ -68,8 +68,8 @@ begin
 	exit(vlCheck);
 end;
 
-function  TConfig.GetVarUpperBool(const ParVar : string;var ParValue : boolean):boolean;
-var vlStr   : string;
+function  TConfig.GetVarUpperBool(const ParVar : ansistring;var ParValue : boolean):boolean;
+var vlStr   : ansistring;
 	vlCheck : boolean;
 begin
 	vlCheck := GetVarUpperValue(ParVar,vlStr);
@@ -77,8 +77,8 @@ begin
 	exit(vlCheck);
 end;
 
-function TCOnfig.GetVarInt(const ParVar : string; var ParValue : longint):boolean;
-var  vlStr   : string;
+function TCOnfig.GetVarInt(const ParVar : ansistring; var ParValue : longint):boolean;
+var  vlStr   : ansistring;
 	vlCheck : boolean;
 	vlErr   : integer;
 begin
@@ -90,7 +90,7 @@ end;
 
 
 
-function TConfig.SetVarConst(const ParVar,ParValue:string):boolean;
+function TConfig.SetVarConst(const ParVar,ParValue:ansistring):boolean;
 var vlVar : TConfigVarItem;
 begin
 	vlVar := GetVar(ParVar);
@@ -99,7 +99,7 @@ begin
 end;
 
 
-function TConfig.SetVar(const ParVar,ParValue : string):boolean;
+function TConfig.SetVar(const ParVar,ParValue : ansistring):boolean;
 var vlVar : TConfigVarItem;
 begin
 	vlVar := GetVar(ParVar);
@@ -132,29 +132,29 @@ begin
 end;
 
 
-function  TConfig.AddVar(const ParVar,ParValue:string):TConfigVarItem;
+function  TConfig.AddVar(const ParVar,ParValue:ansistring):TConfigVarItem;
 begin
 	exit(AddVar(ParVar,ParValue,false));
 end;
 
-function  TConfig.AddVar(const ParVar,ParValue:string;ParReadOnly:boolean):TConfigVarItem;
+function  TConfig.AddVar(const ParVar,ParValue:ansistring;ParReadOnly:boolean):TConfigVarItem;
 begin
 	if GetVar(ParVar) <> nil then raise EDuplicatedVariable.Create(ParVar,0,0);
 	exit( iVariables.AddVar(ParVar,ParValue,ParReadOnly));
 end;
 
-function  TConfig.GetVar(const ParVar :string) : TConfigVarItem;
-var vlStr:string;
+function  TConfig.GetVar(const ParVar :ansistring) : TConfigVarItem;
+var vlStr:ansistring;
 begin
 	vlStr := ParVar;
 	UpperStr(vlStr);
 	exit( iVariables.GetPtrByName(vlStr));
 end;
 
-function  TConfig.GetVarValue(const ParVar : string;var ParValue : string):boolean;
+function  TConfig.GetVarValue(const ParVar : ansistring;var ParValue : ansistring):boolean;
 var vlVar : TConfigVarItem;
 	vlVal : TValue;
-	vLStr : string;
+	vLStr : ansistring;
 begin
 	vlVar := GetVar(ParVar);
 	if vlVar <> nil then begin

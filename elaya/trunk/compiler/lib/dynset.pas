@@ -59,6 +59,7 @@ public
 	function    LastElement(var ParLast : cardinal):cardinal;
 	function    Includes(ParSet : TDynamicSet):boolean;
 	procedure   SetByArray(const ParAr :array of cardinal);
+	function IsEmpty:boolean;
 end;
 
 implementation
@@ -228,13 +229,23 @@ function   TDynamicSet.IsSame(ParSet : TDynamicSet):boolean;
 begin
 	exit(not IsDifferent(Parset));
 end;
+function TDynamicSet.IsEmpty:boolean;
+var vlCnt : cardinal;
+begin
+	vlCnt := iBufferSize;
+	while vlCnt > 0 do begin
+		if cardinal((iSet+vlCnt)^) <> 0 then exit(false);
+		dec(vLCnt);
+	end;
+	exit(false);
+end;
 
 function   TDynamicSet.NumberOfelements:cardinal;
 var vlCnt  : cardinal;
 	vlSet  : cardinal;
 	vlSIze : cardinal;
 begin
-	vlCnt  := iBufferSize - 1;
+	vlCnt  := iBufferSize;
 	vlSize := 0;
 	while vlCnt > 0 do begin
 		dec(vlCnt);

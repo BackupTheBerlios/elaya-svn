@@ -30,10 +30,10 @@ TCFG_Parser=class(TCFG_scanner)
       Procedure _RMul ( var ParNode : TSubListNode);
       Procedure _RAdd ( var ParNode : TSubListNode);
       Procedure _RExpression ( var ParNode :TSubListNode);
-      Procedure _RConstantText ( var ParTxt :string);
-      Procedure _RString ( var ParTxt : string);
-      Procedure _RNumber ( var ParTxt : string);
-      Procedure _RIdent ( var ParIdent : string);
+      Procedure _RConstantText ( var ParTxt :ansistring);
+      Procedure _Ransistring ( var ParTxt : ansistring);
+      Procedure _RNumber ( var ParTxt : ansistring);
+      Procedure _RIdent ( var ParIdent : ansistring);
       Procedure _IWrite;
       Procedure _IVar;
       Procedure _ISection;
@@ -147,8 +147,8 @@ begin
       
       Procedure TCFG_Parser._RVarDecl;
        
-      var   vlName  : string;
-           vlValue : string;
+      var   vlName  : ansistring;
+           vlValue : ansistring;
            vlReadOnly :boolean;
       
       begin
@@ -209,7 +209,7 @@ begin
       
       Procedure TCFG_Parser._RLoad ( ParNode : TSubListNode);
         var
-      vlIdent : string;
+      vlIdent : ansistring;
       vlNode  : TLoadConfigNode;
       
       begin
@@ -225,14 +225,14 @@ begin
       
       Procedure TCFG_Parser._RIdentExpression ( var ParNode : TSubListNode);
        
-      var   vlTxt  : string;
+      var   vlTxt  : ansistring;
       
       begin
                EmptyString(vlTxt);
              ParNode := nil;
             ;
             if (GetSym = 2) then begin
-                  _RString( vlTxt);
+                  _Ransistring( vlTxt);
                    
                   ParNode := CreateStringConstantNode(vlTxt);
                   ;
@@ -319,11 +319,11 @@ begin
               AddNodeToNode(ParNode,vlNode); ;
       end;
       
-      Procedure TCFG_Parser._RConstantText ( var ParTxt :string);
+      Procedure TCFG_Parser._RConstantText ( var ParTxt :ansistring);
       begin
               EmptyString(ParTxt); ;
             if (GetSym = 2) then begin
-                  _RString( ParTxt);
+                  _Ransistring( ParTxt);
             end
              else if (GetSym = 3) then begin
                   _RNumber( ParTxt);
@@ -333,7 +333,7 @@ begin
             end;
             ;end;
       
-      Procedure TCFG_Parser._RString ( var ParTxt : string);
+      Procedure TCFG_Parser._Ransistring ( var ParTxt : ansistring);
       begin
             Expect(2);
               LexString(ParTxt);
@@ -341,13 +341,13 @@ begin
             ;
       end;
       
-      Procedure TCFG_Parser._RNumber ( var ParTxt : string);
+      Procedure TCFG_Parser._RNumber ( var ParTxt : ansistring);
       begin
             Expect(3);
               LexName(ParTxt);  ;
       end;
       
-      Procedure TCFG_Parser._RIdent ( var ParIdent : string);
+      Procedure TCFG_Parser._RIdent ( var ParIdent : ansistring);
       begin
             Expect(1);
               LexName(ParIdent); ;
@@ -400,7 +400,7 @@ begin
             case ParNo of
                   		0: ParErr :='EOF expected';
                   		1: ParErr :='an identifier expected';
-                  		2: ParErr :='a string expected';
+                  		2: ParErr :='a ansistring expected';
                   		3: ParErr :='a number expected';
                   		4: ParErr :='PRAGMA expected';
                   		5: ParErr :='"CONST" expected';
@@ -423,9 +423,9 @@ begin
                   		22: ParErr :='Invalid statement:an identifier,"SECTION","WRITE","FAIL" exp'
                   			+'ected';
                   		23: ParErr :='Invalid Variable declaration:"VAR","CONST" expected';
-                  		24: ParErr :='Invalid expression:a string,a number,an identifier,"(" expec'
+                  		24: ParErr :='Invalid expression:a ansistring,a number,an identifier,"(" expec'
                   			+'ted';
-                  		25: ParErr :='Invalid expression:a string,a number expected';
+                  		25: ParErr :='Invalid expression:a ansistring,a number expected';
             end;
       end;
       

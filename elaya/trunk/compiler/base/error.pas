@@ -133,20 +133,20 @@ const
 	Err_Not_A_Variable		  = 1115;
 	Err_Cant_Cast_To_This_Type    = 1116;
 	Err_Ovr_Dif_Routine_Type	  = 1117;
-	Err_Ovr_Need_Overl		  = 1118;
-	Err_Ovr_Need_Name_Overl	  = 1119;
-	Err_Ovr_Param_different	  = 1120;
+	Err_Ovr_Need_Overl            = 1118;
+	Err_Ovr_Need_Name_Overl       = 1119;
+	Err_Ovr_Param_different       = 1120;
 	Err_Ovr_Return_Type_Different = 1121;
-	Err_Overload_Differs	  = 1122;
-	Err_extended_Not_In_Extern	  = 1123;
+	Err_Overload_Differs	      = 1122;
+	Err_extended_Not_In_Extern    = 1123;
 	Err_Def_Not_In_Forward        = 1124;
 	Err_Cant_Use_Has_Here         = 1125;
-	Err_Is_Overloaded	          = 1126;
+	Err_Is_Overloaded	      = 1126;
 	Err_Rtn_Has_No_Forward        = 1127;
 	Err_Rtn_Requires_Main         = 1128;
-	Err_Cant_Use_Private_Ident	  = 1129;
+	Err_Cant_Use_Private_Ident    = 1129;
 	Err_Routine_Has_Allready_forw = 1130;
-	Err_Not_A_String_Constant     = 1131;
+	Err_Not_A_ansistring_Constant = 1131;
 	Err_Wrong_External_Type       = 1132;
 	Err_Wrong_Calling_Type        = 1133;
 	Err_Unkown_COnfig_Variable    = 1134;
@@ -200,6 +200,7 @@ const
 	Err_Invalid_Number	  	 	   = 1186;
 	Err_Error_in_lib_info         = 1187;
 	Err_Link_Name_Unkown          = 1188;
+	Err_Routine_Expected          = 1189;
 
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
@@ -341,13 +342,13 @@ const
 	Fat_Combine_Wrong_Type_du   = 4099;
 	FAT_no_du_list_from_context = 4100;
 	FAT_Wrong_Class_Type        = 4101;
-	procedure GetError(ParErrorNo:TErrorTYpe;var ParMsg:string);
-	procedure Fatal(ParError:TErrorType;const ParRes:string);
+	procedure GetError(ParErrorNo:TErrorTYpe;var ParMsg:ansistring);
+	procedure Fatal(ParError:TErrorType;const ParRes:ansistring);
 	procedure Fatal(PArError:TErrorTYpe;const ParArray:array of const);
 	implementation
 	
 	
-procedure Fatal(ParError:TErrorType;const ParRes:string);
+procedure Fatal(ParError:TErrorType;const ParRes:ansistring);
 var vlMsg:pchar;
 begin
 	writeln('Fatal error:');
@@ -468,14 +469,14 @@ end;
 
 
 procedure Fatal(PArError:TErrorTYpe;const ParArray:array of const);
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	ArrayToStr(ParArray,vLStr);
 	Fatal(ParError,vlStr);
 end;
 
 
-procedure GetError(PArErrorNo:TErrorType;var ParMsg:String);
+procedure GetError(PArErrorNo:TErrorType;var ParMsg:ansistring);
 var    vlMsg:Pchar;
 begin
 	str(ParErrorNo,ParMsg);
@@ -497,7 +498,7 @@ begin
 		Err_Cant_Return_Value    :vlMsg := 'Can''t return a value from here';
 		Err_Must_Return_Value    :vlMsg := 'Must Retrun a value';
 		Err_Not_Boolean_Type     :vlMsg := 'Not a boolean type';
-		Err_Cant_Find_Str_Type   :vlMsg := 'Can''t find a default string type';
+		Err_Cant_Find_Str_Type   :vlMsg := 'Can''t find a default ansistring type';
 		Err_Invalid_Operation    :vlMsg := 'Invalid operation';
 		Err_Not_A_Pointer_Type   :vlMsg := 'Expression is not a pointer type';
 		Err_Not_A_Member         :vlMsg := 'Identifier is not a member';
@@ -548,7 +549,7 @@ begin
 		Err_Dif_type_needs_main      : vlMsg := 'Inherited from a different type of named routine needs main Routine'; {beter}
 		Err_No_Meta_Data_Type        : vlMsg := 'Can''t find type for Meta data';
 		Err_Inh_Has_Different_Type   : vlMsg := 'Inherited from function/operator with differen return type  needs main Routine';
-		Err_Enc_Not_extended	         : vlMsg := 'Owner of routine is not extended';
+		Err_Enc_Not_extended	       : vlMsg := 'Owner of routine is not extended';
 		Err_virt_Allready_virt       : vlMsg := 'Duplicate virtual identifier';
 		Err_Virt_Allready_Static     : vlMsg := 'Try to redeclare a static identifier by a virtual identifier';
 		Err_Ovr_Allready_Static      : vlMsg := 'Try to override a static identifier';
@@ -597,7 +598,7 @@ begin
 		Err_Ovr_Need_Overl			 : vlMsg := 'Need "Overload" clause because the same routine in the parent is also overloaded';
 		Err_Ovr_Need_Name_Overl      : vlMsg := 'Need "Overload name" clause  because the same routine in the parent  is also overloaded by name';
 		Err_Ovr_Param_different		 : vlMsg := 'Tried to override by a routine with different parameters';
-		Err_Ovr_Return_Type_Different: vlMsg := 'Can''t override by this routine because return type is different';
+		Err_Ovr_Return_Type_Different    : vlMsg := 'Can''t override by this routine because return type is different';
 		Err_Overload_Differs		 : vlMsg := 'Type of overloading differs from previous definition';
 		Err_extended_Not_In_Extern	 : vlMsg := 'extended routines not allowed in External declaration';
 		Err_Def_Not_In_Forward		 : vlmsg := 'Idenifier not found in forward';
@@ -605,13 +606,13 @@ begin
 		Err_Rtn_Has_No_Forward		 : vlMsg := 'extended routine does not contain forward defined routines';
 		Err_Rtn_Requires_Main		 : vlMsg := 'Routine requires main';
 		Err_Cant_Use_Private_Ident	 : vlMsg := 'Can''t use a private identifier here';
-		Err_Routine_Has_Allready_forw: vlMsg := 'Routine has allready a forward section';
-		Err_Not_A_String_Constant	 : vlMsg := 'Not a string type expression';
+		Err_Routine_Has_Allready_forw    : vlMsg := 'Routine has allready a forward section';
+		Err_Not_A_ansistring_Constant	 : vlMsg := 'Not a ansistring type expression';
 		Err_Wrong_External_Type		 : vlMsg := 'Wrong external type';
 		Err_Wrong_Calling_Type		 : vlMsg := 'Wrong Calling type';
 		Err_Unkown_COnfig_Variable	 : vlMsg := 'Unkown config variable';
-		Err_Error					 : vlMsg := 'Error:';
-		Err_Array_Too_big			 : vlMsg := 'Array is too big';
+		Err_Error                        : vlMsg := 'Error:';
+		Err_Array_Too_big                : vlMsg := 'Array is too big';
 		Err_Parent_inh_Final		 : vlMsg := 'Can''t inherit from this routine, parent is "inherit final"';
 		Err_Parent_is_not_isolated	 : vlMsg := 'Parent is not isolated';
 		Err_Must_Isolate			 : vlMsg := 'Routine me be isolated because parent is also isolated';
@@ -663,10 +664,10 @@ begin
 		Err_Write_Some_Without_Read  : vlMsg := 'Previous value is sometimes not used';
 		Err_Variable_Not_Used        : vlMsg := 'Variabel is not used';
 		Err_Write_Rtn_Only_In_V_Class: vlmsg := 'Write routine can only be used in value classes';
-		Err_Invalid_Number           : vlMsg := 'Conversion string => number returned Invalid number';
+		Err_Invalid_Number           : vlMsg := 'Conversion ansistring => number returned Invalid number';
 		Err_Error_in_Lib_Info        : vlMsg := 'Error in link info file';
 		Err_Link_Name_Unkown         : vlMsg := 'Unkown link info name';
-
+		Err_Routine_Expected         : vlMsg := 'Invalid object for this operation, routine expected';
 
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';

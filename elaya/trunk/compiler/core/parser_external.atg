@@ -3,7 +3,7 @@ PRODUCTIONS
 
 RExternal:"external definition"
 (.var
-	vlIdent   : Tstring;
+	vlIdent   : ansistring;
 	vlExt     : TExternalInterface;
 	vlType    : TExternalType;
 	vlRoutine : TRoutine;
@@ -11,10 +11,9 @@ RExternal:"external definition"
 	vlAt      : cardinal;
 	vlHasAt   : boolean;
 	vlHasses  : cardinal;
-	vlExType : TString;
-	vlName    : String;
-	vlCDeclTxt: TString;
-	vlStr     : string;
+	vlExType  : ansistring;
+	vlName    : ansistring;
+	vlStr     : ansistring;
 .)
 =
 (.
@@ -22,7 +21,6 @@ RExternal:"external definition"
    vlAt    := 0;
    vlType  := ET_Linked;
    vlCDecl := false;
-   vlCDeclTxt := nil;
 .)
 IExternal
 
@@ -34,9 +32,9 @@ IExternal
 
 	{(((RProcedureHead<vlRoutine,vlHasses>)
 	|(RFunctionHead<vlRoutine,vlHasses>) )
-           IName RDirectTString<vlIdent> ";"
+           IName RDirectString<vlIdent> ";"
 		(.
-            if vlRoutine <>  nil then begin
+			if vlRoutine <>  nil then begin
 				fNDCreator.EndIdentNum(vlHasses);
 				vlRoutine.PreProcessParameterList(nil,nil,fNDcreator);
 				CreateExternalInterfaceObject(vlCDecl,vlRoutine,vlExt,vlIdent);

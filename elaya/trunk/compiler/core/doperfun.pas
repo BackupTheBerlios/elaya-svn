@@ -26,7 +26,7 @@ type TOperatorFunction=class(TFunction)
 	public
 		procedure PrintDefinitionHeader(ParDis:TDisplay);override;
 		procedure PrintDefinitionType(ParDis : TDisplay);override;
-		procedure GetTextName(var ParName : string);override;
+		procedure GetTextName(var ParName : ansistring);override;
 		function  CreateExitNode(ParCre : TCreator;ParNode : TFormulaNode) : TNodeIdent;override;
 	end;
 	
@@ -60,12 +60,11 @@ begin
 	exit(inherited CreateExitNode(ParCre,ParNode));
 end;
 
-procedure TOperatorFunction.GetTextName(var ParName:String);
+procedure TOperatorFunction.GetTextName(var ParName:ansistring);
 var
-	vlStr  : string;
+	vlStr  : ansistring;
 begin
-	GetTextStr(vlStr);
-	OperatorToDesc(vlStr,ParName);
+	OperatorToDesc(fText,ParName);
 end;
 
 end.

@@ -2,7 +2,7 @@ root_path=../../
 include $(root_path)Makefile.inc
 
 
-.PHONY: all debug native clean oth_linux oth_win32 eel cgi mysl gtk mysql
+.PHONY: all debug native clean oth_linux oth_win32 eel cgi mysl gtk mysql math
 
 
 
@@ -39,7 +39,7 @@ install:
 	$(MAKE) install -C gtk
 	$(MAKE) install -C mysql
 	$(MAKE) install -C native
-
+	$(MAKE) install -C math
    
 clean:
 	$(MAKE) clean -C eel

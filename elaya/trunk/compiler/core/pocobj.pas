@@ -76,7 +76,7 @@ type
 	private
 		voClassName : TString;
 	protected
-		procedure  SetClassName(const ParClassName:string);
+		procedure  SetClassName(const ParClassName:ansistring);
 		property  fClassName:TString read voClassName write voClassName;
 		procedure  clear;override;
 		procedure   Commonsetup;override;
@@ -84,7 +84,7 @@ type
 	public
 		procedure   Print(ParDis:TDisplay);override;
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
-		constructor Create(const ParName:string);
+		constructor Create(const ParName:ansistring);
 	end;
 	
 	TSubPoc=class(TPocBase)
@@ -113,7 +113,7 @@ type
 		property iInst    : TLabelInst read voInst    write voInst;
 	public
 		constructor Create;
-		procedure GetName(var ParName:string);
+		procedure GetName(var ParName:ansistring);
 		procedure CommonSetup;override;
 		procedure Print(ParDis:TDisplay);override;
 		function  Optimize:boolean;override;
@@ -819,13 +819,13 @@ begin
 	if fClassName <> nil then fClassName.Destroy;
 end;
 
-procedure TUnkPoc.SetClassName(const ParClassName:string);
+procedure TUnkPoc.SetClassName(const ParClassName:ansistring);
 begin
 	if fClassName <> nil then fClassName.Destroy;
 	fClassName := TString.Create(parClassName);
 end;
 
-constructor TUnkPoc.Create(const ParNAme:string);
+constructor TUnkPoc.Create(const ParNAme:ansistring);
 begin
 	inherited Create;
 	SetClassName(ParName);
@@ -844,7 +844,7 @@ begin
 end;
 
 procedure TUnkPoc.Print(ParDis:TDisplay);
-var vlStr:String;
+var vlStr:ansistring;
 begin
 	fClassName.GetString(vlStr);
 	ParDis.Write('Error, node className=' + vlStr);
@@ -1132,7 +1132,7 @@ end;
 
 procedure   TCondJumpPoc.Print(PArDis:TDisplay);
 var vlLabel : TLabelPoc;
-	vlName  : string;
+	vlName  : ansistring;
 begin
 	ParDis.Write('jump when ');
 	PrintIdent(ParDis,iMac);
@@ -1204,29 +1204,31 @@ begin
 end;
 
 function  TJumpPoc.Optimize:boolean;
-var vJmp      : TJumpPoc;
-	vIc       : TPocIdentCode;
+var 
+	vlPoc     : TPocBase;
+	vlJmp     : TJumpPoc;
 	vlCurrent : TPocBase;
 begin
-	Optimize := false;
-	vJmp := TJumpPoc(fLabel.GetNextNi);
+
+	
 	if Pointer(fNxt) = pointer(fLabel) then begin
 		SetDelete;
-		Optimize := true;
-		exit;
+		exit(true);
 	end;
-	if vJmp <> nil then begin
-		vIc := vJmp.fIdentCode;
-		if (vIc = IC_JumpPoc) or (vIc = IC_CondJumpPoc) then begin
-			if fLabel <>vJmp.fLabel then begin
-				SetLabel(vJmp.fLabel);
+	Optimize := false;
+	vlPoc := fLabel.GetNextNi;
+	if vlPoc <> nil then begin
+		if vlPoc.ClassType = TJumpPoc  then begin
+			vlJmp := TJumpPoc(vlPoc);
+			if fLabel <>vlJmp.fLabel then begin
+				SetLabel(vlJmp.fLabel);
 				Optimize := true;
 			end;
 		end;
 	end;
 	vlCurrent := TPocBase(fNxt);
 	while (vlCurrent <> nil) and ((vlCurrent.fIdentCode  <> IC_LabelPoc)
-	and (vlCurrent.fIdentCode <> ic_SubPoc)) do begin
+	and (vlCurrent.fIdentCode <> ic_SubPoc)) do begin {TODO why not subpoc?}
 		vlCurrent.SetDelete;
 		vlCurrent := TPocBase(vlCurrent.fNxt);
 		Optimize := true;
@@ -1238,17 +1240,19 @@ end;
 function  TJumpPoc.OptimizeFollowingLabels:boolean;
 var
 	vlPoc : TLabelPoc;
-	vlPrv : TLabelPoc;
 begin
 	OptimizeFollowingLabels := false;
 	vlPoc := fLabel;
-	vlPrv := fLabel;
 	while (vlPoc <> nil) do begin
-		if  not (vlPoc is TLabelPoc) then break;
-		vlPrv := vlPoc;
+		if  vlPoc.fPrv = nil then break;
+		if not (vlPoc.fPrv is TLabelPoc) then break;
 		vlPoc := TLabelPoc(vlPoc.fPrv);
 	end;
-	if vlPrv <> fLabel then SetLabel(vlPrv);
+	if vlPoc <> fLabel then begin
+		SetLabel(vlPoc);
+		OptimizeFollowingLabels := true;
+	end;
+	exit;
 end;
 
 
@@ -1269,7 +1273,7 @@ end;
 
 
 procedure TJumpPoc.Print(ParDis:TDisplay);
-var vLabName:string;
+var vLabName:ansistring;
 begin
 	fLabel.GetName(vLabName);
 	ParDis.write('jump ');
@@ -1319,7 +1323,7 @@ begin
 end;
 
 
-procedure TLabelPoc.GetName(var ParName:string);
+procedure TLabelPoc.GetName(var ParName:ansistring);
 begin
 	
 	str(voLabelNo,ParName);
@@ -1327,7 +1331,7 @@ begin
 end;
 
 procedure TLabelPoc.Print(ParDis:TDisplay);
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	GetName(vlStr);
 	ParDis.SetLeftMargin(-12);

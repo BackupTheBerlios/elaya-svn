@@ -5,7 +5,7 @@ uses asminfo,frames,macobj,pocobj,elatypes,stdobj,elacons,objlist,display,resour
 type
 		TRoutinePoc=class(TSubPoc)
 		private
-			voName	              : TString;
+			voName	              : AnsiString;
 			voExitLabel           : TLabelPoc;
 			voCDeclFlag           : boolean;
 			voParamSize           : TSize;
@@ -21,7 +21,7 @@ type
 			property  iLocalFramePtr      : TMacBase      read voLocalFramePtr      write voLocalFramePtr;
 			property  iCDeclFlag          : boolean       read voCDeclFlag          write voCDeclFlag;
 			property  iParamSize          : TSize	      read voParamSize          write voParamSize;
-			property  iName	              : TString       read voName               write voName;
+			property  iName	              : AnsiString    read voName               write voName;
 			property  iNeedStackFrame     : boolean       read voNeedStackFrame     write voNeedStackFrame;
 			property  iHasNeverStackFrame : boolean       read voHasNeverStackFrame write voHasNeverStackFrame;
 			property  iHasOwnFramePtr     : boolean       read voHasOwnFramePtr     write voHasOwnFramePtr;
@@ -31,13 +31,13 @@ type
 
 		public
 			property  fObjectList         : TObjectList   read voObjectList;
-			property  fHasNeverStackFrame : boolean   read voHasNeverStackFrame     write voHasNeverStackFrame;
-			property  fNeedStackFrame     : boolean   read voNeedStackFrame         write voNeedStackFrame;
-			property  fHasOwnFramePtr     : boolean   read voHasOwnFramePtr;
-			property  fParamSize          : TSize     read voParamSize;
-			property  fLocalFramePtr      : TMacBase  read voLocalFramePtr;
-			property  fCDeclFlag          : boolean   read voCDeclFlag;
-			property  fName               : TString   read voName;
+			property  fHasNeverStackFrame : boolean    read voHasNeverStackFrame     write voHasNeverStackFrame;
+			property  fNeedStackFrame     : boolean    read voNeedStackFrame         write voNeedStackFrame;
+			property  fHasOwnFramePtr     : boolean    read voHasOwnFramePtr;
+			property  fParamSize          : TSize      read voParamSize;
+			property  fLocalFramePtr      : TMacBase   read voLocalFramePtr;
+			property  fCDeclFlag          : boolean    read voCDeclFlag;
+			property  fName               : AnsiString read voName;
 			constructor Create(const ParName : String;ParCDeclFlag : boolean;ParOwnerPoc : TRoutinePoc;ParSharedLocalFrame : boolean;ParLocalframe : TFrame;ParParamSize : TSize);
 			
 			
@@ -72,7 +72,7 @@ implementation
 		inherited Create;
 		iCDeclFlag     := ParCDeclFlag;
 		iParamSize     := ParParamSize;
-		iName	         := TString.Create(ParName);
+		iName          := ParName;
 		if ParSharedLocalFrame  then begin
 			iHasOwnFramePtr := false;
 			iLocalFramePtr := ParOwnerPoc.fLocalFramePtr;
@@ -87,7 +87,6 @@ implementation
 	procedure TRoutinePoc.Clear;
 	begin
 		inherited Clear;
-		if iName       <> nil then iName.Destroy;
 		if iExitLabel  <> nil then iExitLabel.Destroy;
 		if iObjectList <> nil then iObjectList.Destroy;
 	end;

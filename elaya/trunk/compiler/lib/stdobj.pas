@@ -19,13 +19,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit stdobj;
 interface
-uses  strings,largenum,progutil;
+uses  strings,largenum,progutil,sysutils;
 
 const
 	VT_Nothing = 1;
 	VT_Pointer = 2;
 	VT_Integer = 3;
-	VT_String  = 4;
+	VT_ansistring  = 4;
 	VT_Char    = 5;
 	VT_Boolean = 6;
 	
@@ -74,12 +74,12 @@ public
 	function    Sub(ParVal:TValue):TCalculationStatus;virtual;
 	function    DivVal(ParVal:TValue):TCalculationStatus;virtual;
 	function    Clone:TValue;virtual;
-	procedure   GetString(var ParStr:string);virtual;
+	procedure   GetString(var ParStr:ansistring);virtual;
 	function    GetLongint(var ParInt:Longint):boolean;virtual;
 	function    GetBool(var  ParBool : boolean):boolean;virtual;
 	function    IsEqual(ParValue : TValue):boolean; virtual;
 	function    GetPointer(var ParPtr : cardinal):boolean;virtual;
-	procedure   GetAsString(var ParStr : string);virtual;
+	procedure   GetAsString(var ParStr : ansistring);virtual;
 	function    GetAsNumber(var ParNum : TLargeNumber):boolean;virtual;
 	function    GetNumber(var ParVal : TLargeNumber):boolean;virtual;
 	function    ConvertToNumber(var ParNumber : TLargeNumber):boolean;virtual;
@@ -103,7 +103,7 @@ public
 	property fChar : Char read voChar;
 	function GetLength : cardinal;override;
 	constructor Create(ParChar : char);
-	procedure   GetString(var ParStr : string);override;
+	procedure   GetString(var ParStr : ansistring);override;
 	function    IsEqual(ParValue : TValue):boolean;override;
 	function    ConvertToNumber(var ParNumber : TLargeNumber):boolean;override;
 	function    Clone : TCharValue;override;
@@ -127,7 +127,7 @@ public
 	function  OrVal(ParVal : TValue):TCalculationStatus;override;
 	function  Clone : TValue ;override;
 	function  IsEqual(ParValue : TValue):boolean; override;
-	procedure GetString(Var ParStr:string); override;
+	procedure GetString(Var ParStr:ansistring); override;
 	function    GetAsNumber(var ParNum : TLargeNumber):boolean;override;
 end;
 
@@ -139,7 +139,7 @@ protected
 	procedure   Commonsetup;override;
 public
 	function    Add(Parval:TValue):TCalculationStatus;override;
-	procedure   GetString(var ParStr:string);override;
+	procedure   GetString(var ParStr:ansistring);override;
 	function    GetLongint(var ParInt:Longint):boolean;override;
 	procedure   SetPointer(ParInt:cardinal);
 	function    Clone:TValue;override;
@@ -167,7 +167,7 @@ public
 	function    XorVal(ParVal : TValue):TCalculationStatus;override;
 	function    DivVal(ParVal : TValue):TCalculationStatus;override;
 	function    ModVal(ParVal : TValue):TCalculationStatus;override;
-	procedure   GetString(var ParStr:string);override;
+	procedure   GetString(var ParStr:ansistring);override;
 	procedure   SetLongint(ParInt:Longint);
 	function    GetLongint(var ParInt:Longint):boolean;override;
 	function    Clone:TValue;override;
@@ -186,27 +186,26 @@ end;
 
 TString=class(TStringBaseValue)
 private
-	voText:pchar;
+	voText   : ansistring;
 	voLength : cardinal;
-	property iText : pchar read voText write voText;
+	property iText : ansistring read voText write voText;
 	property iLength : cardinal read voLength write voLength;
 protected
 	procedure  CommonSetup;override;
-	procedure  clear;override;
-
 public
-	property fText : pchar read voText;
+	property fText : ansistring read voText;
 	property fLength : cardinal read voLength;
 	function GetLength : cardinal;override;
 
 	function    Add(ParVal:TValue):TCalculationStatus;override;
 	function    CharAt(ParPos: cardinal):char;
 	function    NewString:TString;
-	procedure   AppendStr(const ParString:string);
-	procedure   GetString(var ParStr:string);override;
+	procedure   AppendStr(const ParString:ansistring);
+	procedure   GetString(var ParStr:ansistring);override;
 	constructor Create(const ParStr:TString);
-	constructor Create(const ParStr:string);
-	function    IsEqualStr(const ParStr:String):boolean;
+	constructor Create(const ParStr:ansistring);
+	constructor create(const ParStr : char);
+	function    IsEqualStr(const ParStr:ansiString):boolean;
 	function    IsEqual(ParWith:TValue):boolean;  override;
 	function    Clone:TValue;override;
 	procedure   ToUpper;
@@ -367,13 +366,13 @@ begin
 	iType := VT_Char;
 end;
 
-procedure   TCharValue.GetString(var ParStr : string);
+procedure   TCharValue.GetString(var ParStr : ansistring);
 begin
 	ParStr := iChar;
 end;
 
 function    TCharValue.IsEqual(ParValue : TValue):boolean;
-var vlStr : string;
+var vlStr : ansistring;
 begin
 	if (ParValue is TString) or (ParValue is TCharValue) then begin
 		ParValue.GetString(vlStr);
@@ -403,7 +402,7 @@ begin
 	iType      := VT_Boolean;
 end;
 
-procedure TBoolean.GetString(Var ParStr:string);
+procedure TBoolean.GetString(Var ParStr:ansistring);
 begin
 	if iBool then begin
 		ParStr := 'TRUE'
@@ -485,7 +484,7 @@ begin
 	exit(true);
 end;
 
-procedure TValue.GetAsString(var ParStr : string);
+procedure TValue.GetAsString(var ParStr : ansistring);
 begin
 	GetString(ParStr);
 end;
@@ -555,7 +554,7 @@ begin
 end;
 
 
-procedure TValue.GetString(var ParStr:String);
+procedure TValue.GetString(var ParStr:ansistring);
 begin
 	EmptyString(ParStr);
 end;
@@ -641,7 +640,7 @@ begin
 end;
 
 
-procedure   TPointer.GetString(var ParStr:string);
+procedure   TPointer.GetString(var ParStr:ansistring);
 var vlI : longint;
 begin
 	GetLongint(vLi);
@@ -810,7 +809,7 @@ begin
 	exit(CS_OK);
 end;
 
-procedure   TLongint.GetString(var ParStr:string);
+procedure   TLongint.GetString(var ParStr:ansistring);
 begin
 	LargeToString(voLongint,ParStr);
 end;
@@ -834,7 +833,7 @@ end;
 
 procedure TString.ToUpper;
 begin
-	StrUpper(voText);
+	voText := AnsiUpperCase(voText);
 end;
 
 function  TString.Clone:TValue;
@@ -846,84 +845,47 @@ end;
 procedure TString.CommonSetup;
 begin
 	inherited commonsetup;
-	iType := VT_String;
-	iText := nil;
+	iType := VT_ansistring;
+	SetLength(voText ,0);
 end;
 
-function  TString.Add(ParVal:TValue):TCalculationStatus;
-var
-	vlText2 : pchar;
-	vlLength: cardinal;
+constructor TString.create(const ParStr : char);
 begin
-	if (ParVal = nil) or not(ParVal is TString) then exit(CS_Invalid_Operation);
-	vlLength := fLength + TString(ParVal).fLength;
-	vlText2 := int_Malloc(vlLength+1);
-	StrCopy(vlText2,iText);
-	StrCat(vlText2,TString(ParVal).fText);
-	int_free(voText,fLength+1);
-	iText := vlText2;
-	iLength := vlLength;
-	exit(CS_Ok);
+	inherited Create;
+	iText := ParStr;
+	iLength := 1;
 end;
 
-constructor TString.create(const ParStr:string);
+constructor TString.Create(const ParStr : ansistring);
 begin
-	inherited create;
-	iLength := Length(ParStr);
-	iText := int_Malloc(voLength + 1);
-	StrPCopy(voText,ParStr);
+	inherited Create;
+	iText := ParStr;
+	iLength := length(ParStr);
 end;
 
 constructor TString.Create(const ParStr : TString);
 begin
 	inherited Create;
+	iText := ParStr.fText;
 	iLength := ParStr.fLength;
-	iText := int_Malloc(voLength + 1);
-	strcopy(voText,ParStr.fText);
 end;
 
-procedure TString.GetString(var ParStr:string);
-var
-	vlLength : cardinal;
+procedure TString.GetString(var ParStr:ansistring);
 begin
-	vlLength := fLength;
-	if(vlLength > 255) then vlLength := 255;
-	SetLength(ParStr, vlLength);
-	move(voText^,ParStr[1],vlLength);
+	ParStr := fText;
 end;
 
 function TString.IsEqual(ParWith:TValue):boolean;
-var
-	vlP1 :pchar;
-	vlP2 : pchar;
 begin
 	if(ParWith = nil) or not(ParWith is TString) then exit(false);
-	vlP1 := voText;
-	vlP2 := TString(ParWith).fText;
-	while (vlP1^ <> #0) and (vlP2^ <> #0) and (vlP1^ = vlP2^) do begin
-		inc(vLp1);
-		inc(vlP2);
-	end;
-	exit(vlP1^ = vlP2^);
+	exit(isEqualStr(TString(ParWith).fText));
 end;
 
 
-function TString.IsEqualStr(const ParStr:String):boolean;
-var
-	vlP1 :pchar;
-	vlP2 : pchar;
-	vlLength : cardinal;
+
+function TString.IsEqualStr(const ParStr:ansiString):boolean;
 begin
-	vlLength := length(ParStr);
-	if(vlLength <> iLength) then exit(false);
-	vlP1 := voText;
-	vlP2 := @ParStr[1];
-	while (vlLength > 0) and (vlP1^ = vlP2^) do begin
-		inc(vLp1);
-		inc(vlP2);
-		dec(vlLength);
-	end;
-	exit(vlLength = 0);
+	exit(iText = ParStr);
 end;
 
 
@@ -933,22 +895,21 @@ begin
 end;
 
 
-procedure TString.AppendStr(const ParString:string);
+procedure TString.AppendStr(const ParString:ansistring);
+begin
+	iText   := iText + ParString;
+	iLength := iLength + length(ParString) ;
+end;
+
+function  TString.Add(ParVal:TValue):TCalculationStatus;
 var
 	vlText2 : pchar;
 	vlLength: cardinal;
-begin
-	vlLength := fLength + length(ParString) ;
-	vlText2 := int_Malloc(vlLength+1);
-	StrCopy(vlText2,iText);
-	StrLCat(vlText2,@ParString[1],length(ParString));
-	vlText2[vlLength] := char(0);
-	int_free(voText,fLength+1);
-	iText := vlText2;
-	iLength := vlLength;
+begin	
+	if (ParVal = nil) or not(ParVal is TString) then exit(CS_Invalid_Operation);
+	AppendStr(TString(ParVal).fText);
+	exit(CS_Ok);
 end;
-
-
 
 function  TString.NewString:TString;
 begin
@@ -956,11 +917,6 @@ begin
 end;
 
 
-procedure TString.Clear;
-begin
-	inherited clear;
-	if(voText <> nil) then int_free(voText,iLength+1);
-end;
 
 
 begin

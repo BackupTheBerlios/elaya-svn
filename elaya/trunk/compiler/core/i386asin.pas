@@ -32,7 +32,7 @@ type
 		procedure TranslateShlShr(ParCre : TInstCreator; ParPoc : TPocBase;ParShl : boolean);
 
 	public
-		function  CreateAsmExec(const ParInputFile,ParOutputFile:string):TCompAppl;override;
+		function  CreateAsmExec(const ParInputFile,ParOutputFile:ansistring):TCompAppl;override;
 		procedure TranslateRet(ParCre:TInstCreator;ParPoc:TPocBase);override;
 		procedure TranslateJump(ParCre:TInstCreator;ParPoc:TPocBase);override;
 		procedure TranslateCondJump(ParCre:TInstCreator;ParPoc:TPocBase);override;
@@ -56,7 +56,7 @@ type
 		procedure TranslateSetPar(ParCre : TInstCreator ; ParPoc : TPocBase);override;
 		procedure CreateResources(ParCre:TInstCreator;ParPoc:TPocBase;ParInst:TInstruction);
 		procedure TranslateComp(ParCre:TInstCreaTOR;ParPoc:TPocBase);override;
-		procedure GetRegisterByCode(ParCode:TNormal;var ParName:string);override;
+		procedure GetRegisterByCode(ParCode:TNormal;var ParName:ansistring);override;
 		procedure CreateRoutineInit(ParCre:TInstCreator;ParPoc:TPocBase); override;
 		procedure CreateRoutineExit(ParCre:TInstCreator;ParPoc:TPocBase); override;
 		procedure InitRegisterList;override;
@@ -69,23 +69,23 @@ type
 
 	public
 		function  HasIntelDirection:boolean;override;
-		procedure GetRegisterByCode(ParCode:TNormal;var ParName:string);override;
-		procedure GetInstruction(var ParInstruction:string;ParDesSize,ParSrcSize:TSize);override;
+		procedure GetRegisterByCode(ParCode:TNormal;var ParName:ansistring);override;
+		procedure GetInstruction(var ParInstruction:ansistring;ParDesSize,ParSrcSize:TSize);override;
 		function  GetRemarkChar:char;override;
-		function  GetSectionText(const ParName:string):string;override;
-		function  GetGlobalText(const ParName:string):string;override;
-		function  CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;override;
+		function  GetSectionText(const ParName:ansistring):ansistring;override;
+		function  GetGlobalText(const ParName:ansistring):ansistring;override;
+		function  CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;override;
 	end;
 	
 	TX86IntelAssemblerInfo=class(TX86AssemblerInfo)
 	public
-		function  GetSectionText(const ParName:String):string;override;
-		procedure GetInstruction(var ParInstruction:string;ParDesSize,ParSrcSize:TSize);override;
+		function  GetSectionText(const ParName:ansistring):ansistring;override;
+		procedure GetInstruction(var ParInstruction:ansistring;ParDesSize,ParSrcSize:TSize);override;
 	end;
 	
 	TAs86AssemblerInfo=class(TX86IntelAssemblerInfo)
-		function  CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;override;
-		function  CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;override;
+		function  CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;override;
+		function  CreateAsmExec(const ParInputFile,ParOutputDir:ansistring):TCompAppl;override;
 		
 		procedure Commonsetup;override;
 		function  GetManglingCHar:Char;override;
@@ -97,9 +97,9 @@ type
 		procedure Commonsetup;override;
 
 	public
-		function  CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;override;
-		function  GetGlobalText(const ParName:string):string;override;
-		function  CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;override;
+		function  CreateAsmExec(const ParInputFile,ParOutputDir:ansistring):TCompAppl;override;
+		function  GetGlobalText(const ParName:ansistring):ansistring;override;
+		function  CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;override;
 		
 	end;
 	
@@ -111,24 +111,24 @@ type
 	TATT386AsmDisplay=class(T386AsmDisplay)
 	public
 		procedure AsPrintNumber(ParSize : TSize;ParNumber : TNumber); override;
-		procedure AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);override;
+		procedure AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);override;
 		procedure AsPrintAlign(ParAlign : TSize); override;
-		procedure AsPrintAscii(const ParText : string);override;
-		procedure AsPrintAsciiz(const ParText : string);override;
-		procedure AsPrintMemVar(ParSize : TSize;const ParText : string);override;
-		procedure AsPrintOffset(const ParText : string;ParOffset : TOffset);override;
-		procedure AsPrintMemIndex(const ParRegister,ParVar: string;ParIndex : TOffset;ParSize:TSize); override;
+		procedure AsPrintAscii(const ParText : ansistring);override;
+		procedure AsPrintAsciiz(const ParText : ansistring);override;
+		procedure AsPrintMemVar(ParSize : TSize;const ParText : ansistring);override;
+		procedure AsPrintOffset(const ParText : ansistring;ParOffset : TOffset);override;
+		procedure AsPrintMemIndex(const ParRegister,ParVar: ansistring;ParIndex : TOffset;ParSize:TSize); override;
 		
 	end;
 	
 	TIntelAsmDisplay=class(T386AsmDisplay)
-		procedure AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);override;
+		procedure AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);override;
 		procedure AsPrintAlign(ParAlign : TSize);override;
-		procedure AsPrintAscii(const ParText : string);override;
-		procedure AsPrintAsciiz(const ParText : string);override;
-		procedure AsPrintMemVar(ParSize : TSize;const ParText : string);override;
-		procedure AsPrintOffset(const ParText : string;ParOffset : TOffset);override;
-		procedure AsPrintMemIndex(const ParRegister,ParVar: string;ParIndex : TOffset;ParSize:TSize); override;
+		procedure AsPrintAscii(const ParText : ansistring);override;
+		procedure AsPrintAsciiz(const ParText : ansistring);override;
+		procedure AsPrintMemVar(ParSize : TSize;const ParText : ansistring);override;
+		procedure AsPrintOffset(const ParText : ansistring;ParOffset : TOffset);override;
+		procedure AsPrintMemIndex(const ParRegister,ParVar: ansistring;ParIndex : TOffset;ParSize:TSize); override;
 		
 	end;
 	
@@ -137,7 +137,7 @@ type
 	end;
 	
 	TNasm386AsmDisplay=class(TIntelAsmDisplay)
-		procedure AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);override;
+		procedure AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);override;
 		procedure AsPrintNumber(ParSIze :TSize;ParNumber : TNumber);override;
 	end;
 	
@@ -154,7 +154,7 @@ end;
 {----( TAtt386AsmDisplay )-------------------------------------------------------}
 
 
-procedure TAtt386AsmDIsplay.AsPrintMemIndex(const ParRegister,ParVar: string;ParIndex : TOffset;ParSize:TSize);
+procedure TAtt386AsmDIsplay.AsPrintMemIndex(const ParRegister,ParVar: ansistring;ParIndex : TOffset;ParSize:TSize);
 begin
 	if(ParIndex <> 0) then Write(ParIndex);
 	write('(');
@@ -166,12 +166,12 @@ begin
 	Write(')');
 end;
 
-procedure TAtt386AsmDisplay.AsPrintMemVar(ParSize : TSize;const ParText : string);
+procedure TAtt386AsmDisplay.AsPrintMemVar(ParSize : TSize;const ParText : ansistring);
 begin
 	write(ParText);
 end;
 
-procedure TAtt386AsmDisplay.AsPrintOffset(const ParText : string;ParOffset : TOffset);
+procedure TAtt386AsmDisplay.AsPrintOffset(const ParText : ansistring;ParOffset : TOffset);
 begin
 	print(['$',ParText]);
 	if ParOffset > 0 then write('+');
@@ -184,7 +184,7 @@ begin
 	write(ParNumber);
 end;
 
-procedure TAtt386AsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);
+procedure TAtt386AsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);
 begin
 	SetLeftMargin(SIZE_AsmLeftMargin);
 	if ParPublic then write(ATT_Comm)
@@ -201,9 +201,9 @@ begin
 	SetLeftMargin(-Size_AsmLeftMargin);
 end;
 
-procedure TAtt386AsmDisplay.AsPrintAscii(const ParText : string);
-var vlStr : string;
-	vlLen :string;
+procedure TAtt386AsmDisplay.AsPrintAscii(const ParText : ansistring);
+var vlStr : ansistring;
+	vlLen :ansistring;
 begin
 	SetLeftMargin(Size_AsmLeftMargin);
 	ToAsString(ParText,vlStr);
@@ -212,8 +212,8 @@ begin
 	SetLeftMargin(-SIze_AsmLeftMargin);
 end;
 
-procedure TAtt386AsmDisplay.AsPrintAsciiz(const ParText : string);
-var vlStr : string;
+procedure TAtt386AsmDisplay.AsPrintAsciiz(const ParText : ansistring);
+var vlStr : ansistring;
 begin
 	SetLeftMargin(Size_AsmLeftMargin);
 	ToAsString(ParText,vlStr);
@@ -231,7 +231,7 @@ end;
 {---( TIntelAsmDIsplay )--------------------------------------------------------}
 
 
-procedure TIntelAsmDisplay.AsPrintMemIndex(const ParRegister,ParVar: string;ParIndex : TOffset;ParSize:TSize);
+procedure TIntelAsmDisplay.AsPrintMemIndex(const ParRegister,ParVar: ansistring;ParIndex : TOffset;ParSize:TSize);
 var vlPlus : boolean;
 begin
 	case ParSize of
@@ -257,19 +257,19 @@ Write(']');
 end;
 
 
-procedure TIntelAsmDisplay.AsPrintMemVar(ParSize : TSize;const ParText : string);
+procedure TIntelAsmDisplay.AsPrintMemVar(ParSize : TSize;const ParText : ansistring);
 begin
 	Print(['[',ParText,']']);
 end;
 
-procedure TIntelAsmDisplay.AsPrintOffset(const ParText : string;ParOffset : TOffset);
+procedure TIntelAsmDisplay.AsPrintOffset(const ParText : ansistring;ParOffset : TOffset);
 begin
 	Print(['DWORD  ',ParText]);
 	if(ParOffset > 0) then write('+');
 	if(ParOffset <> 0) then write(ParOffset);
 end;
 
-procedure TIntelAsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);
+procedure TIntelAsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);
 begin
 	if ParPublic then begin
 		Print([IT_MN_GLOBAL,' ',ParName]);
@@ -294,7 +294,7 @@ begin
 	SetLeftMargin(-Size_AsmLeftMargin);
 end;
 
-procedure TIntelAsmDisplay.AsPrintAscii(const ParText:string);
+procedure TIntelAsmDisplay.AsPrintAscii(const ParText:ansistring);
 begin
 	SetLeftMargin(Size_AsmLeftMargin);
 	Print([IT_MN_DB,' ',length(ParText),',"',ParText,'",0']);
@@ -302,7 +302,7 @@ begin
 end;
 
 
-procedure TIntelAsmDisplay.AsPrintAsciiz(const ParText:string);
+procedure TIntelAsmDisplay.AsPrintAsciiz(const ParText:ansistring);
 begin
 	SetLeftMargin(Size_AsmLeftMargin);
 	Print([IT_MN_DB,' "',ParText,'",0']);
@@ -311,7 +311,7 @@ end;
 
 {---( TNasm386AsmDisplay )-------------------------------------------------------}
 
-procedure TNasm386AsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);
+procedure TNasm386AsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);
 begin
 	if ParPublic then begin
 		Print([IT_MN_GLOBAL,' ',ParName]);
@@ -344,7 +344,7 @@ end;
 
 
 
-function  TX86AssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputFile:string):TCompAppl;
+function  TX86AssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputFile:ansistring):TCompAppl;
 begin
 	exit(TAsmAppl.Create(ParInputFile,ParOutputFIle,GetConfigValues.fDeleteAsmFile));
 end;
@@ -355,7 +355,7 @@ var     vlRes    : TResource;
 	vlSetPar : TSetParPoc;
 begin
 	vlSetPar := TSetParPoc(ParPoc);
-	vlRes := vlSetPar.fPar.CreateInstRes(ParCre);
+	vlRes := vlSetPar.fPar.CreateInstRes(ParCre);{TODO make vlSetPar.Create from}
 	vlInst := TPushInst.create;
 	Parcre.AddInstAfterCur(vlInst);
 	vlInst.AddOperand(vlres,In_In_1);
@@ -414,8 +414,14 @@ begin
 		vlInst.AddOperand(ParCre.GetRegisterResByName(rn_edi),in_in_1);
 		ParCre.AddInstAfterCur(vlInst);
 		vlInst.InstructionFase(ParCre);
+
 		vlInst := TPushInst.Create;
 		vlInst.AddOperand(ParCre.GetRegisterResByName(rn_esi),in_in_1);
+		ParCre.AddInstAfterCur(vlInst);
+		vlInst.InstructionFase(ParCre);
+
+		vlInst := TPushInst.Create;
+		vlInst.AddOperand(ParCre.GetRegisterResByName(rn_ebx),in_in_1);
 		ParCre.AddInstAfterCur(vlInst);
 		vlInst.InstructionFase(ParCre);
 
@@ -433,12 +439,17 @@ var vlCmd   : TInstruction;
 	vlFrame : TMacBase;
 	vlStack : TResource;
 	vlNsf   : boolean;
-	vlName : string;
-	vlMangName : string;
+	vlName : ansistring;
+	vlMangName : ansistring;
 	vlInst : TPopInst;
 begin
 	vlCb := TRoutinePoc(ParPoc);
 	if vlCb.fCDeclFlag then begin
+		vlInst := TPopInst.Create;
+		vlInst.AddOperand(ParCre.GetRegisterResByName(rn_ebx),in_main_Out);
+		ParCre.AddInstAfterCur(vlInst);
+		vlInst.InstructionFase(ParCre);
+
 		vlInst := TPopInst.Create;
 		vlInst.AddOperand(ParCre.GetRegisterResByName(rn_esi),in_main_Out);
 		ParCre.AddInstAfterCur(vlInst);
@@ -465,7 +476,7 @@ begin
 	if not vlCb.fCDeclFlag then vlSize := vlCb.fParamSize;
 	vlcmd := TRetInst.Create(vlSize);
 	ParCre.AddInstAfterCur(vlcmd);
-	vlCB.fName.GetString(vlName);
+	vlName := vlCB.fName;
 	vlMangName := '.Lend'; {Hack for .size}
 	GetAssemblerinfo.AddMangling(vlMangName,vlName);
 	ParCre.AddInstAfterCur(TLabelInst.create(vlMangName));
@@ -734,7 +745,7 @@ procedure TX86AssemblerInfo.TranslateLsMov(ParCre:TInstCreator;ParPoc:TPocBase);
 var vlSource,vlRes2,vlMoveSize,vlDest,vlRes5,vlRes6,vlRes7,vlRes8:TResource;
 	vlLab:TLabelInst;
 	vlPoc      :TInstruction;
-	vlName     : String;
+	vlName     : ansistring;
 	vlMove     : TLsMovePoc;
 	vlItemSize : TSize;
 	vlSize     : TSize;
@@ -859,8 +870,8 @@ begin
 	vlDest.IsUsed;
 end;
 
-procedure TX86AssemblerInfo.GetRegisterByCode(ParCode:TNormal;var ParName:string);
-var vlStr:string;
+procedure TX86AssemblerInfo.GetRegisterByCode(ParCode:TNormal;var ParName:ansistring);
+var vlStr:ansistring;
 begin
 	case ParCode Of
 	RN_AL    : ParName := 'AL';
@@ -901,18 +912,18 @@ end;
 
 
 
-function  TX86AttAssemblerInfo.CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;
+function  TX86AttAssemblerInfo.CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;
 begin
 	exit(TAtt386AsmDisplay.Create(ParFileName,ParError));
 end;
 
 
-function TX86AttAssemblerInfo.GetGlobalText(const ParName:string):string;
+function TX86AttAssemblerInfo.GetGlobalText(const ParName:ansistring):ansistring;
 begin
 	exit(MN_Dot_Global + ' '+ParName);
 end;
 
-function TX86AttAssemblerInfo.GetSectionText(const ParName:string):String;
+function TX86AttAssemblerInfo.GetSectionText(const ParName:ansistring):ansistring;
 begin
 	exit(MN_Section+' '+ParName);
 end;
@@ -933,14 +944,14 @@ begin
 	HasIntelDirection := false;
 end;
 
-procedure TX86AttAssemblerInfo.GetRegisterByCode(ParCode:TNormal;var ParName:string);
+procedure TX86AttAssemblerInfo.GetRegisterByCode(ParCode:TNormal;var ParName:ansistring);
 begin
 	Inherited GetRegisterByCode(ParCode,ParName);
 	if length(ParName) > 0 then ParName := '%' +ParName;
 end;
 
 
-procedure TX86AttAssemblerInfo.GetInstruction(var ParInstruction:string;ParDesSize,ParSrcSize:TSize);
+procedure TX86AttAssemblerInfo.GetInstruction(var ParInstruction:ansistring;ParDesSize,ParSrcSize:TSize);
 var
 	vlSize : char;
 begin
@@ -971,12 +982,12 @@ end;
 
 
 
-function  TX86IntelAssemblerInfo.GetSectionText(const ParName:string):string;
+function  TX86IntelAssemblerInfo.GetSectionText(const ParName:ansistring):ansistring;
 begin
 	exit(MN_N_Section+' '+ParName);
 end;
 
-procedure TX86IntelAssemblerInfo.GetInstruction(var ParInstruction : String;ParDesSize,ParSrcSize:TSize);
+procedure TX86IntelAssemblerInfo.GetInstruction(var ParInstruction : ansistring;ParDesSize,ParSrcSize:TSize);
 begin
 	Inherited GetInstruction(ParInstruction,ParDesSize,ParSrcSize);
 	if (ParInstruction='MOVZ') or (ParInstruction='MOVS') then ParInstruction := ParInstruction + 'X';
@@ -984,17 +995,17 @@ end;
 
 {---( TNasmAssemblerInfo )-------------------------------------------------------}
 
-function  TNasmAssemblerInfo.CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;
+function  TNasmAssemblerInfo.CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;
 begin
 	exit(TNasm386AsmDisplay.Create(ParFileName,ParError));
 end;
 
-function  TNasmAssemblerInfo.GetGlobalText(const ParName:string):string;
+function  TNasmAssemblerInfo.GetGlobalText(const ParName:ansistring):ansistring;
 begin
 	exit(MN_Global + ' '+ParName);
 end;
 
-function  TNasmAssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;
+function  TNasmAssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputDir:ansistring):TCompAppl;
 begin
 	exit(TNasmAppl.Create(ParInputFile,ParOutputDir));
 end;
@@ -1006,13 +1017,13 @@ begin
 end;
 
 {---( TAs86AssemblerInfo )-------------------------------------------------------}
-function  TAs86AssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;
+function  TAs86AssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputDir:ansistring):TCompAppl;
 begin
 	exit(TAs86Appl.Create(ParInputFile,ParOutputDir));
 end;
 
 
-function  TAs86AssemblerInfo.CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;
+function  TAs86AssemblerInfo.CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;
 begin
 	exit(TAs386AsmDisplay.Create(ParFileName,ParError));
 end;

@@ -127,33 +127,33 @@ type
 		property fAutoload      : boolean        read voAutoload;
 
 
-		procedure SetOutputObjectPath(const ParPath : string;ParLevel : cardinal);
-		procedure GetOutputObjectPath(var ParPath : string);
+		procedure SetOutputObjectPath(const ParPath : ansistring;ParLevel : cardinal);
+		procedure GetOutputObjectPath(var ParPath : ansistring);
 		procedure SetGenerateDebug(ParGenerateDebug : boolean;ParLevel : cardinal);
 		procedure SetNodeListing(ParNodeLIsting : boolean;ParLevel : cardinal);
 		procedure SetRebuild(ParRebuild : boolean;ParLevel : cardinal);
 		procedure SetBuild(ParBuild:boolean;ParLevel : cardinal);
 		procedure SetAssemblerType(ParType : TAssemblerTYpe;ParLevel : cardinal);
-		procedure SetInputFile(const ParName  : string;ParLevel : cardinal);
-		procedure GetInputFileStr(var ParName : string);
+		procedure SetInputFile(const ParName  : ansistring;ParLevel : cardinal);
+		procedure GetInputFileStr(var ParName : ansistring);
 		function  IsInputFileSet:boolean;
-		procedure SetConfigFile(const ParName : String;ParLevel : cardinal);
-		procedure GetConfigFileStr(var ParName : string);
+		procedure SetConfigFile(const ParName : ansistring;ParLevel : cardinal);
+		procedure GetConfigFileStr(var ParName : ansistring);
 		procedure SetRunAssembler(ParRunAssembler : boolean;ParLevel : cardinal);
 		procedure SetCanUseDll(ParCanUseDll : boolean;ParLevel :cardinal);
-		procedure SetHostOs(const ParOs :string;Parlevel : cardinal);
-		procedure SetTargetOs(const ParOs : string;ParLevel : cardinal);
+		procedure SetHostOs(const ParOs :ansistring;Parlevel : cardinal);
+		procedure SetTargetOs(const ParOs : ansistring;ParLevel : cardinal);
 		procedure SetDeleteAsmFile(ParDeleteAsmFile : boolean;ParLevel :cardinal);
-		procedure GetHostOsStr(var ParOs : string);
+		procedure GetHostOsStr(var ParOs : ansistring);
 		procedure SetOptimizeModes(const ParOptimizeModes : TOptimizeModes;ParOnOf:boolean;ParLevel : cardinal);
 		procedure SetOptimizeModes(const ParOptimizeModes : TOptimizeModes;ParLevel : cardinal);
 		procedure SetGnuStyleErrors(const ParGnuStyleErrors : boolean;ParLevel : cardinal);
 		procedure SetVarUseCheck(ParVarUseCheck : boolean;ParLevel : cardinal);
 		procedure SetAutoLoad(ParAutoload : boolean;ParLevel : cardinal);
-		procedure GetTargetOsStr(var ParOs: string);
+		procedure GetTargetOsStr(var ParOs: ansistring);
 		function  CloneValues : TCOnfigValues ;virtual;
-		procedure AddLinkInfoFile(const ParInfo : string);
-		function  GetLinkInfoFile(ParNum : cardinal;var   ParInfo : string):boolean;
+		procedure AddLinkInfoFile(const ParInfo : ansistring);
+		function  GetLinkInfoFile(ParNum : cardinal;var   ParInfo : ansistring):boolean;
 	end;
 	
 	
@@ -197,19 +197,19 @@ end;
 {---( TConfigValues )-------------------------------------------------------------------------------}
 
 
-procedure TConfigValues.AddLinkInfoFile(const ParInfo : string);
+procedure TConfigValues.AddLinkInfoFile(const ParInfo : ansistring);
 begin
 	iLinkInfoFiles.AddString(ParInfo);
 end;
 
-function TConfigValues.GetLinkInfoFile(ParNum : cardinal;var   ParInfo : string):boolean;
+function TConfigValues.GetLinkInfoFile(ParNum : cardinal;var   ParInfo : ansistring):boolean;
 begin
 	exit(iLinkInfoFiles.GetStringByPosition(ParNum,ParInfo));
 end;
 
 
 
-procedure TConfigValues.SetOutputObjectPath(const ParPath : string;ParLevel : cardinal);
+procedure TConfigValues.SetOutputObjectPath(const ParPath : ansistring;ParLevel : cardinal);
 begin
 	if ParLevel >=iOutputObjectPathLevel then begin
 		if iOutputObjectPath <> nil then iOutputObjectPath.Destroy;
@@ -218,7 +218,7 @@ begin
 	end;
 end;
 
-procedure TConfigValues.GetOutputObjectPath(var ParPath : string);
+procedure TConfigValues.GetOutputObjectPath(var ParPath : ansistring);
 begin
 	if iOutputObjectPath <> nil then begin
 		iOutputObjectPath.GetString(ParPath);
@@ -292,7 +292,7 @@ begin
 	end;
 end;
 
-procedure TConfigValues.GetHostOsStr(var ParOs : string);
+procedure TConfigValues.GetHostOsStr(var ParOs : ansistring);
 begin
 	if iHostOs <> nil then begin
 		iHostOs.GetString(ParOs);
@@ -301,7 +301,7 @@ begin
 	end;
 end;
 
-procedure TConfigValues.GetTargetOsStr(var ParOs: string);
+procedure TConfigValues.GetTargetOsStr(var ParOs: ansistring);
 begin
 	if iTargetOs <> nil then begin
 		iTargetOs.GetString(ParOs);
@@ -310,7 +310,7 @@ begin
 	end;
 end;
 
-procedure TConfigValues.SetHostOs(const ParOs :string;Parlevel : cardinal);
+procedure TConfigValues.SetHostOs(const ParOs :ansistring;Parlevel : cardinal);
 begin
 	if ParLevel >=iHostOsLevel then begin
 		if iHostOs <> nil then iHostOs.Destroy;
@@ -318,7 +318,7 @@ begin
 	end;
 end;
 
-procedure TConfigValues.SetTargetOs(const ParOs : string;ParLevel : cardinal);
+procedure TConfigValues.SetTargetOs(const ParOs : ansistring;ParLevel : cardinal);
 begin
 	if ParLevel >= iTargetOsLevel then begin
 		if iTargetOs <> nil then iTargetOs.Destroy;
@@ -349,7 +349,7 @@ begin
 end;
 
 function  TConfigValues.CloneValues : TConfigValues;
-var vlStr : string;
+var vlStr : ansistring;
 	vlVal : TConfigValues ;
 	vlCnt : cardinal;
 begin
@@ -385,9 +385,9 @@ begin
 	exit(vlVal);
 end;
 
-procedure TConfigValues.SetConfigFile(const ParName : String;ParLevel : cardinal);
+procedure TConfigValues.SetConfigFile(const ParName : ansistring;ParLevel : cardinal);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	vlName := ParName;
 	if  ParLevel >= iConfigFileLevel then begin
@@ -398,14 +398,14 @@ begin
 end;
 
 
-procedure TConfigValues.GetConfigFileStr(var ParName : string);
+procedure TConfigValues.GetConfigFileStr(var ParName : ansistring);
 begin
 	if iConfigFile <> nil then iConfigFile.GetString(ParName)
 	else EmptyString(ParNAme);
 end;
 
-procedure TConfigValues.SetInputFile(const ParName  : string;ParLevel : cardinal);
-var vlName : string;
+procedure TConfigValues.SetInputFile(const ParName  : ansistring;ParLevel : cardinal);
+var vlName : ansistring;
 begin
 	vlName := ParName;
 	if ParLevel >= iInputFileLevel then begin
@@ -420,7 +420,7 @@ begin
 	exit(iInputFile <> nil);
 end;
 
-procedure TConfigValues.GetInputFileStr(var ParName : string);
+procedure TConfigValues.GetInputFileStr(var ParName : ansistring);
 begin
 	if iInputFile <> nil then iInputFile.GetString(ParName)
 	else EmptyString(ParName);

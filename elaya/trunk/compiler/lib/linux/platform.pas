@@ -27,12 +27,12 @@ type pTPid= longint;
 function  pGetExitCode:cardinal;
 function  pGetDosError:cardinal;
 function  pGetTimer:cardinal;
-procedure pExecProgram(const ParName,ParPar:string);
-function  pGetProgramDir : string;
+procedure pExecProgram(const ParName,ParPar:ansistring);
+function  pGetProgramDir : ansistring;
 function  pKill(const ParPid : pTPid):boolean;
 function  pGetPid : pTPid;
-procedure PLinuxTONative(var ParName : string);
-procedure PNativeToLinux(var ParName : string);
+procedure PLinuxTONative(var ParName : ansistring);
+procedure PNativeToLinux(var ParName : ansistring);
 const
 	
 	PDir_Seperator='/';
@@ -57,11 +57,11 @@ const O_RDONLY = 0;
 		MAP_SHARED=1;
 		MAP_PRIVATE=2;
 
-procedure PLinuxTONative(var ParName : string);
+procedure PLinuxTONative(var ParName : ansistring);
 begin
 end;
 
-procedure PNativeToLinux(var ParName : string);
+procedure PNativeToLinux(var ParName : ansistring);
 begin
 end;
 
@@ -90,7 +90,7 @@ begin
 	exit(vlT);
 end;
 
-procedure pExecProgram(const ParName,ParPar:string);
+procedure pExecProgram(const ParName,ParPar:ansistring);
 begin
 	exec(ParName,ParPar);
 end;
@@ -105,12 +105,12 @@ begin
 	exit(DosError);
 end;
 
-function pGetProgramDir : string;
-var vlPid : string;
+function pGetProgramDir : ansistring;
+var vlPid : ansistring;
 	vlLink: array[0..255] of char;
-	vlName: string;
+	vlName: ansistring;
 	vlRet : longint;
-	vlOut : string;
+	vlOut : ansistring;
 begin
 	str(getPid,vlPid);
 	vlName := '/proc/'+vlPid+'/exe'+#0;

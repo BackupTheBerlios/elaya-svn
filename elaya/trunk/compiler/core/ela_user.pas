@@ -50,9 +50,9 @@ public
 	procedure  SetDefinitionPos(ParDef : TDefinition);
 
 	function  ProcessOperator(const ParParameters  : array of TRoot;
-						      var   ParPrvPar      : TNodeIdent;
-							  const ParOperStr     : string;
-							  ParError : boolean):TOperatorProcessResult;
+                                  var   ParPrvPar      : TNodeIdent;
+                                  const ParOperStr     : ansistring;
+                                  ParError : boolean):TOperatorProcessResult;
 
 	property   fNDCreator : TNDCreator read voNDCreator;
 	function   SetupCompiler:boolean;override;
@@ -64,60 +64,60 @@ public
 	procedure  AddVar(ParName:TNameList;ParType:TType);
 	procedure  Bind;
 	procedure  ProcessParsed;override;
-	procedure  GetConfigFileName(var ParName : string); virtual;
+	procedure  GetConfigFileName(var ParName : ansistring); virtual;
 	procedure  Save;override;
 	procedure  EndIdent;
-	function   CreateExternalInterface(const ParName : string;ParHAsAt : boolean;ParAt: longint;var ParCDecl : boolean):TExternalInterface;
+	function   CreateExternalInterface(const ParName : ansistring;ParHAsAt : boolean;ParAt: longint;var ParCDecl : boolean):TExternalInterface;
 	procedure  CreateExternalInterfaceObject(ParCDecl:boolean;ParRoutine :TRoutine;
-	ParExt : TExternalInterface;var ParName : TString);
+	ParExt : TExternalInterface;var ParName : AnsiString);
 	function  ProcessRoutineItem(var ParRoutine   : TRoutine;
 	ParIsolate      : boolean;
 	ParRootCB       : boolean;
 	ParInhFinal     : boolean;
 	ParInherited    : boolean;
-	const ParParent : string;
+	const ParParent : ansistring;
 	ParVirtual      : TVirtualMode;
 	ParOverLoad     : TOverloadMode;
 	ParAbstract     : boolean;
 	ParWrite        : boolean
 	):TRoutine;
-	constructor Create(const ParFileName:string);
+	constructor Create(const ParFileName:ansistring);
 	
 	procedure AddLoopFlowNode(var ParNode:TNodeIdent;ParType:TRefLoopFlowNode);
 	procedure AddBreakNode(var ParNode : TNodeIdent);
 	procedure AddContinueNode(var ParNode : TNodeIdent);
 	procedure OpenFileFailed(ParError : TErrorType);override;
 	function GetModule : TUnit;
-	procedure  ProcessDualOperator(
-	var   ParNewPar  : TNodeIdent;
-	var   ParPrvPar  : TSublistOperatorNode;
-	const ParOprStr  : String;
-	ParOperObj : TRefNodeIdent);
+	function  ProcessDualOperator(
+		var   ParNewPar  : TNodeIdent;
+		      ParPrvPar  : TFormulaNode;
+		const ParOprStr  : ansistring;
+		      ParOperObj : TRefNodeIdent) : TFormulaNode;
 	
 	procedure ProcessBetweenOperator(
 	ParO1,ParO2,ParO3    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
-	const ParOprStr    : String);
+	const ParOprStr    : ansistring);
 	
 	procedure ProcessSingleOperator(
 	ParNewPar    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
-	const ParOprStr    : String;
+	const ParOprStr    : ansistring;
 	ParOperObj   : TSingelOperatorNodeClass);
 	procedure ProcessCompOperator(
 	ParNewPar    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
-	const ParOprStr    : String;
+	const ParOprStr    : ansistring;
 	ParCode	     : TIdentCode);
 	
 	function  CreateShortERtn(ParRoutine : TDefinition;ParDigi : TDigiItem): TRoutine;
 	procedure CreateShortSubCb( ParRoutine    : TRoutine;
-	const ParName  : string;
+	const ParName  : ansistring;
 	var   ParNewCB : TRoutine;
 	var   ParError : boolean);
 	
 	function  CreatePointerType(ParType : TType;ParConstFlag : boolean):TPtrType;
-	function  CreatePointerType(const ParName : string;ParCanForward, ParConstFlag:boolean):TPtrType;
+	function  CreatePointerType(const ParName : ansistring;ParCanForward, ParConstFlag:boolean):TPtrType;
 	function  CreateIntNode(ParCon : TNumber) : TFormulaNode;
 	procedure ProcessShortDyRoutine(ParRoutine : TRoutine);
 	function  ProcessShortSubCB(ParRoutine : TRoutine) : TRoutineNode;
@@ -126,47 +126,47 @@ public
 	function  CreateExitNode(ParExp : TFormulaNode) : TNodeIdent;
 	procedure HandleDefaultType(var ParDt : TDefaultTypeCode;ParDef : TDefaultTypeCode;ParValid : TDefaultTypes);
 	procedure WriteResFile;
-	function  CreateStringType(ParType :TType;const ParLengthVarName : string;ParLengthVarType : TType;ParDefaultSize : boolean;ParSize : TSize;ParHasSize:boolean):TStringType;
-	procedure AddObjectFile(ParCodeFile : TString;ParIsCurrentObject:boolean;ParHasAt : boolean;ParAt : longint);
+	function  CreateStringType(ParType :TType;const ParLengthVarName : ansistring;ParLengthVarType : TType;ParDefaultSize : boolean;ParSize : TSize;ParHasSize:boolean):TStringType;
+	procedure AddObjectFile(ParCodeFile : ansiString;ParIsCurrentObject:boolean;ParHasAt : boolean;ParAt : longint);
 	procedure ErrorDef(const ParError : TErrorType ;ParDef : TDefinition);
 	procedure SetNodePos(ParNode : TNodeIdent);
-	procedure HandleHasClause(const ParName : string);
-	procedure DoIdentObject(ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type;const ParIdent : string);
+	procedure HandleHasClause(const ParName : ansistring);
+	procedure DoIdentObject(ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type;const ParIdent : ansistring);
 	procedure DoInheritedOfMain(ParLevel : cardinal;var ParDigi : TIdentHookDigiItem);
 	function  CalculationStatusToError(ParCs :TCalculationStatus):boolean;
-	function  CreateClassType(const ParName : string;const ParParent : string;ParVirtual : TVirtualMode;ParInCompleet ,ParIsolate,ParOfValue: boolean):  TClassType;
-	procedure HandleRoutineDotName(const ParName : string);
-	function  CreateCDTor(const ParName : string;ParAccess : TDefAccess;ParCDFlag : boolean) : TRoutine;
+	function  CreateClassType(const ParName, ParParent : ansistring;ParVirtual : TVirtualMode;ParInCompleet ,ParIsolate,ParOfValue: boolean):  TClassType;
+	procedure HandleRoutineDotName(const ParName : ansistring);
+	function  CreateCDTor(const ParName : ansistring;ParAccess : TDefAccess;ParCDFlag : boolean) : TRoutine;
 	procedure OverrideClass(ParOther : TDefinition;ParClass : TClassTYpe;ParMeta : TMeta);
 	procedure SetDigiPos(ParDigi :TDigiItem);
 	function CreateBooleanType(ParSize : TSize) :TType;
 	function HandleDeReference(ParDigi : TDigiItem) : TIdentHookDigiItem;
-	function HandleDotOperator(ParDigi : TDigiItem;const ParIdent : string) : TDotOperDigiItem;
-	procedure DoPropertyDefinition(ParName : string;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
-	procedure HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,Parowner : TDefinition;ParNode : TSubListStatementNode);
-	procedure ReadLinkInfo(const ParFile : string;ParList : TLinkObjList);
+	function HandleDotOperator(ParDigi : TDigiItem;const ParIdent : ansistring) : TDotOperDigiItem;
+	procedure DoPropertyDefinition(ParName : ansistring;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
+	procedure HandleWriteStatement(ParExpr : TFormulaNode;const ParName : ansistring;ParRoutine,Parowner : TDefinition;ParNode : TSubListStatementNode);
+	procedure ReadLinkInfo(const ParFile : ansistring;ParList : TLinkObjList);
 
 end;
 
 implementation
 
 
-procedure TEla_User.HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,ParOwner : TDefinition;ParNode : TSubListStatementNode);
+procedure TEla_User.HandleWriteStatement(ParExpr : TFormulaNode;const ParName : ansistring;ParRoutine,ParOwner : TDefinition;ParNode : TSubListStatementNode);
 var
-	vlNode    : TCallNode;
+	vlNode    : TNodeIdent;
 begin
 	vlNode := nil;
 	if (ParRoutine <>nil) and (ParNode <> Nil)  and (ParExpr <> nil) then begin
-		vlNode := TCallNode(ParRoutine.CreateExecuteNode(fNDCreator,ParOwner));
+		vlNode := ParRoutine.CreateExecuteNode(fNDCreator,ParOwner);
 		if (vlNode = nil) or not(vlNode is TCallNode) then begin
 			if (vlNode <> nil) then vlNode.Destroy;
 			vlNode := nil;
 			SemError(Err_Cant_Execute);
 		end else begin
 			if length(ParName) > 0 then begin
-				vlNode.AddNodeAndName(ParExpr,ParName);
+				TCallNode(vlNode).AddNodeAndName(ParExpr,ParName);
 			end else begin
-				vlNode.AddNode(ParExpr);
+				TCallNode(vlNode).AddNode(ParExpr);
 			end;
 			ParNode.AddNode(vlNode);
 		end;
@@ -174,7 +174,7 @@ begin
 	if (vlNode = nil) and (ParExpr <> nil) then ParExpr.Destroy;
 end;
 
-procedure TEla_User.DoPropertyDefinition(ParName : string;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
+procedure TEla_User.DoPropertyDefinition(ParName : ansistring;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
 var
 	vlOwner    : TDefinition;
 	vlIdent    : TDefinition;
@@ -188,7 +188,7 @@ begin
 	end;
 end;
 
-function TEla_User.HandleDotOperator(ParDigi : TDigiItem;const ParIdent : string): TDotOperDigiItem;
+function TEla_User.HandleDotOperator(ParDigi : TDigiItem;const ParIdent : ansistring): TDotOperDigiItem;
 var
 	vlOut       : TIdentHookDigiItem;
 	vlDotOper   : TDotOperDigiItem;
@@ -233,7 +233,7 @@ begin
 end;
 
 
-function TEla_user.CreateCDTor(const ParName : string;ParAccess : TDefAccess;ParCDFlag : boolean) : TRoutine;
+function TEla_user.CreateCDTor(const ParName : ansistring;ParAccess : TDefAccess;ParCDFlag : boolean) : TRoutine;
 var
 	vlDef  : TDefinition;
 	vlType : TType;
@@ -282,26 +282,27 @@ begin
 	ParClass.InitVirtualMeta(ParMeta.AddVirtualRoutine(ParClass.fMeta));
 end;
 
-function  TEla_user.CreateClassType(const ParName : string;const ParParent : String;ParVirtual : TVirtualMode;ParInCompleet,ParIsolate,ParOfValue : boolean): TClassType;
+function  TEla_user.CreateClassType(const ParName : ansistring;const ParParent : ansiString;ParVirtual : TVirtualMode;ParInCompleet,ParIsolate,ParOfValue : boolean): TClassType;
 var
 	vlParent : TClassType;
 	vlType   : TCLassType;
 	vlCurrent : TDefinition;
 	vlMeta    : TMeta;
 	vlOther   : TDefinition;
+	vlItem    : TDefinition;
 	vlOvModes : TOvModes;
 	vlFoundInCompleet : boolean;
 
-	function FindIncompleet(const ParName : string;var ParType :TClassType) : boolean;
+	function FindIncompleet(const ParName : ansistring;var ParType :TClassType) : boolean;
 	var
-		vlType : TType;
+		vlItem : TDefinition;
 	begin
 		ParType := nil;
-		vlType := TType(fNDCreator.GetPtr(ParName));
-		if vlType <> nil then begin
-			if vlType is TClassType then begin
-				if TClassType(vlType).fInCompleet then begin
-					ParType := TClassType(vlType);
+		vlItem := fNDCreator.GetPtr(ParName);
+		if vlItem <> nil then begin
+			if vlItem is TClassType then begin
+				if TClassType(vlItem).fInCompleet then begin
+					ParType := TClassType(vlItem);
 					exit(true);
 				end;
 			end;
@@ -312,19 +313,20 @@ var
 begin{TODO.MUST Check if Parent is same type}
 	vlType := nil;
 	vlFoundIncompleet := false;
+	vlParent := nil;
 	if length(ParParent) <> 0 then begin
-		vlParent := TClassType(fNDCreator.GetCheckItem(ParParent));
-		if vlParent <> nil then begin
-			if not(vlParent is TClassType) then begin
+		vlItem := fNDCreator.GetCheckItem(ParParent);
+		if vlItem <> nil then begin
+			if not(vlItem is TClassType) then begin
 				ErrorText(Err_Not_A_Class,ParParent);
-				vlParent := nil;
-			end else if vlParent.fInCompleet then begin
-				ErrorText(Err_Parent_Class_Incompleet,ParParent);
-				vlParent := nil;
+			end else begin
+				vlParent := TClassType(vlItem);
+				if vlParent.fInCompleet then begin
+					ErrorText(Err_Parent_Class_Incompleet,ParParent);
+					vlParent := nil;
+				end;
 			end;
 		end;
-	end else begin
-		vlParent := nil;
 	end;
 	if not(ParInCompleet) then vlFoundIncompleet := FindInCompleet(ParName,vlType);
 
@@ -390,7 +392,6 @@ var
 	vlRoutine : TRoutine;
 	vlLevel   : cardinal;
 	vlItem    : TIdentDigiItem;
-{	vlName : string; }
 begin
 	ParDigi := nil;
 	vlRoutine := TRoutine(fNDCreator.GetCurrentRoutine);
@@ -414,7 +415,7 @@ begin
 end;
 
 
-procedure TEla_User.DoIdentObject(ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi  : TIdentDigiItem;var ParMention : TMN_Type;const ParIdent:string);
+procedure TEla_User.DoIdentObject(ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi  : TIdentDigiItem;var ParMention : TMN_Type;const ParIdent:ansistring);
 var
 	vlMention : TMN_Type;
 	vlDef     : TFormulaDefinition;
@@ -439,11 +440,12 @@ begin
 	ParMention := vlMention;
 end;
 
-procedure TEla_User.HandleRoutineDotName(const ParName : string);
+procedure TEla_User.HandleRoutineDotName(const ParName : ansistring);
 var
 	vLDef : TDefinition;
 	vlOwner : TDefinition;
-	vlName  : string;
+	vlName  : ansistring;
+	vlRoutine : TRoutine;
 begin
 	fNDCreator.GetPtrInCurrentList(ParName,vlOwner,vlDef);
 	if(vlDef = nil) or ( not(vlDef is classes.TClassType)) then begin
@@ -453,17 +455,18 @@ begin
 			ErrorDef(Err_ClassName_Expected,vlDef);
 		end;
 		GetNewAnonName(vlName);
-		vlDef := TProcedureObj.Create(vlName);
-		vlDef := ProcessRoutineItem(TRoutine(vlDef),false,true,false,false,'',vir_none,ovl_none,false,true);
+		vlRoutine := TProcedureObj.Create(vlName);
+		vlRoutine := ProcessRoutineItem(vlRoutine,false,true,false,false,'',vir_none,ovl_none,false,true);
 	end else begin
 		fNDCreator.AddCurrentDefinition(vlDef);
 	end;
 end;
 
 
-procedure TEla_User.HandleHasClause(const ParName : string);
-var vlDef : TDefinition;
-	vlName : string;
+procedure TEla_User.HandleHasClause(const ParName : ansistring);
+var 
+	vlDef     : TDefinition;
+	vlName    : ansistring;
 	vlRoutine : TRoutine;
 	vlOwner   : TRoutine;
 begin
@@ -472,8 +475,8 @@ begin
 		if vlDef <> nil then ErrorText(Err_Not_A_Routine,ParName)
 		else ErrorText(Err_Unkown_Ident,ParName);
 		GetNewAnonName(vlName);
-		vlDef := TProcedureObj.Create(vlName);
-		vlDef := ProcessRoutineItem(TRoutine(vlDef),false,true,false,false,'',vir_none,ovl_none,false,true);
+		vlRoutine := TProcedureObj.Create(vlName);
+		 ProcessRoutineItem(vlRoutine,false,true,false,false,'',vir_none,ovl_none,false,true);
 	end else begin
 		if TRoutineCOllection(vlDef).IsOverloaded then ErrorText(Err_Is_Overloaded,ParName);
 		vlRoutine := TRoutineCOllection(vlDef).GetFirstRoutine;
@@ -498,30 +501,31 @@ end;
 
 procedure TEla_user.ErrorDef(const ParError : TErrorType ;ParDef : TDefinition);
 var
-	vlName :string;
+	vlName :ansistring;
 begin
 	EmptyString(vlName);
 	if (ParDef <> nil) and (ParDef is TDefinition) then ParDef.GetDisplayName(vlName);
 	ErrorText(ParError,vlname);
 end;
 
-procedure  TEla_User.AddObjectFile(ParCodeFile:TString;ParIsCurrentObject:boolean;ParHasAt : boolean;ParAt : longint);
+procedure  TEla_User.AddObjectFile(ParCodeFile:ansiString;ParIsCurrentObject:boolean;ParHasAt : boolean;ParAt : longint);
 begin
 	GetModule.AddCodeFile(TCodeObjectItem.Create(ParCOdefile,ParIsCurrentObject,ParHasAt,ParAt));
 end;
 
 
-function  TEla_user.CreateStringType(ParType :TType;const ParLengthVarName : string;ParLengthVarType : TType;ParDefaultSize : boolean;ParSize : TSize;ParHasSize:boolean):TStringType;
-var vlType          : TType;
-	vlLengthVarName : string;
+function  TEla_user.CreateStringType(ParType :TType;const ParLengthVarName : ansistring;ParLengthVarType : TType;ParDefaultSize : boolean;ParSize : TSize;ParHasSize:boolean):TStringType;
+var 	vlType          : TType;
+	vlLengthVarName : ansistring;
 	vlLengthVarType : TType;
 	vlSize          : TSize;
 	vlMaxSize       : TNumber;
+	vlOrgLengthType : TType;
 begin
 	vlType := ParType;
 	if vlType = nil then vlType := fNDCreator.GetDefaultChar;
 	if length(ParLengthVarName) = 0 then begin
-		vlLengthVarType := TNumberType(fNDCreator.GetCheckDefaultType(DT_Number,1,false,'number'));
+		vlLengthVarType := fNDCreator.GetCheckDefaultType(DT_Number,1,false,'number');
 		vlLengthVarName := Name_StrLength;
 	end else begin
 		vlLengthVarName := ParLengthVarName;
@@ -529,8 +533,9 @@ begin
 	end;
 	vlSize := 0;
 	if vlLengthVarType <> nil then begin
-		if  vlLengthVarType.IsLike(TNumberType) then begin
-			vlMaxSize := TNumberType(vlLengthVarType).GetRangeMax;
+		vlOrgLengthType:= vlLengthVarType.GetOrgType;
+		if  vlOrgLengthType is TNumberType then begin
+			vlMaxSize := TNumberType(vlOrgLengthType).GetRangeMax;
 			if ParHasSize then begin
 				vlSize := ParSize;
 				if ((vlSize =0) and not(ParDefaultSize)) or (LargeCompareLong(vlMaxSize,vlSIze)=LC_Lower) then SemError(Err_Illegal_Type_Size);
@@ -567,7 +572,7 @@ end;
 
 procedure TEla_User.AddAnonItem(ParDef : TDefinition);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	if ParDef <> nil then begin
 		GetNewAnonName(vlName);
@@ -584,16 +589,20 @@ var vlExit     : TExitNode;
 begin
 	vlPrn := nil;
 	if (ParRoutine <> nil) and (ParNode <> nil) then begin
-		vlExit := TExitNode(ParRoutine.CreateExitNode(fNDCreator,ParNode));
 		vlPrn  := ParRoutine.fStatements;
-	    if GetConfigValues.fGenerateDebug  then begin
-    		vlLineInfo := TLineNumberNode.create;
-    		vlLineInfo.fLine := ParNode.fLine;
-			vlPrn.AddNode(vlLineInfo);
-    	end;
-		vlPrn.AddNode(vlExit);
+		if vlPrn <> nil then begin
+			vlExit := TExitNode(ParRoutine.CreateExitNode(fNDCreator,ParNode));
+			if GetConfigValues.fGenerateDebug  then begin
+    				vlLineInfo := TLineNumberNode.create;
+    				vlLineInfo.fLine := ParNode.fLine;
+				vlPrn.AddNode(vlLineInfo);
+		    	end;
+			
+			vlPrn.AddNode(vlExit);
+			vlPrn.FinishNode(fNDCreator,true);
+		end;
 	end;
-	vlPrn.FinishNode(fNDCreator,true);
+	if(vlPrn = nil) and (ParNode <> nil) then ParNode.Destroy;{TODO: Remove destroy}
 end;
 
 function TEla_User.ProcessShortSubCB(ParRoutine : TRoutine) : TRoutineNode;
@@ -628,18 +637,20 @@ begin
 end;
 
 
-function TELa_User.CreatePointerType(const ParName : string;ParCanForward,ParConstFlag : boolean):TPtrType;
+function TELa_User.CreatePointerType(const ParName : ansistring;ParCanForward,ParConstFlag : boolean):TPtrType;
 var
-	vlType : TType;
+	vlItem    : TDefinition;
+	vlType    : TType;
 	vlPtrType : TPtrType;
 begin
-	vlType := TTYpe(FNDCreator.GetPtr(ParName));
-	if vlType <> nil then begin
-		if  not(vlType is TType) then begin
+	vlItem := FNDCreator.GetPtr(ParName);
+	if vlItem <> nil then begin
+		if  not(vlItem is TType) then begin
 			SemError(Err_Not_A_Type);
-			exit(nil);
+			vlItem := nil;
 		end;
 	end;
+	vlType := TType(vlItem);
 	vlPtrType := CreatePointerType(vlType,ParConstFlag);
 	if vlType = nil then begin
 		if not ParCanForward then begin
@@ -658,7 +669,7 @@ end;
 
 
 procedure TEla_user.CreateShortSubCb(ParRoutine : TRoutine;
-const ParName : string;
+const ParName : ansistring;
 var   ParNewCB: TRoutine;
 var   ParError: boolean);
 
@@ -693,7 +704,7 @@ function TEla_user.CreateShortERtn(ParRoutine : TDefinition;ParDigi : TDigiItem)
 var
 	vlRoutine    : TRoutine;
 	vlParent     : TRoutine;
-	vlParentName : string;
+	vlParentName : ansistring;
 	vlParentOwner: TDefinition;
 	vlIsWrite : boolean;
 begin
@@ -704,10 +715,10 @@ begin
 		if not(ParRoutine.can([Can_Execute]))then begin
 			ErrorDef(ERR_Cant_Execute,ParRoutine);
 		end else begin
-			ParRoutine.GetTextStr(vlParentName);
+			vlParentName := ParRoutine.fText;
 			fNDCreator.GetPtrByObject(vlParentName,ParDigi,vlParentOwner,vlParent);
 			if (vlParent = nil) then begin
-				SemError(Err_Invalid_Parameters);
+				ErrorText(Err_Invalid_Parameters,'Routine:'+vlParentName);
 				exit(nil);
 			end else begin
 				vlIsWrite := RTM_Write_Mode in (vlParent.fRoutineModes);
@@ -727,7 +738,7 @@ begin
 		vlRoutine := TProcedureObj.Create(vlParentName);
 		EmptyString(vlParentName);
 	end else begin
-		vlParent.CloneParameters(fNDCreator,vlRoutine,TRoutine(vlParentOwner),TRoutine(fNDCreator.GetCurrentRoutine),false);
+		vlParent.CloneParameters(fNDCreator,vlRoutine,vlParentOwner,TRoutine(fNDCreator.GetCurrentRoutine),false);
 	end;
 	
 	vlRoutine.SetRoutineModes([RTM_ShortDCode],true);
@@ -739,7 +750,7 @@ end;
 
 procedure TEla_user.OverrideRoutine(ParCurrentMeta : TMeta;ParOVModes : TOVModes;ParOther,ParRoutine : TRoutine);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	if ParRoutine.fDefAccess=AF_Private then SemError(Err_Acc_Must_atl_Protected);
 	if not(OVM_Found in ParOVModes) then begin
@@ -756,7 +767,7 @@ begin
 			end;
 			if ParRoutine.fVmtItem = nil then begin
 				if not (OVM_Change_after_Lock in ParOVModes) then begin
-					ParRoutine.GetTextStr(vlName);
+					vlname := ParRoutine.fText;
 					ErrorText(Err_Int_Cant_Change_VMT_Item,'Routine='+vlName);
 				end else begin
 					ParRoutine.fVmtItem := ParCurrentMeta.AddVirtualRoutine(ParRoutine);
@@ -788,7 +799,7 @@ ParIsolate      : boolean;
 ParRootCB       : boolean;
 ParInhFinal     : boolean;
 ParInherited    : boolean;
-const ParParent : string;
+const ParParent : ansistring;
 ParVirtual      : TVirtualMode;
 ParOverload     : TOverloadMode;
 ParAbstract     : boolean;
@@ -801,11 +812,11 @@ var
 	vlVirtual      : TVirtualMode;
 	vlMeta         : TMeta;
 	vlOther        : TRoutine;
-	vlName         : string;
-	vlParentName   : string;
+	vlName         : ansistring;
+	vlParentName   : ansistring;
 	vlAttrib       : TRoutineModes;
 	vlParentOwner  : TDefinition;
-	vlName2        : string;
+	vlName2        : ansistring;
 	vlRelLevel     : cardinal;
 	vlOvModes      : TOvMOdes;
 	vlLevelChk     : TDefinition;
@@ -815,17 +826,17 @@ begin
 	{Need clean up use of vlName, was prob debugging}
 	vlParent   := nil;
 	vlVirtual  := ParVirtual;
-	vlMother   := TRoutine(fNDCreator.GetCurrentDefinition);
-	vlOtherOwner := TRoutine(fNDCreator.GetCurrentInsertItem);
+	vlMother   := (fNDCreator.GetCurrentDefinition);
+	vlOtherOwner := (fNDCreator.GetCurrentInsertItem);
 	{Following line is a hack}
 	if ParRoutine.fDefAccess = AF_Current then ParRoutine.fDefAccess := fNDCreator.fCurrentDefAccess;
 	vlAttrib := [];
 	vlExtended :=  (ParRootCB) or (ParInherited) ;
 	if ParAbstract then begin
 
- 		if (vlMother <> nil) and (vlMother is TRoutine)  then begin
+		if (vlMother <> nil) and (vlMother is TRoutine)  then begin
 			if  (vlMother.GetRealOwner <> nil)  and  not(TRoutine(vlMother).IsVirtual) then  ErrorDef(Err_No_abs_nested_nonvir,ParRoutine);
-    	end;
+    		end;
 
 		if  not(vlExtended) and (ParVirtual <> VIR_Virtual)  then ErrorDef(Err_Routine_Is_Not_Vir_Or_Ext,ParRoutine);
 		vlAttrib := vlAttrib + [RTM_Abstract];
@@ -881,9 +892,9 @@ begin
 			
 			if(vlMother <> nil) then begin {TODO: is TRoutine test}
 				if not(vlMother.GetOwnerLevelTo(vlLevelChk,vlRelLevel)) then begin
-					vlMother.GetTextStr(vlName);
+					vlName := vlMother.fText;
 					if(vlLevelChk <> nil) then begin
-						vlLevelChk.GetTextStr(vlName2);
+						vlName2 := vlLevelChk.fText;
 					end else begin
 						vlName2 := 'none, unit level routine';
 					end;
@@ -894,7 +905,7 @@ begin
 			end;
 
 			if not(vlParent is TRoutine) then begin
-				vlParent.GetTextStr(vlName);
+				vlName := vlParent.fText;
 				ErrorText(Err_Not_A_Routine,vlName);
 				vlParent := nil;
 			end else begin
@@ -902,7 +913,7 @@ begin
 				if not vlParent.IsSameByMapping(ParRoutine.fParametermapping) then begin
 					SemError(Err_param_differs_From_Parent);
 				end else if RTM_Name_Overload in vlParent.fRoutineModes then begin
-					vlParent.GetTextStr(vlname);
+					vlName := vlParent.fText;
 					ErrorText(err_Rtn_Is_Name_Overloaded,vlName);
 				end;
 			end;
@@ -941,7 +952,7 @@ begin
 	ErrorText(Err_Cant_Open_Input_File,'Os error='+IntTOStr(ParError));
 end;
 
-procedure TEla_user.GetConfigFileName(var ParName : string);
+procedure TEla_user.GetConfigFileName(var ParName : ansistring);
 begin
 	ParName := 'ELA.CFG';
 end;
@@ -970,6 +981,7 @@ end;
 
 procedure TEla_User.ProcessParsed;
 begin
+	fNDCreator.CheckAfter;
 	if Successful then fNDCreator.CreateSec;
 end;
 
@@ -998,12 +1010,12 @@ end;
 
 
 procedure  TEla_User.InitConfig;
-var vlCOnfigFile:string;
+var vlCOnfigFile:ansistring;
 	vlCfg       : TElaConfig;
 	vlCfgParser : TCfg_Parser;
 	vlError     : TErrorType;
-	vlName      : string;
-	vlPath		: string;
+	vlName      : ansistring;
+	vlPath	    : ansistring;
 	vlCnt       : cardinal;
 	vlList      : TLinkObjList;
 begin
@@ -1035,7 +1047,7 @@ begin
 			if GetConfig <> nil then begin
 				iPrvConfigValues := SetConfigValues(GetOptionValues.CloneValues);
 				iDestroyCfgVal := true;
-				fFileName.GetString(vlName);
+				vlName := fFileName;
 				GetConfigValues.SetInputFile(vlName,cl_manual);
 				GetConfig.SetValues(GetConfigValues);    {TODO name is wrong}
 
@@ -1057,22 +1069,20 @@ begin
 end;
 
 
-constructor TEla_User.Create(const ParFileName:string);
+constructor TEla_User.Create(const ParFileName:ansistring);
 begin
-	fFileName := TString.Create(ParFileName);
+	fFileName := ParFileName ;
 	inherited Create;
 end;
 
 procedure TEla_user.Commonsetup;
-var vlFIleName : string;
 begin
 	inherited commonsetup;
-	fFileName.GetString(vlFileName);
 	iPrvConfigValues := nil;
-	iLinkObjList:= nil;
+	iLinkObjList     := nil;
 	iDestroyCfgVal   := false;
 	InitConfig;
-	SetNDCreator(TNDCreator.Create(vlFileName,self));
+	SetNDCreator(TNDCreator.Create(fFileName,self));
 end;
 
 function TEla_user.SetupCompiler:boolean;
@@ -1129,51 +1139,45 @@ begin
 end;
 
 procedure TEla_User.CreateExternalInterfaceObject(ParCDecl:boolean;ParRoutine :TRoutine;
-ParExt : TExternalInterface;var ParName : TString);
+ParExt : TExternalInterface;var ParName : ansiString);
 var vlInter : TExternalObject;
 begin
 	if ParExt = nil then exit;
-	if (ParRoutine = nil)  then begin
-		ParName.Destroy;
-		ParName := nil;
-		exit;
-	end;
-	if ParName <> nil then begin
-		vlInter := ParExt.AddInterface(ParName,ParRoutine);
-		vlInter.fDefAccess := fNDCreator.fCurrentDefAccess;
-		if ParCDecl then ParRoutine.SetRoutineModes([RTM_CDecl],true);
-		fNDCreator.AddGlobalOnce(vlInter);
-	end;
+	if (ParRoutine = nil)  then exit;
+	vlInter := ParExt.AddInterface(ParName,ParRoutine);
+	vlInter.fDefAccess := fNDCreator.fCurrentDefAccess;
+	if ParCDecl then ParRoutine.SetRoutineModes([RTM_CDecl],true);
+	fNDCreator.AddGlobalOnce(vlInter);
 	fNDCreator.AddRoutineItem(ParRoutine);
 	ParRoutine.SetIsDefined;
 end;
 
-function  TELa_User.CreateExternalInterface(const ParName : string;ParHAsAt : boolean;ParAt: longint;var ParCdecl : boolean):TExternalInterface;
+function  TELa_User.CreateExternalInterface(const ParName : ansistring;ParHAsAt : boolean;ParAt: longint;var ParCdecl : boolean):TExternalInterface;
 var
 	vlInter : TExternalInterface;
 	vlTYpe  : TExternalType;
 	vlInfo  : TLInkObjItem;
-	vlFileName : TString;
+	vlFileName : ansiString;
 begin
 	vlInter := nil;
 	vlInfo  := nil;
 	if iLinkObjList <> nil then vlInfo := iLinkObjList.GetItemByName(ParName);
 	if(vlInfo <> nil) then begin
 		vlType := vlInfo.fType;
-		vlFileName := vlInfo.fFile.NewString;
-      ParCDecl := vlInfo.fCDecl;
+		vlFileName := vlInfo.fFile;
+	  	ParCDecl := vlInfo.fCDecl;
 	end else begin
 		ErrorText(Err_Link_Name_Unkown,ParName);
 		vlType := ET_Linked;
-      vlFileName := TString.Create('');
+      		EmptyString(vlFileName);
 		ParCDecl := false;
 	end;
 
 	case vlType of
 		ET_Linked : vlInter := TExternalObjectFileInterface.Create(vlFileName);
 		ET_Dll    : if GetConfigValues.fCanUseDll then begin
-			vlInter := TExternalLibraryInterfaceWindows.Create(vlFileName);
-		end;
+				vlInter := TExternalLibraryInterfaceWindows.Create(vlFileName);
+			end;
 	end;
 
 
@@ -1185,7 +1189,7 @@ begin
      end;
 
      case vlType of
-       ET_Linked : AddObjectFile(vlFileName.NewString,false,ParHasAt,ParAt);
+       ET_Linked : AddObjectFile(vlFileName,false,ParHasAt,ParAt);
      end;
 
      AddIdent(vlInter);
@@ -1196,7 +1200,7 @@ end;
 
 function  TEla_USer.ProcessOperator(const ParParameters     : array of TRoot;
 									var ParPrvPar    : TNodeIdent;
-									const ParOperStr : string;
+									const ParOperStr : ansistring;
 									ParError : boolean):TOperatorProcessResult;
 var
 	vlCallNode   : TCallNode;
@@ -1238,37 +1242,39 @@ begin
 end;
 
 
-procedure  TEla_User.ProcessDualOperator(
+function  TEla_User.ProcessDualOperator(
 		var   ParNewPar  : TNodeIdent;
-		var   ParPrvPar  : TSublistOperatorNode;
-		const ParOprStr  : String;
-		ParOperObj : TRefNodeIdent); {TODO Make TNodeIdentClass}
+		      ParPrvPar  : TFormulaNode;
+		const ParOprStr  : ansiString;
+		      ParOperObj : TRefNodeIdent) : TFormulaNode; {TODO Make TNodeIdentClass}
 var
-	vlNode     : TSubListOperatorNode;
+	vlNode     : TFormulaNode;
 begin
+	vlNode := ParPrvPar;
 	if ParPrvPar = nil then begin
 		if ParNewPar <> nil then begin
 			ParNewPar.Destroy;
 			ParNewPar := nil;
 		end;
-		exit;
-	end;
-	case ProcessOperator([ParPrvPar,ParNewPar],ParPrvPar,ParOprStr,ParOperObj=nil) of
-		Opr_Ok:begin end;
-		Opr_Not_Found : begin{fatal error when paroperobj=nil ?}
+		exit(ParPrvPar);
+	end else begin	
+		case ProcessOperator([ParPrvPar,ParNewPar],vlNode,ParOprStr,ParOperObj=nil) of
+			Opr_Ok:begin end;
+			Opr_Not_Found : begin{fatal error when paroperobj=nil ?}
 				if (ParOperObj <> nil) and (ParPrvPar.ClassType  <> ParOperObj) then begin
-					vlNode := TSubListOperatorNode(ParOperObj.Create);
+					vlNode := TFormulaNode(ParOperObj.Create);{TODO: remove cast}
 					fNDCreator.SetNodePos(vlNOde);
-					vlNode.AddNode(ParPrvPar);
-					ParPrvPar := vlNode;
+					TSubListOperatorNode(vlNode).AddNode(ParPrvPar); {TODO remove type casting}
 				end;
-		   	ParPrvPar.AddNode(ParNewPar);
-		   end;
-		else begin
-			if ParNewPar <> nil then ParNewPar.Destroy;
-			ParNewPar := nil;
+				TSubListOperatorNode(vlNode).AddNode(ParNewPar);{TODO remove type casting}
+			end;
+			else begin
+				if ParNewPar <> nil then ParNewPar.Destroy;
+				ParNewPar := nil;
+			end;
 		end;
 	end;
+	exit(vlNode);
 end;
 
 function TEla_user.GetModule : TUnit;
@@ -1280,7 +1286,7 @@ end;
 procedure TELa_User.ProcessSingleOperator(
 	ParNewPar    : TNodeIdent;
 	var   ParPrvPar    : TNodeIdent;
-	const ParOprStr    : String;
+	const ParOprStr    : ansistring;
 	ParOperObj   : TSingelOperatorNodeClass);
 var
 	vlNode     : TNodeIdent;
@@ -1296,7 +1302,7 @@ end;
 procedure TEla_User.ProcessBetweenOperator(
 	ParO1,ParO2,ParO3  : TNodeIdent;
 	var ParPrvPar      : TNodeIdent;
-	const ParOprStr    : String);
+	const ParOprStr    : ansistring);
 var
 	vlNode     : TSubListOperatorNode;
 	vlType     : TType;
@@ -1318,7 +1324,7 @@ end;
 procedure TEla_User.ProcessCompOperator(
 ParNewPar       : TNodeIdent;
 var ParPrvPar   : TNodeIdent;
-const ParOprStr : String;
+const ParOprStr : ansistring;
 ParCode	        : TIdentCode);
 var
 	vlNode     : TSubListOperatorNode;
@@ -1334,27 +1340,27 @@ begin
 	ParPrvPar := vlNode;
 end;
 
-procedure TEla_User.ReadLinkInfo(const ParFile : string;ParList : TLinkObjList);
+procedure TEla_User.ReadLinkInfo(const ParFile : ansistring;ParList : TLinkObjList);
 var
 	vlFile     : file;
 	vlError    : longint;
 	vlBuffer   : pchar;
 	vlSize     : longint;
 	vlScan     : pchar;
-	vlName     : string;
-	vlFileName :string;
-	vlCDecl    : string;
+	vlName     : ansistring;
+	vlFileName :ansistring;
+	vlCDecl    : ansistring;
 	vlCDeclFlag : boolean;
 	vlLine      : cardinal;
 	vlPrv       : char;
 	vlType      : TExternalType;
-	vlTypeStr   : string;
+	vlTypeStr   : ansistring;
    vlLastNl    : pchar;
 
-	function MakeErrorString(ParMsg : string):string;
+	function MakeErrorString(ParMsg : ansistring):ansistring;
 	var
-			vlLineStr: string;
-			vlColStr : string;
+			vlLineStr: ansistring;
+			vlColStr : ansistring;
 	begin
 			Str(vlScan - vlLastNl,vlColStr);
 			Str(vlLine,vlLineStr);
@@ -1362,7 +1368,7 @@ var
 	end;
 
 
-	procedure  GetNextString(var ParResult : string) ;
+	procedure  GetNextString(var ParResult : ansistring) ;
 	begin
 		EmptyString(ParResult);
 		while(vlScan^ in [#9,#32]) do inc(vlScan);
@@ -1430,26 +1436,26 @@ begin
 		GetNextString(vlCDecl);
 		vlCDeclFlag := false;
 		if(vlCDecl <> ';') then begin
-			upperstr(vlCDecl);
-      	if  vlCDecl <> 'CDECL' then begin
-				Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('"CDecl" or ";" expected'));
-				break;
-			end else begin
-				vlCDeclFlag := true;
-			end;
+				upperstr(vlCDecl);
+			      	if  vlCDecl <> 'CDECL' then begin
+					Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('"CDecl" or ";" expected'));
+					break;
+				end else begin
+					vlCDeclFlag := true;
+				end;
 
-			GetNextString(vlCDecl);
-   	end;
+				GetNextString(vlCDecl);
+		   	end;
 
 		if(vLCDecl <> ';') then begin
 				Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('";" expected'));
    			break;
 		end;
-      ParList.AddObject(vlName,vlFileName,vlType,vlCdeclFlag);
+		ParList.AddObject(vlName,vlFileName,vlType,vlCdeclFlag);
 
 		vlPrv := #0;
 		while (vlScan^ <> #0) and (vlScan^ in [#32,#9,#13,#10]) do begin
-         if (vlScan^ = #13) or (vlScan^ = #10) then begin
+         		if (vlScan^ = #13) or (vlScan^ = #10) then begin
 					if ((vlPrv <>#13 ) or (vlScan^ <> #10))  and  ((vlPrv <>  #10) or (vlScan^ <> #13))  then inc(vlLine);
 				 	vlLastNl := vlScan;
 			end;

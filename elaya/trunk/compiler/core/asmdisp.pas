@@ -28,13 +28,13 @@ type
 	public
 		
 		procedure AsPrintNumber(ParSize :TSIze;ParNumber : TNumber); virtual;
-		procedure AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);virtual;
+		procedure AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);virtual;
 		procedure AsPrintAlign(ParAlign:TSize);virtual;
-		procedure AsPrintAscii(const ParText :string);virtual;
-		procedure AsPrintAsciiz(const ParText :string);virtual;
-		procedure AsPrintMemVar(ParSize : TSize;const ParName : string);virtual;
-		procedure AsPrintOffset(const ParName : string;ParOffset : TOffset);virtual;
-		procedure AsPrintMemIndex(const ParRegister,ParVar: string;ParIndex : TOffset;ParSize:TSize);virtual;
+		procedure AsPrintAscii(const ParText :ansistring);virtual;
+		procedure AsPrintAsciiz(const ParText :ansistring);virtual;
+		procedure AsPrintMemVar(ParSize : TSize;const ParName : ansistring);virtual;
+		procedure AsPrintOffset(const ParName : ansistring;ParOffset : TOffset);virtual;
+		procedure AsPrintMemIndex(const ParRegister,ParVar: ansistring;ParIndex : TOffset;ParSize:TSize);virtual;
 		procedure AsPrintLabel(ParNum : cardinal);virtual;
 	end;
 	
@@ -49,27 +49,27 @@ begin
 end;
 
 
-procedure TAsmDisplay.AsPrintMemIndex(const ParRegister,ParVar: string;ParIndex : TOffset;ParSize:TSize);
+procedure TAsmDisplay.AsPrintMemIndex(const ParRegister,ParVar: ansistring;ParIndex : TOffset;ParSize:TSize);
 begin
 	Print(['<Abstract Mem Index:[ ',ParVar,'+',ParRegister,'+',ParIndex ,']']);
 end;
 
-procedure TAsmDisplay.AsPrintMemVar(ParSize : TSize;const ParName : string);
+procedure TAsmDisplay.AsPrintMemVar(ParSize : TSize;const ParName : ansistring);
 begin
 	Print(['<Abstract Print mem var',ParName,'>']);
 end;
 
-procedure TAsmdisplay.AsPrintOffset(const ParName : string;ParOffset : TOffset);
+procedure TAsmdisplay.AsPrintOffset(const ParName : ansistring;ParOffset : TOffset);
 begin
 	Print(['<abstract offset to ',ParName,'>']);
 end;
 
-procedure TAsmDisplay.AsPrintAscii(const ParText : string);
+procedure TAsmDisplay.AsPrintAscii(const ParText : ansistring);
 begin
-	print(['<Abstract print string :',ParText,'>']);
+	print(['<Abstract print ansistring :',ParText,'>']);
 end;
 
-procedure TAsmDisplay.AsPrintAsciiz(const ParText : string);
+procedure TAsmDisplay.AsPrintAsciiz(const ParText : ansistring);
 begin
 	print(['<Abstract print stringz :',ParText,'>']);
 end;
@@ -80,13 +80,13 @@ begin
 end;
 
 procedure TAsmDisplay.AsPrintNumber(ParSize : TSize;ParNumber : TNumber);
-var vlStr : string;
+var vlStr : ansistring;
 begin
 	LargeToString(ParNumber,vlStr);
 	Write(vlStr);
 end;
 
-procedure TAsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : string;ParSize : TSize);
+procedure TAsmDisplay.AsPrintVar(ParPublic:boolean;const ParName : ansistring;ParSize : TSize);
 begin
 	Print(['<abstract var def:',ParName,'>']);
 end;

@@ -1,4 +1,4 @@
-{    Elaya, the comp[5~iler for the elaya language
+{    Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -49,13 +49,13 @@ type
 	
 	TTextDataDef=class(TDataDef)
 	private
-		voText:TString;
-		property iText : TString read voText write voText;
-		procedure clear;override;
+		voText:AnsiString;
+		property iText : AnsiString read voText write voText;
+		
 
 	public
-		property fText : TString read voText;
-		constructor Create(const ParName:string);
+		property fText : AnsiString read voText;
+		constructor Create(const ParName:ansistring);
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
 
@@ -71,7 +71,7 @@ type
 		property fPublic : boolean  read voPublic;
 
 		procedure Print(ParDis:TAsmDisplay);virtual;
-		procedure GetDefName(var ParName:string);virtual;
+		procedure GetDefName(var ParName:ansistring);virtual;
 		constructor Create(ParType : TDatType);
 		procedure commonsetup;override;
 	end;
@@ -79,11 +79,10 @@ type
 	
 	TAddressDef=class(TAssemDef)
 	private
-		voAddress : TString;
-		property iAddress : TString read voAddress write voAddress;
+		voAddress : AnsiString;
+		property iAddress : AnsiString read voAddress write voAddress;
 	public
-		constructor Create(ParType : TDatType;const ParAddress : string);
-		procedure   Clear; override;
+		constructor Create(ParType : TDatType;const ParAddress : ansistring);
 		procedure   Print(ParDis : TAsmDisplay);override;
 	end;
 	
@@ -115,47 +114,44 @@ type
 	
 	TExternalCode=class(TAssemDef)
 	private
-		voLabel:TString;
-		voName : TString;
-		property iLabel : TString read voLabel write voLabel;
-		property iName  : TString  read voName  write voName;
-	protected
-		procedure Clear;override;
+		voLabel:ansistring;
+		voName : ansistring;
+		property iLabel : AnsiString read voLabel write voLabel;
+		property iName  : AnsiString  read voName  write voName;
 	public
-		constructor Create(Partype : TDatType;const ParLabel,ParName:string;ParPublic:boolean);
+		constructor Create(Partype : TDatType;const ParLabel,ParName:ansistring;ParPublic:boolean);
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
 	
 	TGenLongDef=class(TOperAssemDef)
-		procedure GetDefName(var ParName : string);override;
+		procedure GetDefName(var ParName : ansistring);override;
 	end;
 	
 	TLongDef = class(TOperAssemDef)
 		constructor Create(parType : TDatType;ParNumber:Longint);
-		procedure   GetDefName(var ParName:String);override;
+		procedure   GetDefName(var ParName:ansistring);override;
 	end;
 	
 	TShortDef = class(TOperAssemDef)
 		constructor Create(parType : TDatType;ParNumber:Longint);
-		procedure   GetDefName(var ParName:String);override;
+		procedure   GetDefName(var ParName:ansistring);override;
 	end;
 	
 	
 	TRvaDef = class(TOperAssemDef)
-		procedure GetDefName(var ParName:string);override;
+		procedure GetDefName(var ParName:ansistring);override;
 	end;
 	
 	
 	
 	TTextDef = class(TAssemDef)
 	private
-		voText: TString;
-		property iText : TString read voText write voText;
+		voText: AnsiString;
+		property iText : AnsiString read voText write voText;
 	public
-		property fText : TString read voText;
+		property fText : AnsiString read voText;
 
-		constructor Create(ParType : TDatType;ParString:String);
-		procedure   Clear;override;
+		constructor Create(ParType : TDatType;ParString:ansistring);	
 	end;
 	
 	TASciiDef=class(TTextDef)
@@ -172,13 +168,12 @@ type
 	TNamedLabelDef=class(TAssemDef)
 	private
 		voGlobal : boolean;
-		voname   : TString;
-		property iName   : TString read voName   write voName;
+		voname   : AnsiString;
+		property iName   : AnsiString read voName   write voName;
 		property iGlobal : boolean read voGlobal write voGlobal;
-	protected
-		procedure   clear;override;
+
 	public
-		constructor Create(ParGlobal:boolean;ParType : TDatType;const ParName:string);
+		constructor Create(ParGlobal:boolean;ParType : TDatType;const ParName:ansistring);
 		procedure   Print(parDis:TAsmDisplay);override;
 	end;
 	
@@ -194,17 +189,16 @@ type
 	
 	TVarDef=class(TAssemDef)
 	private
-		voVariable : TString;
+		voVariable : ansistring;
 		voSize     : TSIze;
-		property fVariable : TString read voVariable write voVariable;
-		property fSize     : TSize   read voSize     write voSize;
+		property iVariable : AnsiString read voVariable write voVariable;
+		property iSize     : TSize   read voSize     write voSize;
 	protected
-		property GetVariable : TString read voVariable;
-		property GetSize     : TSize   read voSize;
+		property fVariable : AnsiString read voVariable;
+		property fSize     : TSize   read voSize;
 	public
-		constructor Create(Partype : TDatType;const ParName:string;ParSize:TSize;parPublic:boolean);
+		constructor Create(Partype : TDatType;const ParName:ansistring;ParSize:TSize;parPublic:boolean);
 		procedure  Print(ParDis : TAsmDisplay); override;
-		procedure   Clear;override;
 	end;
 	
 	
@@ -219,19 +213,11 @@ implementation
 
 {---( TAddress )-----------------------------------------------------}
 
-constructor TAddressDef.Create(ParType : TDatType;const ParAddress : string);
+constructor TAddressDef.Create(ParType : TDatType;const ParAddress : ansistring);
 begin
-	iAddress := TString.Create(ParAddress);
 	inherited Create(ParType);
+	iAddress := ParAddress;
 end;
-
-
-procedure   TAddressDef.Clear;
-begin
-	inherited Clear;
-	if iAddress <> nil then iAddress.Destroy;
-end;
-
 
 procedure   TAddressDef.Print(ParDis : TAsmDisplay);
 begin
@@ -243,29 +229,20 @@ end;
 {----( TNamedLabelDef )---------------------------------------------}
 
 procedure TNamedLabelDef.Print(ParDis:TAsmDisplay);
-var
-	vlStr:String;
+
 begin
 	if iGlobal then begin
-		iName.GetString(vlStr);
-		ParDis.Write(GetAssemblerInfo.GetGlobalText(vlStr));
+		ParDis.Write(GetAssemblerInfo.GetGlobalText(iName));
 		ParDis.nl;
 	end;
-	ParDis.WritePst(iName);
-	ParDis.Write(':');
+	ParDis.Print([iName,':']);
 end;
 
-constructor TNamedLabelDef.Create(ParGlobal:boolean;ParType : TDatType;const ParName:String);
+constructor TNamedLabelDef.Create(ParGlobal:boolean;ParType : TDatType;const ParName:ansistring);
 begin
 	inherited Create(ParType);
-	iName   := TString.Create(ParName);
+	iName   := ParName;
 	iGlobal := ParGlobal;
-end;
-
-procedure TNamedLabelDef.clear;
-begin
-	inherited Clear;
-	if iName <> nil then iName.destroy;
 end;
 
 {----( TalignDef )--------------------------------------------------}
@@ -285,61 +262,41 @@ end;
 
 {----( TExternalCode )-----------------------------------------------}
 
-procedure TExternalCode.Clear;
-begin
-	inherited Clear;
-	if iLabel <> nil then iLabel.destroy;
-	if iName <> nil then iName.Destroy;
-end;
-
-constructor TExternalCode.Create(ParType : TDatType;const ParLabel,ParName : string;ParPublic:boolean);
+constructor TExternalCode.Create(ParType : TDatType;const ParLabel,ParName : ansistring;ParPublic:boolean);
 begin
 	inherited Create(ParType);
-	iName   := TString.Create(ParName);
-	iLabel  := TString.Create(ParLabel);
+	iName   := ParName;
+	iLabel  := ParLabel;
 end;
 
 procedure   TExternalCode.Print(ParDis:TAsmDisplay);
-var
-	vlName:string;
 begin
-	iName.GetString(vlName);
-	if iPublic then ParDis.Writenl(GetAssemblerInfo.GetGlobalText(vlName));
-	ParDis.Write(vlName);
-	ParDis.Writenl(':');
-	ParDis.Print([MN_JUMP,' ']);
-	ParDis.WritePst(iLabel);
+	if iPublic then ParDis.Writenl(GetAssemblerInfo.GetGlobalText(iName));
+	ParDis.Print([iName,':']);
+	ParDis.Nl;
+	ParDis.Print([MN_JUMP,' ',iLabel]);
 	ParDis.Nl;
 end;
 
 
 {----( TVarDef )-----------------------------------------}
 
-constructor TVardef.Create(ParType : TDatType;const ParName:string;ParSize:TSize;ParPublic:boolean);
+constructor TVardef.Create(ParType : TDatType;const ParName:ansistring;ParSize:TSize;ParPublic:boolean);
 begin
 	inherited Create(ParType);
 	iPublic   := ParPublic;
-	fVariable := TString.Create(ParName);
-	fSize     := ParSize;
+	iVariable := ParName;
+	iSize     := ParSize;
 end;
 
 procedure TVarDef.Print(ParDis :TAsmDisplay);
-var vlStr :string;
 begin
-	GetVariable.GetString(vlStr);
-	ParDis.AsPrintVar(iPublic,vlStr,GetSize);
-end;
-
-
-procedure TVarDef.Clear;
-begin
-	inherited Clear;
-	if GetVariable <> nil then GetVariable.Destroy;
+	ParDis.AsPrintVar(iPublic,iVariable,iSize);
 end;
 
 {---( TGenLogDef )-----------------------------------------}
 
-procedure TGenLongDef.GetDefName(var ParName : string);
+procedure TGenLongDef.GetDefName(var ParName : ansistring);
 begin
 	ParName := MN_Long;
 end;
@@ -352,7 +309,7 @@ begin
 	inherited Create(ParType,TNumberDataDef.Create(ParNUmber));
 end;
 
-procedure   TLongDef.GetDefName(var ParName:String);
+procedure   TLongDef.GetDefName(var ParName:ansistring);
 begin
 	ParName := MN_Long;
 end;
@@ -363,7 +320,7 @@ begin
 	inherited Create(ParType,TNumberDataDef.Create(ParNUmber));
 end;
 
-procedure   TShortDef.GetDefName(var ParName:String);
+procedure   TShortDef.GetDefName(var ParName:ansistring);
 begin
 	ParName := MN_Short;
 end;
@@ -385,65 +342,50 @@ end;
 {----( TAsciiDef )----------------------------------------}
 
 procedure  TAsciiDef.Print(ParDIs :TAsmDisplay);
-var vlStr : string;
 begin
-	fText.GetString(vlStr);
-	ParDis.AsPrintAscii(vlStr);
+	ParDis.AsPrintAscii(fText);
 end;
 
 {----( TAsciizDef )----------------------------------------}
 
 procedure  TAsciizDef.Print(ParDIs :TAsmDisplay);
-var vlStr : string;
 begin
-	fText.GetString(vlStr);
-	ParDis.AsPrintAsciiz(vlStr);
+	ParDis.AsPrintAsciiz(fText);
 end;
 
 {----( TTextDef )-----------------------------------------}
 
-constructor TTextDef.Create(ParType : TDatType;ParString:String);
+constructor TTextDef.Create(ParType : TDatType;ParString:ansistring);
 begin
 	inherited Create(Partype);
-	iText := TString.Create(ParString);
+	iText := ParString;
 end;
 
 
-procedure TTextDef.Clear;
-begin
-	inherited Clear;
-	if iText <>nil then iText.Destroy;
-end;
 
 {----( TTextDataDef )--------------------------------------}
 
 
-procedure TTextDataDef.Clear;
-begin
-	inherited clear;
-	if iText <> nil then iText.destroy;
-end;
-
-constructor TTextDataDef.Create(const ParName:string);
+constructor TTextDataDef.Create(const ParName:ansistring);
 var
-	vlStr : string;
+	vlStr : ansistring;
 begin
 	inherited Create;
 	ToAsString(ParName,vlStr);
-	iText := TString.Create(vlStr);
+	iText := vlStr;
 end;
 
 procedure   TTextDataDef.Print(ParDis:TAsmDisplay);
 begin
 	ParDis.Write('"');
-	ParDis.WritePst(iText);
+	ParDis.WriteString(iText);
 	ParDis.Write('\000"');
 end;
 
 
 {----( TRvaDef )-------------------------------------------}
 
-procedure TRvaDef.GetDefName(var ParName:string);
+procedure TRvaDef.GetDefName(var ParName:ansistring);
 begin
 	ParName := MN_RVA;
 end;
@@ -465,7 +407,7 @@ end;
 
 procedure TOperAssemDef.Print(parDIs:TAsmDisplay);
 var
-	vlName:String;
+	vlName:ansistring;
 begin
 	PArDis.SetLeftMargin(SIZE_AsmLeftMargin);
 	GetDefName(vlName);
@@ -491,7 +433,7 @@ begin
 	iType := ParType;
 end;
 
-procedure TAssemDef.GetDefName(var ParName:string);
+procedure TAssemDef.GetDefName(var ParName:ansistring);
 begin
 	ParName := '<Abstract>';
 end;

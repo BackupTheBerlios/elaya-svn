@@ -31,14 +31,12 @@ type
     {Hack}
 	TSizeInstruction=class(TInstruction)
     private
-		voOperand : TString;
-		voName    : TString;
-		property iOperand : TString read voOperand write voOperand;
-		property iName    : TString read voName write voName;
-	protected
-		procedure clear;override;
+		voOperand : AnsiString;
+		voName    : AnsiString;
+		property iOperand : AnsiString read voOperand write voOperand;
+		property iName    : AnsiString read voName write voName;
 	public
-		constructor Create(const ParName,ParOperand : string);
+		constructor Create(const ParName,ParOperand : ansistring);
 		procedure Print(ParDis : TAsmDisplay);override;
 	end;
 
@@ -93,11 +91,7 @@ type
 		procedure CheckOperands(ParCre:TInstCreator;ParChange:TChangeList);override;
 	end;
 	
-	TCmpOperandList=class(TTwoBaseOperandList)
-		function GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;override;
-		procedure CheckOperands(ParCre:TInstCreator;ParChange:TChangeList);override;
-		function  GetOpperSize:TSize;override;
-	end;
+	
 	
 	
 	TLeaOperandList=class(TFormOperandList)
@@ -109,6 +103,14 @@ type
 		procedure CheckOperands(ParCre:TInstCreator;ParChange:TChangeList);override;
 	end;
 	
+	TCmpOperandList=class(TFormOperandList)
+		function GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;override;
+		procedure CheckOperands(ParCre:TInstCreator;ParChange:TChangeList);override;
+		function  GetOpperSize:TSize;override;
+	end;
+                       
+
+			   
 	TAddSubOperandList = class(TSimpFormOperandList)
 		procedure CheckOperands(ParCre:TInstCreator;ParChange:TChangeList);override;
 	end;
@@ -141,24 +143,30 @@ type
 	
 	TLabelInst=class(TInstruction)
 	private
-		voLabelName : TString;
-		property iLabelName : TString read voLabelName write voLabelName;
+		voLabelName : AnsiString;
+		property iLabelName : AnsiString read voLabelName write voLabelName;
 	protected
 		procedure   CommonSetup;override;
-		procedure   clear;override;
 
 	public
-		property fLabelName : TString read voLabelName;
-		constructor Create(const ParName:string);
+		property fLabelName : AnsiString read voLabelName;
+		constructor Create(const ParName:ansistring);
 		procedure   Print(ParDIs:TAsmDisplay);override;
 	end;
-	
+
 	TFormInst=class(TInstruction)
 		function  GetIsSigned:boolean;
 		procedure InitOperandList;override;
 		procedure InstructionFase(ParCre:TInstCreator);override;
 	end;
 	
+	TCmpInst=class(TFormInst)
+	public
+		procedure GetInstructionName(var ParName : ansistring);override;
+		procedure InitOperandList;override;
+	end;
+
+
 	TMovInst=class(TFormInst)
 	private
 		voMovType : T386MovType;
@@ -170,7 +178,7 @@ type
 	public
 		procedure InitOperandList;override;
 		procedure InstructionFase(ParCre:TInstCreator);override;
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TSignExtendInstList=class(TFormOperandList)
@@ -211,13 +219,13 @@ type
 	protected
 		procedure   CommonSetup;override;
 	public
-		procedure   GetInstructionName(var ParName : string);override;
+		procedure   GetInstructionName(var ParName : ansistring);override;
 		
 	end;
 	
 	TSubInst=class(TAddSubInst)
 		procedure   COmmonSetup;override;
-		procedure   GetInstructionName(var ParName : string);override;
+		procedure   GetInstructionName(var ParName : ansistring);override;
 	end;
 	
     TShrShlInst=class(TTwoInst)
@@ -226,12 +234,12 @@ type
 
 	TShrInst=class(TShrShlInst)
 		procedure   CommonSetup;override;
-		procedure   GetInstructionName(var ParName : string);override;		
+		procedure   GetInstructionName(var ParName : ansistring);override;		
 	end;
 
 	TShlInst=class(TShrShlInst)
 		procedure   CommonSetup;override;
-		procedure   GetInstructionName(var ParName : string);override;		
+		procedure   GetInstructionName(var ParName : ansistring);override;		
 	end;
 
 	TMulInst=class(TTWoInst)
@@ -239,7 +247,7 @@ type
 		procedure   CommonSetup;override;
 	public
 		procedure   InitOperandList;override;
-		procedure   GetInstructionName(var ParName : string);override;		
+		procedure   GetInstructionName(var ParName : ansistring);override;		
 	end;
 	
 	TDivInst=class(TTwoInst)
@@ -248,32 +256,24 @@ type
 
 	public
 		procedure   InitOperandList;override;
-		procedure   GetInstructionName(var ParName : string);override;
+		procedure   GetInstructionName(var ParName : ansistring);override;
 	end;
 	
-	TCmpInst=class(TTwoInst)
-	protected
-		procedure CommonSetup;override;
-
-	public
-		procedure GetInstructionName(var ParName : string);override;
-		procedure InitOperandList;override;
-	end;
 	
 	TOrInst = class(TTwoInst)
 	public
 		procedure CommonSetup;override;
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TAndInst = class(TTwoInst)
 		procedure CommonSetup;override;
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TXorInst = class(  TTwoInst)
 		procedure CommonSetup;override;
-		procedure  GetInstructionName(var ParName : string);override;
+		procedure  GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TJumpInst=class(TInstruction)
@@ -285,7 +285,7 @@ type
 
 	public
 		constructor Create(const ParLabel:TLabelInst);
-		procedure   GetInstructionName(var ParName : string);override;
+		procedure   GetInstructionName(var ParName : ansistring);override;
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
 	
@@ -310,7 +310,7 @@ type
 		procedure Print(ParDis:TAsmDisplay);override;
 		procedure SetRetSize(ParSize:TSize);
 		function  GetRetSize:TSize;
-		procedure   GetInstructionName(var ParName : string);override;
+		procedure   GetInstructionName(var ParName : ansistring);override;
 		
 	end;
 	
@@ -322,7 +322,7 @@ type
 		procedure CommonSetup;override;
 	public
 		procedure InitOperandList;override;
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 		
 	end;
 	
@@ -330,7 +330,7 @@ type
 	protected
 		procedure CommonSetup;override;
 	public
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TLeaInst=class(TInstruction)
@@ -338,7 +338,7 @@ type
 		procedure CommonSetup;override;
 	public
 		procedure InitOperandList;override;
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TCallOperandList=class(TOperandList)
@@ -373,7 +373,7 @@ type
 		
 	public
 		constructor Create(ParFlag:boolean);
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 		procedure CommonSetup;override;
 	end;
 	
@@ -385,14 +385,14 @@ type
 	protected
 		procedure Commonsetup;override;
 	public
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TNotInst=class(TOneInst)
 	protected
 		procedure Commonsetup;override;
 	public
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 	end;
 	
 	TAsmInst=class(TInstruction)
@@ -415,7 +415,7 @@ type
 	TNopInst=class(TInstruction)
 	public
 		procedure COmmonsetup;override;
-		procedure GetInstructionName(var ParName : string);override;
+		procedure GetInstructionName(var ParName : ansistring);override;
 		
 	end;
 	
@@ -426,17 +426,11 @@ implementation
 uses asminfo;
 
 {-----( TSizeInstruction )-------------------------------------------------------------}
-procedure TSizeInstruction.clear;
-begin
-	inherited Clear;
-	iOperand.Destroy;
-	iName.Destroy;
-end;
 
-constructor TSIzeInstruction.Create(const ParName,ParOperand : string);
+constructor TSIzeInstruction.Create(const ParName,ParOperand : ansistring);
 begin
-	iOperand := TString.Create(ParOperand);
-	iName    := TString.Create(ParName);
+	iOperand := ParOperand;
+	iName    := ParName;
 	inherited Create;
 end;
 
@@ -467,7 +461,7 @@ begin
 	iIdentCode := IC_386_NopInst;
 end;
 
-procedure TNopInst.GetInstructionName(var ParName : string);
+procedure TNopInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Nop;
 end;
@@ -557,7 +551,7 @@ begin
 	iIdentCode := IC_386_NegInst;
 end;
 
-procedure TNegInst.GetInstructionName(var ParName : string);
+procedure TNegInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Neg;
 end;
@@ -573,7 +567,7 @@ begin
 	iIdentCode := IC_386_NotInst;
 end;
 
-procedure TNotInst.GetInstructionName(var ParName : string);
+procedure TNotInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParNAme := MN_Not;
 end;
@@ -594,7 +588,7 @@ begin
 	else iIdentCode := IC_386_DecInst;
 end;
 
-procedure TIncDecInst.GetInstructionName(var ParName : string);
+procedure TIncDecInst.GetInstructionName(var ParName : ansistring);
 begin
 	if iIncFlag then ParName := MN_Inc
 	else ParName := MN_Dec;
@@ -615,7 +609,7 @@ begin
 	iIdentCode := IC_386_leaInst;
 end;
 
-procedure TLeaInst.GetInstructionName(var ParName : string);
+procedure TLeaInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Lea;
 end;
@@ -709,7 +703,7 @@ begin
 end;
 
 procedure TRegResComment.print(parDis:TAsmDisplay);
-var vlName:string;
+var vlName:ansistring;
 begin
 	ParDis.Write('#');
 	if GetRes then ParDis.Write(' Reserve Register :')
@@ -797,7 +791,7 @@ end;
 
 
 function  TDivOperandList.GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;
-var vlStr:String;
+var vlStr:ansistring;
 begin
 	ParPosition := 2;
 	GetPrintPosition := false;
@@ -823,7 +817,7 @@ begin
 	iIdentCode := IC_386_ShrInst;
 end;
 
-procedure TShrInst.GetInstructionName(var ParName : string);
+procedure TShrInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_SHR;
 end;
@@ -837,7 +831,7 @@ begin
 	iIdentCode := IC_386_ShrInst;
 end;
 
-procedure TShlInst.GetInstructionName(var ParName : string);
+procedure TShlInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_SHL;
 end;
@@ -946,7 +940,7 @@ begin
 end;
 
 
-procedure TPopInst.GetInstructionName(var ParName : string);
+procedure TPopInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Pop;
 end;
@@ -966,7 +960,7 @@ begin
 	iIdentCode := (IC_386_PushInst);
 end;
 
-procedure TPushInst.GetInstructionName(var ParName : string);
+procedure TPushInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Push;
 end;
@@ -1018,7 +1012,7 @@ end;
 {---( TRetInst )-----------------------------------------------------}
 
 
-procedure   TRetInst.GetInstructionName(var ParName : string);
+procedure   TRetInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Ret;
 end;
@@ -1061,7 +1055,7 @@ end;
 {---(TMovOperandList)-----------------------------------------------------}
 
 function TMovOperandList.GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	GetPrintPosition := true;
 	if ParRes.TestIdentNumber(IN_In_1)     then ParPosition := 2 else
@@ -1100,7 +1094,7 @@ end;
 {---( TCmpOperandList )--------------------------------------------------}
 
 function TCmpOperandList.GetPrintPosition(ParRes:TOperand;var ParPosition:TNormal):boolean;
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	GetPrintPosition := true;
 	if ParRes.TestIdentNumber(In_In_1) then ParPosition := 1 else
@@ -1195,7 +1189,7 @@ begin
 	iIdentCode := (IC_386_JumpInst);
 end;
 
-procedure  TJumpInst.GetInstructionName(var ParName : string);
+procedure  TJumpInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_JUmp;
 end;
@@ -1280,7 +1274,7 @@ end;
 
 {---( TCmpInst )-----------------------------------------------------}
 
-procedure  TCmpInst.GetInstructionName(var ParName : string);
+procedure  TCmpInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Cmp;
 end;
@@ -1290,14 +1284,6 @@ procedure TCmpInst.InitOperandList;
 begin
 	iOperandList := TCmpOperandList.Create;
 end;
-
-
-procedure TCmpInst.CommonSetup;
-begin
-	inherited COmmonSetup;
-	SetCanSwap(false);
-end;
-
 
 
 {---( TFormInst )----------------------------------------------------}
@@ -1441,7 +1427,7 @@ end;
 
 {---( TSubInst )------------------------------------------------------}
 
-procedure TSubInst.GetInstructionName(var ParName : string);
+procedure TSubInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Sub;
 end;
@@ -1457,10 +1443,10 @@ end;
 {---( TLabelInst )----------------------------------------------------}
 
 
-constructor TLabelInst.Create(const ParName:string);
+constructor TLabelInst.Create(const ParName:ansistring);
 begin
 	inherited Create;
-	iLabelName := TString.Create(ParName);
+	iLabelName := ParName;
 end;
 
 procedure   TLabelInst.CommonSetup;
@@ -1474,12 +1460,6 @@ begin
 	ParDis.SetLeftMargin(-8);
 	ParDis.print([iLabelName,':']);
 	ParDis.SetLeftMargin(8);
-end;
-
-procedure TLabelInst.Clear;
-begin
-	inherited Clear;
-	if iLabelName <> nil then iLabelName.Destroy;
 end;
 
 {---( TSignExtendInstList )---------------------------------------------}
@@ -1598,7 +1578,7 @@ begin
 	iOrgSize   := 0;
 end;
 
-procedure TMovInst.GetInstructionName(var ParName : string);
+procedure TMovInst.GetInstructionName(var ParName : ansistring);
 begin
 	case iMovType of
 	mv_Normal   : ParName := MN_Mov;
@@ -1643,7 +1623,7 @@ begin
 	iIdentCode := (IC_386_AddInst);
 end;
 
-procedure TAddInst.GetInstructionName(var ParName : string);
+procedure TAddInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Add;
 end;
@@ -1651,7 +1631,7 @@ end;
 
 {---( TOrInst )-------------------------------------------------------}
 
-procedure TOrInst.GetInstructionName(var ParName : string);
+procedure TOrInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_OR;
 end;
@@ -1665,7 +1645,7 @@ end;
 
 {---( TOrInst )-------------------------------------------------------}
 
-procedure TAndInst.GetInstructionName(var ParName : string);
+procedure TAndInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := mn_and;
 end;
@@ -1690,7 +1670,7 @@ begin
 	iIdentCode := (IC_386_XorInst);
 end;
 
-procedure TXorInst.GetInstructionName(var ParName : string);
+procedure TXorInst.GetInstructionName(var ParName : ansistring);
 begin
 	ParName := MN_Xor;
 end;
@@ -1703,7 +1683,7 @@ begin
 	iOperandList := TDivOperandList.Create;
 end;
 
-procedure TDivInst.GetInstructionName(var ParName : string);
+procedure TDivInst.GetInstructionName(var ParName : ansistring);
 begin
 	if GetIsSigned then ParName := MN_IDiv
 	else ParName := MN_Div;
@@ -1724,7 +1704,7 @@ begin
 	iOperandList := TMulOperandList.Create;
 end;
 
-procedure  TMulInst.GetInstructionName(var ParName : string);
+procedure  TMulInst.GetInstructionName(var ParName : ansistring);
 begin
 	if GetIsSigned then ParName := MN_IMUL
 	else ParName := MN_MUL;

@@ -1,0 +1,29 @@
+uses tprogram,tbutton;
+
+type
+	TAppProgram=class inherit TProgram
+	protected
+		procedure SetupMainWidget;override;
+	end;
+
+
+procedure TAppProgram.SetupMainWidget;override;
+var
+	vlWindow : TMainWindow;
+	vlButton : TButton;
+begin
+	vlWindow := TMainWindow.Create(nil);
+	vlButton := TButton.Create(vlWindow) where
+		init:begin
+			title:='test';
+			w := 80;
+		end;
+	end;
+end;
+
+var
+	vlProgram : TAppProgram;
+begin
+	vlProgram := TAppProgram.Create;
+	vlProgram.Run;
+end.

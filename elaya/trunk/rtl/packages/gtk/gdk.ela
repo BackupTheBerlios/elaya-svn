@@ -2424,7 +2424,7 @@ procedure gdk_timer_disable; name 'gdk_timer_disable';
 function  gdk_window_ref(window:PGdkWindow):PGdkWindow; name 'gdk_window_ref';
 procedure gdk_window_unref(window:PGdkWindow); name 'gdk_window_unref';
 procedure gdk_window_copy_area(window:PGdkWindow; gc:PGdkGC; x:gint; y:gint; source_window:PGdkWindow; source_x:gint; source_y:gint; width:gint; height:gint); name 'gdk_window_copy_area';
-
+
 }
 {
 	linux
@@ -2440,6 +2440,21 @@ procedure gdk_add_client_message_filter(message_type:TGdkAtom; func:TGdkFilterFu
 array
 procedure gdk_gc_set_dashes(gc:PGdkGC;dash_offset:gint;dashlist:array of gchar;n:gint); name 'gdk_gc_set_dashes';}
 
+external libm
+end;
+
+external xi
+end;
+
+external xt
+end;
+
+external xext
+end;
+
+external x11
+	
+end;
 
 external libgdk
 	procedure gdk_rgb_init; name 'gdk_rgb_init';

@@ -119,9 +119,7 @@ end;
 			procedure  PrintList(var ParFile : Text);
 	  end;
 
-		TAutoLoadItem=class(TFileItem)
-		end;
-
+		
 
 
 	  TUnitList=class(TSMTextList)
@@ -150,7 +148,7 @@ end;
 			procedure PrintClean(var ParFile : Text);
 			constructor Create(const ParStr : string;ParFileList : TFileList);
 	 end;
-	  TAutoLoadList=class(TFileList)
+	       TAutoLoadList=class(TFileList)
 			function IsAutoLOad(const ParFile : string):boolean;
 			procedure AddAutoLoadToProgram(ParProgram : TProgramItem);
 		end;
@@ -560,16 +558,16 @@ end;
 
 procedure TAutoLoadList.AddAutoLoadToProgram(ParProgram : TProgramItem);
 var
-	vlName : string;
-	vlCurrent : TAutoLoadItem;
+	vlName  : string;
+	vlCurrent : TFileItem;
 begin
 	ParProgram.GetTextStr(vlName);
 	if IsAutoLoad(vlName) then exit;
-	vlCurrent := TAutoLoadItem(fStart);
+	vlCurrent := TFileItem(fStart);
 	while vlCurrent<> nil do begin
 		vlCurrent.GetTextStr(vlName);
 		ParProgram.AddUnit(vlName);
-		vlCurrent := TAutoLoadItem(vlCurrent.fNxt);
+		vlCurrent := TFileItem(vlCurrent.fNxt);
 	end;
 end;
 

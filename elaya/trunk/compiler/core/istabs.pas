@@ -51,50 +51,46 @@ type
 	private
 		voCode1 : cardinal;
 		voCode2 : cardinal;
-		voText  : TString;
+		voText  : AnsiString;
 		
 	protected
 		property  fCode1:cardinal read voCode1 write voCode1;
 		property  fCode2:cardinal read voCode2 write voCode2;
-		property  iText : TString read voText write voText;
+		property  iText :AnsiString read voText write voText;
 		procedure PrintLastArg(ParDis : TAsmDisplay);virtual;
-		procedure  clear;override;
 
 	public
-		constructor create(ParType:cardinal;ParText:string;ParCode1,ParCode2:cardinal);
+		constructor create(ParType:cardinal;ParText:ansistring;ParCode1,ParCode2:cardinal);
 		procedure Print(ParDis:TAsmDisplay);override;
 	end;
 
 	TProcedureStab=class(TStabs)
 	private
-		voMangledName         : TString;
-		voParentName          : TString;
-   		property iParentName  : TString read voParentName write voParentName;
-		property fMangledName : TString read voMangledName;
-		procedure SetMangledName(const ParName:String);
+		voMangledName         : AnsiString;
+		voParentName          : AnsiString;
+   		property iParentName  : AnsiString read voParentName write voParentName;
+		property iMangledName : AnsiString read voMangledName write voMangledName;
 	protected
 		procedure PrintLastArg(ParDis:TAsmDisplay);override;
 		procedure Commonsetup;override;
-		procedure Clear;override;
 
 	public
-		constructor Create(const ParName,ParParentName:string;const ParMangled:string;ParLine:cardinal);
+		constructor Create(const ParName,ParParentName:ansistring;const ParMangled:ansistring;ParLine:cardinal);
 	end;
 	
 	TLineNumberStab=class(Tstabn)
 	private
 		voRefLabel              : TLabelInst;
-		voProcedureName         : TString;
-		property fLabel         : TLabelInst read voRefLabel write voRefLabel;
-		property fProcedureName : TString read voProcedureName;
-		procedure SetProcedureName(const ParStr:string);
+		voProcedureName         : AnsiString;
+		property iLabel         : TLabelInst read voRefLabel write voRefLabel;
+		property iProcedureName : AnsiString read voProcedureName write voProcedureName;
+
 	protected
 		procedure PrintLastArg(ParDis:TAsmDisplay);override;
-		procedure   Clear;override;
 		procedure   Commonsetup;override;
 
 	public
-		constructor Create(ParLineNo:Cardinal;ParLabel:TLabelInst;const PArProc:String);
+		constructor Create(ParLineNo:Cardinal;ParLabel:TLabelInst;const PArProc:ansistring);
 	end;
 	
 	
@@ -134,58 +130,38 @@ end;
 
 {---( TLineNUmberStab )--------------------------------------------------------}
 
-constructor TLineNumberStab.Create(ParLineNo:Cardinal;ParLabel:TLabelInst;const PArProc:String);
+constructor TLineNumberStab.Create(ParLineNo:Cardinal;ParLabel:TLabelInst;const PArProc:ansistring);
 begin
 	inherited Create(Stab_LineInfo,0,ParLineNo+1);
-	fLabel         := ParLAbel;
-	SetProcedureName(ParProc);
+	iLabel         := ParLAbel;
+	iProcedureName := ParProc;
 end;
 
-
-procedure TLineNumberStab.Clear;
-begin
-	inherited Clear;
-	if fProcedureName <> nil then fProcedureName.destroy;
-end;
 
 
 procedure TLineNumberStab.PrintLastArg(ParDis:TAsmDisplay);
 begin
-	if fLabel <> nil then ParDis.WritePst(fLabel.fLabelName);
+	if iLabel <> nil then ParDis.Write(iLabel.fLabelName);
 	ParDis.Write('-');
-	ParDis.WritePst(fProcedureName);
+	ParDis.Write(iProcedureName);
 end;
 
 procedure TLineNumberStab.Commonsetup;
 begin
 	inherited commonsetup;
-	iIdentCode      := (IC_LineNumberStab);
-	voProcedureName := nil;
+	iIdentCode      := IC_LineNumberStab;
 end;
-
-procedure TLineNumberStab.SetProcedureName(const ParStr:string);
-begin
-	if fProcedureName <> nil then fProcedureName.destroy;
-	voProcedureName := TString.Create(ParStr);
-end;
-
-
 
 {---( TStabS )--------------------------------------------------------------------}
 
-constructor TStabs.create(ParType:cardinal;ParText:string;ParCode1,ParCode2:cardinal);
+constructor TStabs.create(ParType:cardinal;ParText:ansistring;ParCode1,ParCode2:cardinal);
 begin
 	inherited Create(ParType);
-	iText := TString.Create(ParText);
+	iText := ParText;
 	fCode1 := ParCode1;
 	fCode2 := ParCode2;
 end;
 
-procedure TStabs.Clear;
-begin
-	inherited Clear;
-	if iText <> nil then iText.Destroy;
-end;
 
 procedure   TStabs.PrintLastArg(ParDis:TAsmDisplay);
 begin
@@ -195,7 +171,7 @@ procedure   TStabs.Print(ParDis:TAsmDisplay);
 begin
 	ParDis.Write(MN_Stabs);
 	ParDis.Write(' "');
-	ParDis.WritePSt(iText);
+	ParDis.WriteString(iText);
 	ParDis.Write('",');
 	ParDIs.WriteInt(fType);
 	ParDis.Write(',');
@@ -209,27 +185,16 @@ end;
 
 {---( TProcedureStab )---------------------------------------------------}
 
-procedure TProcedureStab.SetMangledName(const ParName:String);
-begin
-	if fMangledName <> nil then fMangledName.Destroy;
-	voMangledName := TString.Create(ParName);
-end;
-
-procedure TProcedureStab.Clear;
-begin
-	inherited Clear;
-	if FMangledName <> nil then fMangledName.Destroy;
-end;
 
 procedure TProcedureStab.commonsetup;
 begin
 	inherited Commonsetup;
 	iIdentCode    := (ic_procedureStab);
-	voMangledName := nil;
 end;
 
-constructor TProcedureStab.Create(const ParName,ParParentName,ParMangled:string;ParLine:cardinal);
-var vlExtra : string;
+constructor TProcedureStab.Create(const ParName,ParParentName,ParMangled:ansistring;ParLine:cardinal);
+var 
+	vlExtra : ansistring;
 begin
 
 	if length(ParParentName) = 0 then begin
@@ -239,12 +204,12 @@ begin
 	end;
 	if length(ParParentName) <> 0 then vlExtra := vlExtra +','+ ParParentName;
 	inherited Create(stab_procedure,ParName+':F1'+vlExtra,0,ParLine);
-	SetMangledName(ParMangled);
+	iMangledName := ParMangled;
 end;
 
 procedure  TProcedureStab.PrintLastArg(ParDis:TAsmDisplay);
 begin
-	ParDis.WritePst(fMangledName);
+	ParDis.Write(iMangledName);
 end;
 
 end.

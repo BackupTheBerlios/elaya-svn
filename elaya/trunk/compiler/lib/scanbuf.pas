@@ -129,11 +129,13 @@ end;
 function TScanBuffer.GetNextByte(var ParByte:byte):boolean;
 begin
 	if iCurrentPtr = nil then exit(true);
-	ParByte     := pbyte(iCurrentPtr)^;
+
 	if(iCurrentPtr < iBuffer + iSize) then begin
+		ParByte     := pbyte(iCurrentPtr)^;
 		inc(voCurrentPtr);
 		exit(false);
 	end else begin
+		ParByte := 0;
 		exit(true);
 	end;
 end;

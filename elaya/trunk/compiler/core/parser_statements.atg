@@ -16,7 +16,7 @@ var
 	vlRoutine : TDefinition;
 	vlOwner   : TDefinition;
 	vlExpr    : TFormulaNode;
-	vlName    : string;
+	vlName    : ansistring;
 	vlNode    : TCallNode;
 .)
 =
@@ -81,17 +81,17 @@ var
 (*			Program Flow					*)
 
 
-RExit<var ParNode:TSubListStatementNode>
+RExit<var ParNode:TNodeIdent>
 (.
    var
-		vlExp : TFormulaNode;
+	vlExp : TFormulaNode;
 .)
 =
-(.	vlExp := nil;.)
+(.vlExp := nil;.)
 
 IExit ["(" RFormula<vlExp> ")"]
 (.
-	ParNode :=TSubListStatementnode( CreateExitNode(vlExp));(* TODO Change exit type? *)
+	ParNode :=CreateExitNode(vlExp);
 .)
 .
 
@@ -128,7 +128,7 @@ RCount:"count statement"<var ParNode:TSubListStatementNode>
 .)
 =
 (.
-	vlUp           := false;
+	vlUp           := true;
 	vlEndCondition := nil;
 	vlEnd          := nil;
 	vlAllOf        := nil;
@@ -139,8 +139,8 @@ ICount RFormula<vlCount>
 ((IAll IOf RFormula<vlAllOf>)|(
 
 IFrom  RFormula<vlBegin>
-[((ITo	(.  vlUp := true; .))
-|(IDownTo	))
+[((ITo
+|(IDownTo (. vlUp := false;.)))
 RFormula<vlEnd>]) )
 [IStep RFormula<vlStep>]
 [IUntil RExpr<vlEndCondition> ]
@@ -230,7 +230,7 @@ IUntil RFormula<vlCond>
 
 RLoad:"syntax"<var Parexp:TFormulaNode>
 (. var
-	vlName   : string;
+	vlName   : ansistring;
 	vlDigiL  : TDigiItem;
 	vlDigiR  : TDigiItem;
 .)
@@ -271,19 +271,21 @@ RCode:"code item"<ParNode:TSubListStatementNode>
 	vlNode     : TSubListStatementNode;(* TODO Solve this*)
 	vlForm     : TFormulanode;
 	vlLineInfo : TNodeident;
+	vlBaseNode : TNodeIdent;
 .)
 =
 (.
     vlNode := nil;
-	 vlForm := nil;
+    vlForm := nil;
+    vlBaseNode := nil;
     if (GetConfigValues.fGenerateDebug) and (ParNode <> nil)  then begin
     	vlLineInfo := TLineNumberNode.create;
     	vlLineInfo.fLine := nextLine;
-		ParNode.AddNode(vlLineInfo);
+        ParNode.AddNode(vlLineInfo);
     end;
 .)
 
-(RLoad<TFormulaNode(vlForm)>
+(RLoad<vlForm>
 |RAsmBlock<vlNode>
 |RBreak<vlNode>
 |RContinue<vlNode>
@@ -292,15 +294,16 @@ RCode:"code item"<ParNode:TSubListStatementNode>
 |RWhile<vlNode>
 |RIf<vlNode>
 |RRepeat<vlNode>
-|RExit<vlNode>
+|RExit<vlBaseNode>
 |RIncDec<ParNode>
 |RLeave<vlNode>
 |RCodes<vlNode>
 |RWrite<ParNode>)
 
 (.
-	if vlNode <> nil then ParNode.AddNode(vlNode);
+   if vlNode <> nil then ParNode.AddNode(vlNode);
    if vlForm <> nil then ParNode.AddNode(vlForm);
+   if vlBaseNode <> nil then ParNode.AddNode(vlBaseNode);
 .)
 .
 

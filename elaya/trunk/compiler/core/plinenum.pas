@@ -54,7 +54,7 @@ end;
 
 function TLineNumberPoc.CreateInst(ParCre:TInstCreator):boolean;
 var vlLabel:TLabelInst;
-	vlName : string;
+	vlName : ansistring;
 begin
 	vlLabel := TLabelInst(ParCre.CreateLabel(Lab_NewName));
 	ParCre.AddInstAfterCur(vlLabel);

@@ -28,7 +28,7 @@ var
 	vlI1 : TDigiItem;
 	vlI2 : TDigiItem;
 	vlI3 : TDigiItem;
-  	vlName : string;
+  	vlName : ansistring;
 .)
 =
 RIdentOper<vlI1>  (. ParExpr := vlI1; .)
@@ -50,7 +50,7 @@ RIdentOper<var ParExp : TDigiItem>
 	var
 		vlDigiL : TDigiItem;
 		vlDigiR : TDigiItem;
-		vlName  : string;
+		vlName  : ansistring;
 .)
 =
 
@@ -75,7 +75,7 @@ RCompare<var ParExp:TDigiItem>
 		vlDigiL : TDigiItem;
 		vlDigiR : TDigiItem;
 		vlCode  : TIdentCode;
-		vlName:String;
+		vlName:ansistring;
 .)
 
 =
@@ -104,7 +104,7 @@ RLogic<var ParDigi :TDigiItem>
 var
 		vlDigi1    : TDigiItem;
 		vlDigi2    : TDigiItem;
-		vlName     : string;
+		vlName     : ansistring;
 		vlOperator : TRefNodeIdent;
 .)
 =
@@ -132,7 +132,7 @@ RLogicAnd<var ParDigi : TDigiItem>
 var
 	vlDigi1    : TDigiItem;
     vlDigi2    : TDigiItem;
-	vlName     : string;
+	vlName     : ansistring;
 .)
 =
 RAdd<vlDigi1>
@@ -155,7 +155,7 @@ RAdd:"formula"<var ParDigi : TDigiItem>
 (.
 var
 	vlOperator : TRefNodeident;
-	vlName     : String;
+	vlName     : ansistring;
 	vlDigi1    : TDigiItem;
 	vlDigi2    : TDigiItem;
 .)
@@ -185,7 +185,7 @@ RShrShl<var ParDigi : TDigiItem>
 		vlOperator : TRefNodeIdent;
 		vlDigi1 : TDigiItem;
 		vlDigi2 : TDigiItem;
-		vlName : string;
+		vlName : ansistring;
 	.)
 =
 RTerm<vlDigi1>
@@ -207,7 +207,7 @@ RTerm:"expression"<var ParDigi : TDigiItem>
 var
 	vlOperator : TRefNodeIdent;
 	vlneg      : boolean;
-	vlName     : string;
+	vlName     : ansistring;
 	vlDigi1    : TDigiItem;
 	vlDigi2    : TDigiItem;
 .)
@@ -303,7 +303,7 @@ RComp:"expression"<var ParDigi : TDigiItem>
 (.
 var
 	vlNode2     : TFormulaNode;
-	vlIdent     : String;
+	vlIdent     : ansistring;
 	vlIndex     : TArrayDigiItem;
 	vlOut       : TIdentHookDigiItem;
 	vlDotOper   : TDotOperDigiItem;
@@ -345,15 +345,13 @@ RFact<vlDigi>
 		[RParameters<vlDotOper.fField>]
 
         [
-            (.
-				vlDotOper.HandleRfi(fNDCreator);
-				fNDCreator.AddCurrentDefinitionEx(vlDotOper.GetRecordType,false,true);
-			.)
-			RShortDRoutine<TRoutineCollection(vlDotOper.GetFieldIdentItem),vlDotOper.fField>
-            (.
-            	if vlDotOper.GetRecordType <> nil then fNDCreator.EndIdent;
-			.)
-		]
+            	(.
+			vlDotOper.HandleRfi(fNDCreator);
+			fNDCreator.AddCurrentDefinitionEx(vlDotOper.GetRecordType,false,true);
+		.)
+		RShortDRoutine<vlDotOper.GetFieldIdentItem,vlDotOper.fField>
+		(. if vlDotOper.GetRecordType <> nil then fNDCreator.EndIdent;	.)
+	]
 
 	 )
 |("#"
@@ -430,10 +428,10 @@ IInherited
 
 
 
-RIdentObject<ParLocal :TRoutine;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type>
+RIdentObject<ParLocal :TDefinition;var ParDef : TDefinition;var ParDigi : TIdentDigiItem;var ParMention : TMN_Type>
 (.
 	var
-		vlIdent : string;
+		vlIdent : ansistring;
 .)
 =
 RIdent<vlident>
@@ -446,7 +444,7 @@ RIdent<vlident>
 RParameterList<ParList : THookDigiList>
 (.
 	var vlExpr : TFormulaNode;
-	    vlName : string;
+	    vlName : ansistring;
 .)
 
 =
@@ -467,7 +465,7 @@ var
 	vlNode    : TFormulaNode;
 	vlError   : boolean;
 	vlPrn     : TRoutineNode;
-	vlName    : string;
+	vlName    : ansistring;
 	vlLineInfo : TNodeident;
 .)
 =
@@ -506,11 +504,11 @@ end;
 .
 
 
-RShortDRoutine:"short extended Routine"<ParRoutine : TRoutineCollection;ParItem :TIdentHookDigiItem>
+RShortDRoutine:"short extended Routine"<ParRoutine : TDefinition;ParItem :TIdentHookDigiItem>
 (.
 var
 		vlRoutine : TRoutine;
-        vlPrvAcc  : TDefAccess;
+		vlPrvAcc  : TDefAccess;
 		vlItem    : TShortNotationDigiItem;
 		vlContext : TDefinition;
 .)
@@ -543,15 +541,14 @@ RIdentMention<var ParDigi : TIdentHookDigiItem>
 =
 (. vlLocal := nil; .)
 [ROwner<vlLocal>]
-RIdentObject<TRoutine(vlLocal),vlDef,vlDigi,vlMention>
+RIdentObject<vlLocal,vlDef,vlDigi,vlMention>
 (.
 	ParDigi := TIdentHookDigiItem.Create(vlDigi);
 	ParDigi.fLocal := vlLocal;
     SetDigiPos(ParDigi);
 .)
 [RParameters<ParDigi>]
-[RShortDRoutine<TRoutineCollection(vlDef),ParDigi>]
-(* Remove TRoutineCollection cast *)
+[RShortDRoutine<vlDef,ParDigi>]
 .
 
 
@@ -560,9 +557,10 @@ RFact:"formula"<var ParDigi : TDigiItem>
 var
 	vlNum   : TNumber;
 	vlValid : boolean;
-	vlPSt   : String;
-	vlName  : string;
+	vlPSt   : ansistring;
+	vlName  : ansistring;
 	vlExpr  : TDigiItem;
+	vlDigi  : TIdentHookDigiItem;
 .)
 =
 (.
@@ -571,8 +569,8 @@ var
  .)
 (
 
-  RIdentMention<TIdentHookDigiItem(ParDigi)>
- |RInherited<TIdentHookDigiItem(ParDigi)>
+  ( RIdentMention<vlDigi> (. ParDigi :=vlDigi; .))
+ |(RInherited<vlDigi> (. ParDigi := vlDigi; .))
  |( RNumber<vlNum,vlValid>
 	(.
 		if not(LargeInRange(vlNum ,Min_Longint, Max_Cardinal)) then SemError(Err_Num_Out_Of_Range);
@@ -596,7 +594,7 @@ INot				(.   LexName(vlName); .)
 .
 
 
-RParam:"parameter"<var ParExpr : TFormulaNode;var ParName : string>
+RParam:"parameter"<var ParExpr : TFormulaNode;var ParName : ansistring>
 =
 (. EmptyString(ParName); .)
 (RExpr<ParExpr> [">>" RIdent<ParName> ] )

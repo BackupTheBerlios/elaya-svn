@@ -21,7 +21,7 @@ unit cfg_error;
 interface
 
 uses cmp_type;
-procedure CfgGetErrorText(ParError : TErrorTYpe;var ParMessage:string);
+procedure CfgGetErrorText(ParError : TErrorTYpe;var ParMessage:ansistring);
 procedure CfgFatal(ParError : TErrorType);
 const Err_Cfg_No_Error=0;
 	Err_No_Config_Section = 9000;
@@ -33,7 +33,7 @@ const Err_Cfg_No_Error=0;
 implementation
 
 procedure CfgFatal(ParError :TErrorTYpe);
-var vlStr : string;
+var vlStr : ansistring;
 begin
 	CfgGetErrorText(ParError,vlStr);
 	writeln('Fatal error :');
@@ -44,7 +44,7 @@ end;
 
 
 
-procedure CfgGetErrorText(ParError : TErrorTYpe;var ParMessage:string);
+procedure CfgGetErrorText(ParError : TErrorTYpe;var ParMessage:ansistring);
 begin
 	case ParError of
 	Err_Cfg_No_Error      : ParMessage := 'No Error';

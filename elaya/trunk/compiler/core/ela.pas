@@ -22,7 +22,7 @@ program ela;
 USES  sysutils,stdobj,confval,elacfg,ela_comp,compbase,elacons,progutil,options{$ifdef memleak},memleak{$endif}
 ;
 var
-	vgSourceName  : STRING;
+	vgSourceName  : ansistring;
 	vgCompiler    : TElaCompiler;
 	vgSuccess	: boolean;
 

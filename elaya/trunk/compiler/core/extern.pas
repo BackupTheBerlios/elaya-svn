@@ -30,7 +30,7 @@ type   TExternalObject=class(TDefinition)
 	public
 		property fObject : TDefinition read voObject;
 
-		constructor Create(ParName:TString;ParObject:TDefinition);
+		constructor Create(ParName:AnsiString;ParObject:TDefinition);
 		function    SaveItem(ParStr:TObjectStream):boolean;override;
 		function    LoadITem(ParStr:TObjectStream):boolean;override;
 		procedure   Print(ParDIs:TDisplay);override;
@@ -69,9 +69,9 @@ type   TExternalObject=class(TDefinition)
 
 	public
 		property fInterfaces : TIDentList read voInterfaces;
-		constructor Create(ParName : TString);
+		constructor Create(ParName : AnsiString);
 		function  CreateDb(ParCre:TCreator):boolean;override;
-		function  AddInterface(ParName : Tstring;ParProc : TDefinition): TExternalObject;virtual;
+		function  AddInterface(ParName : ansistring;ParProc : TDefinition): TExternalObject;virtual;
 		function  SaveItem(ParStr:TObjectStream):boolean;override;
 		function  LoadItem(ParStr:TObjectStream):boolean;override;
 		procedure print(ParDis:TDisplay);override;
@@ -85,7 +85,7 @@ type   TExternalObject=class(TDefinition)
 		procedure Commonsetup;override;
 
 	public
-		function  AddInterface(ParName : Tstring;ParProc : TDefinition):TExternalObject;override;
+		function  AddInterface(ParName : AnsiString;ParProc : TDefinition):TExternalObject;override;
 	end;
 	
 	TExternalLibraryInterfaceWindows =class(TExternalInterface)
@@ -93,13 +93,13 @@ type   TExternalObject=class(TDefinition)
 		procedure Commonsetup;override;
 	public
 		function CreateDb(ParCre:TCreator):boolean;override;
-		function  AddInterface(ParName : TString;ParProc : TDefinition):TExternalObject;override;
+		function  AddInterface(ParName : ansiString;ParProc : TDefinition):TExternalObject;override;
 	end;
 	
 implementation
 {---( TExternalObject )---------------------------------------------------}
 
-constructor TExternalObject.Create(ParName:TString;ParObject:TDefinition);
+constructor TExternalObject.Create(ParName:AnsiString;ParObject:TDefinition);
 begin
 	inherited Create;
 	iText := ParName;
@@ -160,12 +160,10 @@ end;
 
 function TExternalObjectFileObject.CreateDb(ParCre:TCreator):boolean;
 var
-	vlName:String;
-	vlExtName:String;
+	vlName:ansistring;
 begin
-	GetTextStr(vlExtName);
 	fObject.GetMangledName(vlName);
-	TAsmCreator(PArCre).AddData(TExternalCode.Create(DAT_Text,vlExtName,vlName,IsAsmGlobal));
+	TAsmCreator(PArCre).AddData(TExternalCode.Create(DAT_Text,fText,vlName,IsAsmGlobal));
 	exit( false);
 end;
 
@@ -180,13 +178,13 @@ end;
 
 
 function TExternalLibraryObjectWindows.CreateDb(ParCre:TCreator):boolean;
-var  vlName:string;
+var  vlName:ansistring;
 	vlNameLabel:longint;
 	vlAdrLabel:Longint;
-	vlMangName:String;
-	vlLabel:string;
+	vlMangName:ansistring;
+	vlLabel:ansistring;
 begin
-	GetTextStr(vlName);
+	vlName := fText;
 	fObject.GetMangledName(vlMangName);
 	vlNameLabel := getNewLabelNo;
 	vlAdrLabel  := GetNewLabelNo;
@@ -215,7 +213,7 @@ end;
 {---( TExternalInterface )------------------------------------------------}
 
 
-constructor TExternalInterface.Create(ParName : TString);
+constructor TExternalInterface.Create(ParName : ansiString);
 begin
 	inherited Create;
 	iText := ParName;
@@ -249,7 +247,7 @@ end;
 
 
 
-function  TExternalInterface.AddInterface(ParName : TString;ParProc : TDefinition): TExternalObject;
+function  TExternalInterface.AddInterface(ParName : ansiString;ParProc : TDefinition): TExternalObject;
 begin
 	exit(TExternalObject(fInterfaces.insertAtTop(TExternalObject.Create(ParName,ParProc))));
 end;
@@ -299,9 +297,9 @@ var vlIndLabel  : longint;
 	vlJumpLabel : Longint;
 	vlLibName   : Longint;
 	vlLabeL     : TLabelDef;
-	vlName      : string;
+	vlName      : ansistring;
 begin
-	GetTextStr(vlName);
+	vlName := fText;
 	vlIndLabel := GetNewLabelNo;
 	vlJumpLabel := GetNewLabelNo;
 	vlLibname := GetNewLabelNo;
@@ -321,7 +319,7 @@ begin
 	CreateDb := false;
 end;
 
-function  TExternalLibraryInterfaceWindows.AddInterface(ParName : TString;ParProc : TDefinition): TExternalObject;
+function  TExternalLibraryInterfaceWindows.AddInterface(ParName : ansiString;ParProc : TDefinition): TExternalObject;
 begin
 	exit(TExternalObject(fInterfaces.InsertAtTop(TExternalLibraryObjectWindows.Create(ParName,ParProc)))
 	);
@@ -339,7 +337,7 @@ begin
 	iIdentCode := (IC_ExternObjInt);
 end;
 
-function  TExternalObjectFileInterface.AddInterface(ParName :Tstring;ParProc : TDefinition): TExternalObject;
+function  TExternalObjectFileInterface.AddInterface(ParName :ansistring;ParProc : TDefinition): TExternalObject;
 begin
 	exit(TExternalObject(
 	fInterfaces.InsertAtTop(TExternalObjectFileObject.Create(ParName,ParProc)))

@@ -44,6 +44,9 @@ var
    IOf
   RRoutineType<vltype>
 (.
+	if vlType <> nil then begin
+		if vlType.fSize = 0 then SynError(err_cant_determine_size);
+	end;
 	vlAr.SetTopType(vlType);
 	ParArray := vlAr;
 	if vlAr.CalculateSize then SemError(Err_Array_Too_Big);
@@ -52,7 +55,7 @@ var
 REnumident<var ParVal:TNumber>
 	(.
 		var
-				vlIdent : string;
+				vlIdent : ansistring;
 				vlVal : TValue;
 	.)
 =
@@ -76,7 +79,7 @@ REnum<var ParType:TType>
 	var
 		vlVal :TNumber;
 		vlCollection :TENumCollection;
-		vlName : string;
+		vlName : ansistring;
 .)
 =
   IEnum
@@ -97,7 +100,7 @@ REnum<var ParType:TType>
 RBooleanType<var ParType : TType>
 (.
 	var
-		vlName : string;
+		vlName : ansistring;
         vlSize : cardinal;
 		vlVal :TValue;
 .)
@@ -152,14 +155,14 @@ RAsciizDecl<var ParType:TType>
  .)
 .
 
-RStringTypeDecl<var ParType:TStringType>
+RStringTypeDecl<var ParType:TType>
 (.
 	var
 		vlSize       : TSize;
 		vlType       : TType;
 		vlHasSize    : boolean;
 		vlHasDefaultSize : boolean;
-		vlLengthVarName  : string;
+		vlLengthVarName  : ansistring;
 		vlLengthVarType  : TTYpe;
 .)
 
@@ -263,7 +266,7 @@ ICharType ISize "=" RDirectCardinal<vlSize>
 RPtrTypeDecl:"pointer type declaration"<var ParType:TType;ParCanForward : boolean>
 (.
 var
-	vlName : string;
+	vlName : ansistring;
 	vlConstFlag : boolean;
 	vlType : TType;
 .)
@@ -301,7 +304,7 @@ RTypeAs:"type definition"<var ParType : TType>
 
 RTypeDecl:"type declaration"
 (.var
-	vlIdent    : string;
+	vlIdent    : ansistring;
 	vlType     : TType;
 	vlPtrType  : TPtrType;
 	vlDefType  : TDefaultTypeCode;
@@ -331,7 +334,7 @@ RIdent<vlIdent>
                                                  if vlDefType = DT_Meta then vlDefType := DT_Ptr_Meta;
 												 				HandleDefaultType(vlDefType,DT_Pointer,[DT_Const_Pointer,DT_Ptr_Meta,DT_Pointer]);
 					   	   				 .))
-|( RStringTypeDecl<TStringType(vlType)>	      (. HandleDefaultType(vlDefType,DT_String,[DT_String]); .))
+|( RStringTypeDecl<vlType>	      (. HandleDefaultType(vlDefType,DT_String,[DT_String]); .))
 |( RAsciizDecl<vlType>			      (. HandleDefaultType(vlDefType,DT_Asciiz,[DT_Asciiz]); .))
 |( RUnion<vltype>                             (. HandleDefaultType(vlDefType,DT_Default,[]); .))
 |( RClassType<vlIdent,vlType>			  (.
@@ -363,7 +366,7 @@ RAnonymousType:"type declaration"<var ParTYpe : TType>
  ( RArrayTypeDef<ParType>
  | ROrdDecl<ParType>
  | RAsciizDecl<ParType>
- | RStringTypeDecl<TStringType(ParType)>
+ | RStringTypeDecl<ParType>
  | RPtrTypeDecl<ParType,false >
  | RRecord<ParType>
  | RUnion<ParType>
@@ -398,7 +401,7 @@ RRoutineType:"type"<var ParType : TType>
   RAsciizDecl<ParType>
 | ROrdDecl<ParType>
 | RPtrTypeDecl<ParType,false >
-| RStringTypeDecl<TStringType(ParType)>
+| RStringTypeDecl<ParType>
 )  (. AddAnonItem(ParType); .)
 )
 )
@@ -411,7 +414,7 @@ RRoutineType:"type"<var ParType : TType>
 RProperty:"property definition"
 (.
 	var
-		vlName         : string;
+		vlName         : ansistring;
 		vlProperty     : TProperty;
 		vlAcc          : TDefAccess;
 		vlPropertyType : TPropertyType;
@@ -445,10 +448,10 @@ RProperty:"property definition"
 .
 
 
-RClassType:"class definition"<const ParName : string;var ParType : TType>
+RClassType:"class definition"<const ParName : ansistring;var ParType : TType>
 (.
 	var
-		vlParent     : string;
+		vlParent     : ansistring;
 		vlPrvAccess  : TDefAccess;
 		vlVirtual    : TVirtualMode;
 		vlIsolate    : boolean;

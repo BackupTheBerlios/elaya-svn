@@ -44,7 +44,7 @@ type
 		procedure SetHashing(ParObj:TDefinition);
 		procedure AddGlobalsToHashing(ParHash:THashing);
 		procedure initHashing;
-		function  GetHashing(const ParName:string):TDefinition;
+		function  GetHashing(const ParName:ansistring):TDefinition;
 		procedure initDefaultList;
 		procedure MoveDefaultsToList;
 		procedure AddToDefaultList(ParDef:TDefinition);
@@ -53,23 +53,33 @@ type
 		
 		function  saveitem(ParWrite:TObjectStream):boolean;override;
 		function  LoadItem(ParWrite:TObjectStream):boolean;override;
-		function  GetPtrByName(const ParText:string;var ParOwner,ParItem:TDefinition):boolean;
-		function  GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function  GetPtrByName(const ParText:ansistring;var ParOwner,ParItem:TDefinition):boolean;
+		function  GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 		function  GetDefaultIdent(ParDefault:TDefaultTypeCode;ParSize : TSize;ParSign:boolean):TDefinition;
 		function  CreateDB(PArcre:TCreator):boolean;
 		function  Validate(ParDef:TDefinition):TErrorType;virtual;
 		procedure  commonsetup;override;
 		procedure  AddToHashing;
 		procedure AddItemsToUseList(ParUse : TUseList);virtual;
-		function GetPtrByArray(const ParName : string;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-
+		function GetPtrByArray(const ParName : ansistring;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		procedure CheckAfter(ParCre : TCreator);
 	end;
 	
 implementation
 
 {-----( TIdentList )-----------------------------------------------}
 
+procedure TIdentList.CheckAfter(ParCre : TCreator);
+var
+	vlCurrent : TDefinition;
+begin
 
+	vlCurrent := TDefinition(fStart);
+	while vlCurrent <> nil do begin
+  		vlCurrent.CheckAfter(ParCre);
+		vlCurrent := TDefinition(vlCurrent.fNxt);
+	end;
+end;	
 
 procedure TIdentList.AddItemsToUseList(ParUse : TUseList);
 var
@@ -108,7 +118,7 @@ begin
 	iDoneHashing := true;
 end;
 
-function  TIdentList.GetHashing(const ParName:string):TDefinition;
+function  TIdentList.GetHashing(const ParName:ansistring):TDefinition;
 begin
 	GetHashing := nil;
 	if fHashingObject <> Nil then begin
@@ -242,25 +252,25 @@ end;
 
 function TIdentList.Validate(ParDef:TDefinition):TErrorType;
 var
-	vlStr   : string;
+	vlStr   : ansistring;
 	vlPtr   : TDefinition;
 	vlOwner : TDefinition;
 begin
-	ParDef.GetTextStr(vlStr);
+	vlStr := ParDef.fText;
 	Validate := Err_No_Error;
 	if GetPtrByObject(vlStr,ParDef,vlOwner,vlPtr) = OFS_Same then Validate := Err_Duplicate_Ident;
 end;
 
 
 
-function TIdentList.GetPtrByName(const ParText:string;var ParOwner,ParItem:TDefinition):boolean;
+function TIdentList.GetPtrByName(const ParText:ansistring;var ParOwner,ParItem:TDefinition):boolean;
 var
  vlCurrent : TDefinition;
 begin
 	ParOwner := nil;
 	if (fHashingObject <> nil) and (fDoneHashing) then begin
 		vlCurrent := GetHashing(ParText);
-		while (vlCurrent <> nil) and Not(vlCurrent.fText.IsEqualStr(ParText))
+		while (vlCurrent <> nil) and Not(vlCurrent.fText=ParText)
 		do begin
 			vlCurrent := vlCurrent.fHashNext;
 		end;
@@ -276,16 +286,15 @@ begin
 	exit(vlCurrent <> nil);
 end;
 
-function TIdentList.GetPtrByObject(const ParName : string;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-var vlDef : TDefinition;
+function TIdentList.GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+var
+	vlDef : TDefinition;
 	vlOwner : TDefinition;
-	vlName  :string;
 begin
 	ParOwner := nil;
 	if  GetPtrByName(ParName,vlOwner,vlDef) then begin
 		if vlDef.IsSameByObject(ParName,ParObject) =OFS_Same then begin
-			ParResult := vlDef;
-			vlDef.GetTextStr(vlName);
+			ParResult := vlDef;			
 			exit(OFS_Same);
 		end;
 		exit(vlDef.GetPtrByObject(ParName,ParObject,[SO_Global],ParOwner,ParResult));
@@ -294,16 +303,16 @@ begin
 	exit(Ofs_Different);
 end;
 
-function TIdentList.GetPtrByArray(const ParName : string;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-var vlDef : TDefinition;
+function TIdentList.GetPtrByArray(const ParName : ansistring;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+var 
+	vlDef : TDefinition;
 	vlOwner : TDefinition;
-	vlName  :string;
+
 begin
 	ParOwner := nil;
 	if  GetPtrByName(ParName,vlOwner,vlDef) then begin
 		if vlDef.IsSameParamByNodesArray(ParArray,false) then begin
 			ParResult := vlDef;
-			vlDef.GetTextStr(vlName);
 			exit(OFS_Same);
 		end;
 		exit(vlDef.GetPtrByArray(ParName,ParArray,[SO_Global],ParOwner,ParResult));

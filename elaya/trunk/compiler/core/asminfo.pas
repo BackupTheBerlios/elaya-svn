@@ -37,7 +37,7 @@ type
 
 	public
 		property  fRegisterList : TRegisterList read voRegisterList;
-		function  CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;virtual;
+		function  CreateAsmExec(const ParInputFile,ParOutputDir:ansistring):TCompAppl;virtual;
 		procedure TranslateRet(ParCre:TInstCreator;ParPoc:TPocBase);virtual;
 		procedure TranslateJump(ParCre:TInstCreator;ParPoc:TPocBase);virtual;
 		procedure TranslateCondJump(ParCre:TInstCreator;ParPoc:TPocBase);virtual;
@@ -66,14 +66,14 @@ type
 		procedure SeTAssemblerInfoType(ParType:TAssemblerType);
 		function  GeTAssemblerInfoType:TAssemblerType;
 		procedure InitRegisterList;virtual;
-		procedure GetRegisterByCode(ParCode:TNormal;var ParName:String);virtual;
-		procedure GetInstruction(var ParInstruction:string;ParDesSize,ParSrcSize:TSize);virtual;
+		procedure GetRegisterByCode(ParCode:TNormal;var ParName:ansistring);virtual;
+		procedure GetInstruction(var ParInstruction:ansistring;ParDesSize,ParSrcSize:TSize);virtual;
 		function  GetManglingCHar:Char;virtual;
-		procedure AddMangling(var parStr:string;const ParUnit:String);virtual;
+		procedure AddMangling(var parStr:ansistring;const ParUnit:ansistring);virtual;
 		function  GetRemarkChar:char;virtual;
-		function  GetSectionText(const ParName:string):string;virtual;
-		function  GetGlobalText(const ParName:string):string;virtual;
-		function  CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;virtual;
+		function  GetSectionText(const ParName:ansistring):ansistring;virtual;
+		function  GetGlobalText(const ParName:ansistring):ansistring;virtual;
+		function  CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;virtual;
 	end;
 	
 function  GetAssemblerInfo:TAssemblerInfo;
@@ -118,22 +118,22 @@ begin
 end;
 
 
-function  TAssemblerInfo.CreateAsmDisplay(const ParFileName : string;var ParError :TErrorType) : TAsmDisplay;
+function  TAssemblerInfo.CreateAsmDisplay(const ParFileName : ansistring;var ParError :TErrorType) : TAsmDisplay;
 begin
 	exit(nil);
 end;
 
-function  TAssemblerInfo.GetSectionText(const ParName:string):string;
+function  TAssemblerInfo.GetSectionText(const ParName:ansistring):ansistring;
 begin
 	exit(ParName);
 end;
 
-function  TAssemblerInfo.GetGlobalText(const ParName:string):string;
+function  TAssemblerInfo.GetGlobalText(const ParName:ansistring):ansistring;
 begin
 	exit(ParName);
 end;
 
-function TAssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputDir:string):TCompAppl;
+function TAssemblerInfo.CreateAsmExec(const ParInputFile,ParOutputDir:ansistring):TCompAppl;
 begin
 	exit(nil);
 end;
@@ -265,8 +265,8 @@ begin
 end;
 
 
-procedure TAssemblerInfo.AddMangling(var parStr:string;const ParUnit:String);
-var vlStr:String;
+procedure TAssemblerInfo.AddMangling(var parStr:ansistring;const ParUnit:ansistring);
+var vlStr:ansistring;
 begin
 	if length(ParUnit) = 0 then exit;
 	str(length(ParUnit),vlStr);
@@ -306,12 +306,12 @@ begin
 	InitRegisterList;
 end;
 
-procedure TAssemblerInfo.GetRegisterByCode(ParCode:TNormal;var ParName:String);
+procedure TAssemblerInfo.GetRegisterByCode(ParCode:TNormal;var ParName:ansistring);
 begin
 	EmptyString(ParName);
 end;
 
-procedure TAssemblerInfo.GetInstruction(var ParInstruction:string;ParDesSize,ParSrcSize:TSize);
+procedure TAssemblerInfo.GetInstruction(var ParInstruction:ansistring;ParDesSize,ParSrcSize:TSize);
 begin
 end;
 

@@ -23,7 +23,7 @@ uses vars,macobj,stdobj,varbase,asminfo,strmbase,linklist,ddefinit,elacons,elaty
 type
 	TVmtItem=class(TListItem)
 	private
-		voRoutine 	: TDefinition;
+		voRoutine   : TDefinition;
 		voOffset    : cardinal;
 		voVmtVar    : TFrameVariable;
 	protected
@@ -77,13 +77,13 @@ type
 	private
 		voParent        : TMeta;
 		voVmtList       : TVmtList;
-		voRoutineName   : TString;
-		voMetaFrame		: TFrame;
+		voRoutineName   : AnsiString;
+		voMetaFrame	: TFrame;
 		voAccessAddress : TVarBase;
 	protected
 		property    iParent          : TMeta    read voParent		 write voParent;
 		property    iVmtList         : TVmtList read voVmtLIst		 write voVmtList;
-		property    iRoutineName     : TString  read voRoutineName 	 write voRoutineName;
+		property    iRoutineName     : AnsiString  read voRoutineName 	 write voRoutineName;
 		property    iMetaFrame	     : TFrame	read voMetaFrame	 write voMetaFrame;
 		property    iAccessAddress	 : TVarBase read vOAccessAddress write voAccessAddress;
 
@@ -94,10 +94,10 @@ type
 		property    fParent          : TMeta    read voParent;
 		property    fVmtList         : TVmtList read voVmtLIst       write voVmtList;
 		property    fMetaFrame	     : TFrame   read voMetaFrame;
-		property    fAccessAddress	  : TVarBase read vOAccessAddress;
+		property    fAccessAddress   : TVarBase read vOAccessAddress;
 		
-		procedure   GetLabelName(var ParName : string);
-		constructor Create(ParParent : Tmeta;const ParName : string;ParType : TType;ParVmtType : TType);
+		procedure   GetLabelName(var ParName : ansistring);
+		constructor Create(ParParent : Tmeta;const ParName : ansistring;ParType : TType;ParVmtType : TType);
 		function    SaveItem(ParStream : TObjectStream):boolean;override;
 		function    LoadItem(ParStream : TObjectStream):boolean;override;
 		function    CreateDB(ParCre : TCreator):boolean; override;
@@ -125,7 +125,7 @@ implementation
 {---( TMeta )-----------------------------------------------------}
 procedure TMeta.AddVmtLabel(ParCre : TCreator);
 var
-	vlName : string;
+	vlName : ansistring;
 begin
 	GetLabelName(vlName);
 	TAsmCreator(ParCre).AddData(TAddressDef.CREATE(DAT_Code,vlName));
@@ -146,7 +146,7 @@ begin
 	iMetaFrame.AddAddressing(ParContext,ParContext,ParMac,ParDone);
 end;
 
-procedure   TMeta.GetLabelName(var ParName : string);
+procedure   TMeta.GetLabelName(var ParName : ansistring);
 begin
 	iAccessAddress.GetMangledName(ParName);
 end;
@@ -188,10 +188,10 @@ begin
 		if iParent <> nil then iParent.CopyList(iVmtList,fMetaFrame);
 	end;
 	
-	constructor TMeta.Create(ParParent : TMeta;const ParName : string;ParType : TType;ParVmtType : TType);
+	constructor TMeta.Create(ParParent : TMeta;const ParName : ansistring;ParType : TType;ParVmtType : TType);
 	begin
 		inherited Create;
-		iRoutineName := TString.Create(ParName);
+		iRoutineName := ParName;
 		iAccessAddress := TConstantVariable.Create(name_meta,ParType);
 		iAccessAddress.fOwner := self;
 		iAccessAddress.fDefAccess := AF_Public;
@@ -240,7 +240,6 @@ begin
 	procedure TMeta.Clear;
 	begin
 		if iVmtLIst <> nil     then iVmtList.Destroy;
-		if iRoutineName <> nil then iRoutineName.Destroy;
 		if iMetaFrame <> nil   then iMetaFrame.destroy;
 		if iAccessAddress<> nil then iAccessAddress.Destroy;
 		inherited Clear;
@@ -252,17 +251,16 @@ begin
 	end;
 	
 	function TMeta.CreateDB(ParCre : TCreator) : boolean;
-	var vlAsm       : TAsmCreator;
-		vlName      : string;
+	var   
+                vlAsm       : TAsmCreator;
+		vlName      : ansistring;
 		vlNameLab   : longint;
-		vlShortName : string;
-		vlParentName : string;
+		vlParentName : ansistring;
 	begin
 		fDefAccess := AF_Public;
 		vlNameLab :=GetNewLabelNo;
 		vlAsm := TAsmCreator(ParCre);
 		GetLabelName(vlName);
-		iRoutineName.GetString(vlShortName);
 		vlAsm.AddData(TAlignDef.Create(DAT_Code,4));
 		vlAsm.AddData(TNamedLabelDef.Create(true,DAT_Code,vlName));
 		if iParent <> nil then begin
@@ -275,7 +273,7 @@ begin
 		CreatePreDB(ParCre);
 		iVmtList.CreateDB(ParCre);
 		vlAsm.AddData(TLabelDef.Create(Dat_code,vlNameLab));
-		vlAsm.AddData(TAsciiDef.Create(dat_code,vlShortName));
+		vlAsm.AddData(TAsciiDef.Create(dat_code,iRoutineName));
 		exit(false);
 	end;
 	
@@ -324,7 +322,7 @@ begin
 	end;
 	
 	procedure TVmtList.AddVmtItem(ParItem :TVmtItem);
-	var vlName : string;
+	var vlName : ansistring;
 	begin
 		ParItem.fRoutine.GetMangledName(vlName);
 		insertAtTop(ParItem);

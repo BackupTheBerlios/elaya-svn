@@ -36,20 +36,20 @@ type	TDisplay=class(TRoot)
 		property fCol : integer  read voCol;
 		property fWidth : cardinal read voWidth write voWidth;
 
-		procedure IntWrite(const ParStr : string);virtual;
+		procedure IntWrite(const ParStr : ansistring);virtual;
 		procedure IntNl;virtual;
-		procedure WriteString(const ParStr:string);virtual;
+		procedure WriteString(const ParStr:ansistring);virtual;
 		procedure WriteNewLine;
 		procedure Write(ParPst : TValue);
 		procedure Write(ParInt : longint);
 		procedure Write(const ParNum : TLargeNumber);
-		procedure Write(const parStr:string);
+		procedure Write(const parStr:ansistring);
 		procedure Print(const ParAr:array of const);
 		procedure WritePst(ParStr:TValue);
 		procedure WriteInt(ParInt:longint);
-		procedure WriteNl(const ParStr:string);
-		procedure Center(const ParStr:string);
-		procedure WriteRep(ParN:byte;const ParStr:string);
+		procedure WriteNl(const ParStr:ansistring);
+		procedure Center(const ParStr:ansistring);
+		procedure WriteRep(ParN:byte;const ParStr:ansistring);
 		procedure Nl;
 		procedure SetLeftMargin(ParAddLm:integer);
 		procedure WriteRaw(ParBlk:pointer;ParSIze:cardinal);
@@ -65,8 +65,8 @@ protected
 	procedure clear;override;
 public
 	property    GetOpen : boolean read voOpen;
-	constructor create(const ParName:string;var ParError:TErrorType);
-	procedure   IntWrite(const ParStr:string);override;
+	constructor create(const ParName:ansistring;var ParError:TErrorType);
+	procedure   IntWrite(const ParStr:ansistring);override;
 end;
 
 
@@ -88,13 +88,14 @@ begin
 		vtInt64  :write(vlVar^.vInt64^);
 		vtString :write(vlVar^.vString^);
 		vtObject  :write(TValue(vlVar^.vObject));  {fpc hack}
-	else begin write('[unkown print type]:'); writeln(cardinal(vlVar^.vType));end;
+		vtAnsiString:write(ansistring(vlVar^.vAnsiString));
+	else begin write('[unkown print type]:'); write(cardinal(vlVar^.vType));write(']');nl;end;
 	end;
 	inc(vlCnt);
 end;
 end;
 
-procedure TDisplay.Center(const ParStr:string);
+procedure TDisplay.Center(const ParStr:ansistring);
 var vlGoto : cardinal;
 begin
 	vlGoto := 1;
@@ -119,23 +120,26 @@ end;
 procedure TDisplay.Commonsetup;
 begin
 	inherited commonsetup;
-	iLeftMargin    := 0;
-	iCol 	         := 0;
-	fWidth	      := 80;
+	iLeftMargin := 0;
+	iCol 	    := 0;
+	fWidth	    := 80;
 end;
 
 
 procedure TDisplay.WritePst(ParStr:TValue);
-var vlStr:string;
+var vlStr:ansistring;
 begin
-	if ParStr <> nil then ParStr.GetString(vlStr)
-	else vlStr := '<nil>';
+	if ParStr <> nil then begin
+		ParStr.GetString(vlStr)
+	end else begin
+		vlStr := '<nil>';
+	end;
 	writeString(vlStr);
 end;
 
 
 
-procedure TDisplay.WriteString(const ParStr : string);
+procedure TDisplay.WriteString(const ParStr : ansistring);
 begin
 	IntWrite(ParStr);
 end;
@@ -146,7 +150,7 @@ begin
 	iCol := 0;
 end;
 
-procedure TDisplay.IntWrite(const parStr:string);
+procedure TDisplay.IntWrite(const parStr:ansistring);
 begin
 	
 	while iCol<iLeftMargin do begin
@@ -157,15 +161,19 @@ begin
 	iCol := iCol + length(ParStr);
 end;
 
-procedure TDisplay.WriteRep(ParN:byte;const ParStr:string);
-var vlStr:string;
+procedure TDisplay.WriteRep(ParN:byte;const ParStr:ansistring);
+var vlStr:ansistring;
 begin
 	if (length(ParStr) = 1) and (ParN < 254) then begin
-		fillchar(vlStr[1],ParN,ParStr[1]);
 		SetLength(vlStr,ParN);
+		fillchar(vlStr[1],ParN,ParStr[1]);		
 		Write(vlStr);
-	end else
-While ParN > 0 do begin Write(ParStr);dec(ParN);end;
+	end else  begin
+		While ParN > 0 do begin 
+			Write(ParStr);
+			dec(ParN);
+		end;
+	end;
 end;
 
 procedure TDisplay.WriteNewLine;
@@ -175,7 +183,7 @@ end;
 
 procedure TDisplay.Write(const ParNum : TLargeNumber);
 var
-	vlStr : string;
+	vlStr : ansistring;
 begin
 	LargeToString(ParNum,vlStr);
 	Write(vlStr);
@@ -192,19 +200,19 @@ begin
 	WritePst(Parpst);
 end;
 
-procedure TDisplay.write(const ParStr:string);
+procedure TDisplay.write(const ParStr:ansistring);
 begin
 	WriteString(ParStr);
 end;
 
-procedure TDisplay.WriteNl(const ParStr:string);
+procedure TDisplay.WriteNl(const ParStr:ansistring);
 begin
 	Write(ParStr);
 	WriteNewLine;
 end;
 
 procedure TDisplay.WriteInt(ParInt : longint);
-var vlStr:string;
+var vlStr:ansistring;
 begin
 	str(ParInt,vlStr);
 	WriteString(vlStr);
@@ -225,7 +233,7 @@ end;
 
 {------( TFileDisplay )----------------------------------------------------------------------}
 
-constructor TFileDisplay.create(const ParName:string;var ParError:TErrorType);
+constructor TFileDisplay.create(const ParName:ansistring;var ParError:TErrorType);
 begin
 	iFile := TFile.Create(64*512);
 	iFile.CreateFile(ParName);
@@ -238,15 +246,16 @@ begin
 	inherited create;
 end;
 
-procedure TFileDisplay.IntWrite(const ParStr:string);
+procedure TFileDisplay.IntWrite(const ParStr:ansistring);
 var    vlCnt : longint;
 begin
 	vlCnt := voLeftMargin - fCol;
-	if iOpen then begin
+	if (iOpen) and (length(ParStr) > 0) then begin
 		if vlCnt > 0 then begin
 			iFile.WriteToBuffer(vlCnt,vgFill);
 			iCol := voLeftMargin;
 		end;
+
 		iFile.WriteToBuffer(length(ParStr),ParStr[1]);
 	end;
 	iCol := iCol + length(ParStr);

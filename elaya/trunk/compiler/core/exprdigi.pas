@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit exprdigi;
 interface
-uses largenum,elatypes,params,classes,ddefinit,cblkbase,execobj,error,
+uses sysutils,largenum,elatypes,params,classes,ddefinit,cblkbase,execobj,error,
 node,elacons,ndcreat,stdobj,formbase,simplist,progutil;
 type
 	
@@ -93,19 +93,18 @@ type
 	
 	THookDigiItem=class(TNodeDigiItem)
 	private
-		voName : TString;
+		voName : AnsiString;
 		
-		property iName : TString      read voName write voName;
+		property iName : AnsiString read voName write voName;
 	public
-		procedure GetName(var ParName : string);
-		constructor Create(ParNode : TFormulaNode;const ParNAme : String);
-		procedure clear;override;
+		property fName : AnsiString read voName;
+		constructor Create(ParNode : TFormulaNode;const ParNAme : ansistring);
 		function HasName : boolean;
 	end;
 
 	THookDigiList = class(TDigiList)
 	public
-		procedure AddItem(ParNode : TFormulaNode;const ParName : string);
+		procedure AddItem(ParNode : TFormulaNode;const ParName : ansistring);
 		function IsSameParameters(ParPar : TProcParList;ParExact : boolean):boolean;
 	end;
 	
@@ -134,11 +133,13 @@ type
 		voShort   : TShortNotationDigiItem;
 		voLocal   : TDefinition;
 		voInheritLevel : cardinal;
+		voRecordNode   : TFormulaNode;
 		
 		property iList        : THookDigiList          read voList         write voList;
 		property iShort       : TShortNotationDigiItem read voShort        write voShort;
 		property iInheritLevel: cardinal               read voInheritLevel write voInheritLevel;
-		property iLocal       : TDefinition 		   read voLocal        write voLocal;
+		property iLocal       : TDefinition            read voLocal        write voLocal;
+		property iRecordNode  : TFormulaNode           read voRecordNode   write voRecordNode;
 	protected
 		procedure Commonsetup;override;
 		procedure clear;override;
@@ -146,8 +147,8 @@ type
 	public
 		property fList         : THookDigiList read voList;
 		property fInheritLevel : cardinal      read voInheritLevel write voInheritLevel;
-		property fLocal		   : TDefinition   read voLocal        write voLocal;
-		
+		property fLocal        : TDefinition   read voLocal        write voLocal;
+		property fRecordNode   : TFormulaNode  read voRecordNode   write voRecordNode;		
 		function CreateReadNode(ParCre : TNDCreator) : TFormulaNode;override;
 		function CreateExecuteNode(ParCre : TNDCreator) : TNodeIdent;override;
 		function ProcessNode(ParCre : TNDCreator;ParNode : TFormulaNode) : TFormulaNode;
@@ -160,25 +161,24 @@ type
 	
 	TNamendIdentDigiItem=class(TIdentDigiItem)
 	private
-		voName  : TString;
+		voName  : AnsiString;
 		voIsDetermend : boolean;
 	protected
-		property iName  : TString     read voName  write voName;
-		property iIsDetermend : boolean read voIsDetermend write voIsDetermend;
+		property iName        : AnsiString read voName  write voName;
+		property iIsDetermend : boolean    read voIsDetermend write voIsDetermend;
 	protected
-		procedure clear;override;
 		procedure Commonsetup;override;
 	public
 		property fItem  : TFormulaDefinition read voItem;
 		
-		constructor create(const ParName : string);
+		constructor create(const ParName : ansistring);
 		procedure DetermenItem(ParCre :TNDCreator;ParLocal : TFormulaNode);
-    	procedure PreCreate(ParCre : TNDCreator);override;
+		procedure PreCreate(ParCre : TNDCreator);override;
 	end;
 	
 	TDotOperDigiItem=class(TSubItemDigiItem) {TODO: Make inherit from TIdentHookDigi?}
 	private
-		voField 	 : TIdentHookDigiItem;
+		voField      : TIdentHookDigiItem;
 		voFieldIdent : TNamendIdentDigiItem;
 		voRecordNode : TFormulaNode;
 		
@@ -220,7 +220,7 @@ type
 	protected
 		property iString : TString read voString write voString;
 	public
-		constructor Create(const ParString : String);
+		constructor Create(const ParString : ansistring);
 		function CreateReadNode(ParCre : TNDCreator):TFormulaNode;override;
 		procedure clear;override;
 	end;
@@ -244,7 +244,7 @@ type
 		property iOperatorClass : TRefNodeIdent read voOperatorClass write voOperatorClass;
 		
 	public
-		constructor Create(ParExprL : TDigiItem;const ParOperator : string;ParClass :TRefNodeIdent);
+		constructor Create(ParExprL : TDigiItem;const ParOperator : ansistring;ParClass :TRefNodeIdent);
 		procedure Clear;override;
 	end;
 	
@@ -259,7 +259,7 @@ type
 	protected
 		property iExprR : TDigiItem read voExprR write voExprR;
 	public
-		constructor Create(ParExprL,ParExprR : TDigiItem;const ParOperator : String;ParClass :TRefNodeIdent);
+		constructor Create(ParExprL,ParExprR : TDigiItem;const ParOperator : ansistring;ParClass :TRefNodeIdent);
 		function CreateReadNode(ParCre : TNDCreator):TFormulaNode;override;
 		procedure clear;override;
 	end;
@@ -278,7 +278,7 @@ type
 		property iLo : TDigiItem read voLo write voLo;
 		property iHi : TDigiItem read voHi write voHi;
 	public
-		constructor Create(ParExprL,ParLo,ParHi : TDigiItem;const ParOperator : string);
+		constructor Create(ParExprL,ParLo,ParHi : TDigiItem;const ParOperator : ansistring);
 		function CreateReadNode(ParCre : TNDCreator):TFormulaNode;override;
 		procedure clear;override;
 	end;
@@ -291,7 +291,7 @@ type
 		property iExprR : TDigiItem read voExprR write voExprR;
 		property iCompType : TIdentCode read voCompType write voCompType;
 	public
-		constructor Create(ParExprL,ParExprR : TDigiItem;const ParOperator : String;ParCompType : TIdentCode);
+		constructor Create(ParExprL,ParExprR : TDigiItem;const ParOperator : ansistring;ParCompType : TIdentCode);
 		function CreateReadNode(ParCre : TNDCreator):TFormulaNode;override;
 		procedure clear;override;
 	end;
@@ -475,7 +475,7 @@ function TSingleOperatorDigiItem.CreateReadNode(ParCre : TNDCreator):TFormulaNod
 var
 	vlNodeL : TFormulaNode;
 	vlResult : TFormulaNode;
-	vlName   : string;
+	vlName   : ansistring;
 begin
 	vlResult := nil;
 	if iExprL <> nil then begin
@@ -488,7 +488,7 @@ end;
 
 {---( TNamedOPeratorDigiItem )-----------------------------------------------}
 
-constructor TNamendOPeratorDigiItem.Create(ParExprL : TDigiItem;const ParOperator : string;ParClass : TRefNodeIdent);
+constructor TNamendOPeratorDigiItem.Create(ParExprL : TDigiItem;const ParOperator : ansistring;ParClass : TRefNodeIdent);
 begin
 	inherited Create(ParExprL);
 	iOperator := TString.Create(ParOperator);
@@ -614,7 +614,7 @@ begin                              {TODO what to fold in CreateExecuteNode?}
 	if iExprL <> nil then begin
 		vlNode := iExprL.CreateReadNode(ParCre);
 		if vlNode <> nil then begin
-         vlNode.Proces(ParCre);{TODO Proces problem}
+			vlNode.Proces(ParCre);{TODO Proces problem}
 			vlType   := vlNode.GetOrgType;
 			if vlType <> nil then begin
 				if vlType is TRoutineType then begin
@@ -641,7 +641,7 @@ end;
 
 {---( TStringDIgiItem )-------------------------------------------------------}
 
-constructor TStringDigiItem.Create(const ParString : String);
+constructor TStringDigiItem.Create(const ParString : ansistring);
 begin
 	inherited Create;
 	iString := TString.Create(ParString);
@@ -671,7 +671,7 @@ var
 	vlNodeL : TFormulaNode;
 	vlNodeR : TFormulaNode;
 	vlFrom  : TFormulaNode;
-	vlName  : string;
+	vlName  : ansistring;
 begin
 		if (iExprL  = nil) or (iExprR = nil) then exit(nil);
 		if ParFrom = nil then exit(nil);
@@ -695,7 +695,7 @@ end;
 
 {---( TDualOperatorDigiItem )-------------------------------------------------}
 
-constructor TDualOperatorDigiItem.Create(ParExprL,ParExprR : TDigiItem;const ParOperator : String;ParClass :TRefNodeIdent);
+constructor TDualOperatorDigiItem.Create(ParExprL,ParExprR : TDigiItem;const ParOperator : ansistring;ParClass :TRefNodeIdent);
 begin
 	inherited Create(ParExprL,ParOperator,ParClass);
 	iExprR := ParExprR;
@@ -705,14 +705,14 @@ function  TDualOperatorDigiItem.CreateReadNode(ParCre : TNDCreator):TFormulaNode
 var
 	vlNodeL : TFormulaNode;
 	vlNodeR : TFormulaNode;
-	vlOperator : string;
+	vlOperator : ansistring;
 begin
 	vlNodeL := nil;
 	if(iExprl <> nil) and (iExprR <> nil) then begin
 		vlNodeL := iExprL.CreateReadNode(ParCre);
 		vlNodeR := iExprR.CreateReadNode(ParCre);
 		iOperator.GetString(vlOperator);
-		ParCre.ProcessDualOperator(vlNodeR,vlNodeL,vlOperator,iOperatorCLass);
+		vlNodeL := ParCre.ProcessDualOperator(vlNodeR,vlNodeL,vlOperator,iOperatorCLass);
 	end;
 	exit(vlNodeL);
 end;
@@ -725,7 +725,7 @@ end;
 
 {----------( TBetweenOperatorDigiItem )---------------------------------------------------}
 
-constructor TBetweenOperatorDigiItem.Create(ParExprL,ParLo,ParHi : TDigiItem;const ParOperator : string);
+constructor TBetweenOperatorDigiItem.Create(ParExprL,ParLo,ParHi : TDigiItem;const ParOperator : ansistring);
 begin
 	inherited Create(ParExprL,ParOperator,nil);
 	iLo := ParLo;
@@ -738,7 +738,7 @@ var
 	vlHiNode : TFormulaNode;
 	vlLNode  : TFormulaNode;
 	vlResult : TFormulaNode;
-	vlName : string;
+	vlName : ansistring;
 begin
 	vlResult := nil;
 	if (iLo <> nil) and (iHi <> nil) and (iExprL <> nil) then begin
@@ -761,7 +761,7 @@ end;
 
 {-----------( TCompOperatorDigiitem )---------------------------------------------}
 
-constructor TCompOperatorDigiItem.Create(ParExprL,ParExprR : TDigiItem;const ParOperator : String;ParCompType : TIdentCode);
+constructor TCompOperatorDigiItem.Create(ParExprL,ParExprR : TDigiItem;const ParOperator : ansistring;ParCompType : TIdentCode);
 begin
 	inherited Create(ParExprL,ParOperator,nil);
 	iExprR := ParExprR;
@@ -772,7 +772,7 @@ function  TCompOperatorDigiItem.CreateReadNode(ParCre : TNDCreator):TFormulaNode
 var
 	vlNodeL : TFormulaNode;
 	vlNodeR : TFormulaNode;
-	vlOperator : string;
+	vlOperator : ansistring;
 begin
 	vlNodeL := nil;
 	if(iExprl <> nil) and (iExprR <> nil) then begin
@@ -887,21 +887,20 @@ procedure TNamendIdentDigiItem.DetermenItem(ParCre :TNDCreator;ParLocal : TFormu
 var
 	vlOwner : TDefinition;
 	vlItem  : TDefinition;
-	vlName  : string;
 	vlType  : TType;
 begin
-	iName.GetString(vlName);
+
 	vlType := nil;
 	if ParLocal <> nil then begin
 		 ParLocal.Proces(ParCre);
 		 vlType := ParLocal.GetType;
 	end;
 	if vlType <> nil then begin
-		vlType.GetPtrByName(vlName,[],vlOwner,vlItem);
-		if vlItem = nil then ParCre.ErrorText(Err_Not_A_Member,vlName);
+		vlType.GetPtrByName(iName,[],vlOwner,vlItem);
+		if vlItem = nil then ParCre.ErrorText(Err_Not_A_Member,iName);
 	end else begin
-		ParCre.GetIdentBYName(vlName,vlOwner,vlItem);
-		if vlItem = nil then ParCre.ErrorText(Err_Unkown_ident,vlName);
+		ParCre.GetIdentBYName(iName,vlOwner,vlItem);
+		if vlItem = nil then ParCre.ErrorText(Err_Unkown_ident,iName);
 	end;
 	iIsDetermend := true;
 	iItem := TFormulaDefinition(vlItem);
@@ -909,18 +908,11 @@ begin
 end;
 
 
-constructor TNamendIdentDigiItem.create(const ParName : string);
+constructor TNamendIdentDigiItem.create(const ParName : ansistring);
 begin
 	inherited Create(nil,nil);
-	iName := TString.Create(ParName);
+	iName := ParName;
 end;
-
-procedure TNamendIdentDigiItem.clear;
-begin
-	inherited Clear;
-	if iName <> nil then iName.Destroy;
-end;
-
 
 {---( TNumberDIgiItem )--------------------------------------------------------}
 
@@ -943,12 +935,9 @@ end;
 {---( TSHortNotationDigiItem )-------------------------------------------------}
 
 procedure TShortNotationDigiItem.ProcessNode(ParCre :TNDCreator;ParNode : TFormulaNode);
-var
-	vlName : string;
 begin
 	if (ParNode <> nil) and (iItem <> nil) then begin
-		iItem.GetTextStr(vlName);
-		TCallNode(ParNode).SetRoutineName(vlName);
+		TCallNode(ParNode).SetRoutineName(iItem.fText);
 		TCallNode(ParNode).SetRoutineItem(ParCre,TRoutine(iItem),iOwner);
 	end;
 end;
@@ -1081,35 +1070,16 @@ end;
 
 
 
-constructor THookDigiItem.Create(ParNode : TFormulaNode;const ParName : string);
+constructor THookDigiItem.Create(ParNode : TFormulaNode;const ParName : ansistring);
 begin
 	inherited Create(ParNode);
-	if length(ParName) = 0 then begin
-		iName := nil;
-	end else begin
-		iName := TString.Create(ParName);
-	end;
+	iName := ParName;
 end;
 
-procedure THookDigiItem.Clear;
-begin
-	inherited Clear;
-	if iName <> nil then iName.Destroy;
-end;
-
-
-procedure THookDigiItem.GetName(var ParName : string);
-begin
-	if iName <> nil then begin
-		iName.GetString(ParName);
-	end else begin
-		EmptyString(ParName);
-	end;
-end;
 
 function THookDigiItem.HasName : boolean;
 begin
-	exit(iName <> nil);
+	exit(length(iName) <> 0);
 end;
 
 {---( THookDigiList )-------------------------------------------------------------}
@@ -1118,26 +1088,27 @@ function THookDigiList.IsSameParameters(ParPar : TProcParList;ParExact : boolean
 var
 	vlCurrent : THookDigiItem;
 	vlCnt     : cardinal;
-	vlName    : string;
+	vlName    : ansistring;
 	vlParam   : TParameterVar;
 	vlOwner   : TDefinition;
 
 begin
 	vlCnt := 0;
 	vlCurrent := THookDigiItem(fStart);
+	vlParam := nil;
 	while (vlCurrent <> nil) do begin
 
 		if vlCurrent.HasName then begin
-			vlCurrent.GetName(vlName);
+			vlName := vlCurrent.fName;
 			ParPar.GetPtrByName(vlname,vlOwner,vlParam);
 			if (vlParam = nil) or (not(vlParam is TParameterVar)) then exit(false);
 		end  else begin
-			vlParam := ParPar.GetNextNormalParameter(vlParam);
+			vlParam := ParPar.GetNextNormalParameter(vlParam);			
 			if(vlParam = nil) then exit(false);
 		end;
 		if  not(vlParam.IsCompWithParamExpr(ParExact,vlCurrent.fNode)) then exit(false);
 
-		vlCurrent := THookDigiItem(vlCurrent);
+		vlCurrent := THookDigiItem(vlCurrent.fNxt);
 		inc(vlcnt);
 
 	end;
@@ -1145,7 +1116,7 @@ begin
 end;
 
 
-procedure THookDigiList.AddItem(ParNode : TFormulaNode;const ParName : string);
+procedure THookDigiList.AddItem(ParNode : TFormulaNode;const ParName : ansistring);
 var
 	vlItem : THookDigiItem;
 begin
@@ -1222,7 +1193,7 @@ var
 	vlByName     : boolean;
 	vlParCnt     : cardinal;
 	vlCurrent    : THookDigiItem;
-	vlName       : string;
+	vlName       : ansistring;
 	vlNode       : TFormulaNode;
 	vlCall       : TCallNode;
 	vlDestroy    : TDefinition;
@@ -1234,6 +1205,7 @@ var
 	vlOrgRoutine : TRoutine;
 	vlOrgOwner   : TDefinition;
 	vlLevel      : cardinal;
+	vlType2       : TType;
 begin
 	if parNode = nil then exit(nil);
 	vlCurrent := THookDigiItem(iList.FStart);
@@ -1252,7 +1224,7 @@ begin
 				vlNode.Destroy;
 			end else if vlByName then begin
 				if not(vlCurrent.HasName) then ParCre.AddNodeError(vlNode,Err_Must_Pass_By_name,'Parameter '+IntToStr(vlParCnt));
-				vlCurrent.GetName(vlName);
+				vlName := vlCurrent.fName;
 				TCallNode(ParNode).AddNodeAndName(vlNode,vlName);
 			end else begin
  				if vlCurrent.HasName  then ParCre.AddNodeError(vlNode,Err_Must_Not_Pass_By_Name,'Parameter '+IntToStr(vlParCnt));
@@ -1261,12 +1233,35 @@ begin
 		end;
 		vlCurrent := THookDigiItem(vlCurrent.fNxt);
 	end;
-	if vlIsCallNode then begin
-		if(iInheritLevel <> 0) then begin
+	if(iInheritLevel > 0) and not(vlIsCallNode) then begin
+		ParCre.AddNodeError(vlNode,Err_Routine_Expected,'');
+	end else if vlIsCallNode then begin
+		if(iInheritLevel = 0) then begin
+			if(TCallNode(ParNode).fRoutineItem = nil) then begin
+				TCallNode(ParNode).GetRoutineNameStr(vlName);
+				vlType2 := nil;
+				if(iRecordNode <> nil) then vlType2 := iRecordNode.GetType;
+				if(vlType2 <> nil) then begin
+					vlType2.GetPtrByObject(vlName,ParNode,[],vlOrgOwner,TDefinition(vlOrgRoutine));
+				end else begin
+					ParCre.GetPtrByObject(vlName,ParNode,vlOrgOwner,TDefinition(vlOrgRoutine));			
+				end;								
+				TCallNode(ParNode).SetRoutineItem(ParCre,vlOrgRoutine,vlOrgOwner);
+			end;
+			if iShort <> nil then iShort.ProcessNode(ParCre,ParNode);
+			{TODO IsDistructor?=>TCallNode.Afterall os}
+			if (TCallNode(ParNode).fRoutineItem  <> nil) and (TCallNode(ParNode).fRoutineItem is TDestructor) then begin
+				vlDestroy := ParCre.GetDefaultDestroy;
+				vlCall := TCallNode(vlDestroy.CreateExecuteNode(ParCre,nil));
+				vlCall.AddNode(ParNode);
+				ParNode := vlCall;
+			end;
+		end else begin
 			TCallNode(ParNode).GetRoutineNameStr(vlName);
-			if TCallNode(ParNode).CanUseInherited then ParCre.ErrorText(Err_Cant_Inh_Non_virt_ext_Rtn,vlName);
-
+			writeln('>>>',vlName);
 			ParCre.GetPtrByObject(vlName,ParNode,vlOrgOwner,TDefinition(vlOrgRoutine));
+			writeln(cardinal(vlOrgRoutine));
+			if not(vlOrgRoutine.CanUseInherited)  then ParCre.ErrorText(Err_Cant_Inh_Non_virt_ext_Rtn,vlName);
 			vlOwner2 := vlOrgOwner;
 			if vlOrgRoutine <> nil then begin
 				vlLevel := iInheritLevel;
@@ -1288,16 +1283,7 @@ begin
 					end;
 				end;
 			end;
-		end else begin
-			if iShort <> nil then iShort.ProcessNode(ParCre,ParNode);
-{TODO IsDistructor?=>TCallNode.Afterall os}
-			if (TCallNode(ParNode).fRoutineItem  <> nil) and (TCallNode(ParNode).fRoutineItem is TDestructor) then begin
-				vlDestroy := ParCre.GetDefaultDestroy;
-				vlCall := TCallNode(vlDestroy.CreateExecuteNode(ParCre,nil));
-				vlCall.AddNode(ParNode);
-            ParNode := vlCall;
-			end;
-		end;
+		end ;
 	end;
 	exit(ParNode);
 end;
@@ -1309,6 +1295,7 @@ begin
 	iShort := nil;
 	iLocal := nil;
 	iInheritLevel := 0;
+	iRecordNode   := nil;
 end;
 
 procedure TIdentHookDigiItem.Clear;
@@ -1369,6 +1356,10 @@ begin
 	iFieldIdent.DetermenItem(ParCre,vlNode);
 	iRecordNode := vLNode;
 	iField.fLocal := vlNode.GetType;
+
+	if(iField <> nil) then begin
+		if(iField is TIdentHookDigiItem) then TIdentHookDigiItem(iField).fRecordNode := vlNode;
+	end;
 end;
 
 procedure TDotOperDigiItem.Clear;
@@ -1414,6 +1405,7 @@ begin
 	end;
 	if iRecordNode = nil then HandleRfi(ParCre);
 	if(iRecordNode = nil) then exit(nil);
+
 	vlField := iField.CreateDotWriteNode(ParCre,iRecordNode,ParDigi);
 	SetNodePos(vlField);
 	exit(vlField);

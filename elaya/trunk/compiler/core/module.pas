@@ -33,7 +33,7 @@ type
 
 	TUnitList=class(TSMList)
 		procedure   AddUnit(ParUnit:TUnit);
-		procedure   AddToUseList(const ParUnitName:string;ParUnitUseList:TUnitUseList);
+		procedure   AddToUseList(const ParUnitName:ansistring;ParUnitUseList:TUnitUseList);
 		function    LoadList(ParStream : TObjectStream):boolean;
 		function    SaveList(ParStream : TObjectStream):boolean;
 	end;
@@ -50,13 +50,13 @@ type
 	public
 		property    fName       : TString read voName;
 		property    fNeededHash : longint read voNeededHash;
-		procedure   GetUnitNameStr(var ParName : string);
+		procedure   GetUnitNameStr(var ParName : ansistring);
 		constructor Create(ParUnit:TUnit);
 		function    LoadItem(ParWriter:TObjectStream):boolean;
 		function    SaveItem(ParWriter:TObjectStream):boolean;
 	end;
 	
-	TUnitUseItem=class(TSmStringItem)
+	TUnitUseItem=class(TSMStringItem)
 	private
 		voUnitDependenceList : TUnitDependenceList;
 		voState              : TUnitLoadStates;
@@ -86,16 +86,16 @@ type
 		function    GetFlag(ParFlag:TUnitLoadState):boolean;
 		procedure   PrintName;
 		procedure   Print;
-		constructor Create(const ParName:string;ParState:TUnitLoadStates);
+		constructor Create(const ParName:ansistring;ParState:TUnitLoadStates);
 		procedure   InitUnitDependenceList;
 		function    GetUnitDependenceList:TUnitDependenceList;
 		function    AddDependence(ParUnit:TUnitUseItem;ParHash:THashNUmber):TErrorType;
-		function    GetDependenceByName(const ParName:string):TUnitDependenceitem;
+		function    GetDependenceByName(const ParName:ansistring):TUnitDependenceitem;
 		function    IsNotdependent:boolean;
 		function    TryCalculateLevel:boolean;
 		procedure   CheckUnitVersions;
-		procedure   GetSourceFileName(var ParFileName : string);
-		procedure   GetUnitFileName(var ParFileName : string);
+		procedure   GetSourceFileName(var ParFileName : ansistring);
+		procedure   GetUnitFileName(var ParFileName : ansistring);
 		function    Recompile(ParCre : TCreator):boolean;
 		procedure   AddToGlobalHashing(ParCre : TCreator;ParHashing :THashing);
 		procedure   CleanupLoad;
@@ -103,9 +103,9 @@ type
 	
 	
 
-	TUnitUseList=class(TSmStringList)
+	TUnitUseList=class(TSMStringList)
 	private
-		function InsertUnit(const ParName:string;ParState:TUnitLoadStates):TUnitUseItem;
+		function InsertUnit(const ParName:ansistring;ParState:TUnitLoadStates):TUnitUseItem;
 	public
 		procedure CleanupLoad;
 		procedure ResetUnitLevels;
@@ -116,8 +116,8 @@ type
 		procedure SetUnitLevels;
 		function  LoadUnitdependence(ParCre:TCreator):boolean;
 		procedure LoadUnits(ParCre:TCreator);
-		function  AddUnit(const ParName:string;ParState:TUnitLoadStates):boolean;
-		function  AddDependence(const ParName,ParDepend:string;ParHash:THashNumber):TErrorType;
+		function  AddUnit(const ParName:ansistring;ParState:TUnitLoadStates):boolean;
+		function  AddDependence(const ParName,ParDepend:ansistring;ParHash:THashNumber):TErrorType;
 		procedure print;
 		function  Recompile(ParCre:TCreator):boolean;
 		procedure AddToGlobalHashing(ParCre : TCreator;ParHashing :THashing);
@@ -134,7 +134,7 @@ type
 	public
 		function    CompareHashing:boolean;
 		function    GetUnitLevel:TUnitLevel;
-		function    IsUnitByName(const ParName:string):boolean;
+		function    IsUnitByName(const ParName:ansistring):boolean;
 		constructor Create(ParUnitUseItem:TUnitUseItem;ParHash:THashNumber);
 		procedure   Print;
 	end;
@@ -144,7 +144,7 @@ type
 	public
 		function  CheckUnitVersions:boolean;
 		function  GetListLevel:TUnitLevel;
-		function  GetDependenceByName(const ParName:string):TUnitDependenceItem;
+		function  GetDependenceByName(const ParName:ansistring):TUnitDependenceItem;
 		procedure AddDependence(ParUnituseItem:TUnitUSeItem;Parhash:THashNumber);
 		procedure Print;
 	end;
@@ -165,22 +165,22 @@ type
 		voGlobalList   : TGlobalList;
 		voCodeFileList : TCodeFileList;
 	protected
-		property  iUnitList   : TUnitList   read voUnitList   write voUnitList;
-		property  iName       : TString     read voName       write voName;
-		property  iUnitFileName   : TString read voUnitFileName   write voUnitFileName;
-		property  iGLobalList : TGlobalList read voGlobalList write voGlobalList;
-		property  iItemList   : TIdentList  read voItemList   write voItemList;
-		property  iCodeFileList:TCodeFileList read voCodeFileList write voCodeFileList;
-		property  iIsUnitFlag : boolean     read voIsUnitFlag write voIsUnitFlag;
+		property  iUnitList     : TUnitList   read voUnitList   write voUnitList;
+		property  iName         : TString     read voName       write voName;
+		property  iUnitFileName : TString read voUnitFileName   write voUnitFileName;
+		property  iGLobalList   : TGlobalList read voGlobalList write voGlobalList;
+		property  iItemList     : TIdentList  read voItemList   write voItemList;
+		property  iCodeFileList : TCodeFileList read voCodeFileList write voCodeFileList;
+		property  iIsUnitFlag   : boolean     read voIsUnitFlag write voIsUnitFlag;
 
 		procedure   CommonSetup;override;
 		procedure   Clear;override;
 		
 	public
-		property    fName         : TString       read voName;
-		property    fUnitFileName : TString       read voUnitFileName;
-		property    fItemList     : TIdentList    read voItemList;
-		property    fIsUnitFlag : boolean     read voIsUnitFlag write voIsUnitFlag;
+		property    fName         : TString    read voName;
+		property    fUnitFileName : TString    read voUnitFileName;
+		property    fItemList     : TIdentList read voItemList;
+		property    fIsUnitFlag   : boolean    read voIsUnitFlag write voIsUnitFlag;
 
 		
 		procedure   AddGlobalOnce(ParCre : TCreator;ParItem : TDefinition);
@@ -190,24 +190,25 @@ type
 		procedure   SetCodeFileList(ParFileList:TCodeFileList);
 		procedure   SetSourceTime(ParTime:longint);
 		function    GetSourceTime:longint;
-		constructor Create(const ParName:string);
+		constructor Create(const ParName:ansistring);
 		procedure   AddToUseList(ParUnitUseList:TUnitUseList);
 		constructor LoadHeaderOnly(ParWrite:TObjectStream;var ParError : boolean);
-		procedure   GetNameStr(var ParName:string);
+		procedure   GetNameStr(var ParName:ansistring);
 		procedure   AddUnit(parUnit:TUnit);
 		procedure   CreateSec(ParCompiler:TCompiler_Base);
 		function    GetHashing:Longint;
-		procedure   GetModuleName(var ParName:string);override;
-		function    LoadHeader(ParWrite:TObjectStream;var ParName:string):boolean;
+		procedure   GetModuleName(var ParName:ansistring);override;
+		function    LoadHeader(ParWrite:TObjectStream;var ParName:ansistring):boolean;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
 		function    WriteResLines(var ParFile:Text):boolean;
 		procedure   AddCodeFile(ParCodeFile:TCodeFileItem);
-		function    GetObjectName : TString;
+		function    GetObjectName : AnsiString;
 		procedure   SetHashing(parHash:Longint);
 		function    SaveItem(ParStream:TObjectStream):boolean;override;
 		function    Save:TErrorType;
-		procedure   SetName(const ParName:String);
+		procedure   SetName(const ParName:ansistring);
 		procedure   print(ParDis : TFIleDIsplay);
+		procedure   CheckAfter(ParCre : TCreator);
 	end;
 	
 implementation
@@ -253,7 +254,7 @@ begin
 	InsertAt(nil,TUnitDependenceItem.Create(ParUnitUseItem,ParHash));
 end;
 
-function  TUnitDependenceList.GetDependenceByName(const ParName:string):TUnitDependenceItem;
+function  TUnitDependenceList.GetDependenceByName(const ParName:ansistring):TUnitDependenceItem;
 var vlCurrent:TUnitDependenceItem;
 begin
 	vlCurrent := TUnitDependenceItem(fStart);
@@ -283,7 +284,7 @@ begin
 	exit( iExpectedHashing = iUnitUseItem.fHash);
 end;
 
-function    TUnitDependenceItem.IsUnitByName(const ParName:string):boolean;
+function    TUnitDependenceItem.IsUnitByName(const ParName:ansistring):boolean;
 begin
 	exit(iUnitUseItem.IsEqualStr(ParName));
 end;
@@ -339,7 +340,7 @@ var vllevel      : TUnitLevel;
 	vlCurrent    : TUnitUseITem;
 	vlFound      : boolean;
 	vlRecompiled : boolean;
-	vlName       : String;
+	vlName       : ansistring;
 	vlFailed     : boolean;
 begin
 	vlLevel := UL_Minimum_Unit_Level;
@@ -384,12 +385,12 @@ end;
 
 procedure TUnitUseList.CheckCircularReference(ParCre:TCreator);
 var vlCurrent:TUnitUseItem;
-	vlName:string;
+	vlName:ansistring;
 begin
 	vlCurrent := TUnitUSeItem(fStart);
 	while vlCurrent <> nil do begin
 		if vlCurrent.fLevel = Ul_No_Unit_level then begin
-			vlCurrent.GetString(vlName);
+			vlName := vlCurrent.fString;
 			TNDCreator(ParCre).ErrorText(Err_Circ_Unit_Reference,vlName);
 			vlCurrent.SetFlag([US_Must_Load],false);
 		end;
@@ -424,7 +425,7 @@ end;
 
 procedure TUnitUseList.LoadUnits(ParCre:TCreator);
 var vlCurrent    : TUnituseItem;
-	vlName       : String;
+	vlName       : ansistring;
 	vlCurrentUnit: TUnitUSeItem;
 	vlPublic     : boolean;
 	vlLevel      : TUnitLevel;
@@ -437,7 +438,7 @@ begin
 		vlCurrent := TUnitUSeItem(fStart);
 		vlFound := false;
 		while vlCurrent <> nil do begin
-			vlCurrent.GetString(vlName);
+			vlName := vlCurrent.fString;
 			if vlCurrent.fLevel = vlLevel then begin
 				vlFound := true;
 				if (vlCurrent.GetFlag(Us_Must_Load)) then begin
@@ -497,7 +498,7 @@ begin
 	until not (vlhasLoad);
 end;
 
-function TUnitUseList.InsertUnit(const ParName:string;ParState:TUnitLoadStates):TUnitUseItem;
+function TUnitUseList.InsertUnit(const ParName:ansistring;ParState:TUnitLoadStates):TUnitUseItem;
 var vlUnitUse:TUnitUseItem;
 begin
 	vlUnitUse := (TUnitUseItem.Create(ParName,ParState));
@@ -505,24 +506,24 @@ begin
 	InsertUnit := vlUnitUse;
 end;
 
-function TUnitUseList.AddUnit(const ParName:string;ParState:TUnitLoadStates):boolean;
+function TUnitUseList.AddUnit(const ParName:ansistring;ParState:TUnitLoadStates):boolean;
 begin
 	AddUnit := true;
-	if GetitemByString(nil,ParName) <> nil then exit;
+	if GetItemByString(nil,ParName) <> nil then exit;
 	InsertUnit(ParName,parState);
 	AddUnit := false;
 end;
 
 
-function TUnitUseList.AddDependence(const ParName,ParDepend:string;ParHash:ThashNumber):TErrorType;
+function TUnitUseList.AddDependence(const ParName,ParDepend:ansistring;ParHash:ThashNumber):TErrorType;
 var vlUnit,vlDeTUnit:TUnitUseItem;
 begin
-	vlUnit := TUnitUseItem(GetitemByString(nil,ParName));
+	vlUnit := TUnitUseItem(GetItemByString(nil,ParName));
 	if vlUnit = nil then begin
 		AddDependence := Err_Int_Unit_not_in_List;
 		exit;
 	end;
-	vlDeTUnit := TUnitUSeItem(GetitemByString(nil,ParDepend));
+	vlDeTUnit := TUnitUSeItem(GetItemByString(nil,ParDepend));
 	if vlDeTUnit = nil then vlDeTUnit := InsertUnit(ParDepend,[US_Must_Load,US_Must_Load_Header]);
 	AddDependence := vlUnit.AddDependence(vlDeTUnit,ParHash);
 end;
@@ -541,7 +542,7 @@ end;
 
 procedure TUnitUseList.CheckUnitVersions(ParCre:TCreator);
 var vlCurrent : TUnitUseItem;
-	vlName    : string;
+	vlName    : ansistring;
 	vlError   : TErrorTYpe;
 begin
 	vlCurrent := TUnitUSeItem(fStart);
@@ -557,7 +558,7 @@ begin
 			if vlCurrent.GetFlag(US_Wrong_Source_Date) then vlError := Err_Source_Is_Later else
 			if vlCurrent.GetFlag(US_Must_Recompile)    then vlError := ERR_Must_Recompile;
 			if vlError <> Err_No_Error then begin
-				vlCurrent.GetString(vlName);
+				vlName := vlCurrent.fString;
 				TNDCreator(ParCre).ErrorText(vlError,vlname);
 			end;
 			vlCurrent := TUnitUseITem(vlCurrent.fNxt);
@@ -583,7 +584,7 @@ end;
 function TUnitUseItem.Recompile(ParCre : TCreator):boolean;
 var vlComp   : TCompiler_Base;
 	vlFailed : boolean;
-	vlName   : string;
+	vlName   : ansistring;
 begin
 	GetSourceFileName(vlName);
 	vlComp   := TNDCreator(ParCre).GetNewCompiler(vlName);
@@ -603,27 +604,26 @@ begin
 	exit(vlFailed);
 end;
 
-procedure TUnitUseItem.GetSourceFileName(var ParFileName : string);
+procedure TUnitUseItem.GetSourceFileName(var ParFileName : ansistring);
 begin
-	GetString(ParFileName);
-	ParFileName := ParFileName + CNF_Source_Ext;
+
+	ParFileName := fString + CNF_Source_Ext;
 	LowerStr(ParFileName);
 end;
 
-procedure TUnitUseItem.GetUnitFileName(var ParFileName : string);
+procedure TUnitUseItem.GetUnitFileName(var ParFileName : ansistring);
 begin
-	GetString(ParFileName);
-	ParFileName := ParFileName + CNF_Unit_Ext;
+	ParFileName := fString + CNF_Unit_Ext;
 end;
 
 
 function TUnitUSeItem.LoadUnitHeader(ParCre:TCreator;ParUseList:TUnitUseList):TLoadUnitState;
-var vlName : string;
+var vlName : ansistring;
 	vlDmy  : longint;
 	vlLoad : TObjectStream;
 	vlUnit : TUnit;
 	vlErr  : boolean;
-	vlPath : string;
+	vlPath : ansistring;
 begin
 	LoadUnitHeader := Lus_Failed;
 	GetUnitFileName(vlName);
@@ -664,7 +664,7 @@ begin
 end;
 
 procedure   TUnitUseItem.CheckUnitVersions;
-var vlName : string;
+var vlName : ansistring;
 	vlFile : FIle;
 	vlTime : longint;
 begin
@@ -724,9 +724,9 @@ end;
 
 function TUnitUSeItem.AddDependence(parUnit:TUnitUseITem;ParHash:THashNumber):TErrorType;
 var
-	vlName:string;
+	vlName:ansistring;
 begin
-	ParUnit.GetString(vlName);
+	vlName := ParUnit.fString;
 	if GetDependenceByName(vlName) <> nil then begin
 		AddDependence := Err_Int_Duplicate_Dep;
 		exit;
@@ -736,17 +736,15 @@ begin
 end;
 
 
-function  TUnitUseItem.GetDependenceByName(const ParName:string):TUnitDependenceitem;
+function  TUnitUseItem.GetDependenceByName(const ParName:ansistring):TUnitDependenceitem;
 begin
 	GetDependenceByName := GetUnitDependenceList.GetDependenceByName(ParName);
 end;
 
 
 procedure TUnitUSeItem.PrintName;
-var vlStr:String;
 begin
-	GetString(vlStr);
-	write(vlStr);
+	write(fString);
 end;
 
 procedure TUnitUseItem.Print;
@@ -768,7 +766,7 @@ begin
 	voUnitDependenceList := (TUnitDependenceList.Create);
 end;
 
-constructor TUnitUseItem.Create(const ParName:string;ParState:TUnitLoadStates);
+constructor TUnitUseItem.Create(const ParName:ansistring;ParState:TUnitLoadStates);
 begin
 	inherited Create(ParName);
 	SetFlag(ParState,true);
@@ -858,14 +856,14 @@ end;
 
 
 constructor TUnit.LoadHeaderOnly(ParWrite:TObjectStream;var ParError:boolean);
-var vlName:string;
+var vlName:ansistring;
 begin
 	inherited Create;
 	ParError := LoadHeader(ParWrite,vlName);
 end;
 
 procedure   TUnit.AddToUseList(ParUnitUseList:TUnitUseList);
-var vlName:string;
+var vlName:ansistring;
 begin
 	GetNameStr(vlname);
 	iUnitList.AddToUseList(vlName,ParUnitUseList);
@@ -882,10 +880,10 @@ begin
 	GetHashing := vohashing;
 end;
 
-procedure   TUnit.GetModuleName(var ParName:string);
-var vlStr:string;
+procedure   TUnit.GetModuleName(var ParName:ansistring);
+var vlStr:ansistring;
 begin
-	iName.GetString(vlStr);
+	iName.GeTString(vlStr);
 	UpperStr(vlStr);
 	ParName := vlStr;
 end;
@@ -893,7 +891,7 @@ end;
 
 procedure   TUnit.CreateSec(ParCompiler:TCompiler_Base);
 var vlAsm  : TAsmCreator;
-	vlName : string;
+	vlName : ansistring;
 	vlErr  : TErrorType;
 	vlError: boolean;
 begin
@@ -911,13 +909,13 @@ end;
 
 function TUnit.Save:TErrorType;
 var vlWriter   : TObjectStream;
-	vlUnitName : string;
-	vlStr      : string;
-	vlObjPath  : string;
+	vlUnitName : ansistring;
+	vlStr      : ansistring;
+	vlObjPath  : ansistring;
 	vlErr      : TErrorType;
 begin
 	vlWriter   := TObjectStream.Create;
-	iUnitFileName.GetString(vlUnitName);
+	iUnitFileName.GeTString(vlUnitName);
 	GetConfigValues.GetOutputObjectPath(vlObjPath);
 	CombinePath(vlObjPath,vlUnitName,vlStr);
 	Save := Err_No_Error;
@@ -935,8 +933,8 @@ begin
 end;
 
 
-constructor TUnit.Create(const ParName:string);
-var vlName:String;
+constructor TUnit.Create(const ParName:ansistring);
+var vlName:ansistring;
 begin
 	inherited Create;
 	vlName := ParName;
@@ -945,7 +943,7 @@ begin
 end;
 
 
-function TUnit.LoadHeader(ParWrite:TObjectStream;var ParName:string):boolean;
+function TUnit.LoadHeader(ParWrite:TObjectStream;var ParName:ansistring):boolean;
 var
 	vlHash       : longint;
 	vlTime       : Longint;
@@ -968,8 +966,8 @@ begin
 end;
 
 function    TUnit.LoadItem(ParWrite:TObjectStream):boolean;
-var vlName:string;
-	vlFileName:string;
+var vlName:ansistring;
+	vlFileName:ansistring;
 begin
 	LoadItem :=true;
 	ParWrite.GetFileNameStr(vlFileName);
@@ -1046,15 +1044,16 @@ begin
 	InitCodeFileList;
 end;
 
-procedure TUnit.GetNameStr(var ParName:string);
+procedure TUnit.GetNameStr(var ParName:ansistring);
 begin
-	iName.GetString(ParName);
+	iName.GeTString(ParName);
 end;
 
-procedure TUnit.SetName(const ParName:String);
-var vlCodeFile : string;
-	vlStr      : TString;
-	vlName     : string;
+procedure TUnit.SetName(const ParName:ansistring);
+var 
+	vlCodeFile : ansistring;
+	vlStr      : AnsiString;
+	vlName     : ansistring;
 begin
 	if iName         <> nil then iName.Destroy;
 	if iUnitFileName <> nil then iUnitFIleName.Destroy;
@@ -1064,28 +1063,31 @@ begin
 	iUnitFileName := TString.Create(ParName + CNF_Unit_Ext);
 	vlCodeFile    := ParName;
 	LowerStr(vlCodeFile);
-	vlStr := TString.Create(vlCodeFile + CNF_Object_Ext);
+	vlStr := vlCodeFile + CNF_Object_Ext;
 	AddCodeFile(TCodeObjectItem.Create(vlStr,true,false,0));
 end;
 
 procedure TUnit.AddUnit(parUnit:TUnit);
-var vlObjectFileName : TString;
+var vlObjectFileName : AnsiString;
 begin
 	if ParUnit <> nil then begin
 		iUnitList.AddUnit(ParUnit);
 		vlObjectFileName := ParUnit.GetObjectName;
-		AddCodeFile(TCodeObjectItem.Create(TString(vlObjectFileName.Clone),false,false,0));
+		AddCodeFile(TCodeObjectItem.Create(vlObjectFileName,false,false,0));
 		iCodeFileList.AddListToList(Parunit.iCodeFileList);
 	end;
 end;
 
-function  TUnit.GetObjectName:TString;
+function  TUnit.GetObjectName:AnsiString;
 begin
 	exit(iCodeFileList.GetObjectOfUnit);
 end;
 
 
-
+procedure   TUnit.CheckAfter(ParCre : TCreator);
+begin
+	iItemList.CheckAfter(ParCre);
+end;
 
 
 {-----( TUnitList )--------------------------------------}
@@ -1132,9 +1134,9 @@ begin
 end;
 
 
-procedure TUnitList.AddToUseList(const ParUnitName:string;ParUnitUseList:TUnitUseList);
+procedure TUnitList.AddToUseList(const ParUnitName:ansistring;ParUnitUseList:TUnitUseList);
 var vlUnitItem : TUnitItem;
-	vlUnitName : string;
+	vlUnitName : ansistring;
 begin
 	vlUnititem := TUnitItem(fStart);
 	while vlUnitItem <> nil do begin
@@ -1150,13 +1152,13 @@ end;
 {----( TUnitItem )----------------------------------------}
 
 
-procedure  TUnitItem.GetUnitNameStr(var ParName : string);
+procedure  TUnitItem.GetUnitNameStr(var ParName : ansistring);
 begin
-	iName.GetString(ParName);
+	iName.GeTString(ParName);
 end;
 
 constructor TUnitItem.Create(ParUnit:TUnit);
-var vlName:string;
+var vlName:ansistring;
 begin
 	inherited Create;
 	iModuleItem := ParUnit;
@@ -1178,7 +1180,7 @@ end;
 
 
 function TUnitItem.LoadItem(ParWriter:TObjectStream):boolean;
-var  vlName   : string;
+var  vlName   : ansistring;
 	vlhash   : longint;
 	vlItem   : TModuleLoadItem;
 	vlModule : TModule;

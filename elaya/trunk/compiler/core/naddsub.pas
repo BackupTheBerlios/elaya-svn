@@ -30,9 +30,9 @@ type
 	protected
 		procedure commonsetup;override;
 	public
-		procedure  GetOperStr(var ParOper:string);override;
+		procedure  GetOperStr(var ParOper:ansistring);override;
 		procedure InitParts;override;
-		procedure  ValidateAfter(ParCre :TCreator);override;
+		procedure  ValidatePre(ParCre :TCreator;ParIsSec:boolean);override;
 
 	end;
 	
@@ -41,7 +41,7 @@ type
 		procedure commonsetup;override;
 	public
 		procedure  ValidateAfter(ParCre :TCreator);override;
-		procedure GetOperStr(var ParOper:string);override;
+		procedure GetOperStr(var ParOper:ansistring);override;
 		procedure InitParts;override;
 	end;
 	
@@ -120,7 +120,7 @@ begin
 	if iIncrementor = nil then exit;
 	iIncrementor.ValidatePre(ParCre,false);
 	if not(iIncrementor.Can([Can_write])) then TNDCreator(ParCre).AddNodeError(iIncrementor,Err_Cant_Write_To_Item,'');
-   if iValue = nil then exit;
+	if iValue = 	nil then exit;
 	iValue.ValidatePre(ParCre,false);
 	if (iIncrementor.IsLikeType(TOrdinal)) or (iIncrementor.IsLikeType(TPtrType)) then  begin
 		if  not(iValue.IsLikeType(TNumberType))  then TNDCreator(ParCre).AddNodeDefError(iValue,Err_Wrong_Type,iValue.GetType);
@@ -222,7 +222,7 @@ begin
 	iParts := TSubNodeList.create(TSubFor);
 end;
 
-procedure TSubNode.GetOperStr(var ParOper:string);
+procedure TSubNode.GetOperStr(var ParOper:ansistring);
 begin
 	ParOper := '-';
 end;
@@ -395,25 +395,25 @@ var
 begin
 	vlCurrent := TFormulaNode(fStart);
 	if vLCurrent <> nil then begin
-    	vlType := vlCurrent.GetType;
+	    	vlType := vlCurrent.GetType;
 		if vlType = nil then exit;
 		IsPtr1 := vlType.IsCompByIdentCode(IC_PtrType);
 		IsOrd1 := vlType.IsCompByIdentCode(IC_Number);
 		if not(IsPtr1 or IsOrd1) then TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Wrong_Type,'');
-		vlCurrent := TFormulaNode(vlCurrent.fNxt);
+		vlCurrent := TFormulaNode(vlCurrent.fNxt);		
 		while vlCurrent <> nil do begin
 			vlType := vlCurrent.GetType;
 			if vlType <> nil then begin
 				if IsPtr1 then begin
-					if not(vlType.IsCompByIdentCode(IC_Number)) then begin
+					if not(vlType.IsLike(TNumberTYpe)) then begin
 						TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Wrong_Type,'');
 					end;
-				end else if IsOrd1 then begin
-					if vlType.IsCompByIdentCode(IC_PtrType) then begin
+				end else if IsOrd1 then begin					
+					if vlType.IsLike(TPtrType) then begin
 						IsPtr1 := true;
 						IsOrd1 := false;
-					end else if not(vlType.IsCompByIdentCode(IC_Number)) then begin
-                        TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Wrong_Type,'');
+					end else if not(vlType.IsLike(TNumberType)) then begin
+						TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Wrong_Type,'');
 					end;
 				end;
 			end;
@@ -501,10 +501,10 @@ end;
 
 {-------( TAddNode )---------------------------------------------}
 
-procedure TAddNode.ValidateAfter(ParCre : TCreator);
+procedure TAddNode.ValidatePre(ParCre : TCreator;ParIsSec:boolean);
 begin
+	inherited ValidatePre(ParCre,ParIsSec);
 	TAddNodeList(iPArts).ValidateSub(ParCre);
-	inherited ValidateAfter(ParCre);
 end;
 
 procedure TAddNode.InitParts;
@@ -512,7 +512,7 @@ begin
 	iParts := TAddNodeList.create(TAddFor);
 end;
 
-procedure TAddNode.GetOperStr(var ParOper:string);
+procedure TAddNode.GetOperStr(var ParOper:ansistring);
 begin
 	ParOper := '+';
 end;
