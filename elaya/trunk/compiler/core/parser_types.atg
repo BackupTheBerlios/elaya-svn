@@ -268,36 +268,34 @@ var
 	vlType : TType;
 .)
 =
-			(. vlConstFlag := false ; .)
+(.
+	vlConstFlag := false ;
+	ParType := nil;
+.)
 IPtr
 [ IConst	(. vlConstFlag := true; .)]
 ((RAnonymousType<vlType> (. ParType := CreatePointerType(vlType,vlConstFlag); .))
 |(RIdent<vlName>     (. ParType := CreatePointerType(vlName,ParCanForward,vlCOnstFlag);.)))
 .
 
-RTypeAs<var ParType : TType>
+RTypeAs:"type definition"<var ParType : TType>
 (.
 	var
 		vlType2   : TType;
-		vlHasSize : boolean;
 		vlSize    : TSize;
 .)
 =
  (.
-	vlHasSize := false;
 	ParType   := nil;
 .)
  RH_Type<vlType2>
- [ISize  '=' RDirectCardinal<vlSize>
-			(.
-				if vlType2 <> nil then begin
-					ParType    := vlType2.CreateBasedOn(fNDCreator,vlSize);
-				end;
-				vlHasSize := true;
-			.)
- ]
-
-(. if not vlHasSize then ParType    := TTypeAs.Create('',vlType2); .)
+(
+ (ISize  '=' RDirectCardinal<vlSize>
+	(.	if vlType2 <> nil then ParType := vlType2.CreateBasedOn(fNDCreator,vlSize);.)
+ )|(
+	(.  ParType := TTypeAs.Create('',vlType2); .)
+ )
+)
 .
 
 

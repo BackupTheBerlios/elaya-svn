@@ -1,4 +1,4 @@
-{    Elaya, the compiler for the elaya language
+1;3D{    Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web  : www.elaya.org
 
