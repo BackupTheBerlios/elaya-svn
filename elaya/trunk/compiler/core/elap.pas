@@ -2825,7 +2825,10 @@ begin
       	vlType:TType;
       
       begin
-              ParVal     := nil;  ;
+             
+            ParVal  := nil;
+            ParValid := false;
+            ;
             if vgDynSet[13].isSet(GetSym) then begin
                   _RNum_Or_Const( ParVal,ParValid);
             end
@@ -2859,9 +2862,9 @@ begin
                   _RH_Type( vlType);
                   Expect(104);
                    
-                  	ParValid := true;
                   	if vlType <> nil then begin
                   		vlNum := vlType.fSize;
+                  		ParValid := true;
                   	end  else begin
                   		vlNum := 0;
                   		ParValid := false;

@@ -289,7 +289,10 @@ RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 		vlType:TType;
 .)
 =
-(. ParVal     := nil;  .)
+(.
+	ParVal  := nil;
+	ParValid := false;
+ .)
 
 (
  (  RNum_Or_Const<ParVal,ParValid>  )
@@ -310,9 +313,9 @@ RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 
 |(ISizeOf "(" RH_Type<vlType> ")"
 	(.
-		ParValid := true;
 		if vlType <> nil then begin
 			vlNum := vlType.fSize;
+			ParValid := true;
 		end  else begin
 			vlNum := 0;
 			ParValid := false;

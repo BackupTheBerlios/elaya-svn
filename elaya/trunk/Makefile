@@ -46,7 +46,12 @@ install:
 	$(MAKE) install -C rtl
 	$(MAKE) install -C tools/eladep
 	$(MAKE) install -C cfg
-        
+
+distclean:clean
+	rm -f config/*
+	rm -f cfg/ela.tpl
+	rm -r cfg/lib.tpl
+          
 clean  : 
 	$(MAKE) clean -C compiler
 	$(MAKE) clean -C rtl

@@ -29,7 +29,6 @@ const False := 'N';
 const Yes   := 'Y';
 const True  := 'Y';
 
-var Can_Cross_Compile:= '@Can_Cross_Compile@';
 
 section
 
@@ -40,31 +39,9 @@ section
 	Remember_External_Param_name := 'Y';	
 	Is_Elf_Target                := 'N';
 	Auto_Load                    := 'core;sys;classes;memory;strings';
-        Assembler_Path               := '@Dir_as@';
 	object_Path	             := '@Rtl_Build_Out@/'+Target_Platform;
 END;
 
-var MySql_Lib_Type := '';
-var MySql_Lib_Name := '';
-var MySql_Lib_CallType := '';
-
-
-SECTION(Target_Platform='linux')
-	MySql_Lib_Type     := 'LINKED';
-	MySql_Lib_Name     := 'libmysqlclient.so';
-	MySql_Lib_CallType := 'CDecl';
-	Can_Use_Dll  	   := 'N';
-	Is_Elf_Target      := 'Y' ;
-END;
 
 
 
-	
-END;
-
-
-
-
-
-
-END;

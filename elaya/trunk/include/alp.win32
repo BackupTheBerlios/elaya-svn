@@ -7,4 +7,5 @@ win32gui:
 classes:
 sys:
 memory:
+sockets:
 *:sys,core,classes,strings

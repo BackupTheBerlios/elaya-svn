@@ -28,8 +28,6 @@ const True  := 'Y';
 const Yes   := 'Y';
 
 
-var can_cross_compile:= '@Can_Cross_Compile@';
-var Req_Cross_Compile:= 'n';
 var Rtl_Sub_Dir ;
 {Init}
 section
@@ -43,38 +41,10 @@ section
 	Always_Stack_Frame           := 'N';
 	Print_Register_Res           := 'N';
 	Remember_External_Param_name := 'Y';
-	Assembler_Path               := '/usr/bin/as';
-	Linker_Path		     := '/usr/bin/ld';
-	Is_Elf_target		:= 'N' ;
-	Auto_Load     := 'core;strings;sys;classes;memory';
-	Object_Path   := '@Dir_Ela_Rtl_Base@/'+Target_Platform;
-	Assembler_Path := '@Dir_as@';
-	Linker_Path    := '@Dir_ld@';
+	Is_Elf_target                := 'N' ;
+	Auto_Load                    := 'core;strings;sys;classes;memory';
+	Object_Path                  := '@Dir_Ela_Rtl_Base@/'+Target_Platform;
 END;
 
 
 
-
-
-
-{target linux}
-
-
-SECTION(Target_Platform='linux')
-	Linker_Options	 := '-dynamic-linker=/lib/ld-linux.so.2';
-	Is_Elf_Target := 'Y' ;
-	Can_Use_Dll := 'N';
-END;
-
-
-
-
-
-
-
-
-
-{Error Checking}
-
-
-END;                                                           

@@ -113,7 +113,7 @@ do
 	a ) vlAsPathDir="$OPTARG";;
 	A ) vlAsPathProg=$OPTARG;;
 	l ) vlLdPathDir="$OPTARG";;
-	L ) vlAsPathProg="$OPTARG";;
+	L ) vlLdPathProg="$OPTARG";;
 	i ) vlInstallDir="$OPTARG";;
 	c ) vlConfigDir="$OPTARG";;
 	* ) echo " Unsupported option:$OPTARG";exit;;
@@ -124,6 +124,7 @@ done
 # If parameter not set use automatic values
 #
 
+
 vlInstallExtra=$install_extra
 vlLinkExeTo=$link_exe_to
 if(test -z "$vlAsPathDir");then vlAsPathDir=$conf_as_dir;fi;
@@ -132,6 +133,19 @@ if(test -z "$vlAsPathProg");then vlAsPathProg=$conf_as_program;fi;
 if(test -z "$vlLdPathProg");then vlLdPathProg=$conf_ld_program;fi;
 if(test -z $vlInstallDir);then vlInstallDir=$install_dir;fi;
 if(test -z $vlConfigDir);then vlConfigDir=$install_cfg;fi;
+
+
+if(test -z $vlAsPathProg);
+then
+    echo "Unkown assembler for target '$lTarget', specify program and path with -A and -a option"
+    exit
+fi
+
+if(test -z $vlLdPathProg);
+then
+    echo "Unkown linker for target '$vlTarget', specify program and path with -L and -l option"
+    exit
+fi
 
 
 vlAsPath="$vlAsPathDir$vlAsPathProg"
@@ -177,10 +191,26 @@ ela="ela"
 eladep="eladep"
 
 Opt_Fpc="-dmalloc -a -O2g -CR  -Ci- -gl -Ch1000000  -S2c  -vrwen -Ratt"
-Fpc_Opt_Unit_Path="/home/jeroen/fpc/"
+Fpc_Opt_Unit_Path=""
 
 
 # Main Program1
+
+
+installed="config/installed.$vlHost.$vlTarget"
+echo "rtl_target='$vlTarget'" >$installed
+
+cfg_setup="config/cfg_setup.$vlHost.$vlTarget"
+
+build_target=`pwd`/rtl/bin
+
+echo "${vlTarget}_as=$vlAsPath" >$cfg_setup
+echo "${vlTarget}_ld=$vlLdPath" >>$cfg_setup
+
+cat config/cfg_setup.$vlHost.* >config/cfg_setup
+echo "Rtl_Build_Out=$build_target" >>config/cfg_setup
+
+echo "Dir_Ela_Rtl_Base=$Dir_Ela_Rtl" >>config/cfg_setup
 
 build_conf_gen="config/build_conf.gen"
 
@@ -189,7 +219,6 @@ echo "os_host=$vlHost" >>$build_conf_gen
 
 build_conf="config/build_conf.$vlHost.$vlTarget"
 
-build_target=`pwd`/rtl/bin
 echo Fpc_Opt_Unit_Path=$Fpc_Opt_Unit_Path>$build_conf
 echo Rtl_Build_Out=$build_target>>$build_conf
 echo Dir_Cpl_Lib=$Dir_Cpl_Lib>>$build_conf
@@ -222,7 +251,18 @@ echo Dir_Cfg=$vlConfigDir >>$build_conf
 
 sh build_files/programs/mkelamake.sh <build_files/config/eladirs.db >>config.log
 
+cat_cfg=""
 
+for i in config/installed.$vlHost.*;
+do
+  source $i
+  cat_cfg="$cat_cfg cfg/cfg.$rtl_target.tpl"
+done
+
+cat  "cfg/ela.base.tpl" $cat_cfg >cfg/ela.tpl
+cat  "cfg/lib.base.tpl" $cat_cfg  >cfg/lib.tpl
+echo "END;" >>cfg/ela.tpl
+echo "END;" >>cfg/lib.tpl
 echo
 echo FEEDBACK FEEDBACK FEEDBACK
 echo 

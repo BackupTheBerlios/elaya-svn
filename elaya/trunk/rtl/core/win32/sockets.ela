@@ -1,5 +1,5 @@
 unit; 
-uses core,sockets;
+uses core;
 public
 
 
@@ -24,15 +24,6 @@ public
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  }
-{
-   Setup phase
-  }
-{
-   This section defines the items that conflict with the Unix headers.
-  }
-{
-   Address families
   }
 
 
@@ -640,7 +631,7 @@ const
 { was #define dname(params) para_def_expr }
 { argument types are unknown }
 { return type might be wrong }   
-external dll 'winsock.dll' 
+external winsock
 function WSAGETSELECTERROR(lParam : longint) : longint;name 'WSAGETSELECTERROR';
 function WSAAsyncGetHostByAddr(para1:THWND; para2:Tu_int; para3:Pchar; para4:longint; para5:longint; 
            para6:Pchar; para7:longint):THANDLE;cdecl; name 'WSAAsyncGetHostByAddr';

@@ -5,8 +5,8 @@ include $(root_path)/Makefile.inc
 .PHONY : all clean
 
 all  :
-	$(CFGC_CMD) ela.tpl $(root_path)/config/build_conf.$(os_host).$(rtl_target) bin/ela.cfg
-	$(CFGC_CMD) lib.tpl $(root_path)/config/build_conf.$(os_host).$(rtl_target) bin/lib.cfg
+	$(CFGC_CMD) ela.tpl $(root_path)/config/cfg_setup bin/ela.cfg
+	$(CFGC_CMD) lib.tpl $(root_path)/config/cfg_setup bin/lib.cfg
 
 install:
 	mkdir -p $(Dir_Cfg)
