@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit confval;
 interface
-uses stdobj,elacons,progutil;
+uses stdobj,elacons,progutil,simplist;
 
 
 type
@@ -61,6 +61,9 @@ type
 		voAutoloadLevel      : cardinal;
 		voOutputObjectPath   : TString;
 		voOutputObjectPathlevel : cardinal;
+		voLinkInfoFiles      : TSmStringList;
+		voLinkInfoFilesLevel : cardinal;
+
 		property iRebuildLevel       : cardinal read voRebuildLevel	  write voRebuildLevel;
 		property iOptimizeModesLevel : cardinal read voOptimizeModesLevel write voOptimizeModesLevel;
 		property iConfigFileLevel    : cardinal read voCOnfigFIleLevel	  write voConfigFileLevel;
@@ -78,6 +81,8 @@ type
 		property iGenerateDebugLevel : cardinal read voGenerateDebugLevel  write voGenerateDebugLevel;
 		property iAutoLoadLevel      : cardinal read voAutoloadLevel       write voAutoloadLevel;
 		property iOutputObjectPathLevel : cardinal read voOutputObjectPathLevel write voOutputObjectPathLevel;
+		property iLinkInfoFilesLevel : cardinal read voLinkInfoFilesLevel       write voLinkInfoFilesLevel;
+
 	protected
 		property iRebuild       : boolean        read voRebuild       write voRebuild;
 		property iOptimizeModes : TOptimizeModes read voOptimizeModes write voOptimizeModes;
@@ -96,6 +101,8 @@ type
 		property iGenerateDebug : boolean        read voGenerateDebug write voGenerateDebug;
 		property iAutoload      : boolean        read voAutoLoad      write voAutoload;
 		property iOutputObjectPath : TString     read voOutputObjectPath write voOutputObjectPath;
+		property iLinkInfoFiles  : TSmStringList read voLinkInfoFiles write voLinkInfoFiles;
+
 		function  CreateConfigValuesObject : TConfigValues ;virtual;
 		procedure Commonsetup;override;
 		procedure Clear;override;
@@ -145,6 +152,8 @@ type
 		procedure SetAutoLoad(ParAutoload : boolean;ParLevel : cardinal);
 		procedure GetTargetOsStr(var ParOs: string);
 		function  CloneValues : TCOnfigValues ;virtual;
+		procedure AddLinkInfoFile(const ParInfo : string);
+		function  GetLinkInfoFile(ParNum : cardinal;var   ParInfo : string):boolean;
 	end;
 	
 	
@@ -186,6 +195,18 @@ end;
 
 
 {---( TConfigValues )-------------------------------------------------------------------------------}
+
+
+procedure TConfigValues.AddLinkInfoFile(const ParInfo : string);
+begin
+	iLinkInfoFiles.AddString(ParInfo);
+end;
+
+function TConfigValues.GetLinkInfoFile(ParNum : cardinal;var   ParInfo : string):boolean;
+begin
+	exit(iLinkInfoFiles.GetStringByPosition(ParNum,ParInfo));
+end;
+
 
 
 procedure TConfigValues.SetOutputObjectPath(const ParPath : string;ParLevel : cardinal);
@@ -330,6 +351,7 @@ end;
 function  TConfigValues.CloneValues : TConfigValues;
 var vlStr : string;
 	vlVal : TConfigValues ;
+	vlCnt : cardinal;
 begin
 	vlVal := CreateConfigValuesObject;
 	GetConfigFileStr(vlStr);
@@ -355,6 +377,11 @@ begin
 	vlVal.SetAutoload(iAutoload,iAutoloadlevel);
 	GetOutputObjectPath(vlStr);
 	vlVal.SetOutputObjectPath(vlStr,iOutputObjectPathLevel);
+	vlCnt := 0;
+	while (GetLinkInfoFile(vlCnt,vlStr)) do begin
+		vlVal.AddLinkInfoFile(vlStr);
+		inc(vLCnt);
+	end;
 	exit(vlVal);
 end;
 
@@ -441,12 +468,14 @@ begin
 	iVarUseCheckLevel   := CL_None;
 	iGenerateDebugLevel := CL_None;
 	iAutoLoadLevel      := CL_None;
+   iLinkInfoFilesLevel := CL_None;
 	iOutputObjectPathLevel := CL_None;
 	iConfigFile         := nil;
 	iInputFile          := nil;
 	iHostOs             := TString.Create(DEF_Operating_System);
 	iTargetOs           := nil;
 	iOutputObjectPath   := nil;
+	iLinkInfoFiles      := TSmStringList.Create;
 	iRunAssembler       := true;
 	iAssemblerType      := AT_X86ATT;
 	iOptimizeModes      := [];
@@ -470,6 +499,7 @@ begin
 	if iTargetOs   <> nil then iTargetOs.Destroy;
 	if iHostOs     <> nil then iHostOs.Destroy;
 	if iOutputObjectPath <> nil then iOutputObjectPath.Destroy;
+	if iLinkInfoFiles <> nil then iLinkInfoFiles.Destroy;
 end;
 
 begin

@@ -746,7 +746,7 @@ procedure g_relation_insert(relation:PGRelation; args:array of const); name 'g_r
 function  g_relation_exists(relation:PGRelation; args:array of const):gboolean; name 'g_relation_exists';
 }
 
-external linked 'libglib.so' cdecl
+external libglib
 
 	function  g_list_alloc:PGList; name 'g_list_alloc';
 	procedure g_list_free(list:PGList); name 'g_list_free';

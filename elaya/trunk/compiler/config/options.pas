@@ -161,7 +161,8 @@ begin
 	writeln('-D<name>=<value>=define config variable an value');
 	writeln('-e             = GNU style errors');
 	writeln('-h	            = Print options help');
-	writeln('-l[nN]         = Generate lis file');
+   writeln('-i <filename>  = Link information file');
+	writeln('-l[nN]         = Generate list file');
 	writeln('	              n=Print node/POC list file');
 	writeln('	              N=Turnoff printing node/POC list file');
 	writeln('-O[k]          = Optimize');
@@ -442,6 +443,11 @@ begin
 					GetParameters := true;
 				end;
 				'h':PrintOptions;
+				'i':begin
+						if GetParParameter(vlCnt,vlParam) then exit(true);
+						NativeToLinux(vlParam);
+						GetOptionValues.AddLinkInfoFile(vlParam);
+					end;
 				'l':if HandleNodeListing(vlParam) then GetParameters := true;
 				'u':if HandleUnitOptions(vlParam) then begin
 					GetParameters := true;

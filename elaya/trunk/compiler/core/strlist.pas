@@ -24,7 +24,7 @@ interface
 uses asmdata,elacons,simplist,stdobj,compbase;
 
 type
-	TStringListItem=class(TSMTextItem)
+	TStringListItem=class(TSMStringItem)
     private
 		voLabel  : longint;
 		property iLabel : longint read voLabel write voLabel;
@@ -35,9 +35,11 @@ type
 		function CreateDb(ParCre:TCreator):boolean;
 	end;
 
-	TStringlist = class(TSMTextList)
+	TStringlist = class(TSMStringList)
+	protected
+		function MakeItem(const ParText : string) : TSmStringItem;override;
 	public
-		function AddString(const ParText : string):longint;
+		function AddStringItem(const ParText : string):longint;
 		function CreateDb(ParCre:TCreator):boolean;
 	end;
 
@@ -55,7 +57,7 @@ function  TStringListItem.CreateDb(ParCre:TCreator):boolean;
 var
 	vlText:string;
 begin
-    GetTextStr(vlText);
+   GetString(vlText);
 	TAsmCreator(ParCre).AddData(TLabelDef.Create(DAT_Data,iLabel));
 	TAsmCreator(ParCre).AddData(TAsciiDef.Create(DAT_Data,vlText));
 	exit(false);
@@ -64,12 +66,17 @@ end;
 
 {----( TStringList )------------------------------------------------------}
 
-function TStringList.AddString(const ParText : string) : longint;
+function TStringList.MakeItem(const ParText : string) : TSmStringItem;
+begin
+	exit(TStringListItem.Create(ParText));
+end;
+
+function TStringList.AddStringItem(const ParText : string) : longint;
 var
 	vlItem : TStringListItem;
 begin
-	vlItem := TStringListItem(GetPtrByName(nil,ParText));
-	if vlItem = nil then vlItem := TStringListItem(InsertAt(nil,TStringListItem.Create(ParText)));
+	vlItem := TStringListItem(GetItemByString(nil,ParText));
+	if vlItem = nil then vlItem := TStringListItem(AddString(ParText));
     exit(vlItem.fLabel);
 end;
 

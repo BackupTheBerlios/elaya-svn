@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit NDCreat;
 interface
 uses largenum,streams,sysutils,stdobj,files,compbase,idlist,DSbLsDef,node,elatypes,formbase,progutil,asminfo,ddefinit,cmp_type,
-	hashing,types,elacons,cmp_base,elacfg,module,error,curitem,confval;
+	hashing,types,elacons,cmp_base,elacfg,module,error,curitem,confval,linkobj;
 	
 type
 	
@@ -40,9 +40,9 @@ type
 		property    iCollection        : TIdentListCollection   read voCollection       write voCOllection;
 		property    iCurrentDefModes   : TDefinitionModes       read voCurrentDefModes  write voCurrentDefModes;
 		property    iCurrentDefAccess  : TDefAccess             read voCurrentDefAccess write voCurrentDefAccess;
-		property    iInPublicSection   : boolean		        read voInPublicSection  write voInPublicSection;
+		property    iInPublicSection   : boolean		           read voInPublicSection  write voInPublicSection;
 		property    iGlobalHashing     : THashing               read voGlobalHashing    write voGlobalHashing;
-		property    iUnitUseList	   : TUnitUseList           read voUnitUseList      write voUnitUseList;
+		property    iUnitUseList	   : TUnitUseList            read voUnitUseList      write voUnitUseList;
 		property    iCurrentItemList   : TCurrentDefinitionList read voCurrentItemList  write voCurrentItemList;
 		property    iEnumTypeType      : TEnumType              read voEnumType         write voEnumType;
 	protected
@@ -177,7 +177,6 @@ type
 implementation
 
 uses procs,vars,execobj,cblkbase,ela_user,classes,doperfun,stmnodes;
-
 
 {---( TNDCreator )-----------------------------------------------------}
 
@@ -857,7 +856,7 @@ procedure TNDCreator.CommonSetup;
 begin
 	inherited CommonSetup;
 	voForwardList := nil;
-	iUnitUseList := nil;
+	iUnitUseList  := nil;
 	voCollection      := TIdentListCollection.Create;
 	voCurrentItemList := TCurrentDefinitionList.Create;
 	iGLobalHashing    := THashing.Create;
@@ -1102,7 +1101,7 @@ var vlCurrent : TNameItem;
 begin
 	vlCurrent := TNameItem(ParName.fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.GetTextStr(vlName);
+		vlCurrent.GetString(vlName);
 		AddStringConst(vlName,ParStr);
 		vlCurrent := TNameItem(vlCUrrent.fNxt);
 	end;
@@ -1148,7 +1147,7 @@ var vlCurrent  : TNameItem;
 begin
 	vlCurrent := TNameItem(ParName.fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.GetTextStr(vlName);
+		vlCurrent.GetString(vlName);
 		AddConstant(vlName,ParCon);
 		vlCurrent := TNameItem(vlCUrrent.fNxt);
 	end;
@@ -1165,7 +1164,7 @@ begin
 		vlCurrent := TNameItem(ParNameList.fStart);
 		vlCurDef := GetCurrentDefinition;
 		while vlCurrent <> nil do begin
-			vlCurrent.GetTextStr(vlStr);
+			vlCurrent.GetString(vlStr);
 			if vlCurDef <> nil then begin
 				vlVar := TVariable(vlCurDef.CreateVar(self,vlStr,ParType))
 			end else begin

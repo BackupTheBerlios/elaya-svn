@@ -102,11 +102,11 @@ end;
 
 
 	  TFileITem=class(TSMTextItem)
-			procedure PrintELaName;
-			procedure PrintEmdName;
-			procedure PrintMakeReadVar;
-			procedure PrintMakeWriteVar;
-			procedure PrintItem;
+			procedure PrintELaName(var ParFile : text);
+			procedure PrintEmdName(var ParFile : text);
+			procedure PrintMakeReadVar(var ParFile : text);
+			procedure PrintMakeWriteVar(var ParFile : text);
+			procedure PrintItem(var ParFile : text);
 			function  GetMainName : string;
 			function  GetBareName : string;
 	  end;
@@ -116,7 +116,7 @@ end;
 	  TFIleList=class(TSMTextList)
 			procedure AddFIle(const ParStr : string);
 			function GetFileByBareName(const ParStr : string):TFileItem;
-			procedure  PrintList;
+			procedure  PrintList(var ParFile : Text);
 	  end;
 
 		TAutoLoadItem=class(TFileItem)
@@ -126,13 +126,13 @@ end;
 
 	  TUnitList=class(TSMTextList)
 			procedure AddUnit(const ParStr : string);
-			procedure PrintDep;
+			procedure PrintDep(var ParFile : Text);
 	  end;
 
 
 
 		TUnitItem=class(TSMTextItem)
-			procedure PrintMakeWriteVar;
+			procedure PrintMakeWriteVar(var ParFile : Text);
 	  	end;
 
 
@@ -145,9 +145,9 @@ end;
 			procedure Clear;override;
 		public
 			procedure AddUnit(const ParName :string);
-			procedure PrintMake;
-			procedure PrintALlName;
-			procedure PrintClean;
+			procedure PrintMake(var ParFile : Text);
+			procedure PrintALlName(var ParFile : text);
+			procedure PrintClean(var ParFile : Text);
 			constructor Create(const ParStr : string;ParFileList : TFileList);
 	 end;
 	  TAutoLoadList=class(TFileList)
@@ -182,7 +182,7 @@ end;
 		procedure Clear;override;
 	public
 	   function AddProgram(const ParName : string) : TPRogramItem;
-		procedure PrintMake;
+		procedure PrintMake(var Parfile : text);
 		function LoadAutoList(const ParFileName : string) :boolean;
 
 	end;
@@ -205,8 +205,9 @@ var
    vlCommand : string;
 	vlStart : string;
 	vlIgnore : TSMTextList;
-	vlOutputFile : string;
-
+	vlOutputFileName : string;
+   vlOutputFile : text;
+   vlError      : boolean;
 procedure LowerStr(var ParStr :string);
 var
 	vlCnt : cardinal;
@@ -596,45 +597,45 @@ begin
 end;
 
 
-procedure TFileItem.PrintElaName;
+procedure TFileItem.PrintElaName(var ParFile : text);
 var
 	vlName : string;
 begin
 	GetTextStr(vlName);
-	write(vlName,vlSourceExt);
+	write(ParFile,vlName,vlSourceExt);
 end;
 
-procedure TFileItem.PrintEmdName;
+procedure TFileItem.PrintEmdName(var ParFile :text);
 var
 	vLName : string;
 begin
 	GetTextStr(vlName);
-	write(GetBareName,vlUnitExt);
+	write(ParFile,GetBareName,vlUnitExt);
 end;
 
-procedure TFileItem.PrintMakeWriteVar;
+procedure TFileItem.PrintMakeWriteVar(var ParFile : text);
 var
 	vlName : string;
 begin
 	GetTextStr(vlName);
-	write(GetBareName,'_unit');
+	write(ParFile,GetBareName,'_unit');
 end;
 
-procedure TFileItem.PrintMakeReadVar;
+procedure TFileItem.PrintMakeReadVar(var ParFile : text);
 var
 	vlName : string;
 begin
 	GetTextStr(vlName);
-	write('$(');PrintMakeWriteVar;write(')');
+	write(ParFile,'$(');PrintMakeWriteVar(ParFile);write(ParFile,')');
 end;
 
-procedure TFileItem.PrintItem;
+procedure TFileItem.PrintItem(var ParFile : text);
 begin
 		if vlIgnore.GetPtrByName(nil,GetBareName) = nil then begin
-			PrintMakeWriteVar; write('=');
-			if vlFiles.GetFileByBareName(GetBareName)<> nil then write(vlUnitDir);
-			PrintEmdName;
-			writeln;
+			PrintMakeWriteVar(ParFile); write(ParFile,'=');
+			if vlFiles.GetFileByBareName(GetBareName)<> nil then write(ParFile,vlUnitDir);
+			PrintEmdName(ParFile);
+			writeln(ParFile);
 		end;
 end;
 
@@ -656,13 +657,13 @@ begin
 	InsertAtTop(TFileItem.Create(ParStr));
 end;
 
-procedure TFileList.PrintList;
+procedure TFileList.PrintList(var ParFile :text);
 var
 	vlItem : TFileItem;
 begin
    vlItem := TFileItem(fStart);
 	while vlItem <> nil do begin
-		vlItem.PrintItem;
+		vlItem.PrintItem(ParFile);
 		vlItem := TFileItem(vlItem.fNxt);
 	end;
 end;
@@ -730,31 +731,31 @@ end;
 
 
 
-procedure TProgramList.PrintMake;
+procedure TProgramList.PrintMake(var ParFile : text);
 var
 	vlCurrent : TProgramItem;
 begin
-	voFileList.PrintList;
+	voFileList.PrintList(ParFile);
 	vlCurrent := TProgramItem(fStart);
-	write('all_',vlStart,':');
+	write(ParFile,'all_',vlStart,':');
 	while vlCurrent <> nil do begin
-		vlCurrent.PrintAllName;
+		vlCurrent.PrintAllName(ParFile);
 		vlCUrrent := TProgramItem(vlCurrent.fNxt);
 	end;
-	writeln;
-	writeln;
-	writeln('clean_',vlStart,':');
+	writeln(ParFile);
+	writeln(ParFile);
+	writeln(ParFile,'clean_',vlStart,':');
 	vlCurrent := TProgramItem(fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.PrintClean;
+		vlCurrent.PrintClean(ParFile);
 		vlCUrrent := TProgramItem(vlCurrent.fNxt);
 	end;
-	writeln;
-	writeln;
+	writeln(ParFile);
+	writeln(ParFIle);
 	vlCurrent := TProgramItem(fStart);
 	while vlCurrent <> nil do begin
-		vlCurrent.PrintMake;
-		writeln;
+		vlCurrent.PrintMake(ParFile);
+		writeln(ParFile);
 		vlCUrrent := TProgramItem(vlCurrent.fNxt);
 	end;
 end;
@@ -774,27 +775,31 @@ end;
 
 
 
-procedure TProgramItem.PrintClean;
+procedure TProgramItem.PrintClean(var ParFile : text);
 begin
-	writeln(chr(9),'rm -f ',vlUnitDir,GetBareName,'.*');
+	writeln(ParFile,chr(9),'rm -f ',vlUnitDir,GetBareName,'.*');
 end;
 
-procedure TProgramItem.PrintALlName;
+procedure TProgramItem.PrintALlName(var ParFile : Text);
 begin
-	if fPrv <> nil then write(chr(9));
-	PrintMakeReadVar;
-	if fNxt <> nil then write('\');
-	writeln;
+	if fPrv <> nil then write(ParFile,chr(9));
+	PrintMakeReadVar(ParFile);
+	if fNxt <> nil then write(ParFile,'\');
+	writeln(ParFile);
 end;
 
-procedure TProgramItem.PrintMake;
+procedure TProgramItem.PrintMake(var ParFile : text);
 begin
-   PrintMakeReadVar;
-	write(':');
-	voUnitList.PrintDep;
-	write(chr(9));PrintElaName;writeln;
-	if length(vlCommand) > 0 then begin write(chr(9),'$(',vlCommand,') ');printElaName;writeln;end;
-	writeln;
+   PrintMakeReadVar(ParFile);
+	write(ParFile,':');
+	voUnitList.PrintDep(ParFile);
+	write(ParFile,chr(9));PrintElaName(ParFile);writeln(ParFile);
+	if length(vlCommand) > 0 then begin
+		write(ParFile,chr(9),'$(',vlCommand,') ');
+		printElaName(ParFIle);
+		writeln(ParFIle);
+	end;
+	writeln(ParFile);
 end;
 
 procedure TProgramItem.Commonsetup;
@@ -816,33 +821,32 @@ begin
 	InsertAtTop(TUnitItem.Create(ParStr));
 end;
 
-procedure TUnitList.PrintDep;
+procedure TUnitList.PrintDep(var ParFile : text);
 var
 	vlCurrent : TUnitItem;
 	vlName : string;
 begin
-	vlCurrent := TUnitItem(fStart);
 
 	vlCurrent := TUnitItem(fStart);
 	while vlCurrent <> nil do begin
 		vlCurrent.GetTextStr(vlName);
 		if vlIgnore.GetPtrByName(nil,vlName) = nil then begin
 			if vlCurrent.fPrv <> nil then write(chr(9));
-			write('$(');
-			vlCurrent.PrintMakeWriteVar;
-			writeln(')\');
+			write(ParFile,'$(');
+			vlCurrent.PrintMakeWriteVar(ParFile);
+			writeln(ParFile,')\');
 		end;
 		vlCurrent := TUnitItem(vlCurrent.fNxt);
 	end;
 
 end;
 
-procedure TUnitItem.PrintMakeWriteVar;
+procedure TUnitItem.PrintMakeWriteVar(var ParFile : text);
 var
 	vlName : string;
 begin
 	GetTextStr(vlName);
-	write(vlName,'_unit');
+	write(ParFile,vlName,'_unit');
 end;
 
 
@@ -988,7 +992,7 @@ begin
 		if(vlStr[1]='-') then begin
 			if length(vlStr) <2 then exit(true);
 			case vlStr[2] of 
-			'o':if nextParam(vlOutputFile) then exit(true);
+			'o':if nextParam(vlOutputFileName) then exit(true);
 			'a':if NextParam(vlAutoLoad) then exit(true);
 			'u':if NextParam(vlUnitDir)    then exit(true);
 			'p':vlIsPascal := true;
@@ -1011,7 +1015,7 @@ end;
 begin
 	if ParamCount=0 then begin
 		writeln('Syntax error :');
-		writeln('   eladep <filename> [-a <autoload>] [-c <compile command>] [-m <start>] [-p] [-e <unit extention>] [-u <unit directory>] [-s <source ext>');
+		writeln('   eladep <filename> [-a <autoload>] [-c <compile command>] [-m <start>] [-p] [-e <unit extention>] [-u <unit directory>] [-s <source ext>] -o <outputfile>');
 		halt(1);
 	end;
 	vlList := TProgramList.create;
@@ -1026,10 +1030,15 @@ begin
 	SetLength(vlUnitExt,0);
 	SetLength(vLSourceExt,0);
 	SetLength(vlCommand,0);
-	SetLength(vlOutputFile,0);
+	SetLength(vlOutputFileName,0);
 	vlStart := 'main';
 	if getparameters then begin
 		writeln('Invalid parameters');
+		halt(1);
+	end;
+
+	if length(vlOutputFileName) = 0 then begin
+		writeln('No outputfile ');
 		halt(1);
 	end;
 
@@ -1041,13 +1050,28 @@ begin
 	end;
 
 	vlCurrent := TSMTextItem(vlFiles.fStart);
+	vlError := false;
 	while (vlCurrent <> nil) do begin
 		vlCurrent.GetTextStr(vlName);
-		if runfile(vlName,vlList) then writeln('syntax error in file ',vlName);
+		if runfile(vlName,vlList) then begin
+			writeln('syntax error in file ',vlName);
+			vlError := true;
+		end;
 		vlCurrent := TSMTextItem(vlCurrent.fNxt);
 	end;
 
-	vlList.PrintMake;
+	if vlError then begin
+		writeln('Parsing errors found, no output written');
+		halt(1);
+	end;
+	assign(vlOutputFile,vlOutputFileName);
+	rewrite(vlOutputFile);
+	if ioresult <> 0 then begin
+		writeln('Can''''t open output filename :',vlOutputFileName);
+		halt(1);
+	end;
+	vlList.PrintMake(vlOutputFile);
+	close(vlOutputFile);
 	vlList.Destroy;
 	vlFiles.Destroy;
 	close(vgFile);

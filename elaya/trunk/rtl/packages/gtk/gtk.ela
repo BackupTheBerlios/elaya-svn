@@ -4499,7 +4499,7 @@ procedure set_latin1_to_char(var a : TGtkAccelLabelClass; __latin1_to_char : gui
 function  GTK_NOTEBOOK_PAGE(_glist_ : PGList) : PGtkNotebookPage;
 
 
-external linked 'libgtk.so' cdecl
+external libgtk
 
 function  GTK_VSEPARATOR_TYPE:TGtkType; name 'gtk_vseparator_get_type';
 function  gtk_vseparator_get_type:TGtkType; name 'gtk_vseparator_get_type';

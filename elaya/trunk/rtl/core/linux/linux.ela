@@ -1128,14 +1128,14 @@ type
 {----( Libs )---------------------------------------------------------}
 
 
-external linked 'inter.o'
+external inter
 	function Linux_GetEnvp:PPAsc;cdecl;name 'inter_getenvp';
 	function Linux_GetArgc:clong;cdecl; name 'inter_getargc';
 	function Linux_GetArgp:PPAsc;cdecl;name 'inter_getargp';
 	function Linux_GetErrno:longint;cdecl;name 'inter_geterrno';
 end;
 
-external linked 'libc.so' cdecl
+external libc
 function  Linux_Access(ParPath:PAsc;ParMode:cint):cint; name 'access';
 function  Linux_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):cint;name 'accept';
 function  Linux_Acct(ParPath:PAsc):cint;name 'acct';

@@ -1,0 +1,6 @@
+inter 'inter.o' linked cdecl ;
+libc 'libc.so' linked  cdecl ;
+libglib 'libglib.so' linked cdecl;
+libgdk  'libgdk.so' linked cdecl;
+libgtk 'libgtk.so' linked cdecl;
+mysql  'libmysql.so' linked cdecl;

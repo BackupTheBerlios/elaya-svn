@@ -1,4 +1,4 @@
-{    Elaslya5;3~, the ;compilerfor the elaya language
+{    Elaya, the ;compilerfor the elaya language
 Copyright (C) 1999-2002  J.v.Iddekinge.
 Web   : www.elaya.org
 Email : iddekingej@lycos.com

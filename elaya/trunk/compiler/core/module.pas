@@ -56,7 +56,7 @@ type
 		function    SaveItem(ParWriter:TObjectStream):boolean;
 	end;
 	
-	TUnitUseItem=class(TSMTextItem)
+	TUnitUseItem=class(TSmStringItem)
 	private
 		voUnitDependenceList : TUnitDependenceList;
 		voState              : TUnitLoadStates;
@@ -77,7 +77,6 @@ type
 	public
 		property    fLevel  : TUnitLevel  read voLevel write SetUnitLevel;
 		property    fHash   : THashNumber read voHash write voHash;
-		property    fUnit   : TUnit       read voUnit;
 		property    fUnitSourceTime : longint read voUnitSourceTime;
 		function    LoadUnitHeader(ParCre:TCreator;ParUseList:TUnitUseList):TLoadUnitState;
 		procedure   SetUnitSourceTime(ParTime:Longint);
@@ -99,11 +98,12 @@ type
 		procedure   GetUnitFileName(var ParFileName : string);
 		function    Recompile(ParCre : TCreator):boolean;
 		procedure   AddToGlobalHashing(ParCre : TCreator;ParHashing :THashing);
+		procedure   CleanupLoad;
 	end;
 	
 	
 
-	TUnitUseList=class(TSMTextList)
+	TUnitUseList=class(TSmStringList)
 	private
 		function InsertUnit(const ParName:string;ParState:TUnitLoadStates):TUnitUseItem;
 	public
@@ -389,7 +389,7 @@ begin
 	vlCurrent := TUnitUSeItem(fStart);
 	while vlCurrent <> nil do begin
 		if vlCurrent.fLevel = Ul_No_Unit_level then begin
-			vlCurrent.GetTextStr(vlName);
+			vlCurrent.GetString(vlName);
 			TNDCreator(ParCre).ErrorText(Err_Circ_Unit_Reference,vlName);
 			vlCurrent.SetFlag([US_Must_Load],false);
 		end;
@@ -437,7 +437,7 @@ begin
 		vlCurrent := TUnitUSeItem(fStart);
 		vlFound := false;
 		while vlCurrent <> nil do begin
-			vlCurrent.GetTextStr(vlName);
+			vlCurrent.GetString(vlName);
 			if vlCurrent.fLevel = vlLevel then begin
 				vlFound := true;
 				if (vlCurrent.GetFlag(Us_Must_Load)) then begin
@@ -458,7 +458,7 @@ var vlCurrent:TUnitUseItem;
 begin
 	vlCurrent  := TUnitUseItem(fStart);
 	while vlCUrrent <> nil do begin
-		if vlCurrent.fUnit <> nil then vlCurrent.fUnit.CleanUpLoad;
+		 vlCurrent.CleanUpLoad;
 		vlCurrent := TUnitUSeItem(vlCurrent.fNxt);
 	end;
 end;
@@ -508,7 +508,7 @@ end;
 function TUnitUseList.AddUnit(const ParName:string;ParState:TUnitLoadStates):boolean;
 begin
 	AddUnit := true;
-	if GetPtrByName(nil,ParName) <> nil then exit;
+	if GetitemByString(nil,ParName) <> nil then exit;
 	InsertUnit(ParName,parState);
 	AddUnit := false;
 end;
@@ -517,12 +517,12 @@ end;
 function TUnitUseList.AddDependence(const ParName,ParDepend:string;ParHash:ThashNumber):TErrorType;
 var vlUnit,vlDeTUnit:TUnitUseItem;
 begin
-	vlUnit := TUnitUseItem(GetPtrByName(nil,ParName));
+	vlUnit := TUnitUseItem(GetitemByString(nil,ParName));
 	if vlUnit = nil then begin
 		AddDependence := Err_Int_Unit_not_in_List;
 		exit;
 	end;
-	vlDeTUnit := TUnitUSeItem(GetPTrByName(nil,ParDepend));
+	vlDeTUnit := TUnitUSeItem(GetitemByString(nil,ParDepend));
 	if vlDeTUnit = nil then vlDeTUnit := InsertUnit(ParDepend,[US_Must_Load,US_Must_Load_Header]);
 	AddDependence := vlUnit.AddDependence(vlDeTUnit,ParHash);
 end;
@@ -557,7 +557,7 @@ begin
 			if vlCurrent.GetFlag(US_Wrong_Source_Date) then vlError := Err_Source_Is_Later else
 			if vlCurrent.GetFlag(US_Must_Recompile)    then vlError := ERR_Must_Recompile;
 			if vlError <> Err_No_Error then begin
-				vlCurrent.GetTextStr(vlName);
+				vlCurrent.GetString(vlName);
 				TNDCreator(ParCre).ErrorText(vlError,vlname);
 			end;
 			vlCurrent := TUnitUseITem(vlCurrent.fNxt);
@@ -568,9 +568,16 @@ end;
 
 {---( TUnitUseItem )------------------------------------}
 
+
+procedure   TUnitUseItem.CleanupLoad;
+begin
+	if iUnit <> nil then iUnit.CleanupLoad;
+end;
+
+
 procedure TUnitUseItem.AddToGlobalHashing(parCre :TCreator;ParHashing :THashing);
 begin
-	if (fUnit <> nil) then fUnit.AddListToGlobalHashing(ParCre,ParHashing);
+	if (iUnit <> nil) then iUnit.AddListToGlobalHashing(ParCre,ParHashing);
 end;
 
 function TUnitUseItem.Recompile(ParCre : TCreator):boolean;
@@ -598,14 +605,14 @@ end;
 
 procedure TUnitUseItem.GetSourceFileName(var ParFileName : string);
 begin
-	GetTextStr(ParFileName);
+	GetString(ParFileName);
 	ParFileName := ParFileName + CNF_Source_Ext;
 	LowerStr(ParFileName);
 end;
 
 procedure TUnitUseItem.GetUnitFileName(var ParFileName : string);
 begin
-	GetTextStr(ParFileName);
+	GetString(ParFileName);
 	ParFileName := ParFileName + CNF_Unit_Ext;
 end;
 
@@ -716,9 +723,10 @@ end;
 
 
 function TUnitUSeItem.AddDependence(parUnit:TUnitUseITem;ParHash:THashNumber):TErrorType;
-var vlName:string;
+var
+	vlName:string;
 begin
-	ParUnit.GetTextStr(vlName);
+	ParUnit.GetString(vlName);
 	if GetDependenceByName(vlName) <> nil then begin
 		AddDependence := Err_Int_Duplicate_Dep;
 		exit;
@@ -737,7 +745,7 @@ end;
 procedure TUnitUSeItem.PrintName;
 var vlStr:String;
 begin
-	GetTextStr(vlStr);
+	GetString(vlStr);
 	write(vlStr);
 end;
 
@@ -777,18 +785,18 @@ end;
 
 procedure TUnitUseItem.SetUnit(ParUnit:TUnit);
 begin
-	if fUnit <> nil then ParUnit.Destroy;
-	voUnit := ParUnit;
+	if iUnit <> nil then iUnit.Destroy;
+	iUnit := ParUnit;
 end;
 
 procedure TUnitUseItem.CommonSetup;
 begin
 	inherited Commonsetup;
 	iState  := [];
-	voUnit  := nil;
+	iUnit   := nil;
 	InitUnitDependenceList;
-	iLevel := UL_No_Unit_Level;
-	fHash  := 0;
+	iLevel  := UL_No_Unit_Level;
+	fHash   := 0;
 end;
 
 function TUnitUseItem.GetUnitDependenceList:TUnitDependenceList;
@@ -800,7 +808,7 @@ procedure TUnitUseItem.Clear;
 begin
 	inherited Clear;
 	if GetUnitDependenceList <>nil then GetUnitDependenceList.Destroy;
-	if fUnit <> nil then fUnit.Destroy;
+	if iUnit <> nil then iUnit.Destroy;
 end;
 
 

@@ -30,11 +30,14 @@ const
 	
 type
 	
-	TSearchPath=class(TSMTextItem)
+	TSearchPath=class(TSmStringItem)
 		procedure GetPath(var ParPath:string);
 	end;
 	
-	TSearchPathList=class(TSMList)
+	TSearchPathList=class(TSMStringList)
+	private
+		function MakeItem(const ParString : String) : TSmStringItem;override;
+	public
 		procedure AddPath(const parPath:string);
 		function  GetPathByNum(ParNum : cardinal;var ParStr:String):boolean;
 	end;
@@ -127,12 +130,16 @@ implementation
 
 procedure TSearchPath.GetPath(var ParPath:string);
 begin
-	fText.GetString(ParPath);
+	GetString(ParPath);
 end;
 
 {----( TSearchPathList )------------------------------------------}
 
 
+function TSearchPathList.MakeItem(const ParString : String) : TSmStringItem;
+begin
+	exit(TSearchPath.Create(ParString));
+end;
 
 
 procedure TSearchPathList.AddPath(const ParPath:string);
@@ -145,18 +152,14 @@ begin
 		vlPos := pos(';',vlPath);
 		if vlPos = 0 then vlPos := length(vlPath) + 1;
 		vlStr := copy(vlPath,1,vlPos - 1);
-		InsertAt(fTop,TSearchPath.Create(vlStr));
+		AddString(vlStr);
 		delete(vlPath,1,vlPos);
 	end;
 end;
 
 function TSearchPathList.GetPathByNum(ParNum : cardinal;var ParStr:String):boolean;
-var vlPath : TSearchPath;
 begin
-	vlPath := TSearchPath(GetPtrByNum(ParNum));
-	if vlPath =nil then exit(true);
-	vlPath.GetPath(ParStr);
-	exit(false);
+	exit(not(GetStringByPosition(ParNum,ParStr)));
 end;
 
 {----( TFile )----------------------------------------------------}

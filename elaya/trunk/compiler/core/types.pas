@@ -281,7 +281,7 @@ type
 	end;
 
 
-	TForwardList=class(TSMTextList)
+	TForwardList=class(TSmStringList)
 		procedure AddBind(const ParName:string;ParBind:TPtrType);
 		procedure Bind(ParCreat:TCreator);
 	end;
@@ -302,7 +302,7 @@ type
 		constructor Create(ParPtr:TPtrType);
 	end;
 	
-	TForwardItem=class(TSMTextItem)
+	TForwardItem=class(TSmStringItem)
 	private
 		voBindList:TForwardBindList;
 		property iBindList : TForwardBindList read voBindList write voBindList;
@@ -666,7 +666,7 @@ end;
 procedure TForwardList.AddBind(const ParName:string;ParBind : TPtrType);
 var vlBind:TForwardItem;
 begin
-	vlBind := TForwardItem(GetPTrByName(nil,ParName));
+	vlBind := TForwardItem(GetItemByString(nil,ParName));
 	if vlBind  = nil then begin
 		vlBind :=TForwardItem.Create(ParName,ParBind);
 		InsertAtTop(vlBind);
@@ -679,7 +679,7 @@ procedure  TForwardItem.Bind(ParCre : TCreator);
 var  vlName : string;
 	vlDef  : TType;
 begin
-	GetTextStr(vlname);
+	GetString(vlname);
 	vlDef := TType(TNDCreator(PArCre).GetPtr(vlName));
 	if vlDef <> nil then begin
 		iBindList.Bind(ParCre,vlDef);

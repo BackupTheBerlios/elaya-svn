@@ -37,7 +37,7 @@ type
 		property fNxt:TSMListItem read voNxt write voNxt;
 	end;
 	
-	TSMTextItem=class(TSMListItem)
+	TSMStringItem=class(TSMListItem)
 	private
 		voText:TString;
 		property iText:TString read voText write voText;
@@ -46,9 +46,9 @@ type
 		procedure   Clear;override;
 
 	public
-		property    fText:TString read voText;
-		procedure   GetTextStr(var ParStr:string);
-		procedure   SetText(const ParStr:string);
+		property    fString:TString read voText;
+		procedure   GetString(var ParStr:string);
+		procedure   SetString(const ParStr:string);
 		constructor Create(const ParTxt:string);
 		function    IsEqualStr(const ParStr:string):boolean;
 	end;
@@ -81,8 +81,14 @@ type
 	end;
 	
 	
-	TSMTextList=class(TSMList)
-		function GetPtrByName(ParStart:TSMTextItem;const ParName:string):TSMTextItem;virtual;
+	TSMStringList=class(TSMList)
+	protected
+		function MakeItem(const ParString : string) : TSMStringItem;virtual;
+	public
+
+		function AddString(const ParString : string) :TSMStringItem ;
+		function GetStringByPosition(ParPosition : cardinal;var ParString : string):boolean;
+		function GetItemByString(ParLast:TSMStringItem;const ParString:string):TSMStringItem;virtual;
 	end;
 	
 	
@@ -97,56 +103,87 @@ implementation
 {------( TSMTextList )------------------------------------------------}
 
 
-
-function TSMTextList.GetPtrByName(ParStart:TSMTextItem;const ParName:string):TSMTextItem;
-var vlCurrent:TSMTextItem;
+function TSMStringList.AddString(const ParString : string) : TSmStringItem;
+var
+	vlItem : TSmStringItem;
 begin
-	GetPtrByName := nil;
-	if ParStart <> nil then vlCurrent := TSMTextItem(ParStart.fNxt)
-	else vlCurrent := TSMTextItem(iStart);
-	while (vlCurrent <> nil) and not(vlCurrent.IsEqualStr(ParName)) do vlCurrent := TSMTextItem(vlCurrent.fNxt);
-	GetPtrByName := vlCurrent;
+   vlItem := MakeItem(ParString);
+	InsertAtTop(vlItem);
+	exit(vlItem);
+end;
+
+
+function TSmStringList.MakeItem(const ParString : string) : TSMStringItem;
+begin
+	exit(TSmStringItem.Create(ParString));
+end;
+
+function TSmStringList.GetStringByPosition(ParPosition : cardinal;var ParString : string):boolean;
+var
+	vlItem : TSmStringItem;
+begin
+	vlItem := TSmStringItem(GetPtrByNum(ParPosition));
+	if (vlItem <> nil) then begin
+		vlItem.GetString(ParString);
+	end else begin
+		EmptyString(ParString);
+	end;
+	exit(vlItem <> nil);
+end;
+
+
+function TSMStringList.GetItemByString(ParLast:TSmStringItem;const ParString:string):TSMStringItem;
+var
+	vlCurrent:TSMStringItem;
+begin
+	if ParLast <> nil then begin
+		vlCurrent := TSmStringItem(ParLast.fNxt)
+	end else  begin
+		vlCurrent := TSmStringItem(iStart);
+	end;
+	while (vlCurrent <> nil) and not(vlCurrent.IsEqualStr(ParString)) do vlCurrent := TSmStringItem(vlCurrent.fNxt);
+	exit(vlCurrent);
 end;
 
 
 
 
-{-------( TSMTextItem )-----------------------------------------------}
+{-------( TSmStringItem )-----------------------------------------------}
 
 
 
-procedure TSMTextItem.commonsetup;
+procedure TSmStringItem.commonsetup;
 begin
 	inherited commonsetup;
 	iText := nil;
 end;
 
-function  TSMTextItem.IsEqualStr(const ParStr:string):boolean;
+function  TSmStringItem.IsEqualStr(const ParStr:string):boolean;
 begin
 	if iText = nil then exit(false);
 	exit(iText.IsEqualStr(ParStr));
 end;
 
 
-procedure TSMTextItem.GetTextStr(var ParStr:string);
+procedure TSmStringItem.GetString(var ParStr:string);
 begin
 	iText.GetString(ParStr);
 end;
 
-procedure   TSMTextItem.SetText(const ParStr:string);
+procedure   TSmStringItem.SetString(const ParStr:string);
 begin
-	if fText <> nil then fText.Destroy;
+	if iText <> nil then iText.Destroy;
 	iText := TString.Create(ParStr);
 end;
 
-constructor TSMTextItem.Create(const ParTxt:string);
+constructor TSmStringItem.Create(const ParTxt:string);
 begin
 	inherited Create;
-	SetText(ParTxt);
+	SetString(ParTxt);
 end;
 
 
-procedure TSMTextItem.Clear;
+procedure TSmStringItem.Clear;
 begin
 	inherited Clear;
 	if iText <> nil then iText.Destroy;

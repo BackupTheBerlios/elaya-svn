@@ -929,7 +929,7 @@ end;
 
 function  TString.CharAt(ParPos : cardinal):char;
 begin
-	CharAt := voText[ParPos];
+	exit( voText[ParPos]);
 end;
 
 

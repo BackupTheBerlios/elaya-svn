@@ -219,6 +219,7 @@ begin
 	AddVar(CONF_Can_Use_Dll,'');
 	AddVar(CONF_Compiler_Dir,'');
 	AddVar(Conf_Is_Elf_Target,'');
+	AddVar(Conf_Link_Information_File,'');
 	vlCnt := 1;
 	while GetVariableByPosition(vlCnt,vlName,vlValue) do begin
 		AddOrSetVar(vlName,vlValue,false);
@@ -288,6 +289,9 @@ begin
 end;
 SetAlwaysStackFrame(true);
 if GetVarValue(conf_output_object_path,vlOutPath) then ParCfg.SetOutputObjectPath(vlOutPath,cl_Conf);
+if GetVarValue(conf_link_information_file,vlPathName) then begin
+	if length(vlPathName) > 0 then ParCfg.AddLinkInfoFile(vlPathName);
+end;
 
 if GetVarUpperBool(conf_Always_Stack_Frame,vlBool) then SetAlwaysStackFrame(vlBool);
 if GetVarUpperBool(CONF_Run_Assembler,vlBool) then ParCfg.SetRunAssembler(vlBool,CL_Conf);

@@ -229,7 +229,7 @@ PUDF_INIT = TUDF_INIT;
 }
 
 
-external &MySql_Lib_Type &MySql_Lib_Name &MySql_Lib_CallType
+external mysql
 {         Procedure sql_free (ParRoot : PMEM_ROOT);name 'sql_free';
          Procedure init_alloc_root (ParRoot: PMEM_ROOT;block_size : long);name 'init_alloc_root';
          Function sql_alloc_first_block(ParRoot : PMEM_ROOT) : my_bool;name 'sql_alloc_first_block';

@@ -89,7 +89,7 @@ type
 		function    GetPtrByType(ParCode:longint):TClassStrAbelRoot;
 	end;
 
-TModuleLoadItem=class(TSMTextItem)
+TModuleLoadItem=class(TSmStringItem)
 private
 	voModuleObj:TModule;
 	property iModuleObj : TModule read voModuleObj write voModuleObj;
@@ -101,7 +101,7 @@ public
 end;
 
 
-TModuleLoadList=class(TSMTextList)
+TModuleLoadList=class(TSmStringList)
 public
 	procedure DoBind;
 	procedure AddModule(const ParModule:string;ParModuleObj:TModule);
@@ -250,7 +250,7 @@ end;
 procedure TModuleLoadList.AddModule(const ParModule:string;ParModuleObj:TModule);
 var vlCurrent:TModuleLoadITem;
 begin
-	vlCurrent := TModuleLoadITem(GetptrByName(nil,ParModule));
+	vlCurrent := TModuleLoadITem(GetItemByString(nil,ParModule));
 	if vlCurrent = nil then begin
 		vlCUrrent := TModuleLoadItem.Create(ParModule,ParModuleObj);
 		InsertAtTop(vlCurrent);
@@ -686,7 +686,7 @@ end;
 
 function    TObjectStream.GetModuleLoadItemByName(const ParName:string):TModuleLoadITem;
 begin
-	exit(TModuleLoadITem(iModuleLoadList.GetPtrByName(nil,ParName)));
+	exit(TModuleLoadITem(iModuleLoadList.GetItemByString(nil,ParName)));
 end;
 
 constructor TObjectStream.Create;

@@ -198,7 +198,8 @@ const
 	Err_Array_Expected            =1184;
 	Err_Write_Rtn_Only_In_V_Class = 1185;
 	Err_Invalid_Number	  	 	   = 1186;
-
+	Err_Error_in_lib_info         = 1187;
+	Err_Link_Name_Unkown          = 1188;
 
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
@@ -605,7 +606,7 @@ begin
 		Err_Rtn_Requires_Main		 : vlMsg := 'Routine requires main';
 		Err_Cant_Use_Private_Ident	 : vlMsg := 'Can''t use a private identifier here';
 		Err_Routine_Has_Allready_forw: vlMsg := 'Routine has allready a forward section';
-		Err_Not_A_String_Constant	 : vlMsg := 'Not a string constant';
+		Err_Not_A_String_Constant	 : vlMsg := 'Not a string type expression';
 		Err_Wrong_External_Type		 : vlMsg := 'Wrong external type';
 		Err_Wrong_Calling_Type		 : vlMsg := 'Wrong Calling type';
 		Err_Unkown_COnfig_Variable	 : vlMsg := 'Unkown config variable';
@@ -663,6 +664,9 @@ begin
 		Err_Variable_Not_Used        : vlMsg := 'Variabel is not used';
 		Err_Write_Rtn_Only_In_V_Class: vlmsg := 'Write routine can only be used in value classes';
 		Err_Invalid_Number           : vlMsg := 'Conversion string => number returned Invalid number';
+		Err_Error_in_Lib_Info        : vlMsg := 'Error in link info file';
+		Err_Link_Name_Unkown         : vlMsg := 'Unkown link info name';
+
 
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';

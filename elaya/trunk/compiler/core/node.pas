@@ -225,7 +225,7 @@ end;
 
 function  TSecCreator.AddStringConstant(const ParStr : string):longint;
 begin
-	exit(iStringList.AddString(ParStr));
+	exit(iStringList.AddStringItem(ParStr));
 end;
 
 procedure TSecCreator.ProduceStringConstantSection(ParCre : TCreator);

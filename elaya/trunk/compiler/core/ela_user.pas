@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit ela_user;
 interface
 uses doperfun,largenum,confnode,progutil,module,compbase,initstrm,cmp_base,stdobj,cblkbase,
-error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,
+error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,linkobj,
 cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,elacons,procs,classes,exprdigi,stmnodes;
 	
 type	TEla_User=class(TCompiler_Base)
@@ -29,8 +29,10 @@ type	TEla_User=class(TCompiler_Base)
 		voOwnConfig       : boolean;
 		voPrvConfigValues : TConfigValues;
 		voDestroyCfgVal   : boolean;
+		voLinkObjList     : TLinkObjList;
 		
 	protected
+		property iLinkObjList     : TLinkObjList  read voLinkObjList     write voLinkObjList;
 		property iOwnConfig       : boolean       read voOwnConfig       write voOwnConfig;
 		property iPrvConfigValues : TConfigValues read voPrvConfigValues write voPrvConfigValues;
 		property iNdCreator	  : TNDCreator	  read voNDCreator	 write voNDCreator;
@@ -65,7 +67,7 @@ public
 	procedure  GetConfigFileName(var ParName : string); virtual;
 	procedure  Save;override;
 	procedure  EndIdent;
-	function   CreateExternalInterface(ParName : TString;ParType :TExternalType;ParHAsAt : boolean;ParAt: longint):TExternalInterface;
+	function   CreateExternalInterface(const ParName : string;ParHAsAt : boolean;ParAt: longint;var ParCDecl : boolean):TExternalInterface;
 	procedure  CreateExternalInterfaceObject(ParCDecl:boolean;ParRoutine :TRoutine;
 	ParExt : TExternalInterface;var ParName : TString);
 	function  ProcessRoutineItem(var ParRoutine   : TRoutine;
@@ -142,6 +144,7 @@ public
 	function HandleDotOperator(ParDigi : TDigiItem;const ParIdent : string) : TDotOperDigiItem;
 	procedure DoPropertyDefinition(ParName : string;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
 	procedure HandleWriteStatement(ParExpr : TFormulaNode;const ParName : string;ParRoutine,Parowner : TDefinition;ParNode : TSubListStatementNode);
+	procedure ReadLinkInfo(const ParFile : string;ParList : TLinkObjList);
 
 end;
 
@@ -1000,7 +1003,9 @@ var vlCOnfigFile:string;
 	vlCfgParser : TCfg_Parser;
 	vlError     : TErrorType;
 	vlName      : string;
-	vlPath : string;
+	vlPath		: string;
+	vlCnt       : cardinal;
+	vlList      : TLinkObjList;
 begin
 	vlError := ERR_No_Error;
 	iOwnConfig := (GetConfig = nil);
@@ -1027,19 +1032,28 @@ begin
 	end;
 	if vlError = ERR_No_Error then begin
 		try
-		if GetConfig <> nil then begin
-			iPrvConfigValues := SetConfigValues(GetOptionValues.CloneValues);
-			iDestroyCfgVal := true;
-			fFileName.GetString(vlName);
-			GetConfigValues.SetInputFile(vlName,cl_manual);
-			GetConfig.SetValues(GetConfigValues);
-			
+			if GetConfig <> nil then begin
+				iPrvConfigValues := SetConfigValues(GetOptionValues.CloneValues);
+				iDestroyCfgVal := true;
+				fFileName.GetString(vlName);
+				GetConfigValues.SetInputFile(vlName,cl_manual);
+				GetConfig.SetValues(GetConfigValues);    {TODO name is wrong}
+
+			end;
+			except
+				on vlE:EFailed do ErrorText(Err_Error,vlE.Message);
+				on vlE:EConfig do ErrorText(Err_Interp_Config,vlE.Message);
 		end;
-		except
-		on vlE:EFailed do ErrorText(Err_Error,vlE.Message);
-		on vlE:EConfig do ErrorText(Err_Interp_Config,vlE.Message);
 	end;
-end;
+
+	vlCnt := 0;
+   vlList := TLinkObjList.Create;
+	while GetConfigValues.GetLinkInfoFile(vlCnt,vlName) do begin
+		ReadLinkInfo(vlName,vlList);
+		inc(vlCnt);
+	end;
+	iLinkObjList := vlList;
+
 end;
 
 
@@ -1055,6 +1069,7 @@ begin
 	inherited commonsetup;
 	fFileName.GetString(vlFileName);
 	iPrvConfigValues := nil;
+	iLinkObjList:= nil;
 	iDestroyCfgVal   := false;
 	InitConfig;
 	SetNDCreator(TNDCreator.Create(vlFileName,self));
@@ -1077,6 +1092,7 @@ procedure TEla_User.Clear;
 var vlOldConfigValues : TConfigValues;
 begin
 	inherited clear;
+	if iLinkObjList <> nil then iLinkObjList.Destroy;
 	if iDestroyCfgVal then begin
 		vlOldConfigValues := SetConfigValues(iPrvConfigValues);
 		if vlOldConfigValues <> nil then vlOldConfigValues.Destroy;
@@ -1132,29 +1148,44 @@ begin
 	ParRoutine.SetIsDefined;
 end;
 
-function  TELa_User.CreateExternalInterface(ParName : TString;ParType :TExternalType;ParHAsAt : boolean;ParAt: longint):TExternalInterface;
+function  TELa_User.CreateExternalInterface(const ParName : string;ParHAsAt : boolean;ParAt: longint;var ParCdecl : boolean):TExternalInterface;
 var
 	vlInter : TExternalInterface;
 	vlTYpe  : TExternalType;
+	vlInfo  : TLInkObjItem;
+	vlFileName : TString;
 begin
 	vlInter := nil;
-	vlType  := ParType;
-   if ParName = nil then ParName := TString.Create('');{TODO ParName=>vlName and ''=some descriptive name}
-	case ParType of
-		ET_Linked : vlInter := TExternalObjectFileInterface.Create(ParName);
+	vlInfo  := nil;
+	if iLinkObjList <> nil then vlInfo := iLinkObjList.GetItemByName(ParName);
+	if(vlInfo <> nil) then begin
+		vlType := vlInfo.fType;
+		vlFileName := vlInfo.fFile.NewString;
+      ParCDecl := vlInfo.fCDecl;
+	end else begin
+		ErrorText(Err_Link_Name_Unkown,ParName);
+		vlType := ET_Linked;
+      vlFileName := TString.Create('');
+		ParCDecl := false;
+	end;
+
+	case vlType of
+		ET_Linked : vlInter := TExternalObjectFileInterface.Create(vlFileName);
 		ET_Dll    : if GetConfigValues.fCanUseDll then begin
-			vlInter := TExternalLibraryInterfaceWindows.Create(ParName);
+			vlInter := TExternalLibraryInterfaceWindows.Create(vlFileName);
 		end;
 	end;
 
+
+
     if vlInter = nil then begin
     	SemError(Err_Feature_Not_Possible);
-    	vlInter := TExternalObjectFileInterface.Create(ParName);
+    	vlInter := TExternalObjectFileInterface.Create(vlFileName);
     	vlType := ET_Linked;
      end;
 
      case vlType of
-       ET_Linked : AddObjectFile(ParName.NewString,false,ParHasAt,ParAt);
+       ET_Linked : AddObjectFile(vlFileName.NewString,false,ParHasAt,ParAt);
      end;
 
      AddIdent(vlInter);
@@ -1301,6 +1332,133 @@ begin
 	vlNode.AddNode(ParNewPar);
 	SetNodePos(vlNode);
 	ParPrvPar := vlNode;
+end;
+
+procedure TEla_User.ReadLinkInfo(const ParFile : string;ParList : TLinkObjList);
+var
+	vlFile     : file;
+	vlError    : longint;
+	vlBuffer   : pchar;
+	vlSize     : longint;
+	vlScan     : pchar;
+	vlName     : string;
+	vlFileName :string;
+	vlCDecl    : string;
+	vlCDeclFlag : boolean;
+	vlLine      : cardinal;
+	vlPrv       : char;
+	vlType      : TExternalType;
+	vlTypeStr   : string;
+   vlLastNl    : pchar;
+
+	function MakeErrorString(ParMsg : string):string;
+	var
+			vlLineStr: string;
+			vlColStr : string;
+	begin
+			Str(vlScan - vlLastNl,vlColStr);
+			Str(vlLine,vlLineStr);
+			exit(ParMsg + ' in line ' + vlLineStr+' col '+vlColStr);
+	end;
+
+
+	procedure  GetNextString(var ParResult : string) ;
+	begin
+		EmptyString(ParResult);
+		while(vlScan^ in [#9,#32]) do inc(vlScan);
+  	 if(vlScan^=#39) then begin
+			inc(vLScan);
+  		   while(vlScan^ <> #39)  and (vlScan^ <> #0)do begin
+				ParResult := ParResult + vlScan^;
+				inc(vlScan);
+			end;
+			if (vlScan^ <> #0) then inc(vlScan);
+		end else if vlScan^ in ['a'..'z','A'..'Z','_','0'..'9']  then begin
+     	 while (vlScan^ in ['a'..'z','A'..'Z','_','0'..'9']) do begin
+				ParResult := ParResult + vlScan^;
+				inc(vlScan);
+			end;
+		end else begin
+			ParResult := vlScan^;
+			inc(vlScan);
+		end;
+	end;
+
+
+begin
+	assign(vlFile,ParFile);
+	reset(vlFile,1);
+ 	vlError := ioresult;
+	if vlError =2 then exit;
+	if vlError <> 0 then begin
+		exit;
+	end;
+	vlSize := FileSize(vlFile);
+	if vlSize = 0 then begin
+		close(vlFile);
+		exit;
+	end;
+	getmem(vlBuffer,vlSize + 1);
+	blockread(vlFile,vlBuffer^,vlSize);
+	close(vlFile);
+
+	vlLastNl := vlBuffer;
+	vlBuffer[vlSize] := #0;
+	vlScan := vlBuffer;
+	vlLine := 1;
+	while vlScan^ <> #0 do begin
+		EmptyString(vlName);
+		GetNextString(vlName);
+		if(vlScan^ = #0) then begin
+			Error(Err_Error_In_Lib_Info,0,0,0,MakeErrorString('Filename expected'));
+			break;
+		end;
+		UpperStr(vlName);
+		GetNextString(vlFileName);
+		if(vlScan^ = #0) then begin
+			Error(Err_Error_In_Lib_Info,0,0,0,MakeErrorString('File type expected'));
+			break;
+		end;
+		GetNextString(vlTypeStr);
+		UpperStr(vlTypeStr);
+		if vlTypeStr= 'LINKED' then vlType := ET_Linked else
+		if vlTypeStr= 'DLL' then vlType  := ET_DLL else begin
+			Error(Err_Error_In_Lib_Info,0,0,0,MakeErrorString('"Linked" or "DLL" expected and not "'+vlTypeStr+'" '));
+			break;
+		end;
+
+		GetNextString(vlCDecl);
+		vlCDeclFlag := false;
+		if(vlCDecl <> ';') then begin
+			upperstr(vlCDecl);
+      	if  vlCDecl <> 'CDECL' then begin
+				Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('"CDecl" or ";" expected'));
+				break;
+			end else begin
+				vlCDeclFlag := true;
+			end;
+
+			GetNextString(vlCDecl);
+   	end;
+
+		if(vLCDecl <> ';') then begin
+				Error (Err_Error_In_Lib_Info,0,0,0,MakeErrorString('";" expected'));
+   			break;
+		end;
+      ParList.AddObject(vlName,vlFileName,vlType,vlCdeclFlag);
+
+		vlPrv := #0;
+		while (vlScan^ <> #0) and (vlScan^ in [#32,#9,#13,#10]) do begin
+         if (vlScan^ = #13) or (vlScan^ = #10) then begin
+					if ((vlPrv <>#13 ) or (vlScan^ <> #10))  and  ((vlPrv <>  #10) or (vlScan^ <> #13))  then inc(vlLine);
+				 	vlLastNl := vlScan;
+			end;
+			vlPrv := vlScan^;
+			inc(vlScan);
+		end;
+
+	end;
+	freemem(vlBuffer,vlSize+1);
 end;
 
 

@@ -114,8 +114,8 @@ type
 		function    Successful:boolean;
 	end;
 	
-		TNameItem=class(TSMTextItem);
-		TNameList=class(TSMTextList)
+		TNameItem=class(TSmStringItem);
+		TNameList=class(TSmStringList)
 		public
 			procedure AddName(const ParName:string);
 		end;

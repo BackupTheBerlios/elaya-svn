@@ -92,11 +92,6 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RArrayRangeDef ( var ParLo,ParHi:TArrayIndex);
       Procedure _RNum_Or_Const_2 ( var ParVal:TValue);
       Procedure _RConstantDecl;
-      Procedure _RConstantStringIdent ( var ParValue : TString);
-      Procedure _RConstantStringValue ( var ParValue : TString);
-      Procedure _RConstantStringFact ( var ParString : TString);
-      Procedure _RConstantStringAdd ( var ParString : TString);
-      Procedure _RConstantStringExpr ( var ParString : TString);
       Procedure _RH_Type ( var ParType:TType);
       Procedure _RNum_Or_Const ( var ParVal:TValue;var ParValid : boolean);
       Procedure _RDirectFact ( var ParVal:TValue;var ParValid:boolean);
@@ -105,6 +100,7 @@ TELA_Parser=class(TELA_scanner)
       Procedure _RDirectAdd ( var ParVal:TValue;var ParValid:boolean);
       Procedure _RDirectLogic ( var ParVal : TValue;var ParValid:boolean);
       Procedure _RDirectExpr ( var ParVal:TValue);
+      Procedure _RDirectTString ( var ParStr : TString);
       Procedure _RNumberConstant ( var ParValue : TValue;var ParValid : boolean);
       Procedure _RStringConstant ( var ParValue : TValue);
       Procedure _RDirectNumber ( var ParNum:TNumber);
@@ -2725,9 +2721,7 @@ begin
                         end
                         ;end;
                   _RNumberConstant( ParVal,vlValid);
-                   
-                  	if vlNeg then ParVal.neg;
-                  ;
+                   if vlNeg then CalculationStatusToError(ParVal.neg);;
             end
              else if (GetSym in [2 , 6 , 25]) then begin
                   _RStringConstant( ParVal);
@@ -2767,77 +2761,6 @@ begin
             vlVal.destroy;
             vlNameList.destroy;
             ;
-      end;
-      
-      Procedure TELA_Parser._RConstantStringIdent ( var ParValue : TString);
-       
-      var
-      	vlConst : TConstant;
-      
-      begin
-            _RIdentObj( TDefinition(vlConst));
-             
-            ParValue := nil;
-            if (vlConst <> nil) then begin
-            	if((vlConst is TConstant)) then begin
-            		ParValue := TString(vlConst.fVal.Clone);
-            		if ParValue.fType <> vt_String then ErrorDef(Err_Not_A_String_Constant,vlConst);
-            	end else begin
-            		ErrorDef(Err_Not_A_String_COnstant,vlConst);
-            	end;
-            end;
-            if ParValue = nil then ParValue := TString.Create('');
-            ;
-      end;
-      
-      Procedure TELA_Parser._RConstantStringValue ( var ParValue : TString);
-      begin
-            _RStringConstant( ParValue);
-      end;
-      
-      Procedure TELA_Parser._RConstantStringFact ( var ParString : TString);
-      begin
-              ParString := nil; ;
-            if (GetSym in [2 , 6 , 25]) then begin
-                  _RConstantStringValue( ParString);
-            end
-             else if (GetSym = 1) then begin
-                  _RConstantStringIdent( ParString);
-            end
-             else if (GetSym = 103) then begin
-                  Get;
-                  _RConstantStringExpr( ParString);
-                  Expect(104);
-            end
-            else begin
-                  SynError(149);
-            end;
-            ;end;
-      
-      Procedure TELA_Parser._RConstantStringAdd ( var ParString : TString);
-       
-      var
-      	vlValue : TString;
-      
-      begin
-            _RConstantStringFact( ParString);
-            WHILE (GetSym = 105) do begin
-                  Get;
-                  _RConstantStringFact( vlValue);
-                   
-                  if  vlValue <> nil then begin
-                  	if (ParString <> nil) then begin
-                  		CalculationStatusToError(ParString.Add(vlValue));
-                  	end;
-                  	vlValue.Destroy;
-                  end;
-                  ;
-            end;
-      end;
-      
-      Procedure TELA_Parser._RConstantStringExpr ( var ParString : TString);
-      begin
-            _RConstantStringAdd( ParString);
       end;
       
       Procedure TELA_Parser._RH_Type ( var ParType:TType);
@@ -2885,7 +2808,7 @@ begin
                   _RStringConstant( ParVal);
             end
             else begin
-                  SynError(150);
+                  SynError(149);
             end;
             ; 
             if ParVal = nil then begin
@@ -2915,7 +2838,8 @@ begin
                   _INil;
                    
                   	ParVal := TPointer.Create;
-                      TPointer(ParVal).SetPointer(0);
+                    TPointer(ParVal).SetPointer(0);
+                  	ParValid := true;
                   ;
             end
              else if (GetSym = 60) then begin
@@ -2935,8 +2859,9 @@ begin
                   _RH_Type( vlType);
                   Expect(104);
                    
+                  	ParValid := true;
                   	if vlType <> nil then begin
-                  		vlNum := vlType.fSize
+                  		vlNum := vlType.fSize;
                   	end  else begin
                   		vlNum := 0;
                   		ParValid := false;
@@ -2945,7 +2870,7 @@ begin
                   ;
             end
             else begin
-                  SynError(151);
+                  SynError(150);
             end;
             ;  if ParVal = nil then ParVal := (TLongint.Create(1));;
       end;
@@ -2957,10 +2882,7 @@ begin
       	vlValid :boolean;
       
       begin
-             
-            vlNeg := false;
-            ParValid := true;
-            ;
+              vlNeg := false; ;
             WHILE (GetSym in [105 , 106]) do begin
                   if (GetSym = 106) then begin
                         Get;
@@ -2989,9 +2911,6 @@ begin
       	vlValid : boolean;
       
       begin
-             
-            	ParValid := true;
-            ;
             _RDirectNeg( ParVal,ParValid);
             WHILE (GetSym in [34 , 56 , 107]) do begin
                   if (GetSym = 107) then begin
@@ -3095,7 +3014,9 @@ begin
       	vlValid: boolean;
       
       begin
-              vlVal := nil; ;
+             
+            vlVal := nil;
+            ;
             _RDirectAdd( ParVal,ParValid);
             WHILE (GetSym in [14 , 64 , 102]) do begin
                   if (GetSym = 14) then begin
@@ -3144,6 +3065,16 @@ begin
             _RDirectLogic( ParVal,vlValid);
       end;
       
+      Procedure TELA_Parser._RDirectTString ( var ParStr : TString);
+      begin
+            _RDirectExpr( ParStr);
+             
+            	if ParStr <> nil then begin
+            		if not(ParStr is TString) then SemError(Err_Not_A_String_Constant);
+            	end;
+            ;
+      end;
+      
       Procedure TELA_Parser._RNumberConstant ( var ParValue : TValue;var ParValid : boolean);
        
       var
@@ -3175,7 +3106,7 @@ begin
                    ParValue := TString.Create(vlStr);;
             end
             else begin
-                  SynError(152);
+                  SynError(151);
             end;
             ;end;
       
@@ -3713,7 +3644,7 @@ begin
                   _IEnd;
             end
             else begin
-                  SynError(153);
+                  SynError(152);
             end;
             ;Expect(8);
              
@@ -3768,7 +3699,7 @@ begin
       vlHasAt   : boolean;
       vlHasses  : cardinal;
       vlExType : TString;
-      vlName    : TString;
+      vlName    : String;
       vlCDeclTxt: TString;
       vlStr     : string;
       
@@ -3776,59 +3707,18 @@ begin
              
             vlHasAt := false;
             vlAt    := 0;
-            vlType  := ET_Error;
+            vlType  := ET_Linked;
             vlCDecl := false;
             vlCDeclTxt := nil;
             ;
             _IExternal;
-            _RConstantStringExpr( vlExType);
-             
-            		vlType := ET_Error;
-            		if vlExType <> nil then begin
-            			vlExType.ToUpper;
-            			if vlExType.IsEqualStr(Ext_Linked) then vlType := ET_Linked;
-            			if vlExType.IsEqualStr(Ext_Dll) then vlType := ET_Dll;
-            		end;
-            		if vlType = ET_Error then begin
-            			vlType := ET_Linked;
-            			EmptyString(vlStr);
-            			if (vlExType <> nil) then vlExType.GetString(vlStr);
-            			ErrorText(Err_Wrong_External_Type,vlStr);
-            		end;
-            		if(vlExType <> nil) then vlExType.Destroy;
-            	;
+            _RIdent( vlName);
             if (GetSym = 19) then begin
                   _IAt;
                   _RDirectCardinal( vlAt);
                     vlHasAt := true; ;
             end;
-            _RConstantStringExpr( vlName);
-             
-            			vlExt := CreateExternalInterface(vlName,vlType,vlHasAt,vlAt);
-            		;
-            if vgDynSet[15].isSet(GetSym) then begin
-                  if (GetSym = 24) then begin
-                        _ICDecl;
-                          vlCDecl := true;;
-                  end
-                   else begin
-                        _RConstantStringExpr( vlCDeclTxt);
-                         
-                        				if vlCDeclTxt <> nil then begin
-                        					vlCDeclTxt.ToUpper;
-                        					if vlCDeclTxt.IsEqualStr(Ext_Normal) then begin
-                        						vlCDecl := false
-                        					end else if vlCDeclTxt.IsEqualStr(Ext_CDecl) then begin
-                        						vlCDecl := true;
-                        					end else begin
-                        						vlCDeclTxt.GetString(vlStr);
-                        						ErrorText(Err_Wrong_Calling_Type,vlStr);
-                        					end;
-                        					vlCDeclTxt.Destroy;
-                        				end;
-                        			;
-                  end
-                  ;end;
+             	vlExt := CreateExternalInterface(vlName,vlHasAt,vlAt,vlCDecl);	;
             WHILE (GetSym in [47 , 68]) do begin
                   if (GetSym = 68) then begin
                         _RProcedureHead( vlRoutine,vlHasses);
@@ -3837,7 +3727,7 @@ begin
                         _RFunctionHead( vlRoutine,vlHasses);
                   end
                   ;_IName;
-                  _RConstantStringExpr( vlIdent);
+                  _RDirectTString( vlIdent);
                   Expect(8);
                    
                          if vlRoutine <>  nil then begin
@@ -3862,7 +3752,7 @@ begin
                   _RAlign;
             end
             else begin
-                  SynError(154);
+                  SynError(153);
             end;
             ;WHILE (GetSym in [1 , 12]) do begin
                   if (GetSym = 1) then begin
@@ -3924,7 +3814,7 @@ begin
                   fNDCreator.fInPublicSection  := true;
                   fNDCreator.fCUrrentDefAccess := AF_Public;
                   ;
-                  WHILE vgDynSet[16].isSet(GetSym) do begin
+                  WHILE vgDynSet[15].isSet(GetSym) do begin
                         if (GetSym = 88) then begin
                               _RTypeBlock;
                         end
@@ -3951,14 +3841,14 @@ begin
             if not(fNDCreator.GetIsUnitFlag) and (vlHasPublic) then SemError(Err_Prog_Cant_Have_Pubs) else
             if fNDCreator.GetIsUnitFlag and not(vlHasPublic) then SemError(Err_Unit_Must_Have_Pubs);
             ;
-            WHILE vgDynSet[16].isSet(GetSym) do begin
+            WHILE vgDynSet[15].isSet(GetSym) do begin
                   if (GetSym = 88) then begin
                         _RTypeBlock;
                   end
                    else if (GetSym = 94) then begin
                         _RVarBlock;
                   end
-                   else if vgDynSet[17].isSet(GetSym) then begin
+                   else if vgDynSet[16].isSet(GetSym) then begin
                         _RRoutine;
                   end
                    else if (GetSym = 42) then begin
@@ -3984,7 +3874,7 @@ begin
                     if (not fNDCreator.GetIsUnitFlag) then SemError(Err_Program_Needs_Main); ;
             end
             else begin
-                  SynError(155);
+                  SynError(154);
             end;
             ;Expect(7);
              
@@ -4016,7 +3906,7 @@ begin
                   _IProgram;
             end
             else begin
-                  SynError(156);
+                  SynError(155);
             end;
             ;Expect(8);
       end;
@@ -4044,7 +3934,7 @@ begin
              
             ParType := nil;
             ;
-            if vgDynSet[18].isSet(GetSym) then begin
+            if vgDynSet[17].isSet(GetSym) then begin
                   if (GetSym = 1) then begin
                         _RH_Type( ParType);
                   end
@@ -4058,7 +3948,7 @@ begin
                     AddAnonItem(ParType); ;
             end
             else begin
-                  SynError(157);
+                  SynError(156);
             end;
             ;end;
       
@@ -4200,7 +4090,7 @@ begin
                   _RHex_Number( ParNum,ParValid);
             end
             else begin
-                  SynError(158);
+                  SynError(157);
             end;
             ; 
             	if not(ParValid) then SemError(Err_Invalid_Number);
@@ -4261,7 +4151,7 @@ begin
                   _RConfigVar( ParString);
             end
             else begin
-                  SynError(159);
+                  SynError(158);
             end;
             ;end;
       
@@ -4476,24 +4366,22 @@ begin
                   			+'ected';
                   		148: ParErr :='Invalid identifier:"-","+",binary number ,hexidecimal number'
                   			+',integer number,"CHARTYPE","&",string expected';
-                  		149: ParErr :='Invalid string constant:"CHARTYPE","&",string,identifier,"("'
-                  			+' expected';
-                  		150: ParErr :='Invalid identifier:binary number ,hexidecimal number,integer'
+                  		149: ParErr :='Invalid identifier:binary number ,hexidecimal number,integer'
                   			+' number,identifier,"CHARTYPE","&",string expected';
-                  		151: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
+                  		150: ParErr :='Invalid formula:"CHARTYPE","&",binary number ,hexidecimal nu'
                   			+'mber,integer number,string,identifier,"(","NIL","NOT","SIZEO'
                   			+'F" expected';
-                  		152: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
-                  		153: ParErr :='Invalid routine:"BEGIN","END" expected';
-                  		154: ParErr :='Invalid type declaration:identifier,"ALIGN" expected';
-                  		155: ParErr :='Invalid program definition:"BEGIN","END" expected';
-                  		156: ParErr :='Invalid module type specification:"UNIT","PROGRAM" expected';
-                  		157: ParErr :='Invalid type definition:"UNION","STRING","RECORD","PTR","NUM'
+                  		151: ParErr :='Invalid string constant:"CHARTYPE","&",string expected';
+                  		152: ParErr :='Invalid routine:"BEGIN","END" expected';
+                  		153: ParErr :='Invalid type declaration:identifier,"ALIGN" expected';
+                  		154: ParErr :='Invalid program definition:"BEGIN","END" expected';
+                  		155: ParErr :='Invalid module type specification:"UNIT","PROGRAM" expected';
+                  		156: ParErr :='Invalid type definition:"UNION","STRING","RECORD","PTR","NUM'
                   			+'BER","ASCIIZ","ARRAY",identifier,"PROCEDURE","OBJECT","FUNCT'
                   			+'ION" expected';
-                  		158: ParErr :='Invalid number:integer number,binary number ,hexidecimal num'
+                  		157: ParErr :='Invalid number:integer number,binary number ,hexidecimal num'
                   			+'ber expected';
-                  		159: ParErr :='Invalid string:string,"&" expected';
+                  		158: ParErr :='Invalid string:string,"&" expected';
             end;
       end;
       
@@ -4519,10 +4407,9 @@ begin
       vgSetFill12:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
       vgSetFill13:ARRAY[1..7] of cardinal=(1,2,3,4,5,6,25);
       vgSetFill14:ARRAY[1..11] of cardinal=(28,33,47,63,68,70,71,72,88,94,97);
-      vgSetFill15:ARRAY[1..6] of cardinal=(1,2,6,24,25,103);
-      vgSetFill16:ARRAY[1..10] of cardinal=(27,28,33,42,47,63,68,88,94,97);
-      vgSetFill17:ARRAY[1..6] of cardinal=(28,33,47,63,68,97);
-      vgSetFill18:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
+      vgSetFill15:ARRAY[1..10] of cardinal=(27,28,33,42,47,63,68,88,94,97);
+      vgSetFill16:ARRAY[1..6] of cardinal=(28,33,47,63,68,97);
+      vgSetFill17:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
       
       
       procedure TELA_Parser.Commonsetup;
@@ -4552,7 +4439,6 @@ begin
                   vgDynSet[15].SetByArray(vgSetFill15);
                   vgDynSet[16].SetByArray(vgSetFill16);
                   vgDynSet[17].SetByArray(vgSetFill17);
-                  vgDynSet[18].SetByArray(vgSetFill18);
             end;
       end;
 end

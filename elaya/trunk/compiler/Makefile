@@ -14,7 +14,7 @@ all: dep all_lib
 dep:dep_info
 
 dep_info:  $(dep_files)
-	$(ELADEP_CMD) -m lib -i objects -i dos -i strings -i sysutils -p $(dep_files) -u bin/ -c LIB_FPC -s .pas -e $(pp_unit_ext) >dep_info
+	$(ELADEP_CMD) -m lib -i objects -i dos -i strings -i sysutils -p $(dep_files) -u bin/ -c LIB_FPC -s .pas -e $(pp_unit_ext) -o dep_info
 
 
 clean:

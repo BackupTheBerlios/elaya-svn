@@ -12,7 +12,7 @@ RExternal:"external definition"
 	vlHasAt   : boolean;
 	vlHasses  : cardinal;
 	vlExType : TString;
-	vlName    : TString;
+	vlName    : String;
 	vlCDeclTxt: TString;
 	vlStr     : string;
 .)
@@ -20,55 +20,21 @@ RExternal:"external definition"
 (.
    vlHasAt := false;
    vlAt    := 0;
-   vlType  := ET_Error;
+   vlType  := ET_Linked;
    vlCDecl := false;
    vlCDeclTxt := nil;
 .)
-IExternal  RConstantStringExpr<vlExType>
-		(.
-			vlType := ET_Error;
-			if vlExType <> nil then begin
-				vlExType.ToUpper;
-				if vlExType.IsEqualStr(Ext_Linked) then vlType := ET_Linked;
-				if vlExType.IsEqualStr(Ext_Dll) then vlType := ET_Dll;
-			end;
-			if vlType = ET_Error then begin
-				vlType := ET_Linked;
-				EmptyString(vlStr);
-				if (vlExType <> nil) then vlExType.GetString(vlStr);
-				ErrorText(Err_Wrong_External_Type,vlStr);
-			end;
-			if(vlExType <> nil) then vlExType.Destroy;
-		.)
+IExternal
 
-           [IAt RDirectCardinal<vlAt> (. vlHasAt := true; .)]
-           RConstantStringExpr<vlName>
-			(.
-				vlExt := CreateExternalInterface(vlName,vlType,vlHasAt,vlAt);
- 			.)
+ RIdent<vlName>
+   [IAt  RDirectCardinal<vlAt> (. vlHasAt := true; .)]
 
-        [(ICDecl			      (. vlCDecl := true;.))
-        |(RConstantStringExpr<vlCDeclTxt>
-				(.
-					if vlCDeclTxt <> nil then begin
-						vlCDeclTxt.ToUpper;
-						if vlCDeclTxt.IsEqualStr(Ext_Normal) then begin
-							vlCDecl := false
-						end else if vlCDeclTxt.IsEqualStr(Ext_CDecl) then begin
-							vlCDecl := true;
-						end else begin
-							vlCDeclTxt.GetString(vlStr);
-							ErrorText(Err_Wrong_Calling_Type,vlStr);
-						end;
-						vlCDeclTxt.Destroy;
-					end;
-				.)
-	)
-	]
+	 (.	vlExt := CreateExternalInterface(vlName,vlHasAt,vlAt,vlCDecl);	.)
+
+
 	{(((RProcedureHead<vlRoutine,vlHasses>)
 	|(RFunctionHead<vlRoutine,vlHasses>) )
-           IName
-           RConstantStringExpr<vlIdent> ";"
+           IName RDirectTString<vlIdent> ";"
 		(.
             if vlRoutine <>  nil then begin
 				fNDCreator.EndIdentNum(vlHasses);

@@ -60,6 +60,17 @@ RStructDirectExpr<ParValue : TStructValue;ParType : TType>
 .
 *)
 
+RDirectTString<var ParStr : TString>
+=
+	RDirectExpr<ParStr>
+	(.
+		if ParStr <> nil then begin
+			if not(ParStr is TString) then SemError(Err_Not_A_String_Constant);
+		end;
+	.)
+.
+
+
 RDirectNumber<var ParNum:TNumber>
 (.
 	var
@@ -111,7 +122,9 @@ RDirectLogic<var ParVal : TValue;var ParValid:boolean>
 		vlValid: boolean;
 .)
 =
-(. vlVal := nil; .)
+(.
+	vlVal := nil;
+.)
 RDirectAdd<ParVal,ParValid>
 {((IAnd RDirectAdd<vlVal,vlValid>
 (.
@@ -154,6 +167,7 @@ RDirectAdd<var ParVal:TValue;var ParValid:boolean>
 .)
 
 =
+
 RDirectMul<ParVal,ParValid>
 {(('+' RDirectMul<vlVal,vlValid>
 (.
@@ -205,10 +219,6 @@ RDirectMul<var ParVal:TValue;var ParValid:boolean>
 		vlValid : boolean;
   .)
 =
-(.
-		ParValid := true;
-.)
-
 RDirectNeg<ParVal,ParValid>
 {(('*' RDirectNeg<vlval,vlValid>
 (.
@@ -251,14 +261,13 @@ RDirectNeg<var ParVal : TValue;var ParValid : boolean>
 		vlValid :boolean;
 .)
 =
-(.
-	vlNeg := false;
-   ParValid := true;
-.)
+(. vlNeg := false; .)
+
 {('-'				 (. vlNeg := true; .))
 |('+')
 }
- RDirectFact<ParVal,vlValid>
+
+RDirectFact<ParVal,vlValid>
 (.
 	if(vlValid) then begin
 		if vlNeg then  begin
@@ -288,7 +297,8 @@ RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 |(INil
 	(.
 		ParVal := TPointer.Create;
-        TPointer(ParVal).SetPointer(0);
+      TPointer(ParVal).SetPointer(0);
+		ParValid := true;
 	.)
 )
 |(INot "(" RDirectLogic<ParVal,ParValid> ")"
@@ -300,8 +310,9 @@ RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 
 |(ISizeOf "(" RH_Type<vlType> ")"
 	(.
+		ParValid := true;
 		if vlType <> nil then begin
-			vlNum := vlType.fSize
+			vlNum := vlType.fSize;
 		end  else begin
 			vlNum := 0;
 			ParValid := false;
@@ -315,65 +326,6 @@ RDirectFact:"formula"<var ParVal:TValue;var ParValid:boolean>
 
 (*===( Constant String Expr )==================================================*)
 
-RConstantStringExpr<var ParString : TString>
-=
-	RConstantStringAdd<ParString>
-.
-
-RConstantStringAdd<var ParString : TString>
-(.
-	var
-		vlValue : TString;
-.)
-=
-  RConstantStringFact<ParString>
-{"+" RConstantStringFact<vlValue>
-(.
-	if  vlValue <> nil then begin
-		if (ParString <> nil) then begin
-			CalculationStatusToError(ParString.Add(vlValue));
-		end;
-		vlValue.Destroy;
-	end;
-.)
-}
-.
-
-
-RConstantStringFact:"string constant"<var ParString : TString>
-=
-					(. ParString := nil; .)
-( RConstantStringValue<ParString>
-|RConstantStringIdent<ParString>
-|("(" RConstantStringExpr<ParString> ")"))
-.
-
-RConstantStringValue:"string constant"<var ParValue : TString>
-=
-RStringConstant<ParValue>
-.
-
-
-RConstantStringIdent<var ParValue : TString>
-(.
-	var
-		vlConst : TConstant;
-.)
-=
-RIdentObj<TDefinition(vlConst)>
-(.
-	ParValue := nil;
-	if (vlConst <> nil) then begin
-		if((vlConst is TConstant)) then begin
-			ParValue := TString(vlConst.fVal.Clone);
-			if ParValue.fType <> vt_String then ErrorDef(Err_Not_A_String_Constant,vlConst);
-		end else begin
-			ErrorDef(Err_Not_A_String_COnstant,vlConst);
-		end;
-	end;
-	if ParValue = nil then ParValue := TString.Create('');
-.)
-.
 
 
 (*		      Constant Declaration			   *)
@@ -459,12 +411,8 @@ RNum_Or_Const_2:"identifier"<var ParVal:TValue>
 (
 
   (
-	[('-'  (. vlNeg := true; .))
-	|'+']
-	RNumberConstant<ParVal,vlValid>
-	(.
-		if vlNeg then ParVal.neg;
-	.)
+	[('-'  (. vlNeg := true; .)) |'+']
+	RNumberConstant<ParVal,vlValid> (.if vlNeg then CalculationStatusToError(ParVal.neg);.)
   )
 |RStringConstant<ParVal>
 )

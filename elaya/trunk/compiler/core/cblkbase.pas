@@ -1621,7 +1621,7 @@ type
 		vlCurrent := TNameItem(ParName.fStart);
 		if ParVirtual then  SetRoutineStates([RTS_HasVirtualParams],true);
 		while vlCurrent <> nil do begin
-			vlCurrent.GetTextStr(vlName);
+			vlCurrent.GetString(vlName);
 			vlError := GetParList.AddParam(ParCre,vlName,iParameterFrame,ParType,ParVar,Parconst,ParVirtual,vlParam);
 			if vlError <> Err_No_Error then ParCre.ErrorText(vlError,vlName);
 			vlCurrent := TNameItem(vlCurrent.fNxt);

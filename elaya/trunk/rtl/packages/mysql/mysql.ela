@@ -186,7 +186,7 @@ Function mysql_error(mysql : PMYSQL) : pasc;
 { Original functions }
 
 
-external &MySql_Lib_Type &MySql_Lib_Name &MySql_Lib_CallType
+external mysql
 function mysql_connect (mysql : PMYSQL; host,user,passwd: pasc) : PMYSQL; name 'mysql_connect';
 function mysql_real_connect (mysql : PMYSQL; const host,user,passwd : pasc;
 				   port : long;
