@@ -1,5 +1,5 @@
-{   ;dlib, Extetended Routine library.
-    Copyright (C) 1999-2003  J.v.Iddekinge.
+{   dlib, Extetended Routine library.
+    Copyright (C) 1999-2004  J.v.Iddekinge.
     Web   : www.elaya.org
 
     This program is free software; you can redistribute it and/or modify
@@ -199,7 +199,7 @@ procedure EScanParameters;
 		var
 			Option    : char;
 			SubOption : char;
-			Value     : string;
+			ArgValue     : string;
 
 		procedure SetError(ParError : long);
 		function GetError : long;
@@ -633,14 +633,14 @@ private
        if ParOpt = OM_Option then begin
           Option    := GetOption;
           SubOption := 0 as char;
-          Value.Length := 0;
+          ArgValue.Length := 0;
           vlStat := AtOption;
        end else if ParOpt = OM_SubOption then begin
           SubOption := GetSubOption;
-          Value.length := 0;
+          ArgValue.length := 0;
           vlStat := ATSubOption;
        end else if ParOpt = OM_Value then begin
-          Value := GetValue;
+          ArgValue := GetValue;
           vlStat := ATOptionValue;
        end;
        exit(vlStat);
@@ -675,7 +675,7 @@ private
   begin
        Option    := 0 as char;
        SubOption := 0 as char;
-       Value.length := 0;
+       ArgValue.length := 0;
        if IsOption(ParStr) then begin
            vlPos := 2;
            vlStat := OM_Option;

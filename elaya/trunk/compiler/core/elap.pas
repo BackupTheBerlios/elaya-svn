@@ -1041,7 +1041,7 @@ begin
        
       var
       	vlExpr : TFormulaNode;
-           vlNode : TForNode;
+         vlNode : TForNode;
       
       begin
               vlNode := (TForNode.Create); ;
@@ -1238,12 +1238,10 @@ begin
       Procedure TELA_Parser._RExit ( var ParNode:TNodeIdent);
        
       var
-      vlExp : TFormulaNode;
+      	vlExp : TFormulaNode;
       
       begin
-             
-            vlExp := nil;
-            ;
+             	vlExp := nil;;
             _IExit;
             if (GetSym = 103) then begin
                   Get;
@@ -1328,9 +1326,7 @@ begin
             end
              else if (GetSym = 98) then begin
                   _IWriteln;
-                   
-                  vlWritelnFlag := true;
-                  ;
+                    vlWritelnFlag := true; ;
             end
             else begin
                   SynError(131);

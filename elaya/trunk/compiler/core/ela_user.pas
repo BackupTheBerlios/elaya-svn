@@ -698,8 +698,8 @@ begin
 	vlParent  := nil;
 	vlIsWrite := false;
 	if ParRoutine <> nil then begin
-		if not(ParRoutine is TRoutine)then begin
-			SemError(ERR_Cant_Execute);
+		if not(ParRoutine.can([Can_Execute]))then begin
+			ErrorDef(ERR_Cant_Execute,ParRoutine);
 		end else begin
 			ParRoutine.GetTextStr(vlParentName);
 			fNDCreator.GetPtrByObject(vlParentName,ParDigi,vlParentOwner,vlParent);

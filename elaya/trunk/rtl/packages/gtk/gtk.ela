@@ -494,7 +494,7 @@ function  GTK_RETLOC_BOXED(const a : TGtkArg) : Pgpointer;
          end;
        PGtkEnumValue = ptr TGtkEnumValue;
        TGtkEnumValue = record
-            value : guint;
+            _value : guint;
             value_name : Pgchar;
             value_nick : Pgchar;
          end;
@@ -528,7 +528,7 @@ Type
           data : TGtkData;
           lower : gfloat;
           upper : gfloat;
-          value : gfloat;
+          _value : gfloat;
           step_increment : gfloat;
           page_increment : gfloat;
           page_size : gfloat;
@@ -4698,7 +4698,7 @@ function  gtk_spin_button_get_adjustment(spin_button:PGtkSpinButton):PGtkAdjustm
 procedure gtk_spin_button_set_digits(spin_button:PGtkSpinButton; digits:guint); name 'gtk_spin_button_set_digits';
 function  gtk_spin_button_get_value_as_float(spin_button:PGtkSpinButton):gfloat; name 'gtk_spin_button_get_value_as_float';
 function  gtk_spin_button_get_value_as_int(spin_button:PGtkSpinButton):gint; name 'gtk_spin_button_get_value_as_int';
-procedure gtk_spin_button_set_value(spin_button:PGtkSpinButton; value:gfloat); name 'gtk_spin_button_set_value';
+procedure gtk_spin_button_set_value(spin_button:PGtkSpinButton; _value:gfloat); name 'gtk_spin_button_set_value';
 procedure gtk_spin_button_set_update_policy(spin_button:PGtkSpinButton; policy:TGtkSpinButtonUpdatePolicy); name 'gtk_spin_button_set_update_policy';
 procedure gtk_spin_button_set_numeric(spin_button:PGtkSpinButton; numeric:gboolean); name 'gtk_spin_button_set_numeric';
 procedure gtk_spin_button_spin(spin_button:PGtkSpinButton; direction:TGtkSpinType; increment:gfloat); name 'gtk_spin_button_spin';
@@ -4812,15 +4812,15 @@ procedure gtk_progress_set_show_text(progress:PGtkProgress; show_text:gint); nam
 procedure gtk_progress_set_text_alignment(progress:PGtkProgress; x_align:gfloat; y_align:gfloat); name 'gtk_progress_set_text_alignment';
 procedure gtk_progress_set_format_string(progress:PGtkProgress; format:Pgchar); name 'gtk_progress_set_format_string';
 procedure gtk_progress_set_adjustment(progress:PGtkProgress; adjustment:PGtkAdjustment); name 'gtk_progress_set_adjustment';
-procedure gtk_progress_configure(progress:PGtkProgress; value:gfloat; min:gfloat; max:gfloat); name 'gtk_progress_configure';
+procedure gtk_progress_configure(progress:PGtkProgress; _value:gfloat; min:gfloat; max:gfloat); name 'gtk_progress_configure';
 procedure gtk_progress_set_percentage(progress:PGtkProgress; percentage:gfloat); name 'gtk_progress_set_percentage';
-procedure gtk_progress_set_value(progress:PGtkProgress; value:gfloat); name 'gtk_progress_set_value';
+procedure gtk_progress_set_value(progress:PGtkProgress; _value:gfloat); name 'gtk_progress_set_value';
 function  gtk_progress_get_value(progress:PGtkProgress):gfloat; name 'gtk_progress_get_value';
 procedure gtk_progress_set_activity_mode(progress:PGtkProgress; activity_mode:guint); name 'gtk_progress_set_activity_mode';
 function  gtk_progress_get_current_text(progress:PGtkProgress):Pgchar; name 'gtk_progress_get_current_text';
-function  gtk_progress_get_text_from_value(progress:PGtkProgress; value:gfloat):Pgchar; name 'gtk_progress_get_text_from_value';
+function  gtk_progress_get_text_from_value(progress:PGtkProgress; _value:gfloat):Pgchar; name 'gtk_progress_get_text_from_value';
 function  gtk_progress_get_current_percentage(progress:PGtkProgress):gfloat; name 'gtk_progress_get_current_percentage';
-function  gtk_progress_get_percentage_from_value(progress:PGtkProgress; value:gfloat):gfloat; name 'gtk_progress_get_percentage_from_value';
+function  gtk_progress_get_percentage_from_value(progress:PGtkProgress; _value:gfloat):gfloat; name 'gtk_progress_get_percentage_from_value';
 function  GTK_ITEM_FACTORY_TYPE:TGtkType; name 'gtk_item_factory_get_type';
 function  gtk_item_factory_get_type:TGtkType; name 'gtk_item_factory_get_type';
 function  gtk_item_factory_new(container_type:TGtkType; path:Pgchar; accel_group:PGtkAccelGroup):PGtkItemFactory; name 'gtk_item_factory_new';
@@ -5551,11 +5551,11 @@ function  gtk_type_query(thetype:TGtkType):PGtkTypeQuery; name 'gtk_type_query';
 
 function  GTK_ADJUSTMENT_TYPE:TGtkType; name 'gtk_adjustment_get_type';
 function  gtk_adjustment_get_type:TGtkType; name 'gtk_adjustment_get_type';
-function  gtk_adjustment_new(value:gfloat; lower:gfloat; upper:gfloat; step_increment:gfloat; page_increment:gfloat;page_size:gfloat):PGtkObject; name 'gtk_adjustment_new';
+function  gtk_adjustment_new(_value:gfloat; lower:gfloat; upper:gfloat; step_increment:gfloat; page_increment:gfloat;page_size:gfloat):PGtkObject; name 'gtk_adjustment_new';
 procedure gtk_adjustment_changed(adjustment:PGtkAdjustment); name 'gtk_adjustment_changed';
 procedure gtk_adjustment_value_changed(adjustment:PGtkAdjustment); name 'gtk_adjustment_value_changed';
 procedure gtk_adjustment_clamp_page(adjustment:PGtkAdjustment; lower:gfloat; upper:gfloat); name 'gtk_adjustment_clamp_page';
-procedure gtk_adjustment_set_value(adjustment:PGtkAdjustment; value:gfloat); name 'gtk_adjustment_set_value';
+procedure gtk_adjustment_set_value(adjustment:PGtkAdjustment; _value:gfloat); name 'gtk_adjustment_set_value';
 
 function  gtk_accel_group_new:PGtkAccelGroup; name 'gtk_accel_group_new';
 function  gtk_accel_group_get_default:PGtkAccelGroup; name 'gtk_accel_group_get_default';
