@@ -146,7 +146,8 @@ type
 		function  ValidateIndex(ParValue : TValue) : TConstantValidation;override;
 		function   CreateConstantMac(ParOption : TMacCreateOption;ParCre : TSecCreator;ParValue : TValue):TMacBase;override;
 	END;
-	
+
+
 	TNumberType = class(TOrdinal)
 	private
 		voSign:boolean;

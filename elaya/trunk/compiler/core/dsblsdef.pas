@@ -72,7 +72,6 @@ begin
 	
 	if  iParts.fGlobal or not(SO_Global in ParOption) then begin
 		if iParts <> nil then begin
-			
 			if (iParts.GetPtrByObject(ParName,ParObject,ParOwner,ParResult)<> Ofs_Different) then begin
 				if ParOwner = nil then ParOwner := self;
 				exit(OFS_Same);

@@ -1165,21 +1165,17 @@ function  TEla_USer.ProcessOperator(const ParParameters     : array of TRoot;
 									const ParOperStr : string;
 									ParError : boolean):TOperatorProcessResult;
 var
-	vlCallNode : TCallNode;
-	vlResult   : TOperatorProcessResult;
-	vlCnt      :cardinal;
-   vlDef  : TRoutine;
-	vlOwner : TDefinition;
-	vlError  : TErrorTYpe;
-	vlIsOperator :boolean;
+	vlCallNode   : TCallNode;
+	vlResult     : TOperatorProcessResult;
+	vlCnt        : cardinal;
+   vlDef        : TRoutine;
+	vlOwner      : TDefinition;
+	vlError      : TErrorTYpe;
+	vlIsOperator : boolean;
 begin
 	for vlCnt := 0 to high(ParParameters) do begin
 		if ParParameters[vlCnt] <> nil then TNodeIdent(ParParameters[vlCnt]).Proces(fNDCreator);
 	end;
-{	vlCallNode := TCallNode.Create(ParOperStr);
-   fNDCreator.SetNodePos(vlCallNode);
-	vlCallNode.AddNodes(ParParameters);
-	fNDCreator.GetPtrByObject(ParOperStr,vlCallNode,vlOwner,vlDef); }
 	fNDCreator.GetPtrByArray(ParOperStr,ParParameters,vlOwner,vlDef);
 	vlIsOperator := false;
 	vlError := Err_No_Error;
@@ -1202,11 +1198,9 @@ begin
 	end;
 	if vlResult <> Opr_Ok then  begin
 		if vlError <> Err_No_Error then begin
-			fNDCreator.AddNodeError(vlCallNode,vlError,ParOperStr);
+			fNDCreator.AddNodeError(TNodeIdent(ParParameters[0]),vlError,ParOperStr);
 			vlResult := Opr_Error;
 		end;
-{		vlCallNode.SoftEmptyParameters;
-		vlCallNode.Destroy;           }
 	end;
 	exit(vlResult);
 end;
@@ -1219,7 +1213,6 @@ procedure  TEla_User.ProcessDualOperator(
 		ParOperObj : TRefNodeIdent);
 var
 	vlNode     : TNodeIdent;
-	vlClassTYpe: TRefNodeIdent;
 begin
 	if ParPrvPar = nil then begin
 		if ParNewPar <> nil then begin
@@ -1228,17 +1221,16 @@ begin
 		end;
 		exit;
 	end;
-	vlClassType := TRefNodeIdent(ParPrvPar.ClassType);
 	case ProcessOperator([ParPrvPar,ParNewPar],ParPrvPar,ParOprStr,ParOperObj=nil) of
 		Opr_Ok:begin end;
 		Opr_Not_Found : begin{fatal error when paroperobj=nil ?}
-				if (ParOperObj <> nil) and (vlClassType  <> ParOperObj) then begin
+				if (ParOperObj <> nil) and (ParPrvPar.ClassType  <> ParOperObj) then begin
 					vlNode := ParOperObj.Create;
 					fNDCreator.SetNodePos(vlNOde);
 					vlNode.AddNode(ParPrvPar);
 					ParPrvPar := vlNode;
 				end;
-		   		ParPrvPar.AddNode(ParNewPar);
+		   	ParPrvPar.AddNode(ParNewPar);
 		   end;
 		else begin
 			if ParNewPar <> nil then ParNewPar.Destroy;

@@ -526,9 +526,13 @@ end;
 {----( TAsmPoc )-------------------------------------------------------------}
 
 function  TAsmPoc.CreateInst(ParCre:TInstCreator):boolean;
+var
+	vlPtr : pointer;
 begin
 	ParCre.DeleteUnUsedUse;
-	ParCre.AddInstAfterCur(TAsmInst.Create(GetSize,GetText));
+	GetMem(vlPtr,GetSize);
+	move(GetText^,vlPtr^,GetSize);
+	ParCre.AddInstAfterCur(TAsmInst.Create(GetSize,vlPtr));
 	voText     := nil;
 	CreateInst := false;
 end;
