@@ -1,6 +1,6 @@
 {
    Elaya, the compiler for the elaya language
-Copyright (C) 1999-2003  J.v.Iddekinge.
+Copyright (C) 1999-2005  J.v.Iddekinge.
 web : www.elaya.org
 
 This program is free software; you can redistribute it and/or modify
@@ -23,19 +23,19 @@ interface
 uses progutil,linklist,stdobj;
 const Hash_Max=32767;
 type
-	
-	
+
+
 	THashing = class(TRoot)
 	private
 		voHashIndex:array[0..Hash_Max] of TListItem;
 	protected
     	procedure commonsetup;override;
 	public
-		function SetHashIndex(const ParStr:string;ParItem:TListItem):TListItem;
+		function SetHashIndex(const ParStr:ansistring;ParItem:TListItem):TListItem;
 		function SetHashIndexPtr(ParPTr:Pointer;ParITem:TListItem):TListItem;
-		function GetHashIndex(const Parstr:string):TListItem;
+		function GetHashIndex(const Parstr:ansistring):TListItem;
 		function GetHashIndexPtr(ParPTr:Pointer):TListItem;
-		function StrToHash(const ParStr:string):cardinal;
+		function StrToHash(const ParStr:ansistring):cardinal;
 		function PtrToHash(ParPtr:pointer):cardinal;
 	end;
 
@@ -53,7 +53,7 @@ begin
 end;
 
 
-function THashing.GetHashIndex(Const ParStr:string):TListItem;
+function THashing.GetHashIndex(Const ParStr:ansistring):TListItem;
 begin
 	exit( voHashIndex[StrToHash(parStr)]);
 end;
@@ -64,7 +64,7 @@ begin
 end;
 
 
-function THashing.SetHashIndex(const ParStr:String;ParItem:TListItem):TListItem;
+function THashing.SetHashIndex(const ParStr:ansiString;ParItem:TListItem):TListItem;
 var vlIndex : cardinal;
 begin
 	vlIndex := StrToHash(Parstr);
@@ -86,19 +86,29 @@ begin
 	exit( TSplit(ParPTr).vW1 xor TSplit(Parptr).vW2);
 end;
 
-function THashing.StrToHash(const ParStr:string):cardinal;
+function THashing.StrToHash(const ParStr:ansistring):cardinal;
 var
-	vlHash :cardinal;
-	vlB1   :byte;
-	vlB2   :byte;
+	vlHash1 :longint;
+	vlHash2 :longint;
+	vlCnt   :cardinal;
+	vlLe	:cardinal;	
+	vlBt    : longint;
 begin
 	if length(ParStr) > 0 then begin
-		vlB1 := byte(ParStr[1]);vlB2:=byte(ParStr[length(ParStr)]);vlHash := byte(ParStr[(length(ParStr)+1)shr 1]);
-		vlHash := (((((vlHash shl 6) xor vlB1) shl 4) xor vlB2) shl 2) xor vlB1;
+		vlCnt := length(ParStr);
+		vlHash1 :=12354;
+		vlhash2 :=34321	;
+		while vlCnt > 0 do begin
+	
+				vlHash1 := (vlHash1 shr 4+vlHash1 shl 28) xor (vlHash2 * byte(ParStr[vlCnt]));
+				vlHash2 := vlHash2 xor vlHash1;
+		
+			dec(vlCnt);
+		end;
 	end else begin
-		vlHash := 0;
+		vlHash1 := 0;
 	end;
-	exit(vlHash and Hash_Max);
+	exit(vlHash1 and Hash_Max);
 end;
 
 end.

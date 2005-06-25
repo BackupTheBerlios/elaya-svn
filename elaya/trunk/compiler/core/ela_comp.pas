@@ -45,7 +45,7 @@ type
 		property fCompTicksHi : int64 read voCompTicksHi write voCompTicksHi;
 		procedure   GetConfigFileName(var ParName : ansistring);override;
 		PROCEDURE   PrintErr (const ParLine : ansistring;  ParCol: INTEGER);
-		procedure   GetErrorDescr(ParErr : TErrorType;var ParText:string);
+		procedure   GetErrorDescr(ParErr : TErrorType;var ParText:ansistring);
 		function    NewCompiler(const ParFile:ansistring):TCompiler_Base;override;
 		procedure   ErrorHeader;override;
 		procedure   ErrorMessage(ParItem : TErrorItem);override;
@@ -61,9 +61,9 @@ type
 		procedure   WhenSuccess;override;
 		procedure   CalculateTimes;
 	end;
-	
-	
-	
+
+
+
 implementation
 
 procedure TElaCompiler.Commonsetup;
@@ -96,7 +96,7 @@ begin
 end;
 
 procedure TElaCompiler.PreParse;
-var 
+var
 	vlLo   : cardinal;
 	vlHi   : cardinal;
 begin
@@ -118,7 +118,7 @@ var     vlLo : cardinal;
 	vlHi : cardinal;
 begin
 	fCompTime := GetTimer - fCompTime;
-	GetCpuCycles(vlLo,vlHi);	
+	GetCpuCycles(vlLo,vlHi);
 	fCompTicksHi := vlHi - fCompTicksHi;
 	fCompTicksLo := vlLo - fCompTicksLo;
 end;
@@ -157,7 +157,7 @@ begin
 end;
 
 procedure  TElaCompiler.PostCompile;
-begin	
+begin
 	verbose(vrb_Timing,'Compile Time....:'+IntToStr(fCompTime));
 	verbose(vrb_Timing,'Compile Ticks...:'+IntToStr((fCompTicksLo div 1000000) +fCompTicksHi*4294) + ' MTicks');
 	verbose(vrb_Timing,'Save Time.......:'+IntToStr(fSaveTime));
@@ -170,15 +170,12 @@ begin
 end;
 
 
-procedure TElaCompiler.GetErrorDescr(ParErr : TErrorType;var ParText:string);
-var 
-	vlString : ansistring;
+procedure TElaCompiler.GetErrorDescr(ParErr : TErrorType;var ParText:ansistring);
 begin
 	SetLength(ParText,0);
 	GetErrorText(ParErr,Partext);
 	if length(partext) = 0 then begin
-		GetError(ParErr,vlString);
-		ParText := vlString;{TODO clean up use of string when GetErrorText=ansistring}
+		GetError(ParErr,ParText);
 	end;
 end;
 
@@ -210,7 +207,7 @@ var
 	vlErrorCol  : longint;
 	vlErrorCode : TErrorType;
 	vLExtra     : ansistring;
-	vlError     : string;
+	vlError     : ansistring;
 	vlLine      : ansistring;
 	vlFileName  : ansistring;
 begin

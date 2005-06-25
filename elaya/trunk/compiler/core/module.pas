@@ -23,7 +23,7 @@ interface
 
 uses streams,simplist,linklist,progutil,error,elaTypes,asmCreat,DIdentLS,hashing,
 ddefinit,confval,elacfg,elacons,compbase,cmp_base,cdfills,stdobj,display,cmp_type,globlist;
-	
+
 type
 
 	TUnit        = class;
@@ -37,7 +37,7 @@ type
 		function    LoadList(ParStream : TObjectStream):boolean;
 		function    SaveList(ParStream : TObjectStream):boolean;
 	end;
-	
+
 	TUnitItem=class(TModuleItemBase)
 	private
 		voNeededHash : longint;
@@ -55,7 +55,7 @@ type
 		function    LoadItem(ParWriter:TObjectStream):boolean;
 		function    SaveItem(ParWriter:TObjectStream):boolean;
 	end;
-	
+
 	TUnitUseItem=class(TSMStringItem)
 	private
 		voUnitDependenceList : TUnitDependenceList;
@@ -100,8 +100,8 @@ type
 		procedure   AddToGlobalHashing(ParCre : TCreator;ParHashing :THashing);
 		procedure   CleanupLoad;
 	end;
-	
-	
+
+
 
 	TUnitUseList=class(TSMStringList)
 	private
@@ -122,7 +122,7 @@ type
 		function  Recompile(ParCre:TCreator):boolean;
 		procedure AddToGlobalHashing(ParCre : TCreator;ParHashing :THashing);
 	end;
-	
+
 	TUnitDependenceItem=class(TSMListItem)
 	private
 		voUnitUseItem      : TUnitUseItem;
@@ -138,8 +138,8 @@ type
 		constructor Create(ParUnitUseItem:TUnitUseItem;ParHash:THashNumber);
 		procedure   Print;
 	end;
-	
-	
+
+
 	TUnitDependenceList=class(TSMList)
 	public
 		function  CheckUnitVersions:boolean;
@@ -148,16 +148,16 @@ type
 		procedure AddDependence(ParUnituseItem:TUnitUSeItem;Parhash:THashNumber);
 		procedure Print;
 	end;
-	
-	
-	
-	
-	
+
+
+
+
+
 	TUnit=class(TModule)
 	private
 		voItemList     :TIdentList;
 		voUnitList     :TUnitList;
-		voName         :TString;
+		voName         :ansiString;
 		voUnitFileName :TString;
 		voHashing      :Longint;
 		voIsUnitFlag   :boolean;
@@ -165,24 +165,24 @@ type
 		voGlobalList   : TGlobalList;
 		voCodeFileList : TCodeFileList;
 	protected
-		property  iUnitList     : TUnitList   read voUnitList   write voUnitList;
-		property  iName         : TString     read voName       write voName;
-		property  iUnitFileName : TString read voUnitFileName   write voUnitFileName;
-		property  iGLobalList   : TGlobalList read voGlobalList write voGlobalList;
-		property  iItemList     : TIdentList  read voItemList   write voItemList;
+		property  iUnitList     : TUnitList     read voUnitList     write voUnitList;
+		property  iName         : ansistring    read voName         write voName;
+		property  iUnitFileName : TString       read voUnitFileName write voUnitFileName;
+		property  iGLobalList   : TGlobalList   read voGlobalList   write voGlobalList;
+		property  iItemList     : TIdentList    read voItemList     write voItemList;
 		property  iCodeFileList : TCodeFileList read voCodeFileList write voCodeFileList;
-		property  iIsUnitFlag   : boolean     read voIsUnitFlag write voIsUnitFlag;
+		property  iIsUnitFlag   : boolean       read voIsUnitFlag   write voIsUnitFlag;
 
 		procedure   CommonSetup;override;
 		procedure   Clear;override;
-		
+
 	public
-		property    fName         : TString    read voName;
+		property    fName         : ansistring read voName;
 		property    fUnitFileName : TString    read voUnitFileName;
 		property    fItemList     : TIdentList read voItemList;
 		property    fIsUnitFlag   : boolean    read voIsUnitFlag write voIsUnitFlag;
 
-		
+
 		procedure   AddGlobalOnce(ParCre : TCreator;ParItem : TDefinition);
 		procedure   AddGlobal(ParCre : TCreator;ParItem :TDefinition);
 		procedure   AddListToGLobalHashing(ParCre :TCreator;ParHashing : THashing);
@@ -193,7 +193,6 @@ type
 		constructor Create(const ParName:ansistring);
 		procedure   AddToUseList(ParUnitUseList:TUnitUseList);
 		constructor LoadHeaderOnly(ParWrite:TObjectStream;var ParError : boolean);
-		procedure   GetNameStr(var ParName:ansistring);
 		procedure   AddUnit(parUnit:TUnit);
 		procedure   CreateSec(ParCompiler:TCompiler_Base);
 		function    GetHashing:Longint;
@@ -210,7 +209,7 @@ type
 		procedure   print(ParDis : TFIleDIsplay);
 		procedure   CheckAfter(ParCre : TCreator);
 	end;
-	
+
 implementation
 uses ndcreat;
 
@@ -484,7 +483,7 @@ var vlHasLoad:boolean;
 	vlCurrent:TUnitUseItem;
 begin
 	LoadUnitDependence := false;
-	
+
 	repeat
 		vlHasLoad := false;
 		vlCurrent := TUnitUseItem(fStart);
@@ -706,7 +705,7 @@ end;
 procedure   TUnitUseItem.SetFlag(ParFlag:TUnitLoadStates;ParSet:boolean);
 var vlErr:TErrorTYpe;
 begin
-	
+
 	vlErr := Err_No_Error;
 	if ParSet then iState := iState + ParFlag
 	else iState := iState -(ParFlag);
@@ -756,7 +755,7 @@ begin
 		else write(' [I]');
 	end;
 	writeln;
-	
+
 	GetUnitDependenceList.Print;
 end;
 
@@ -863,10 +862,8 @@ begin
 end;
 
 procedure   TUnit.AddToUseList(ParUnitUseList:TUnitUseList);
-var vlName:ansistring;
 begin
-	GetNameStr(vlname);
-	iUnitList.AddToUseList(vlName,ParUnitUseList);
+	iUnitList.AddToUseList(iName,ParUnitUseList);
 end;
 
 
@@ -881,9 +878,10 @@ begin
 end;
 
 procedure   TUnit.GetModuleName(var ParName:ansistring);
-var vlStr:ansistring;
+var
+	vlStr:ansistring;
 begin
-	iName.GeTString(vlStr);
+	vlStr := iName;
 	UpperStr(vlStr);
 	ParName := vlStr;
 end;
@@ -991,7 +989,7 @@ begin
 	if ParStream.WriteLongint(0) 			   then exit;
 	if ParStream.WriteBoolean(iIsUNitFlag)    then exit;
 	if ParStream.WriteLongint(GetSourceTime)   then exit;
-	if iUnitList.SaveList(ParStream)           then exit;	
+	if iUnitList.SaveList(ParStream)           then exit;
 	if iCodeFileList.SaveItem(parStream)       then exit;
 	if iITemList.SaveItem(ParStream)          then exit;
 	if iGlobalList.SaveItem(ParStream)	       then exit;
@@ -1007,7 +1005,6 @@ procedure TUnit.Clear;
 begin
 	inherited Clear;
 	if iITemList    <> nil then iItemList.Destroy;
-	if iName         <> nil then iName.Destroy;
 	if iUnitList     <> nil then iUnitList.Destroy;
 	if iUnitFileName <> nil then iUnitFileName.Destroy;
 	if iCodeFileList <> nil then iCodeFileList.Destroy;
@@ -1036,7 +1033,7 @@ procedure TUnit.COmmonSetup;
 begin
 	inherited commonSetup;
 	voCodeFileList := nil;
-	voName         := nil;
+	SetLength(voName,0);
 	iIsUnitFlag    := false;
 	iItemList     := TIdentList.Create;
 	iUnitList      := TUnitList.Create;
@@ -1044,22 +1041,18 @@ begin
 	InitCodeFileList;
 end;
 
-procedure TUnit.GetNameStr(var ParName:ansistring);
-begin
-	iName.GeTString(ParName);
-end;
 
 procedure TUnit.SetName(const ParName:ansistring);
-var 
+var
 	vlCodeFile : ansistring;
 	vlStr      : AnsiString;
 	vlName     : ansistring;
 begin
-	if iName         <> nil then iName.Destroy;
+
 	if iUnitFileName <> nil then iUnitFIleName.Destroy;
 	vlName := ParName;
 	UpperStr(vlName);
-	iName         := TString.Create(ParName);
+	iName         := ParName;
 	iUnitFileName := TString.Create(ParName + CNF_Unit_Ext);
 	vlCodeFile    := ParName;
 	LowerStr(vlCodeFile);
@@ -1158,13 +1151,11 @@ begin
 end;
 
 constructor TUnitItem.Create(ParUnit:TUnit);
-var vlName:ansistring;
 begin
 	inherited Create;
 	iModuleItem := ParUnit;
 	if ParUnit <> nil then begin
-		ParUnit.GetNameStr(vlName);
-		iName := TString.Create(vlname);
+		iName := TString.Create(ParUnit.fName);
 	end;
 end;
 
@@ -1172,7 +1163,7 @@ function TUnitItem.SaveItem(ParWriter:TObjectStream):boolean;
 begin
 	fModuleItem.fCode := ParWriter.GetNextIdentNumber;
 	if ParWriter.WriteLongint(longint(fModuleItem.fCode))    then exit(true);
-	if ParWriter.WritePst(TUnit(fModuleItem).fName)         then exit(true);
+	if ParWriter.WriteString(TUnit(fModuleItem).fName)         then exit(true);
 	if ParWriter.WriteLongint(TUnit(fModuleItem).GetHashing) then exit(true);
 	exit(false);
 end;

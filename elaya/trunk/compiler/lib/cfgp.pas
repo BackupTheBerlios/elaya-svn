@@ -17,7 +17,7 @@ TCFG_Parser=class(TCFG_scanner)
       destructor  destroy;override;
       procedure   parse;override;
       procedure   Pragma;override;
-      procedure   GetErrorText(ParNo:longint;var ParErr:string);override;
+      procedure   GetErrorText(ParNo:longint;var ParErr:ansistring);override;
       Procedure _CFG;
       Procedure _RSectionHead ( ParNOde : TSubListNode;var ParSection : TSectionNode);
       Procedure _RSection ( ParNode : TSubListNode);
@@ -71,9 +71,9 @@ IMPLEMENTATION
 
 procedure TCFG_Parser.pragma;
 begin
-      
+
       End;
-      
+
       Procedure TCFG_Parser._CFG;
       begin
             WHILE (GetSym in [5 , 9 , 10]) do begin
@@ -87,14 +87,14 @@ begin
                   ;end;
             _IEnd;
       end;
-      
+
       Procedure TCFG_Parser._RSectionHead ( ParNOde : TSubListNode;var ParSection : TSectionNode);
         var
           vlSection : TSectionNode;
           vlNode    : TEqualConfigNode;
-      
+
       begin
-             
+
             vlSection := TSectionNode.Create;
             AddNodeToNode(ParNode,vlSection);
             ;
@@ -110,13 +110,13 @@ begin
                   end;
                   Expect(16);
             end;
-             
+
             ParSection := vlSection;
             ;
       end;
-      
+
       Procedure TCFG_Parser._RSection ( ParNode : TSubListNode);
-        var vlSection : TSectionNode; 
+        var vlSection : TSectionNode;
       begin
             _RSectionHead( ParNode,vlSection);
             WHILE (GetSym in [1 , 8 , 9 , 11]) do begin
@@ -125,7 +125,7 @@ begin
             end;
             _IEnd;
       end;
-      
+
       Procedure TCFG_Parser._RCodeLine ( ParNode : TSubListNode);
       begin
             if (GetSym = 1) then begin
@@ -144,15 +144,15 @@ begin
                   SynError(22);
             end;
             ;end;
-      
+
       Procedure TCFG_Parser._RVarDecl;
-       
+
       var   vlName  : ansistring;
            vlValue : ansistring;
            vlReadOnly :boolean;
-      
+
       begin
-             
+
              EmptyString(vlName);
              EmptyString(vlValue);
             ;
@@ -175,12 +175,12 @@ begin
             Expect(19);
               AddVar(vlName,vlValue,vlReadOnly); ;
       end;
-      
+
       Procedure TCFG_Parser._RFail ( ParNode : TSubListNode);
-       
+
       var
       	vlNode : TFailNode;
-      
+
       begin
               vlNode := TFailNode.Create; ;
             _IFail;
@@ -189,11 +189,11 @@ begin
             Expect(16);
               AddNodeToNode(ParNode,vlNode); ;
       end;
-      
+
       Procedure TCFG_Parser._RWrite ( ParNode : TSubListNode);
          var
        vlNode : TWriteConfigNode;
-      
+
       begin
               vlNode := TWriteConfigNode.Create;;
             _IWrite;
@@ -206,14 +206,14 @@ begin
             Expect(16);
               AddNodeTONode(ParNode,vlNode); ;
       end;
-      
+
       Procedure TCFG_Parser._RLoad ( ParNode : TSubListNode);
         var
       vlIdent : ansistring;
       vlNode  : TLoadConfigNode;
-      
+
       begin
-             
+
             EmptyString(vlIdent);
             ;
             _RIdent( vlIdent);
@@ -222,30 +222,30 @@ begin
             _RExpression( vlNode);
                AddNodeToNode(ParNode,vlNode);;
       end;
-      
+
       Procedure TCFG_Parser._RIdentExpression ( var ParNode : TSubListNode);
-       
+
       var   vlTxt  : ansistring;
-      
+
       begin
                EmptyString(vlTxt);
              ParNode := nil;
             ;
             if (GetSym = 2) then begin
                   _Ransistring( vlTxt);
-                   
+
                   ParNode := CreateStringConstantNode(vlTxt);
                   ;
             end
              else if (GetSym = 3) then begin
                   _RNumber( vlTxt);
-                   
+
                   ParNode := CreateIntConstantNode(vlTxt);
                   ;
             end
              else if (GetSym = 1) then begin
                   _RIdent( vlTxt);
-                   
+
                   ParNode := GetVarNode(vlTxt);
                   ;
             end
@@ -258,14 +258,14 @@ begin
                   SynError(24);
             end;
             ;end;
-      
+
       Procedure TCFG_Parser._RMul ( var ParNode : TSubListNode);
         var vlI2          : TMathCOnfigNode;
           vlCode        : TOperatorCode;
           vlPrvCode     : TOperatorCode;
-      
+
       begin
-             
+
             vlPrvCode := OC_None;
             ;
             _RIdentExpression( ParNode);
@@ -279,19 +279,19 @@ begin
                           vlCOde := OC_Div; ;
                   end
                   ;_RIdentExpression( vlI2);
-                   
+
                   AddDualNode(vlPrvCode,ParNode,vlCode,vlI2);
                   ;
             end;
       end;
-      
+
       Procedure TCFG_Parser._RAdd ( var ParNode : TSubListNode);
         var vlI2          : TMathCOnfigNode;
           vlCode        : TOperatorCode;
           vlPrvCode     : TOperatorCode;
-      
+
       begin
-             
+
             vlPrvCode := OC_None;
             ;
             _RMul( ParNode);
@@ -305,20 +305,20 @@ begin
                           vlCOde := OC_Sub; ;
                   end
                   ;_RMul( vlI2);
-                   
+
                   AddDualNode(vlPrvCode,ParNode,vlCode,vlI2);
                   ;
             end;
       end;
-      
+
       Procedure TCFG_Parser._RExpression ( var ParNode :TSubListNode);
        var
-        vlNode : TSubListNode; 
+        vlNode : TSubListNode;
       begin
             _RAdd( vlNode);
               AddNodeToNode(ParNode,vlNode); ;
       end;
-      
+
       Procedure TCFG_Parser._RConstantText ( var ParTxt :ansistring);
       begin
               EmptyString(ParTxt); ;
@@ -332,7 +332,7 @@ begin
                   SynError(25);
             end;
             ;end;
-      
+
       Procedure TCFG_Parser._Ransistring ( var ParTxt : ansistring);
       begin
             Expect(2);
@@ -340,54 +340,54 @@ begin
             ParTxt := copy(ParTxt,2,length(ParTxt)-2);
             ;
       end;
-      
+
       Procedure TCFG_Parser._RNumber ( var ParTxt : ansistring);
       begin
             Expect(3);
               LexName(ParTxt);  ;
       end;
-      
+
       Procedure TCFG_Parser._RIdent ( var ParIdent : ansistring);
       begin
             Expect(1);
               LexName(ParIdent); ;
       end;
-      
+
       Procedure TCFG_Parser._IWrite;
       begin
             Expect(11);
       end;
-      
+
       Procedure TCFG_Parser._IVar;
       begin
             Expect(10);
       end;
-      
+
       Procedure TCFG_Parser._ISection;
       begin
             Expect(9);
       end;
-      
+
       Procedure TCFG_Parser._IFail;
       begin
             Expect(8);
       end;
-      
+
       Procedure TCFG_Parser._IEnd;
       begin
             Expect(7);
       end;
-      
+
       Procedure TCFG_Parser._IDiv;
       begin
             Expect(6);
       end;
-      
+
       Procedure TCFG_Parser._IConst;
       begin
             Expect(5);
       end;
-      
+
       procedure TCFG_Parser.Parse;
       begin
             MaxT :=21;
@@ -395,7 +395,7 @@ begin
              Get;
             _CFG;
       end;
-      procedure   TCFG_Parser.GetErrorText(ParNo:longint;var ParErr:string);
+      procedure   TCFG_Parser.GetErrorText(ParNo:longint;var ParErr:ansistring);
       begin
             case ParNo of
                   		0: ParErr :='EOF expected';
@@ -428,23 +428,23 @@ begin
                   		25: ParErr :='Invalid expression:a ansistring,a number expected';
             end;
       end;
-      
+
       destructor  TCFG_Parser.destroy;
       begin
             inherited destroy;
             DestroyDynSet(vgDynSet);
       end;
-      
+
       const
       vgSetFill0:ARRAY[1..1] of cardinal=(0);
-      
-      
+
+
       procedure TCFG_Parser.Commonsetup;
       begin
-            
+
             inherited Commonsetup;
             iCase := false;
-            
+
             MaxT := 21;
             CreateDynSet(vgDynSet);
             if fOwnDynset then begin

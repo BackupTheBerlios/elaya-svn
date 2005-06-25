@@ -23,7 +23,7 @@ interface
 
 uses ndcreat,varuse,strmbase,streams,cmp_type,ddefinit,didentls,compbase,formbase,node,error,elatypes,display,macobj,pocobj,elacons,
 	vars,stdobj,varbase,linklist,types,asminfo,frames,progutil,useitem;
-	
+
 type
 	TParamNode       =class;
 	TParameterMappingList=class;
@@ -38,7 +38,7 @@ type
 	protected
 		procedure COmmonSetup;override;
 	end;
-	
+
 	TParameterVarClass=class of TParameterVar;
 	TParameterVar=class(TProcVar)
 	private
@@ -83,7 +83,7 @@ type
 		function    IsAutomatic:boolean;virtual;
 		procedure   SetPosition(ParNo : cardinal);
 		function    GetPushSize:TSize;
-		
+
 		constructor create(const ParName : ansistring;ParFrame:TFrame;Partype:TType;ParTranType:TParamTransferType;ParVirtual : boolean);
 		function    CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 		procedure   Print(ParDis:TDisplay);override;
@@ -105,15 +105,16 @@ type
 	   	procedure  SetOffset(ParOffset :TOffset);
 		function   GetVar2Type : TTYpe;
 		procedure  ProduceMappingCbInit(ParAt : TSubListStatementNode;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
-
+		procedure  PreNode();virtual;
+		procedure  AfterNode();virtual;
 	end;
-	
+
 	TAutomaticParameter=class(TParameterVar)
 	private
 		voSourceContextLevel     : cardinal;
 	protected
 		property iSourceContextLevel : cardinal read voSourceContextLevel write voSourceContextLevel;
-		
+
 	public
 		constructor create(const ParName : ansistring;ParSourceContextLevel : cardinal;ParFrame:TFrame;Partype:TType;ParTranType:TParamTransferType;ParVirtual : boolean);
 		function    IsAutomatic:boolean; override;
@@ -122,9 +123,9 @@ type
 		function    LoadItem(ParStream:TObjectStream):boolean;override;
 		function    GetContextObj(ParRoutine,ParOrgOwner : TDefinition):TDefinition;
 	end;
-	
-	
-	
+
+
+
 	TRTLParameter=class(TAutomaticParameter)
 	protected
 		procedure Commonsetup;override;
@@ -135,7 +136,7 @@ type
 	end;
 
 	TFrameParameter=class(TAutomaticParameter)
-	
+
 	private
 		voPushedFrame : TFrame;
 	protected
@@ -153,9 +154,9 @@ type
 		procedure   DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);override;
 		function    Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOwner : TDefinition) : TParameterVar;override;
 		procedure   Print(ParDis : TDisplay);override;
-		
+
 	end;
-	
+
 	TClassFrameParameter=class(TFrameParameter)
 	private
 		voMeta 	    : TDefinition;
@@ -174,9 +175,17 @@ type
 		function    SaveItem(parStream:TObjectStream):boolean;override;
 		function    LoadItem(ParStream:TObjectStream):boolean;override;
 		function    Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOrgOwner : TDefinition) : TParameterVar;override;
-		function  	CreateAutomaticParamNode(ParContext,ParOrgOwner : TDefinition;ParCre : TCreator; var ParTTL:TTLVarNode):TParamNode;override;
+		function    CreateAutomaticParamNode(ParContext,ParOrgOwner : TDefinition;ParCre : TCreator; var ParTTL:TTLVarNode):TParamNode;override;
 	end;
-	
+
+	TValueClassFrameParameter=class(TClassFrameParameter)
+	public
+		procedure InitParameter(ParOwner : TDefinition);override;
+		procedure   DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);override;
+		procedure PreNode();override;
+		procedure AfterNode();override;
+	end;
+
 	TFixedFrameParameter=class(TFrameParameter)
 	private
 		voContext : TDefinition;
@@ -190,31 +199,31 @@ type
 		function    Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOrgOwner : TDefinition) : TParameterVar;override;
 		function  	CreateAutomaticParamNode(ParContext,ParOrgOwner : TDefinition;ParCre : TCreator; var ParTTL:TTLVarNode):TParamNode;override;
 	end;
-	
 
-	
+
+
 	TParamNode=class(TValueNode)
 	private
-		voName  : TString;
+		voName  : ansistring;
 		voParam : TParameterVar;
 		voNode  : TFormulaNode;
 	protected
 		property iParam : TParameterVar read voParam write voParam;
-		property iName  : TString   read voName  write voName;
+		property iName  : ansistring   read voName  write voName;
 		property iNode  : TFormulaNode read voNode write voNode;
 		procedure   COmmonsetup;override;
 		procedure   clear;override;
 	public
 		property    fParam :TParameterVar read voParam write voParam;
-		
+		property    fName  :ansistring  read voName write voName;
 		function    GetOffset : TOffset;
 
 		procedure   SetExpression(ParNode : TFormulaNode);
-		procedure   GetNameStr(var ParName : ansistring);
+
 		function    GetPosition : cardinal;
 		function    IsSameName(const ParParam : TParameterVar):boolean;
 		function    IsSameName(const ParName : ansistring):boolean;
-		procedure   SetName(const ParName : ansistring);
+
 		procedure   SetParam(ParParam:TParameterVar);
 		function    GetTranType:TParamTransferType;
 		constructor create(ParParam:TParameterVar);
@@ -236,7 +245,7 @@ type
 		procedure   Optimize(ParCre : TCreator) ;override;
 		function    IsAutomatic : boolean;
 	end;
-	
+
 
 	TCallNodeList=class(TFormulaList)
 	private
@@ -273,21 +282,21 @@ type
 		property  fParamCnt       : cardinal read voParamCnt;
 		property  fLocalFrame     : TFrame   read voLocalFrame     write voLocalFrame;
 		property  fParameterFrame : TFrame   read voParameterFrame write voParameterFrame;
-		
+
 		procedure  CloneParameters(ParCre : TCreator;ParContext,ParNewOwner,ParOwner : TDefinition;ParToList : TProcParList;ParAutomatic : boolean);
 		procedure  ChangeFrame(ParLocal,ParParam : TFrame);
 		function   SaveItem(parWrite:TObjectStream):boolean;override;
 		function   LoadItem(ParWrite:TObjectStream):boolean;override;
 
 		{ Code Generation}
-		
+
 		procedure CreateCBInits(ParCre : TNDCreator;ParAt : TSubListStatementNode;ParContext : TDefinition);
-		
+
 		{Parameter comparing}
-	   function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
+		function   IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
 		function   IsSameParamType(ParLIst:TProcParList;ParType : TParamCompareOptions):boolean;
 		function   IsPropertyProcComp(ParTYpe : TType) :boolean;
-		
+
 		{Adding parameters}
 		function   GetCurOffsetAndInc(ParVar : TParameterVar):TOffset;
 		function   GetLocalOFfsetAndInc(ParSize : TSize):TOffset;
@@ -296,29 +305,31 @@ type
 		function   AddParam(ParCre :TCreator;const ParName : ansistring; ParFrame : TFrame;ParType : TType;ParVar,ParConst,ParVirtual : boolean;var ParParam : TParameterVar):integer;
 		function   AddParam(ParVar : TParameterVar):TErrorType;
 		function   GetParamByNum(ParNum : cardinal):TParameterVar;
-		
+
 		{Parameter processing}
 		PROCEDURE  SetParametersOffset(ParCre : TCreator);
 		procedure  SetSecondVars(ParCre : TCreator);
 		procedure  SetRealPositions;
-		
-		{Adding localvars}
-		
-		function   CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TProcVar;
 		procedure  InitVariables(ParDef,ParContext : TDefinition;ParFrame : TFrame);
 		procedure  DOneVariables(ParDef : TDefinition;ParFrame : TFrame);
-		
+		procedure  PreNode();
+		procedure  AfterNode();
+
+		{Adding localvars}
+
+		function   CreateVar(ParCre:TCreator;const ParName:ansistring;ParType:TDefinition):TProcVar;
+
 		{Retreving param}
 		function   GetParameterByRealPosition(ParPos : cardinal) : TParameterVar;
 		function   GetNextNormalParameter(ParStart : TParameterVar) : TParameterVar;
 		function   GetRtlParameter:TRTLParameter;
-		
+
 		{ParamInfo}
 		function   GetNumberOfParameters:cardinal;
-		
+
 		{mapping}
 		procedure  AutomaticCreateMapping(ParMapping : TParameterMappingList);
-		
+
 		procedure  SetSecondVar(ParCre : TCreator;ParParam : TParameterVar);
 		procedure  ProduceFrame(ParCre:TSecCreator;ParContext : TDefinition);
 		function   CreateAutomaticParameterNodes(ParContext ,ParOrgOwner: TDefinition;ParCre:TCreator;ParList:TCallNodeList):TTLVarNode;
@@ -330,7 +341,7 @@ type
 
 	end;
 
-	
+
 	TParameterMappingItem=class(TListItem)
 	private
 		voDefinition  : TVarBase;
@@ -354,7 +365,7 @@ type
 		procedure   GetMappingText(var ParText : ansistring);virtual;
 		procedure   CheckParameterAddress(parCre : TCreator);virtual;
 	end;
-	
+
 	TDefinitionParameterMappingItem=class(TParameterMappingItem)
 	private
 		voContextLevel : cardinal;
@@ -372,21 +383,21 @@ type
 		function    IsSameKind(ParDefinition : TVarBase):boolean;override;
 
 	end;
-	
+
 	TConstantParameterMappingItem=class(TDefinitionParameterMappingItem)
 	public
 		function    IsSameMapping(ParMapping : TParameterMappingItem):boolean;override;
 		function     GetValue : TValue;
 		procedure   GetMappingText(var ParText : ansistring); override;
-		
+
 	end;
-	
+
 	TVariableParameterMappingItem=class(TDefinitionParameterMappingItem)
 	public
 		function    IsSameMapping(ParMapping : TParameterMappingItem):boolean;override;
 		procedure   GetMappingText(var ParText : ansistring); override;
 	end;
-	
+
 	TNormalParameterMappingItem=class(TParameterMappingItem)
 		procedure SetIsInherited;override;
 		procedure ConnectToParent(ParCre : TCreator;ParParam : TParameterVar);override;
@@ -394,7 +405,7 @@ type
 		procedure CheckParameterAddress(parCre : TCreator);override;
 		function  IsAutomatic : boolean; override;
 	end;
-	
+
 	TParameterMappingList=class(TList)
 	private
 		voParent : TParameterMappingList;
@@ -419,8 +430,8 @@ type
 		procedure Print(ParDis : TDIsplay);
 		constructor Create(ParOwner : TDefinition);
 	end;
-	
-	
+
+
 implementation
 uses procs,cblkbase,classes,meta,execobj;
 
@@ -776,7 +787,7 @@ end;
 procedure  TParameterMappingItem.Print(ParDis : TDisplay);
 var vlText : ansistring;
 begin
-	
+
 	GetMappingText(vlText);
 	ParDis.Write(vlText);
 end;
@@ -880,11 +891,11 @@ begin
 	EmptyString(vlName);
 	vlCnt := 0;
 	while vlCurrent <> nil do begin
-		
+
 		inc(vlCnt);
 		if not(vlCurrent.IsAutoMatic) then begin
 			if vlByName then begin
-				vlCurrent.GetNameStr(vlName);
+				vlName := vlCurrent.fName;
 				ParList.GetPtrByName(vlName,vlOwner,vlParam);
 				if vlParam = nil then begin
 					TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Cant_Find_Parameter,vlName);
@@ -920,7 +931,7 @@ var vlCurrent: TParamNode;
 	vlCheck  : TParamNode;
 	vlNext   : TParamNode;
 begin
-	
+
 	vlCurrent := TParamNode(fStart);
 	if (vlCurrent <> nil) then vlCurrent := TParamNode(vlCurrent.fNxt);
 	while (vlCurrent <> nil) do begin
@@ -953,7 +964,7 @@ begin
 	while vlNode <>nil do begin
 		if not vlNode.IsAutomatic then begin
 			if vlByName then begin
-				vlNode.GetNameStr(vlName);
+				vlName := vlNode.fName;
 				if not ParList.GetPtrByName(vlName,vlOwner,vlParam) then exit;
 				if(vlParam = nil) or not(vlParam is TParameterVar) then exit;
 			end else begin
@@ -985,7 +996,7 @@ var
 	vlSec     : TSubPoc;
 	vlPoc     : TSubPoc;
 begin
-	
+
 	vlSec := TSubPoc.Create;
 	ParCre.AddSec(vlSec);
 	vlPoc     := ParCre.fPoc;
@@ -1004,6 +1015,27 @@ end;
 
 {---( TProcParList )---------------------------------------------------}
 
+procedure  TProcParList.PreNode();
+var
+	vlCurrent : TDefinition;
+begin
+	vlCurrent := TDefinition(fStart);
+	while vlCurrent <> nil do begin
+		if vlCurrent is TParameterVar then TParameterVar(vlCurrent).PreNode();
+		vlCurrent :=TDefinition(vlCurrent.fNxt)
+	end;
+end;
+
+procedure TProcParList.AfterNode();
+var
+	vlCurrent : TDefinition;
+begin
+	vlCurrent := TDefinition(fStart);
+	while vlCurrent <> nil do begin
+		if vlCurrent is TParameterVar then TParametervar(vlCurrent).AfterNode();
+		vlCurrent := TDefinition(vlCurrent.fNxt)
+	end;
+end;
 
 function TProcParList.IsSameParamByNodesArray(const ParNodes :array of TRoot;ParExact : boolean):boolean;
 var
@@ -1011,14 +1043,16 @@ var
 	vlCnt   : cardinal;
 	vlNode : TFormulaNode;
 begin
-	vlParam := nil;
 	vlCnt :=0  ;
-	vlParam := GetNextNormalParameter(vlParam);
+	vlParam := GetNextNormalParameter(nil);
+
 	while (vLCnt <= high(ParNodes)) and (vlParam<> nil) do begin
 		vlNode := TFormulaNode(ParNodes[vlCnt]);
+
 		if vlNode = nil then break;
 		if not(vlNode is TFormulaNode) then break;
 		if not(vlParam.IsCompWithParamExpr(ParExact,vlNode)) then break;
+
 		inc(vlCnt);
 		vlParam := GetNextNormalParameter(vlParam);
 	end;
@@ -1031,9 +1065,8 @@ var
 	vlCurrent : TDefinition;
 begin
 	vlCurrent := TDefinition(fStart);
-	
-	while vlCurrent <> nil do begin
-	
+
+	while vlCurrent <> nil do begin		
 		if vlCurrent is TParameterVar then TParameterVar(vlCurrent).InitParameter(ParDef);
 		vlCurrent := TDefinition(vlCurrent.fNxt);
 	end;
@@ -1057,7 +1090,7 @@ begin
 end;
 
 procedure TProcParList.SetRealPositions;
-var 
+var
 	vlCurrent : TDefinition;
 	vlCnt     : cardinal;
 begin
@@ -1067,7 +1100,7 @@ begin
 		if (vlCurrent is TParameterVar)  then begin
 			TParameterVar(vlCurrent).fRealPosition := vlCnt;
 			inc(vlCnt);
-			
+
 		end;
 		vlCurrent := TDefinition(vlCurrent.fNxt);
 	end;
@@ -1141,7 +1174,7 @@ end;
 
 
 procedure  TProcParList.ProducePoc(ParCre : TCreator);
-var 
+var
 	vlCurrent : TDefinition;
 begin
 	vlCurrent := TDefinition(fStart);
@@ -1174,7 +1207,7 @@ begin
 	vlCurrent := ParStart;
 	if vlCurrent = nil then begin
 		vlCurrent := TDefinition(fStart);
-	end else begin		
+	end else begin
 		vlCurrent := TDefinition(vlCurrent.fNxt);
 	end;
 	while (vlCurrent <> nil) do begin
@@ -1189,7 +1222,7 @@ end;
 
 
 function  TPRocParList.CheckParameterNames(ParList :TProcParList;var ParDifText:ansistring):boolean;
-var 
+var
 	vlCurrent  : TDefinition;
 	vlCurrent2 : TDefinition;
 	vlCnt      : cardinal;
@@ -1246,7 +1279,7 @@ end;
 
 
 procedure  TProcParList.CloneParameters(ParCre : TCreator;ParContext,ParNewOwner,ParOwner : TDefinition;ParToList : TProcParList;ParAutomatic : boolean);
-var 	
+var
 	vlCurrent : TDefinition;
 	vlNew     : TParameterVar;
 begin
@@ -1271,7 +1304,7 @@ begin
 end;
 
 function TProcParList.GetRtlParameter:TRTLParameter;
-var 
+var
 	vlCurrent : TDefinition;
 begin
 	vlCurrent := TDefinition(fStart);
@@ -1369,7 +1402,7 @@ function   TProcParList.GetCurOffsetAndInc(ParVar:TParameterVar):TOffset;
 var
 	vlVar : TParameterVar;
 begin
-	GetCurOffsetAndInc := iParamSize+Size_Parambegin;	
+	GetCurOffsetAndInc := iParamSize+Size_Parambegin;
 	vlVar := ParVar;
 	iParamSize := iParamSize + vlVar.GetPushSize;
 end;
@@ -1475,7 +1508,7 @@ begin
 end;
 
 procedure TProcParList.SetSecondVars(ParCre : TCreator);
-var 
+var
 	vlCurrent : TDefinition;
 begin
 	vlCurrent := TDefinition(fStart);
@@ -1505,7 +1538,7 @@ begin
 end;
 
 procedure  TProcParList.DoneParameters(ParCre : TSecCreator;ParDef : TDefinition);
-var 
+var
 	vlCurrent : TDefinition;
 begin
 	vlCurrent := TDefinition(fStart);
@@ -1515,21 +1548,53 @@ begin
 	end;
 end;
 
+{-----( TValueClassFrameParameter )--------------------------------------------------}
 
+procedure TValueClassFrameParameter.PreNode();
+begin
+	iPushedFrame.fisConstant := (fTranType = PV_Const);
+end;
+procedure TValueCLassFrameParameter.AfterNode();
+begin
+	iPushedFrame.fIsConstant := false;
+end;
+
+procedure TValueClassFrameParameter.InitParameter(ParOwner : TDefinition);
+var
+	vlOwner : TDefinition;
+	vlContext : TDefinition;
+begin
+	vlOwner := ParOwner.GetRealOwner;
+	if vlOwner is TRoutine then begin
+		vlContext := GetContextObj(vlOwner,vlOwner);
+	end else begin
+		vlContext :=vlOwner;
+	end;
+	if(vlContext <> nil) and (vlContext is TClassType) then vlContext := TClassType(vlContext).fObject;
+
+	iPushedFrame.AddAddressing(MCO_ValuePointer,ParOwner,vlContext,ParOwner,self,false);
+	iPushedFrame.fisConstant := (fTranType = PV_Const);
+end;
+
+procedure TValueClassFrameParameter.DoneParameter(ParOwner : TDefinition;ParCre : TSecCreator);
+begin
+	inherited DoneParameter(ParOwner,ParCre);
+	iPushedFrame.fisConstant := false;
+end;
 {-----(TClassFrameParameter )-------------------------------------------------------}
 
 function    TClassFrameParameter.Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOrgOwner : TDefinition) : TParameterVar;
-var	
+var
 	vlNewType    : TDefinition;
 	vlParam      : TClassFrameParameter;
 	vlNewMeta    : TMeta;
 	   vlNewMetaPtr : TVarBase;
 begin
 	vlNewType := ParNewOwner;
-   vlNewMeta := nil;
+	vlNewMeta := nil;
 	vlNewMetaPtr := nil;
 	while (vlNewType <> nil) and not(iType.IsParentof(vlNewType)) do vlNewType := vlNewType.GetRealOwner;
-   if(iMeta <> nil) then vlNewMeta := TClassType(vlNewType).fMeta;
+	if(iMeta <> nil) then vlNewMeta := TClassType(vlNewType).fMeta;
 	{TODO: Avoid 'is' test'}
 	if(vlNewType <> nil) then begin
 		if vlNewType is TObjectClassType then vlNewMetaPtr := TObjectClassType(vlNewType).fMetaPtr;
@@ -1597,13 +1662,13 @@ var
 begin
 	vlCurrent := parContext;
 	while (vlCurrent <> nil) and not((vlCurrent is TClassType) or (vlCurrent is TObjectRepresentor)) do vlCUrrent := vlCurrent.fOwner;
-	
+
 	if (ParContext is TRoutine) and not(vlcurrent is TObjectRepresentor) then vlCurrent := TClassTYpe(vlCurrent).fObject;
 	vlParam := TParamNode.Create(nil);
 	vlParam.SetParam(self);
 	vlParam.fContext := vlCurrent;
 	exit(vlParam);
-	
+
 end;
 
 {-----( TFixedFrameParam )----------------------------------------}
@@ -1638,7 +1703,7 @@ begin
 end;
 
 function    TFixedFrameParameter.Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOrgOwner : TDefinition) : TParameterVar;
-var 
+var
 	vlParam : TParameterVar;
 begin
 	vlParam := TFixedFrameParameter.Create(fText,iContext,ParFrame,iPushedFrame,fType,fIsVirtual);
@@ -1772,7 +1837,7 @@ begin
 		vlCnt := iSourceContextLevel;
 		vlOrgOwner := TRoutine(ParOwner);
 		while (vlCnt >1) and (vlContext <> nil) and (vlOrgOwner <> nil) do begin
-		
+
 			if(vlContext.fRelativeLevel < vlOrgOwner.fRelativeLevel) then fatal(FAT_Can_Match_Owner_hyr,'');
 			vlPm := vlContext.fRelativeLevel - vlOrgOwner.fRelativeLevel+1;
 			inc(vlNewCl,vlPm);
@@ -1780,7 +1845,7 @@ begin
 				vlContext := TRoutine(TRoutine(vlContext).GetRoutineOwner);
 				dec(vlPm);
 			end;
-			
+
 			if(vlContext = nil) then  fatal(FAT_Can_Match_Owner_hyr,'');
 			dec(vlCnt);
 			vlOrgOwner := TRoutine(vlOrgOwner.GetRoutineOwner);
@@ -1907,7 +1972,6 @@ end;
 procedure   TParamNode.ValidateAfter(ParCre : TCreator);
 var
 	vlType : TType;
-	vlNode : TFormulaNode;
 begin
 	inherited ValidateAfter(ParCre);
 	if iNode <> nil then iNode.ValidateAfter(ParCre);
@@ -1919,33 +1983,22 @@ begin
 	end;
 end;
 
-procedure  TParamNode.GetNameStr(var ParName : ansistring);
-begin
-	if iName <> nil then begin
-		iName.GetString(ParName)
-	end else begin
-		EmptyString(ParName);
-	end;
-end;
-
-
 function  TParamNode.IsCallByName : boolean;
 begin
-	exit(iName <> nil);
+	exit(length(iName)>0);
 end;
 
 
 function  TParamNode.IsSameName(const ParName : ansistring):boolean;
 begin
-	if iName = nil then exit(false);
-	exit(iName.IsEqualStr(ParName));
+	exit(iName=ParName);
 end;
 
 procedure  TParamNode.COmmonsetup;
 begin
 	inherited Commonsetup;
 	iIdentCode := (IC_ParamNode);
-	iName      := nil;
+	SetLength(voName,0);
 	iComplexity := CPX_Variable;
 	iNode := nil;
 	if IsPushByRef then iComplexity := CPX_Pointer;
@@ -1954,7 +2007,6 @@ end;
 procedure TParamNode.Clear;
 begin
 	inherited Clear;
-	if iName <> nil then iName.Destroy;
 	if iNode <> nil then iNode.Destroy;
 end;
 
@@ -1966,15 +2018,10 @@ end;
 
 function  TParamNode.IsSameName(const ParParam : TParameterVar):boolean;
 begin
-	if iName = nil then exit(true);
+	if length(iName)=0 then exit(true);{TODO is this Ok?}
 	exit(ParParam.IsSameText(iName));
 end;
 
-procedure TParamNode.SetName(const ParName : ansistring);
-begin
-	if iName <> nil then iName.Destroy;
-	iName := TString.Create(ParName);
-end;
 
 function TParamNode.GetPosition:cardinal;
 begin
@@ -2019,13 +2066,14 @@ begin
 	vlMode := MCO_Result;
 	vlMac  := nil;
 	if fParam.IsAutomatic then begin
-		vlMac := fParam.CreateAutomaticMac(iContext,ParCre);
+		vlMac := fParam.CreateAutomaticMac(iContext,ParCre);		
 	end;
+
 	if vlMac = nil then begin
 		if fParam.fRefMainVar then vlMode := MCO_ValuePointer;
 		if iNode <> nil then vlMac := iNode.CreateMac(vlMode,ParCre);
 	end;
-
+	
 	vlPush := TSetParPoc.create(vlMac);
 	ParCre.AddSec(vlPush);
 	CreateSec := false;
@@ -2107,8 +2155,8 @@ end;
 
 procedure TParamNode.PrintNode(ParDis:TDisplay);
 begin
-	ParDis.write('<Param>');
-	ParDis.Write('<postition>');
+	ParDis.write('<param>');
+	ParDis.Write('<position>');
 	ParDis.Write(GetPosition);
 	ParDis.Write('</position>');
 	if IsCallByName then begin
@@ -2118,7 +2166,7 @@ begin
 	end;
 	ParDis.Write('<expression>');
 	printIdent(ParDis,iNode);
-   ParDis.Write('</expression>');
+	ParDis.Write('</expression>');
 	ParDis.WriteNl('</param>');
 end;
 
@@ -2149,10 +2197,10 @@ function TAutomaticParameter.GetContextObj(ParRoutine,ParOrgOwner : TDefinition)
 var
 	vlContext  : TDefinition;
 begin
-	
+
 	vlContext := TRoutine(ParRoutine).GetObjectByLevel(iSourceContextLevel,ParOrgOwner);
 	exit(vlContext);
-	
+
 end;
 
 
@@ -2189,6 +2237,13 @@ end;
 
 
 {------( TParameterVar )-----------------------------------------------}
+
+procedure TParameterVar.PreNode();
+begin
+end;
+procedure TParameterVar.AfterNode();
+begin
+end;
 
 
 procedure TParameterVar.ProduceMappingCbInit(ParAt : TSubListStatementNode;ParCre : TCreator;ParContext:TDefinition;ParSource : TFormulaNode);
@@ -2301,12 +2356,12 @@ end;
 function  TParameterVar.IsSameParameter(ParParam : TParameterVar;ParType : TParamCompareOptions):boolean;
 var vlType1,vlType2:TType;
 begin
+
 	if ParParam = nil then exit(false);
 	vlType1 := ParParam.fType;
 	if vlType1 = nil then exit(false);
 	vlType2 :=fType;
 	if vlType2 = nil then exit(false);
-	
 	if not(IsAutomatic) then begin
 		if PC_Relaxed in ParType then begin
 			if not vlType1.IsDirectComp(vlType2) then exit(false);
@@ -2314,13 +2369,16 @@ begin
 			if  not vlType1.IsExactComp(vlType2) then exit(false);
 		end;
 	end;
+
 	if not(PC_IgnoreState in ParType) then begin
 		if ParParam.fIdentCode <> fIdentCode    then exit(false);
 		if ParParam.fTranType <> fTranType      then exit(false);
 		if ParParam.fIsVirtual <> fIsVirtual    then exit(false);
 	end;
+
 	if PC_IgnoreName in ParType             then exit(true);
 	if (IsSameText(ParParam.fText))       then exit(true);
+
 	exit(false);
 end;
 
@@ -2403,8 +2461,7 @@ var
 	vlNewOpt : TMacCreateOption;
 begin
 	if(ParOpt = MCO_Size) then begin
-		vlMac :=inherited
- CreateMac(ParContext,ParOpt,ParCre);
+		vlMac :=inherited CreateMac(ParContext,ParOpt,ParCre);
 	end else begin
 		if iSecondVar = nil then begin
 			vlVar := iMainVar;
@@ -2440,8 +2497,8 @@ end;
 
 
 function   TParameterVar.Clone(ParFrame : TFrame;ParContext,ParNewOwner,ParOrgOwner : TDefinition) : TParameterVar;
-var 
-	vlParam : TParameterVar;	
+var
+	vlParam : TParameterVar;
 begin
 	vlParam := TParameterVar.Create(fText,ParFrame,fType,fTranType,iIsVirtual);
 	vlParam.SetPosition(iSourcePosition);
@@ -2583,10 +2640,10 @@ begin
 	fDefAccess := AF_Public;
 		{Access is first set to AF_Current, but parameter should allways be public}
 end;
-	
-	
+
+
 {------( TLocalVar )------------------------------------------------}
-	
+
 procedure TLocalvar.CommonSetup;
 begin
 	inherited COmmonSetup;

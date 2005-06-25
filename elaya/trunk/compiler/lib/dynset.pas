@@ -68,9 +68,9 @@ const  Size_Set_shr = 5;
 	Max_Set      = 1 shl size_set_shr;
 	Mask_Set     = Max_Set - 1;
 	Size_Bytes   = sizeof(TLongSet);
-	
+
 	{------( TDynamicSet )-------------------------------------------------------}
-	
+
 procedure   TDynamicSet.SetByArray(const ParAr :array of cardinal);
 var vlCnt : cardinal;
 begin
@@ -232,12 +232,12 @@ end;
 function TDynamicSet.IsEmpty:boolean;
 var vlCnt : cardinal;
 begin
-	vlCnt := iBufferSize;
-	while vlCnt > 0 do begin
+	vlCnt := 0;
+	while vlCnt < iBufferSize do begin
 		if cardinal((iSet+vlCnt)^) <> 0 then exit(false);
-		dec(vLCnt);
+		inc(vLCnt);
 	end;
-	exit(false);
+	exit(true);
 end;
 
 function   TDynamicSet.NumberOfelements:cardinal;

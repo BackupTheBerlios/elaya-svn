@@ -40,8 +40,8 @@ type
 		procedure AssignTlStorage(ParList:TTlvStorageList);
 		procedure Print(ParDis:TDisplay);
 	end;
-	
-	
+
+
 	TPocBase=class(TSecBase)
 	private
 		voMeta   : boolean;
@@ -71,7 +71,7 @@ type
 		procedure   ReserveStorage(ParList:TTlvStorageList);virtual;
 		procedure   FreeStorage; virtual;
 	end;
-	
+
 	TUnkPoc=class(TPocBase)
 	private
 		voClassName : TString;
@@ -86,7 +86,7 @@ type
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
 		constructor Create(const ParName:ansistring);
 	end;
-	
+
 	TSubPoc=class(TPocBase)
 	private
 		voPocList : TSubPocList;
@@ -103,7 +103,7 @@ type
 		procedure   ReserveStorage(ParList:TTlvStorageList);override;
 		procedure   LinearizeSubList;
 	end;
-	
+
 	TLabelPoc=class(TPocBase)
 	private
 		voLabelNo : longint;
@@ -121,7 +121,7 @@ type
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		function    CanDelete : boolean;override;
 	end;
-	
+
 	TJumpPoc = class(TPocBase)
 	private
 		voLabel : TLabelPoc;
@@ -139,7 +139,7 @@ type
 		constructor Create(ParLabel : TLabelPoc);
 		procedure  SetDelete;override;
 	end;
-	
+
 	TCondJumpPoc=class(TJumpPoc)
 	private
 		voMac  : TMacBase;
@@ -156,7 +156,7 @@ type
 		procedure   Print(PArDis:TDisplay);override;
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TFormulaPoc=class(TPocBase)
 	private
 		voMacList:TMacList;
@@ -179,34 +179,34 @@ type
 		function     CalcOutputMac(ParCre : TCreator):TMacBAse;virtual;
 	end;
 	TRefFormulaPoc=class of TFormulaPoc;
-	
-	
+
+
 	TTwoFor=class(TFormulaPoc)
 		procedure CreateAllResources(ParCre:TInstCreator;ParInst:TInstruction);override;
 		function  GetIdentNumber(ParMacPos:TNormal):TFlag;override;
 		function  IsUsingSec(ParSec:TSecBase;ParHow:THowTYpe):boolean;override;
 	end;
-	
-	
+
+
 	TThreePoc=class(TTwoFor)
 		procedure CreateAllResources(ParCre:TInstCreator;ParInst:TInstruction);override;
 		function  GetIdentNumber(ParMacPos:TNormal):TFlag;override;
 		function  IsUsingSec(ParSec:TSecBase;ParHow:THowTYpe):boolean;override;
 		procedure Print(ParDis:TDisplay);override;
 	end;
-	
+
 	TSimpleThreeFor = class(TThreePoc)
 	end;
-	
+
 	TDivTypeFor = class(TThreePoc)
 	end;
-	
+
 	TNegfor= class(TTwoFor)
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(parDis:TDisplay);override;
 		procedure commonsetup;override;
 	end;
-	
+
 	TNotfor= class(TTwoFor)
 	protected
 		procedure commonsetup;override;
@@ -214,7 +214,7 @@ type
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(parDis:TDisplay);override;
 	end;
-	
+
 	TIncDecFor=class(TTwoFor)
 	private
 		voIncFlag : boolean;
@@ -227,7 +227,7 @@ type
 		procedure Print(parDis:TDisplay);override;
 		procedure commonsetup;override;
 	end;
-	
+
 	TAddFor=class(TSimpleThreeFor)
 	protected
 		procedure  Commonsetup;override;
@@ -236,7 +236,7 @@ type
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TSubFor=class(TSimpleThreeFor)
 	protected
 		procedure  Commonsetup;override;
@@ -245,10 +245,10 @@ type
 		procedure  Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
-	
-	
-	
+
+
+
+
 	TAndFor=class(TSImpleThreeFor)
 	protected
 		procedure Commonsetup;override;
@@ -257,7 +257,7 @@ type
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(ParDis:TDisplay);override;
 	end;
-	
+
 	TOrFor=class(TSimpleThreeFor)
 	protected
 		procedure Commonsetup;override;
@@ -266,7 +266,7 @@ type
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure Print(ParDis:TDisplay);override;
 	end;
-	
+
 	TXorFor=class(TSimpleThreeFor)
 	public
 		procedure Commonsetup;override;
@@ -303,7 +303,7 @@ type
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TDivFor=class(TDivTypeFor)
 	protected
 		procedure Commonsetup;override;
@@ -312,7 +312,7 @@ type
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TModFor=class(TDivTypeFor)
 	protected
 		procedure Commonsetup;override;
@@ -322,8 +322,8 @@ type
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
-	
+
+
 	TLoadFor=class(TTwoFor)
 	protected
 		procedure CommonSetup;override;
@@ -332,25 +332,25 @@ type
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TCompFor = class(TThreePoc)
 	private
 		voCompCode : TIdentCode;
 		property fCompCode :TIdentCode read voCompCode write voCompCode;
 	protected
 		procedure   CommonSetup;override;
-		
+
 	public
 		property    GetCompCode:TIdentCode read voCompCode;
-		
+
 		function    GetIdentNumber(ParMacPos:TNormal):TFlag;override;
 		constructor Create(ParCompCode : TIdentCode);
 		procedure   print(ParDis:TDisplay);override;
 		function    CalcOutputMac(ParCre : TCreator):TMacBAse;override;
 		function    CreateInst(PArCre:TInstCreator):boolean;override;
-		
+
 	end;
-	
+
 	TSetParPoc = class(TPocBase)
 	private
 		voPar              : TMacBase;
@@ -363,14 +363,14 @@ type
 	public
 		property   fPar:TMacBase read voPar;
 		property   fRtlParameterFlag:boolean read voRtlParameterFlag write SetRtlParameterFlag;
-		
+
 		procedure  ReserveStorage(ParTLVList:TTLvStorageList);override;
 		procedure  FreeStorage;override;
 		function   CreateInst(PArCre:TInstCreator):boolean;override;
 		procedure  Print(ParDIs:TDisplay);override;
 		constructor Create(ParParam : TMacBase);
 	end;
-	
+
 	TCallPoc = class(TPocBase)
 	private
 		voCDecl     : boolean;
@@ -389,13 +389,13 @@ type
 		property    fParamSize : TSize    read voParamSize;
 		property    fCDecl	 : boolean  read voCDecl;
 		property    fReturnVar : TMacBase read voReturnVar;
-		
+
 		procedure   SetReturnVar(PArVar:TMacBase);
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
 		constructor Create(ParTarget:TMacBase;ParCDecl:boolean;ParSize:TSize);
 		procedure   Print(ParDis:TDisplay);override;
 	end;
-	
+
 	TMetaPoc = class(TPocBase)
 	private
 		voGroupEnd   : TMetaPoc;
@@ -411,7 +411,7 @@ type
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TLongResListItem=class(TSMListITem)
 	private
 		voMac : TTLMac;
@@ -422,9 +422,9 @@ type
 		procedure   Print(ParDIs : TDisplay);
 		procedure   ReserveStorage(ParList:TTlvStorageList);
 		procedure   FreeStorage;
-		
+
 	end;
-	
+
 	TLongresList=class(TSMList)
 		procedure SetMacsLOngRes(ParCre:TInstCreator;ParOnOf:boolean);
 		procedure AddMac(ParMac:TTLMac);
@@ -432,9 +432,9 @@ type
 		procedure Check;
 		procedure   ReserveStorage(ParList:TTlvStorageList);
 		procedure   FreeStorage;
-		
+
 	end;
-	
+
 	TLongResMetaPoc=class(TMetaPoc)
 	private
 		voMacList : TLongResList;
@@ -453,19 +453,19 @@ type
 		procedure   ReserveStorage(ParList:TTlvStorageList);override;
 		procedure   FreeStorage; override;
 	end;
-	
+
 	TCallMetaPoc = class(TMetaPoc)
 		procedure Print(ParDis:TDisplay);override;
 		function  CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure CommonSetup;override;
 	end;
-	
+
 	TLSMovePoc = class(TPocBase)
 	private
 		voSource : TMacBase;
 		voDest	 : TMacBase;
 		voSize   : TSize;
-		
+
 		property iSource : TMacBase read voSource write voSource;
 		property iDest   : TMacBase read voDest   write voDest;
 		property iSize   : TSize    read voSize   write voSize;
@@ -481,7 +481,7 @@ type
 		procedure   ReserveStorage(ParList:TTlvStorageList);override;
 		procedure   FreeStorage; override;
 	end;
-	
+
 	TAsmPoc=class(TPocBase)
 	private
 		voText    : pointer;
@@ -497,14 +497,14 @@ type
 		procedure   Print(parDis:TDisplay);override;
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
 	end;
-	
+
 	TOptUnSavePoc=class(TPocBase)
 	public
 		procedure Commonsetup; override;
 		function    CreateInst(ParCre:TInstCreator):boolean;override;
 		procedure   Print(parDis:TDisplay);override;
 	end;
-	
+
 implementation
 uses asminfo,node;
 
@@ -574,7 +574,7 @@ begin
 	if voText <> nil then freemem(voText,GetSize);
 	voText := parText;
 	voSize := PArSize;
-	
+
 end;
 
 function  TAsmPoc.GetText:Pointer;
@@ -1145,8 +1145,8 @@ begin
 		vlLabel.GetName(vlname);
 		ParDis.Write(vlName)
 	end
-	else ParDis.Write('<empty>');
-	
+	else ParDis.Write('[empty]');
+
 end;
 
 function TCondJumpPoc.Optimize:boolean;
@@ -1204,13 +1204,13 @@ begin
 end;
 
 function  TJumpPoc.Optimize:boolean;
-var 
+var
 	vlPoc     : TPocBase;
 	vlJmp     : TJumpPoc;
 	vlCurrent : TPocBase;
 begin
 
-	
+
 	if Pointer(fNxt) = pointer(fLabel) then begin
 		SetDelete;
 		exit(true);
@@ -1325,7 +1325,7 @@ end;
 
 procedure TLabelPoc.GetName(var ParName:ansistring);
 begin
-	
+
 	str(voLabelNo,ParName);
 	ParName := '.l'+ParName;
 end;
@@ -1930,7 +1930,7 @@ end;
 {---( TSubPocList )---------------------------------------------------------}
 
 
-	
+
 procedure TSubPocList.Print(ParDis:TDisplay);
 var vlCurrent:TSecBase;
 begin
@@ -2022,7 +2022,7 @@ begin
 		vlHasChanges := false;
 		vlCurrent    := TPocBase(fStart);
 		while vlCurrent <> nil do begin
-			
+
 			if vLCurrent.CanDelete then begin
 				vlCurrent := TPocBase(DeleteLink(vlCurrent));
 				vlHasChanges := true;
@@ -2030,7 +2030,7 @@ begin
 				if vlCurrent.Optimize then vlHasChanges := true;
 				vlCurrent := TPocBase(vlCurrent.fNxt);
 			end;
-			
+
 		end;
 	until not vlHaschanges;
 	exit(vlHasChanges);
@@ -2048,7 +2048,7 @@ begin
 		{$endif}
 		if vlCurrent.CreateInst(ParCre) then exit;
 		vlCurrent := TPocBase(vlCurrent.fNxt);
-		
+
 	end;
 	CreateInst := false;
 end;

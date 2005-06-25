@@ -69,8 +69,8 @@ type
 		procedure   SetWarning;
 		function    IsBefore(ParCol,ParLine:Longint):boolean;
 	end;
-	
-	
+
+
 	TErrorList =class(TSMList)
 		function AddError(
 		const ParFileName : ansistring;
@@ -79,7 +79,7 @@ type
 		const ParExtra:ansistring) : TErrorItem;
 		FUNCTION    Successful : boolean;
 	end;
-	
+
 	TCompiler_Base=class(TRoot)
 		line, col  : longint;      {line and column of current symbol}
 		len        : LONGINT;      {length of current symbol}
@@ -88,7 +88,7 @@ type
 		lineStart  : LONGINT;    {start position of current line}
 		voLastLineStart :longint;
 		apx        : LONGINT;    {length of appendix (CONTEXT phrase)}
-		oldEols    : INTEGER;    {number of _EOLs in a comment}
+		oldEols    : longint;    {number of _EOLs in a comment}
 		bp0        : LONGINT;    {current position in buf}
 		{ (bp0: position of current token)}
 		errDist    : cardinal;   { number of symbols recognized since last error }
@@ -106,21 +106,21 @@ private
 	voInitialised      : boolean;
 	voScanBuffer       : TScanBuffer;
 	voCurrentChar      : char;
-	voCurrentSym       : integer;
+	voCurrentSym       : longint ;
 	voOwnDynSet        : boolean;
 	voFileName         : AnsiString;
 	voCase             : boolean;
 
 	procedure SetInitialised(ParOpend:boolean);
-	
+
 protected
 	property fScanBuffer  : TScanBuffer read voScanBuffer write voScanBuffer;
-	
+
 	property iSourceFileTime : longint read voSourceFileTime write voSourceFileTime;
 	property iFileName       : AnsiString read voFileName    write voFileName;
-	property fCurrentSym     : integer read voCurrentSym  write voCurrentSym;
+	property fCurrentSym     : longint read voCurrentSym  write voCurrentSym;
 	property Ch              : char    read voCurrentChar write voCurrentChar;
-	property GetSym          : integer read voCurrentSym;
+	property GetSym          : longint read voCurrentSym;
 	property fOwnDynSet      : boolean read voOwnDynSet   write voOwnDynSet;
 	property iErrorList      : TErrorList read voErrorList write voErrorList;
 	property iCase           : boolean read voCase         write voCase;
@@ -133,21 +133,21 @@ public
 	property  fFileName          : AnsiString read voFileName    write voFileName;
 	property  GetCurrentPosition : longint read pos;
 	property  fInitialised       : boolean read voInitialised;
-	
-	
-	
+
+
+
 	function    GetBufferPos:longint;
 	procedure   SetReadBufferData(ParPos:cardinal);
 	procedure   DecCurrentPos;
-	function	   GetLineStart(ParPos:longint):longint;
+	function    GetLineStart(ParPos:longint):longint;
 	procedure   SetSourceFileTime(ParTime:longint);
 	procedure   InitErrorList;virtual;
 	function    Error(ParErr:TErrorType;ParLine, ParCol,parPos:longint; const ParText:ansistring):TErrorItem;virtual;
 	PROCEDURE   NextCh;
 	FUNCTION    CharAt (ParPos: LONGINT): CHAR;
-	PROCEDURE   ExpectWeak (ParN : integer; ParFollow: TDynamicSet);
-	FUNCTION    WeakSeparator (ParN :integer;ParSet0, ParSyFol, ParRepFol: TDynamicSet): boolean;
-	PROCEDURE   Expect (ParN: INTEGER);
+	PROCEDURE   ExpectWeak (ParN : longint; ParFollow: TDynamicSet);
+	FUNCTION    WeakSeparator (ParN :longint;ParSet0, ParSyFol, ParRepFol: TDynamicSet): boolean;
+	PROCEDURE   Expect (ParN: longint);
 	procedure   Pragma;virtual;
 	PROCEDURE   Get;
 	PROCEDURE   SynError (ParErrNo: TErrorType);virtual;
@@ -156,11 +156,11 @@ public
 	procedure   AddWarning(ParErrNo : TErrorType;const ParText : ansistring);
 	procedure   AddWarning(ParErrNo : TErrorTYpe);
 	procedure   AddWarning(ParErrNo : TErrorType;ParLine,ParCol,ParPos:longint;const ParText : ansistring);
-	
-	procedure   Symget(var ParSym:integer);virtual;
-	PROCEDURE   GetName (ParPos: LONGINT; ParLen: INTEGER; var ParStr: ansistring);
-	PROCEDURE   GetName (ParPos: LONGINT; ParLen: INTEGER; var ParStr: string);
-	PROCEDURE   GeTString (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: ansistring);
+
+	procedure   Symget(var ParSym:longint);virtual;
+	PROCEDURE   GetName (ParPos: LONGINT; ParLen: longint ; var ParStr: ansistring);
+	PROCEDURE   GetName (ParPos: LONGINT; ParLen: longint; var ParStr: string);
+	PROCEDURE   GeTString (ParPos: LONGINT; ParLen: longint; VAR ParStr: ansistring);
 	procedure   GetBufansistring(ParPos:longint;ParSize : cardinal;var ParStr:ansistring);
 	function    SetupCompiler:boolean;virtual;
 	PROCEDURE   LexName (VAR Lex : ansistring);
@@ -174,8 +174,7 @@ public
 	procedure   GetBufBlock(ParPos:longint;ParSize : cardinal;var ParPtr:pointer);
 	procedure   GetBufBlock(ParPos:longint;ParSize : cardinal;ParBuf : TMemoryBlock);
 	procedure   NewLine(ParLine:cardinal);virtual;
-	procedure   GetErrorText(ParNo:longint;var ParErr:ansistring);
-	procedure   GetErrorText(ParNo:longint;var ParErr:string);virtual;
+	procedure   GetErrorText(ParNo:longint;var ParErr:ansistring);virtual;
 	procedure   HandleErrors;
 	procedure   ErrorHeader;virtual;
 	procedure   ErrorMessage(ParItem : TErrorItem);virtual;
@@ -232,7 +231,7 @@ begin
 	if vlCurrent = nil then vlCurrent := TErrorItem(fTop)
 	else vlCurrent := TErrorItem(vlCurrent.fPrv);
 	exit(TErrorItem(insertAt(vlCurrent,TErrorItem.create(ParFileName,ParCode,ParLine,ParCol,ParPos,ParExtra))));
-	
+
 end;
 
 {----( TErrorItem )--------------------------------------------------}
@@ -343,15 +342,14 @@ end;
 
 procedure  TCompiler_Base.GetLine(ParPos : longint;var ParLine : ansistring);
 var
-	vlCnt : cardinal;
 	vlPos : longint;
 	vlCh  : char;
 begin
 	vlPos := ParPos;
-	vlCnt := 0;
+
 	if(vlPos > 0) then begin
 		while	not(charat(vlPos) in LineEnds) do inc(vlPos);
-		GetString(ParPos,vlPos - ParPos,ParLine);	
+		GetString(ParPos,vlPos - ParPos,ParLine);
 	end else begin
 		SetLength(ParLine,0);
 	end;
@@ -448,15 +446,11 @@ begin
 end;
 
 procedure TCompiler_Base.GetErrorText(ParNo:longint;var ParErr:ansistring);
-var
-	vlStr : string;
+
 begin
-	GetErrorText(ParNo,vlStr);
-	ParErr := vlStr;
+
 end;
-procedure TCompiler_Base.GetErrorText(ParNo:longint;var ParErr:string);
-begin
-end;
+
 
 procedure TCompiler_Base.OpenFileFailed(ParError : TErrorType);
 begin
@@ -500,7 +494,11 @@ var
 	vlString    : ansistring;
 begin
 	SetLength(vlString,ParSize);
-	if ParSize > 0 then fScanBuffer.MoveTo(ParPos,ParSize,vlMovedSize,vlString[1]);
+	if ParSize > 0 then begin
+		fScanBuffer.MoveTo(ParPos,ParSize,vlMovedSize,vlString[1]);
+	end else begin
+		vlMovedSize := 0;
+	end;
 	SetLength(vlString,vlMovedSize);
 	ParStr := vlString;
 end;
@@ -520,12 +518,12 @@ end;
 
 
 
-PROCEDURE TCompiler_Base.GeTString (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: ansistring);
+PROCEDURE TCompiler_Base.GetString (ParPos: LONGINT; ParLen: longint; VAR ParStr: ansistring);
 begin
 	GetBufansistring(ParPos,ParLen,ParStr);
 end;
 
-PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: string);
+PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: longint; VAR ParStr: string);
 var
 	vlString : ansistring;
 begin
@@ -533,7 +531,7 @@ begin
 	ParStr := vlString;
 end;
 
-PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: INTEGER; VAR ParStr: ansistring);
+PROCEDURE TCompiler_base.GetName (ParPos: LONGINT; ParLen: longint; VAR ParStr: ansistring);
 begin
 	GetBufansistring(ParPos,ParLen,ParStr);
 	if not voCase then UpperStr(ParStr);
@@ -545,7 +543,7 @@ procedure TCompiler_Base.NewLIne(ParLine:cardinal);
 begin
 end;
 
-procedure TCompiler_Base.symget(var ParSym:Integer);
+procedure TCompiler_Base.symget(var ParSym:longint);
 begin
 	voLastLinestart := LineStart;
 	if line <> nextLine then NewLine(line);
@@ -635,16 +633,17 @@ begin
 	ELSE exit(C_EF)
 end;
 
-PROCEDURE  TCompiler_Base.ExpectWeak (ParN : integer; ParFollow: TDynamicSet);
+PROCEDURE  TCompiler_Base.ExpectWeak (ParN : longint; ParFollow: TDynamicSet);
 BEGIN
-	IF fCurrentSym = ParN  THEN Get
-	ELSE BEGIN
+	if fCurrentSym = ParN  then begin
+		Get
+	end else begin
 		SynError(ParN);
-		WHILE NOT ParFollow.IsSet(fCurrentSym) DO Get;
+		while NOT(ParFollow.IsSet(fCurrentSym)) DO Get;
 	END
 END;
 
-FUNCTION  TCompiler_base.WeakSeparator (ParN : integer;ParSet0, ParsyFol, ParRepFol: TDynamicSet): boolean;
+FUNCTION  TCompiler_base.WeakSeparator (ParN : longint;ParSet0, ParsyFol, ParRepFol: TDynamicSet): boolean;
 BEGIN
 	IF fCurrentSym = ParN THEN BEGIN
 		Get;
@@ -661,7 +660,7 @@ BEGIN
 	END
 END;
 
-PROCEDURE  TCompiler_base.Expect (ParN: INTEGER);
+PROCEDURE  TCompiler_base.Expect (ParN: longint);
 begin
 	IF fCurrentSym = ParN THEN Get ELSE SynError(ParN);
 end;
@@ -672,7 +671,7 @@ end;
 
 
 PROCEDURE  TCompiler_base.Get;
-var vlSym : integer;
+var vlSym : longint ;
 BEGIN
 	symget(vlSym);
 	if vlSym >maxT then begin

@@ -20,32 +20,31 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit frames;
 interface
-uses vars,largenum,streams,compbase,formbase,ddefinit,varbase,node,stdobj,macobj,linklist,elacons,elatypes,error,display;
+uses sysutils,vars,largenum,streams,compbase,formbase,ddefinit,varbase,node,stdobj,macobj,linklist,elacons,elatypes,error,display;
 type
 	TAddressing=class(TListItem)
 	private
 		voOwner   : TDefinition;
 		voContext : TDefinition;
 		voDestroy : boolean;
-		
+
 		property iOwner   : TDefinition read voOwner write voOwner;
 		property iContext : TDefinition read voContext write voContext;
 		property iDestroy : boolean     read voDestroy write voDestroy;
 		procedure   Clear;override;
-		
+
 	public
-		
+
 		property fOwner   : TDefinition read voOwner;
 		property fContext : TDefinition read voContext;
-		
+
 		constructor Create(ParOwner,ParContext : TDefinition;ParDestroy:boolean);
 		function    CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;virtual;
 		function    CreateMac(ParOpt:TMacCreateOption;ParCre:TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;virtual;
 		procedure   DestroyFramePointer;virtual;
 		function    GetContextName : ansistring;
-
 	end;
-	
+
 	TMacAddressing=class(TAddressing)
 	private
 		voFramePointer : TMacBase;
@@ -54,7 +53,7 @@ type
 		function    CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;override;
 		constructor Create(ParOwner ,ParContext: TDefinition;ParMac : TMacbase;ParDestroy : boolean);
 	end;
-	
+
 	TNodeAddressing=class(TAddressing)
 	private
 	        voNode : TNodeIdent;
@@ -79,7 +78,7 @@ type
 		constructor Create(ParMacOption : TMacCreateOption;ParOwner,ParContext,ParFrameVarContext : TDefinition;ParVar : TVarBase;ParDestroy:boolean);
 		procedure   DestroyFramePointer;override;
 	end;
-	
+
 	TAddressingList=class(TList)
 		function GetAddressingByOwner(parOwner : TDefinition) : TAddressing;
 		function GetCheckAddressingByOwner(parOwner : TDefinition) : TAddressing;
@@ -88,7 +87,7 @@ type
 		function  CreateFramePointerMac(ParCOntext : TDefinition;parCre : TSecCreator) : TMacBase;
 		function  CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator;ParOffset : TOffset;ParSize : TSize;ParSign:boolean):TMacBase;
 	end;
-	
+
 	TFrame= class(TStrAbelRoot)
 	private
 		voPrevious     : TFrame;
@@ -96,25 +95,27 @@ type
 		voAddressList  : TAddressingList;
 		voUpDirection  : boolean;
 		voFrameSize    : TOffset;
-		property  iUpDirection  : boolean         read voUpDirection  write voUpDirection;
-		property  iFrameSize  : TOffset	        read voFrameSize  write voFrameSize;
-		property  iPrevious   : TFrame          read voPrevious   write voPrevious;
-		property  iShare      : TFrame		read voShare	  write voShare;
-		property  iAddressLIst : TAddressingList read voAddressList write voAddressList;
+		voIsConstant   : boolean;
+		property  iUpDirection  : boolean        read voUpDirection  write voUpDirection;
+		property  iFrameSize    : TOffset         read voFrameSize    write voFrameSize;
+		property  iPrevious     : TFrame          read voPrevious     write voPrevious;
+		property  iShare        : TFrame	  	 read voShare	     write voShare;
+		property  iAddressLIst  : TAddressingList read voAddressList  write voAddressList;
+		property  iIsConstant   : boolean         read voIsConstant   write voIsConstant;
 		procedure Commonsetup;override;
 		procedure Clear;override;
 
 	public
 		procedure SetShare(ParFrame : TFrame);
-		property  fPrevious  : TFrame          read voPrevious   write voPrevious;
-		property  fShare     : TFrame	         read voShare	 write  SetShare;
+		property  fPrevious  : TFrame         read voPrevious   write voPrevious;
+		property  fShare     : TFrame         read voShare	 write  SetShare;
 		property  fFrameSize : TOffset	      read vOFrameSize;
-		
+		property  fIsConstant: boolean        read voIsConstant write voIsConstant;
 		procedure AddAddressing(ParOwner,ParContext : TDefinition;ParVar  : TMacBase;ParDestroy : boolean);
 		procedure AddAddressing(ParOwner,ParContext,ParFrameVarContext : TDefinition;ParVar  : TVarBase;ParDestroy : boolean);
 		procedure AddAddressing(ParMacOption : TMacCreateOption;ParOwner,ParContext,ParFrameVarContext : TDefinition;ParVar : TVarBase;ParDestroy:boolean);
 		procedure AddAddressing(ParOwner, ParContext : TDefinition;ParNode : TNodeIdent;ParDestroy : boolean);
-		
+
 		procedure PopAddressing(ParOwner : TDefinition);
 		constructor Create(ParUpDirection : boolean);
 		function  GetNewOffset(const ParSize : TSize) : TOffset;
@@ -126,17 +127,17 @@ type
 		function  HasPrevious(ParFrame : TFrame):boolean;
 		procedure Print(ParDis : TDisplay);
 	end;
-	
+
 	TFrameVariable=class(TVariable)
 	private
-		
+
 		voOffset : TOffset;
 		voFrame  : TFrame;
-		
+
 	public
 		property    fFrame  : TFrame  read voFrame  write voFrame;
 		property    fOffset : TOffset read voOffset write voOffset;
-		
+
 		constructor Create(const ParName : ansistring;ParFrame:TFrame;ParOffset : TOffset;ParType:TType);
 		function    CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase; override;
 		function    LoadItem(ParWrite:TObjectStream):boolean;override;
@@ -145,11 +146,12 @@ type
 		function    CreateDB(ParCre  : TCreator):boolean;override;
 		procedure InitVariable(ParOwner,ParContext : TDefinition;ParFrame : TFrame);virtual;
 		procedure DoneVariable(PArOwner : TDefinition;ParFrame : TFrame);virtual;
+		function  Can(ParCan:TCan_Types):boolean;override;
 	end;
-	
-	
-	
-	
+
+
+
+
 implementation
 
 uses asminfo;
@@ -184,6 +186,21 @@ end;
 
 
 {--------( TFrameVariable )------------------------------------}
+
+
+function  TFrameVariable.Can(ParCan:TCan_Types):boolean;
+var
+	vlCan : TCan_Types;
+begin
+	vlCan := ParCan;
+	if(can_write in vlCan) then begin
+
+		if fFrame.fIsConstant then exit(false);
+		vlCan := vlCan - [CAN_Write];
+	end;	
+
+	exit(inherited Can(vlCan));
+end;
 
 procedure TFrameVariable.DoneVariable(PArOwner : TDefinition;ParFrame : TFrame);
 begin
@@ -288,30 +305,33 @@ var vlMac  : TMacBase;
 	vlLi   : TLargeNumber;
 begin
 	case ParOpt of
-	MCO_Result : begin
-		vlMac := CreateFramePointerMac(ParCre);
-		vlMac := TByPointerMac.Create(ParSize,ParSign,vlMac);
-		ParCre.AddObject(vlMac);
-		vlMac.SetExtraOffset(ParOffset);
-	end;
-	MCO_ValuePointer,MCO_ObjectPointer:begin
-		if ParOffset = 0 then begin
+		MCO_Result : begin
 			vlMac := CreateFramePointerMac(ParCre);
-		end else begin
-			vlMac   := CreateMac(MCO_Result,ParCre,ParOffset,ParSize,ParSign);
-			vlMac2  := TMemOfsMac.Create(vlMac);
-			ParCre.AddObject(vlMac2);
-			vlMac   := vlMac2;
+			vlMac := TByPointerMac.Create(ParSize,ParSign,vlMac);
+			ParCre.AddObject(vlMac);
+			vlMac.SetExtraOffset(ParOffset);
+		end;
+		MCO_ValuePointer,MCO_ObjectPointer:begin
+			if ParOffset = 0 then begin
+				vlMac := CreateFramePointerMac(ParCre);
+			end else begin
+				vlMac   := CreateMac(MCO_Result,ParCre,ParOffset,ParSize,ParSign);
+				vlMac2  := TMemOfsMac.Create(vlMac);
+				ParCre.AddObject(vlMac2);
+				vlMac   := vlMac2;
+			end;
+		end;
+		MCO_Size:begin
+			LoadInt(vlLi,ParOffset);
+			vlMac := ParCre.CreateNumberMac(GetAssemblerInfo.GetSystemSize,LargeIsNeg(vlLi),vlLi);
+		end
+		else begin
+			fatal(FAT_Invalid_Mac_Number,'MAC='+IntToStr(cardinal(ParOpt)));
 		end;
 	end;
-	MCO_Size:begin
-		LoadInt(vlLi,ParOffset);
-		vlMac := ParCre.CreateNumberMac(GetAssemblerInfo.GetSystemSize,LargeIsNeg(vlLi),vlLi);
-	end
-	else vlMac := nil;
+	exit(vlMac);
 end;
-exit(vlMac);
-end;
+
 
 
 {--( TMacAddressing )-------------------------------------------------------------}
@@ -330,6 +350,8 @@ end;
 
 
 {---( TVarAddressing )----------------------------------------------------------}
+
+
 
 function    TVarAddressing.CreateFramePointerMac(ParCre : TSecCreator) : TMacBase;
 begin
@@ -352,7 +374,6 @@ end;
 
 {---( TAddressingList )------------------------------------------------------------}
 
-
 function TAddressingList.GetAddressingByOwner(parOwner : TDefinition) : TAddressing;
 var
 	vlCurrent : TAddressing;
@@ -363,7 +384,7 @@ begin
 		vlCurrent := TAddressing(vlCurrent.fPrv);
 	end;
 	exit(vlCurrent);
-	
+
 end;
 
 function TAddressingList.GetCheckAddressingByOwner(ParOwner :TDefinition):TAddressing;
@@ -396,7 +417,7 @@ function  TAddressingList.CreateFramePointerMac(ParContext : TDefinition;parCre 
 var
 	vlCurrent  :TAddressing;
 begin
-	
+
 	vlCurrent := GetCheckAddressingByOwner(ParContext);
 	exit(vlCurrent.CreateFramePointerMAc(ParCre));
 end;
@@ -467,7 +488,7 @@ begin
 	vlFrame := self;
 	while (vlFrame <> nil) and (vlFrame <> ParFrame) do vlFrame := vlFrame.fShare;
 	exit(vlFrame <> nil);
-	
+
 end;
 
 
@@ -536,6 +557,7 @@ begin
 	iPrevious   := nil;
 	iShare      := nil;
 	iFrameSize  := 0;
+	iIsConstant := false;
 end;
 
 procedure TFrame.Clear;

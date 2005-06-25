@@ -80,9 +80,6 @@ type
 		procedure   AddConstant(ParName:TNameList;const ParCon:TValue);
 		function    AddConstant(const ParName : ansistring;const ParCon : TValue): TDefinition;
 		function    AddConstant(const ParName : ansistring;const ParCon : TValue;ParType : TType):TDefinition;
-
-		function    ConvertTextToNode( ParStr : TStringBaseValue) : TNodeIdent;
-
 		function    AddUnion:TType;
 		function    AddType(const ParNames:ansistring;ParType:TType):TType;
 		procedure   InitModule(const ParName:ansistring);
@@ -480,7 +477,7 @@ end;
 
 procedure  TNDCreator.GetModuleName(var ParName:ansistring);
 begin
-	fCurrentUnit.GetNameStr(ParName);
+	ParName := fCurrentUnit.fName;
 end;
 
 
@@ -717,14 +714,17 @@ begin
 end;
 
 procedure  TNDCreator.InitModule(const ParName:ansistring);
-var vlName : ansistring;
-	vlUnitName : ansistring;
+var
+	vlName : ansistring;
+	vlDm1  : ansistring;
+	vlDm2  : ansistring;
+	vlBase : ansistring;
 begin
 	vlName:= ParName;
 	NormFileName(vlName);
 	voUnit := TUnit.Create(ParName);
-	voUnit.GetNameStr(vlUnitName);
-	SetLabelBase(vlUnitName);
+	SplitFile(vlName,vlDm1,vlBase,vLDm2);
+	SetLabelBase(vlBase);
 	iCollection.AddIDentList(vlname,0,voUnit.fItemList,true);
 	AddUnitUse(vlName,[US_Current_Unit]);
 end;
@@ -1071,20 +1071,6 @@ begin
 	end;
 	exit(vLNode);
 end;
-
-
-function TNDCreator.ConvertTextToNode(ParStr : TStringBaseValue) : TNodeIdent;
-var
-	vlType : TType;
-	vlDefType : TDefaultTypeCode;
-begin
-	vlDefType := DT_String;
-{	if ParStr.GetLength=1 then vlDefType := DT_Char;}
-	vlType := GetDefaultIdent(vlDefType,0,false);
-	if vlType = nil then SemError(Err_Cant_Find_Type);
-	exit(TConstantValueNode.Create(ParStr,vlType));
-end;
-
 
 function TNDCreator.AddStringConst(const ParName : ansistring;const ParStr : ansistring) : TDefinition;
 var vlType        : TType;

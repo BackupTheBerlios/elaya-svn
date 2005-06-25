@@ -55,7 +55,7 @@ type
 		function   	GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
     	function    CreateDefinitionUseItem : TUseItem;override;
 	end;
-	
+
 	TVarNode=class(TValueNode)
 	private
 		voVariable : TVarBase;
@@ -75,10 +75,10 @@ type
 		procedure   ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 		function    GetDefinition : TDefinition;override;
 	end;
-	
 
-	
-	
+
+
+
 implementation
 uses ndcreat;
 
@@ -134,7 +134,7 @@ end;
 function TVarNode.GetOrgType:TType;
 var vlType:TType;
 begin
-	
+
 	vlType := nil;
 	if iVariable <> nil then vlType := iVariable.fType;
 	if vlType <> nil  then   vlType := TType(vlType.GetOrgType);
@@ -154,7 +154,7 @@ begin
 	ParDis.Write('<variable>');
 	iVariable.PrintName(ParDis);
 	ParDis.Write('</variable>');
-	
+
 end;
 
 
@@ -282,7 +282,7 @@ begin
 	if inherited LoadItem(ParWrite) then exit;
 	if ParWrite.ReadPi(TStrAbelRoot(voType)) then exit;
 	LoadItem := false;
-	
+
 end;
 
 

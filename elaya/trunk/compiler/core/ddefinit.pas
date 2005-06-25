@@ -31,6 +31,7 @@ type
 		voIdentCode       : TIdentCode;
 	protected
 
+		property     iHashNext        : TDefinition      read voHashNext        write voHashNext;
 		property     iAllwaysSave     : boolean          read voAllwaysSave     write voAllwaysSave;
 		property     iOwner           : TDefinition      read voOwner           write voOwner;
 		property     iDefAccess       : TDefAccess       read voDefAccess       write voDefAccess;
@@ -44,23 +45,23 @@ type
 		property     fDefAccess  : TDefAccess       read voDefAccess write voDefAccess;
 		property     fIdentCOde  : TIdentCode       read voIdentCode;
 
-		
+
 		function     IsAsmGlobal : boolean;
 		function     MustSaveItem : boolean;
 		function     GetForwardDefined : boolean;virtual;
 		procedure    SignalInPublicSection;virtual;
-		
+
 		procedure    AddToHashing(ParHash:THashing);
 		procedure    SetDefault(ParDefault : TDefaultTypeCode);
 		procedure    SetHashingObject(ParHash:THashing);virtual;
-		procedure    SetHashNext(ParDef:TDefinition);
-		
+
+
 		function     Addident(Parident:TDefinition):TErrorType;virtual;
 		function     Can(ParCan:TCan_Types):boolean;virtual;
 		function     CreateDB(ParCre:TCreator):boolean;virtual;
 		function     CreateVar(ParCre:TCreator;const ParName:ansistring;ParDef:TDefinition):TDefinition;virtual;
 		function     GetDefaultIdent(ParCode:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
-		
+
 		procedure    GetTextName(var ParName : ansistring);virtual;
 		procedure    GetForParentMangleName(var ParName : ansistring);virtual;
 		function     GetPtrByName(const ParName:ansistring;ParOption : TSearchOptions;var ParOwner,ParItem:TDefinition):boolean;virtual;
@@ -69,7 +70,7 @@ type
 		procedure    PreMangledName(var Parname:ansistring); virtual;
 		procedure    OnMangledName(var ParName:ansistring); virtual;
 		procedure    PostMangledName(var ParName:ansistring);virtual;
-		
+
 		function     loaditem(ParWrite:TObjectStream):boolean;override;
 		function     Saveitem(ParWrite:TObjectStream):boolean;override;
 		function     GetAccessLevelTo(ParOther : TDefinition) : TDefAccess;virtual;
@@ -134,7 +135,7 @@ type
 	end;
 
 	TRefDefinition=class of TDefinition;
-	
+
 implementation
 
 uses asminfo,asmcreat,ndcreat;
@@ -428,7 +429,7 @@ end;
 
 procedure TDefinition.PrintDefinitionType(ParDis : TDisplay);
 begin
-	ParDis.Write('<abstract>');
+	ParDis.Write('<errabstract><routine>PrintDefinitionType</routine><classname>'+classname+'</classname></errabstract>');
 end;
 
 procedure TDefinition.PrintDefinitionHeader(ParDis : TDisplay);
@@ -485,7 +486,7 @@ begin
 		vlDef := TDefinition(ParHash.SetHashIndex(fText,self));
 		AddGlobalsToHashing(ParHash);
 		if vlDef = self then runerror(253);
-		SetHashNext(vlDef);
+		iHashNext := vlDef;
 	end;
 end;
 
@@ -495,11 +496,6 @@ end;
 
 procedure   TDefinition.AddGlobalsToHashing(ParHash:THashing);
 begin
-end;
-
-procedure   TDefinition.SetHashNext(ParDef:TDefinition);
-begin
-	voHashNext := ParDef;
 end;
 
 procedure   TDefinition.OnMangledName(var ParName:ansistring);
@@ -530,7 +526,6 @@ begin
 		end;
 		vlDef := vlDef.GetRealOwner;
 	end;
-	
 end;
 
 function TDefinition.CreateVar(ParCre:TCreator;const ParName:ansistring;ParDef:TDefinition):TDefinition;
@@ -549,7 +544,7 @@ begin
 	if not (dm_CPublic in fDefinitionModes)  then begin
 		PreMangledName(ParName);
 		onMangledName(ParName);
-		PostMangledName(ParName)
+		PostMangledName(ParName);
 	end else begin
 		GetTextName(ParName);
 		if not(dm_interface in fDefinitionModes) then LowerStr(ParName);
@@ -600,7 +595,7 @@ begin
 	inherited CommonSetup;
 	iIdentCode := IC_Unkown;
 	SetDefault(DT_Nothing);
-	SetHashNext(nil);
+	iHashNext := nil;
 	fDefAccess := AF_Current;
 	fOwner     := nil;
 	iLine      := 0;
@@ -666,7 +661,7 @@ var
 	vlName : ansistring;
 begin
 	GetDisplayName(vlName);
-	ParDis.Write(vlName);
+	ParDis.Write(stringToXML(vlName));
 end;
 
 

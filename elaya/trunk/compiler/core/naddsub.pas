@@ -25,7 +25,7 @@ uses formbase,largenum,elatypes,error,asminfo,
 compbase,node,macobj,types,
 execobj,elacons,pocobj,ndcreat,display;
 type
-	
+
 	TAddNode=class(TDualOperNode)
 	protected
 		procedure commonsetup;override;
@@ -35,7 +35,7 @@ type
 		procedure  ValidatePre(ParCre :TCreator;ParIsSec:boolean);override;
 
 	end;
-	
+
 	TSubNode=class(TDualOperNode)
 	protected
 		procedure commonsetup;override;
@@ -44,14 +44,14 @@ type
 		procedure GetOperStr(var ParOper:ansistring);override;
 		procedure InitParts;override;
 	end;
-	
+
 	TAddSubNodeList=class(TOperatorNodeList)
 	public
 		procedure GetFirstValue(var ParValue :TNumber);override;
 		function  CanOptimize1:boolean;override;
 		function  CanOptimizeCpx:boolean;override;
 	end;
-	
+
 	TSubNodeList = class(TAddSubNodeList)
 	public
 		function  AddOptimizedValue(ParCre : TCreator;ParValue : TNumber):boolean;override;
@@ -61,7 +61,7 @@ type
 		function  FirstCpxOptimizeNode : TFormulaNode;override;
 		procedure ValidateSub(ParCre  : TCreator);
 	end;
-	
+
 	TAddNodeList = class(TAddSubNodeLIst)
 	public
 		function  AddOptimizedValue(ParCre : TCreator;ParValue : TNumber):boolean;override;
@@ -71,13 +71,13 @@ type
 		procedure ValidateSub(ParCre  : TCreator);
 	end;
 
-	
+
 	TIncDecNode = class(TNodeIdent)
 	private
 		voIncFlag     : boolean;
 		voIncrementor : TFormulaNode;
 		voValue       : TFormulaNode;
-		
+
 		property iIncFlag : boolean read voIncFlag write voIncFlag;
 		property iIncrementor : TFormulaNode read voIncrementor write voIncrementor;
 		property iValue       : TFormulaNode read voValue       write voValue;
@@ -94,9 +94,9 @@ type
 		function  CreateSec(ParCre : TSecCreator):boolean;override;
 		procedure PrintNode(ParDis:TDisplay);override;
 	end;
-	
-	
-	
+
+
+
 implementation
 {---( TIncDecNode )------------------------------------------------------------}
 
@@ -286,15 +286,20 @@ function  TSubNodeList.DetermenFormType(ParCre : TCreator;ParPrvType : TType;Par
 var
 	vlType : TType;
 begin
+
 	if (ParNode <> nil) and (ParPrvType <> nil) then begin
+
 		if (ParPrvType is TPtrType) then begin
 			if (ParNode.GetOrgType is TPtrType) then begin
+
 				vlType := (TNDCreator(ParCre).GetDefaultIdent(DT_Number,GetAssemblerInfo.GetSystemSize,true));
 				exit(vlType);
 			end;
+
 			exit(ParPrvType);
 		end;
 	end;
+
 	exit(inherited DetermenFormType(ParCre,ParPrvType,ParNode));
 end;
 
@@ -330,11 +335,11 @@ begin
 		vlCurrent := TFormulaNode(vlCurrent.fNxt);
 		while (vlCurrent <>  nil) do begin
 			vlMac2 := vlCurrent.CreateMac(ParOption,ParCre);
-			
+
 			if vlIsPtrType and not(vlCurrent.IsLikeType(TPtrType)) then begin
 				vlMac2 := ParCre.MakeMulPoc(vlMac2,vlPtrSize);
 			end;
-			
+
 			vlMac := CreatePoc(ParCre,vlMac,vlMac2);
 			if vlMac= nil then break;
 			if (vlCurrent.IsLikeType(TPtrType)) and (vlIsPtrType) then begin
@@ -400,7 +405,7 @@ begin
 		IsPtr1 := vlType.IsCompByIdentCode(IC_PtrType);
 		IsOrd1 := vlType.IsCompByIdentCode(IC_Number);
 		if not(IsPtr1 or IsOrd1) then TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Wrong_Type,'');
-		vlCurrent := TFormulaNode(vlCurrent.fNxt);		
+		vlCurrent := TFormulaNode(vlCurrent.fNxt);
 		while vlCurrent <> nil do begin
 			vlType := vlCurrent.GetType;
 			if vlType <> nil then begin
@@ -408,7 +413,7 @@ begin
 					if not(vlType.IsLike(TNumberTYpe)) then begin
 						TNDCreator(ParCre).AddNodeError(vlCurrent,Err_Wrong_Type,'');
 					end;
-				end else if IsOrd1 then begin					
+				end else if IsOrd1 then begin
 					if vlType.IsLike(TPtrType) then begin
 						IsPtr1 := true;
 						IsOrd1 := false;
@@ -431,7 +436,7 @@ var
 	vlMac2        : TMacBase;
 	vlIsPointer   : boolean;
 	vlPtrTypeSize : TLargeNumber;
-	
+
 begin
 	vlSec := TSubPoc.create;
 	ParCre.AddSec(vlSec);

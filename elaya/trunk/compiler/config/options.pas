@@ -167,7 +167,7 @@ begin
 	writeln('	              N=Turnoff printing node/POC list file');
 	writeln('-O[k]          = Optimize');
 	writeln('		           k=Optimize register use:');
-	writeln('  		          k1=Reuse register contents');
+	writeln('  		          ku=Reuse register contents');
 	writeln('-r      = rebuild, when source has changed or unit versions dont match');
 	{	writeln('	          b = Rebuild all programs'); }
 	writeln('-u             =Unit options');
@@ -317,7 +317,7 @@ begin
 			exit(false);
 		end;
 		'1':begin
-			
+
 			if ParCnt > length(ParParam) then exit(true);
 			vlFl := ParParam[ParCnt];
 			inc(ParCnt);
@@ -459,7 +459,7 @@ begin
 						case vStr[3] of
 						'b':GetOptionValues.SetBuild(true,CL_Options);
 					end;
-					
+
 				end;
 			end;
 			else begin

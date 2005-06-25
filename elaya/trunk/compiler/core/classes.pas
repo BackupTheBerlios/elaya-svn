@@ -231,6 +231,7 @@ type
 		function GetItem(ParAccess : TDefAccess;ParType : TPropertyType) :TPropertyItem;
 		procedure Commonsetup;override;
 		procedure Clear;override;
+		procedure PrintDefinitionType(ParDis:TDisplay);override;
 	public
 		procedure AddPropertyItem(ParCre : TNDCreator;ParAccess : TDefAccess;ParType : TPropertyType;ParIdent:TFormulaDefinition;ParOwner : TDefinition);
 		function  CreateReadNode(ParCre : TCreator;ParOWner : TDefinition) : TFormulaNode;override;
@@ -253,6 +254,10 @@ uses nif,execobj,stmnodes;
 
 {---( TProperty )-----------------------------------------------------------------------}
 
+procedure TProperty.PrintDefinitionType(ParDis:TDisplay);
+begin
+	ParDis.Write('property');
+end;
 
 function TProperty.SaveItem(ParStream : TObjectStream):boolean;
 begin
@@ -680,9 +685,8 @@ begin
 	if not vlRoutine.IsInheritedInHyr(self) then begin
 		if(ParNested is TConstructor) then begin
 			vlPtrType := TNDCReator(ParCre).GetCheckDefaultType(DT_Pointer,0,false,'pointer');
-         vlFrame := iMetaFrame;
+			vlFrame := iMetaFrame;
 			vlParameterMeta := TFrameParameter.Create(Name_MetaPtr,1,vlRoutine.fParameterFrame,vlFrame,vlPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
-
 			vlRoutine.AddParam(vlParameterMeta);
 		end;
 		vlPtr      := iMetaPtr;
@@ -750,16 +754,16 @@ var
 	vlClassParam : TClassFrameParameter;
 	vlRoutine   : TRoutine;
 	vlPtrType   : TType;
+	vlTranType  : TParamTransferType;
 begin
 	vlRoutine := TRoutine(ParNested);
 	if not vlRoutine.IsInheritedInHyr(self) then begin
 		vlPtrType := TNDCReator(ParCre).GetCheckDefaultType(DT_Pointer,0,false,'pointer');
 		vlParameter := TFrameParameter.Create(Name_MetaPtr,1,vlRoutine.fParameterFrame,fMeta.fMetaframe,vlPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
 		vlRoutine.AddParam(vlParameter);
-		if(iPtrType=nil) then begin
-			iPtrType := TPtrType.Create(self,not(RTM_Write_mode in vlRoutine.fRoutineModes));
-		end;
-		vlClassParam := TClassFrameParameter.Create(Name_Self,nil,nil,vlRoutine.fParameterFrame,fFrame,iPtrType,PV_Value,RTM_extended in vlRoutine.fRoutineModes);
+		vlTranType := PV_Const;
+		if(RTM_Write_Mode in vlRoutine.fRoutineModes) then vlTranType := PV_Var;
+		vlClassParam := TValueClassFrameParameter.Create(Name_Self,nil,nil,vlRoutine.fParameterFrame,fFrame,self,vlTranType,RTM_extended in vlRoutine.fRoutineModes);
 		vlClassParam.fConstant := not(RTM_Write_Mode in vlRoutine.fRoutineModes);
 		vlRoutine.AddParam(vlClassParam);
 	end;
@@ -794,7 +798,7 @@ var
 	vlOfs  : TMemOfsMac;
 begin
 	vlMac := ParNode.CreateMac(MCO_Result,ParCre);
-   vlOfs := TMemOfsMac.Create(vlMac);
+	vlOfs := TMemOfsMac.Create(vlMac);
 	ParCre.AddObject(vlOfs);
 	iFrame.AddAddressing(self,self,vlOfs,true);
 	if not IsVirtual then iMetaFrame.AddAddressing(self,self,iMeta.CreateMac(self,ParContext,MCO_ValuePointer,ParCre),true);

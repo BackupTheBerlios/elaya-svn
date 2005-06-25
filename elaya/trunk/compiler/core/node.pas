@@ -763,7 +763,7 @@ end;
 
 procedure TNodeident.PrintNode(ParDis:TDisplay);
 begin
-	ParDis.Write('<abstract>');
+	ParDis.Write('<errabstract><routine>PrintNode</routine><classname>'+classname+'</classname></errabstract>');
 end;
 
 {-----( TSubListStatementNode )-----------------------------------------------------}

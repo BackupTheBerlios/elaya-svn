@@ -31,13 +31,13 @@ type
 		constructor Create(ParAddress : Pointer);
 		procedure   Bind(ParObject : TRoot);
 	end;
-	
+
 	TPtrBindList=class(TSMList)
 	public
 		procedure AddBind(ParPtr : pointer);
 		procedure Bind(ParObject  :  TRoot);
 	end;
-	
+
 	TPtrItem=class(TSMListItem)
 	private
 		voPtr	      : TRoot;
@@ -64,7 +64,7 @@ type
 		procedure   Bind;
 		procedure   AddBind(ParItem : pointer);
 	end;
-	
+
 	TPtrList=class(TSMList)
 	private
 		voHashMatrix : array[0..SIZE_PtrCOnvHash] of TPtrItem;
@@ -223,12 +223,12 @@ end;
 
 
 function TPtrList.AddPtr(ParCode : TIdentNumber;ParPtr : TRoot) : TIdentNumber;
-var vlCurrent : TPtrItem;
+var 	vlCurrent : TPtrItem;
 	vlNum     : TIdentNumber;
 begin
 	vlNum  := ParCode;
-	AddPtr := IC_No_Code;
-	if vlNum <> IC_No_Code then begin
+	AddPtr := IN_No_Code;
+	if vlNum <> IN_No_Code then begin
 		vlCurrent := GetItemByCode(vlNum);
 		if vlCurrent = nil then begin
 			vlCurrent := TPtrItem.Create(vlNum);

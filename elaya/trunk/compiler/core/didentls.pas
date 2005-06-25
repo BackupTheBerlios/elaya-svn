@@ -21,7 +21,7 @@ unit DIdentLs;
 
 interface
 uses useitem,strmbase,streams,cmp_type,stdobj,linklist,compbase,display,elacons,hashing,DDefault,DDefinit,elatypes,error;
-	
+
 type
 	TIdentList=class(TList)
 	private
@@ -50,7 +50,7 @@ type
 		procedure AddToDefaultList(ParDef:TDefinition);
 		function  Addident(Parident:TDefinition):TErrorType;virtual;
 		function  AddidentAt(ParAt,Parident:TDefinition):TErrorType;virtual;
-		
+
 		function  saveitem(ParWrite:TObjectStream):boolean;override;
 		function  LoadItem(ParWrite:TObjectStream):boolean;override;
 		function  GetPtrByName(const ParText:ansistring;var ParOwner,ParItem:TDefinition):boolean;
@@ -64,7 +64,7 @@ type
 		function GetPtrByArray(const ParName : ansistring;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 		procedure CheckAfter(ParCre : TCreator);
 	end;
-	
+
 implementation
 
 {-----( TIdentList )-----------------------------------------------}
@@ -79,7 +79,7 @@ begin
   		vlCurrent.CheckAfter(ParCre);
 		vlCurrent := TDefinition(vlCurrent.fNxt);
 	end;
-end;	
+end;
 
 procedure TIdentList.AddItemsToUseList(ParUse : TUseList);
 var
@@ -210,7 +210,7 @@ begin
 		end;
 		vlCurrent := TDefinition(vlCurrent.fNxt);
 	end;
-	if ParWrite.WriteLongint(IC_End_Mark) then exit;
+	if ParWrite.WriteLongint(longint(IC_End_Mark)) then exit;
 	SaveItem := false;
 end;
 
@@ -232,16 +232,16 @@ var
 begin
 	vlError := Err_No_Error;
 	if ParIdent <>nil then begin
-		if ParIdent.fDefAccess=AF_Current then begin
-			fatal(FAT_Prot_Is_Current,['class=',ParIdent.ClassName]);
-		end;
+
+		if ParIdent.fDefAccess=AF_Current then fatal(FAT_Prot_Is_Current,['class=',ParIdent.ClassName]);
+
 		vlError := Validate(ParIdent);
 		insertAt(ParAt,Parident);
 		if (fHashingObject<> nil) and (fDoneHashing or fGlobal) then SetHashing(ParIdent);
 		ParIdent.SetHashingObject(fHashingobject);
 		if ParIdent.fDefault <> DT_Nothing then AddToDefaultList(ParIdent);
 	end;
-    exit(vlError);
+	exit(vlError);
 end;
 
 function TIdentList.AddIdent(ParIdent :TDefinition) : TErrorType;
@@ -270,10 +270,7 @@ begin
 	ParOwner := nil;
 	if (fHashingObject <> nil) and (fDoneHashing) then begin
 		vlCurrent := GetHashing(ParText);
-		while (vlCurrent <> nil) and Not(vlCurrent.fText=ParText)
-		do begin
-			vlCurrent := vlCurrent.fHashNext;
-		end;
+		while (vlCurrent <> nil) and Not(vlCurrent.fText=ParText) do vlCurrent := vlCurrent.fHashNext;
 	end else begin
 		vlCurrent := TDefinition(fStart);
 		while (vlCurrent<> nil) and not(vlCurrent.IsSameText(ParText)) do begin
@@ -294,7 +291,7 @@ begin
 	ParOwner := nil;
 	if  GetPtrByName(ParName,vlOwner,vlDef) then begin
 		if vlDef.IsSameByObject(ParName,ParObject) =OFS_Same then begin
-			ParResult := vlDef;			
+			ParResult := vlDef;
 			exit(OFS_Same);
 		end;
 		exit(vlDef.GetPtrByObject(ParName,ParObject,[SO_Global],ParOwner,ParResult));
@@ -304,7 +301,7 @@ begin
 end;
 
 function TIdentList.GetPtrByArray(const ParName : ansistring;const ParArray: array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
-var 
+var
 	vlDef : TDefinition;
 	vlOwner : TDefinition;
 
@@ -323,7 +320,8 @@ end;
 
 
 procedure TIdentList.AddToHashing;
-var vlCurrent:TDefinition;
+var
+	vlCurrent:TDefinition;
 begin
 	vlCurrent := TDefinition(fStart);
 	while vlCurrent <> nil do begin

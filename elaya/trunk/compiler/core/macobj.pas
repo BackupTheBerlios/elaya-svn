@@ -23,7 +23,7 @@ interface
 uses largenum,compbase,progutil,display,elatypes,elacons,Resource,error,stdobj,lsstorag;
 
 type
-	
+
 	TMacBase=class(TSecBase)
 	private
 		voSize        : TSize;
@@ -42,7 +42,7 @@ type
 		property    fSign	     : boolean read voSign;
 		property    fSize	     : TSize   read voSize;
 		property    fIdentCode   : TMacIdentCode read voIdentCode;
-		
+
 		procedure   PrintExtraOffset(ParDIs:TDisplay);
 		function    IsSameType(parMac:TSecBase):boolean;
 		procedure   AddExtraOffset(ParOff:TOffset);
@@ -100,27 +100,25 @@ end;
 
 TMemMac=class(TMacBase)
 private
-	voName : TString;
-	property  iName : TString read voName write voName;
+	voName : ansiString;
+	property  iName : ansiString read voName write voName;
 protected
 	procedure  CommonSetup;override;
 public
-	property   fName : TString read voName;
+	property   fName : ansistring read voName;
 	constructor Create(ParSize:TSize;ParSign:boolean;const ParName : ansistring);
-	procedure  fNameStr(var ParName:ansistring);
 	function   IsSame(ParMac:TSecBase):boolean;override;
 	procedure  Print(parDis:TDisplay);override;
 	function   CreateResource(ParCre:TInstCreator):TResource;override;
 	function   CreatePtrResource(ParCre : TInstCreator):TResource;override;
 	function   CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;override;
-	destructor Destroy;override;
 end;
 
 TMemOfsMac=class(TMacBase)
 private
 	voSourceMac:TMacBase;
 	property   iSourceMac : TMacBase read voSourceMac write voSourceMac;
-	
+
 public
 	constructor Create(ParSourceMac : TMacBase);
 	procedure   CommonSetup;override;
@@ -135,10 +133,10 @@ end;
 TNumberMac=class(TMacBase)
 private
 	voInt : TNumber;
-	
+
 protected
 	property    iInt : TNumber read voInt write voInt;
-	
+
 public
 	property    fInt : TNumber read voInt write voInt;
 	function    IsSame(ParSec:TSecBase):boolean;override;
@@ -149,7 +147,7 @@ public
 	procedure   Print(ParDis:TDisplay);override;
 	procedure   CommonSetup;override;
 	function    IsNumber(ParNum : TNumber):boolean;override;
-	
+
 end;
 
 TOutputMac=class(TMacBase)
@@ -229,27 +227,26 @@ protected
 public
 	property fStorage   : TTlvStorageItem read voStorage write voStorage;
 	property fName	    : cardinal        read voName    write voName;
-	
+
 	function    IsSame(ParSec:TSecBase):boolean;override;
 	function    CreatePtrResource(ParCre : TInstCreator):TResource;override;
 	function    CreateByPtrResource(ParSIze : TSIze;ParSign :boolean;ParCre:TInstCreator):TResource;override;
 	function   CreateResource(ParCre:TInstCreator):TResource;override;
-	
+
 	procedure   Print(ParDis:TDisplay);override;
 	procedure   FreeStorage;override;
 	procedure   ReserveStorage(ParList:TTLVStorageList);override;
-	
+
 end;
 
 
 TLabelMac=class(TMacBase)
 private
-	voLabelName     : TString;
-	property iLabelName : TString read voLabelName write voLabelName;
+	voLabelName     : ansistring;
+	property iLabelName : ansistring read voLabelName write voLabelName;
 public
-	property fLabelName : TString read voLabelName;
+	property fLabelName : ansistring read voLabelName;
 	constructor Create(const  ParName:ansistring;ParSize : TSize);
-	procedure   Clear;override;
 	procedure   Commonsetup;override;
 	procedure   Print(parDis:TDisplay);override;
 	function    IsSame(PArSec:TSecBase):boolean;override;
@@ -311,11 +308,10 @@ end;
 
 
 function TLabelMac.CreatePtrResource(ParCre : TInstCreator):TResource;
-var vlName : ansistring;
+var
 	vlRes  : TResource;
 begin
-	iLabelName.GetString(vlName);
-	vlRes := TMemoryOffsetRes.Create(vlName,GetAssemblerInfo.GetSystemSize,false);
+	vlRes := TMemoryOffsetRes.Create(iLabelName,GetAssemblerInfo.GetSystemSize,false);
 	ParCre.AddObject(vlRes);
 	exit(vlRes);
 end;
@@ -328,11 +324,10 @@ begin
 end;
 
 function  TLabelMac.CreateResource(parCre:TInstCreator):TResource;
-var vlName : ansistring;
+var
 	vlRes  : TResource;
 begin
-	iLabelName.GetString(vlName);
-	vlRes := (TLabelRes.Create(vlName,fSize));
+	vlRes := TLabelRes.Create(iLabelName,fSize);
 	ParCre.AddObject(vlRes);
 	exit(vlRes);
 end;
@@ -340,13 +335,7 @@ end;
 constructor TLabelMac.Create(const ParName : ansistring;ParSize :TSize);
 begin
 	inherited Create(ParSize,false);
-	iLabelName := TString.Create(ParName);
-end;
-
-procedure TLabelMac.Clear;
-begin
-	inherited Clear;
-	if iLabelName <> nil then iLabelName.Destroy;
+	iLabelName := ParName;
 end;
 
 procedure TLabelMac.Commonsetup;
@@ -358,13 +347,13 @@ end;
 
 procedure TLabelMac.Print(ParDis:TDisplay);
 begin
-	ParDis.WritePst(iLabelName);
+	ParDis.Write(iLabelName);
 end;
 
 function TLabelMac.IsSame(ParSec:TSecBase):boolean;
 begin
 	if  inherited IsSame(PArSec) then begin
-		if iLabelName.IsEqual(TLabelMac(ParSec).fLabelName) then exit(true);
+		if iLabelName = TLabelMac(ParSec).fLabelName then exit(true);
 	end;
 	exit(false);
 end;
@@ -465,7 +454,7 @@ begin
 end;
 
 constructor TByPointerMac.Create(ParSize:TSize;ParSign:boolean;ParOther:TMacBase);
-begin
+begin	
 	inherited Create(ParSize,ParSign);
 	iPointer := ParOther;
 end;
@@ -473,7 +462,7 @@ end;
 
 procedure   TByPointerMac.Print(ParDis:TDisplay);
 begin
-	
+
 	ParDis.Write('[');
 	if(iPointer <> nil) then iPointer.Print(ParDis) else ParDis.Write('<NULL>');
 	if fExtraOffset <> 0 then begin
@@ -811,15 +800,19 @@ end;
 
 
 function TMemMac.IsSame(ParMac:TSecBase):boolean;
-var vlMac:TMacBase;
+var
+	vlMac:TMacBase;
 begin
-	IsSame := false;
+
 	vlMac := TMacBase(ParMAc);
-	if IsSameType(vlMac) then
-	IsSame := fName.IsEqual(TMemMac(vlMac).fName) and
-	(vlmac.fSize = fSize) and
-	(vlMac.fSign = fSign) and
-	(TMemMac(vlMac).fExtraOffset = fExtraOffset);
+	if IsSameType(vlMac) then begin
+		exit((fName = TMemMac(vlMac).fName) and
+			(vlmac.fSize = fSize) and
+			(vlMac.fSign = fSign) and
+			(TMemMac(vlMac).fExtraOffset = fExtraOffset)
+		);
+	end;
+	exit(false);
 end;
 
 
@@ -832,27 +825,22 @@ end;
 constructor TMemMac.Create(ParSize:TSize;ParSign:boolean;const ParName : ansistring);
 begin
 	inherited Create(ParSize,ParSign);
-	iName := TString.Create(ParName);
+	iName := ParName;
 end;
 
-procedure TMemMac.fNameStr(var ParName:ansistring);
-begin
-	iName.GetString(ParName);
-end;
 
 procedure TMemMac.Print(parDis:TDisplay);
 begin
-	ParDis.WritePst(fName);
+	ParDis.Write(iName);
 	if fExtraOffset >0  then ParDis.Write('+');
 	if fExtraOffset <>0 then ParDis.Write(fExtraOffset);
 end;
 
 function TMemMac.CreatePtrResource(ParCre : TInstCreator):TResource;
-var vlname : ansistring;
+var
 	vlRes  : TResource;
 begin
-	fNameStr(vlName);
-	vlRes := TMemoryOffsetRes.Create(vlName,GetAssemblerInfo.GetSystemSize,false);
+	vlRes := TMemoryOffsetRes.Create(iName,GetAssemblerInfo.GetSystemSize,false);
 	vlRes.SetExtraOffset(fExtraOffset);
 	ParCre.AddObject(vlRes);
 	exit(vlRes);
@@ -866,13 +854,12 @@ begin
 end;
 
 function TMemMac.CreateResource(parCre:TInstCreator):TResource;
-var vlRes  : TResource;
-	vlName : ansistring;
+var
+	vlRes  : TResource;
 begin
 	vlRes := ParCre.ReserveResourceByUse(self);
 	if vlRes = nil then begin
-		fNameStr(vlName);
-		vlRes := TMemoryRes.Create(vlName,fSize,false);
+		vlRes := TMemoryRes.Create(iName,fSize,false);
 		ParCre.AddObject(vlRes);
 		vlRes.SetSize(fSize);
 		vlRes.SetSign(fSign);
@@ -882,11 +869,6 @@ begin
 end;
 
 
-destructor TMemMac.Destroy;
-begin
-	inherited Destroy;
-	if fName <> nil then fName.Destroy;
-end;
 
 {----( TMacBase )-----------------------------------------------}
 
@@ -995,7 +977,7 @@ end;
 
 procedure TMacBase.Print(ParDis:TDisplay);
 begin
-	
+
 	if fSign then ParDis.Write('@S')
 	else ParDis.Write('@U');
 	ParDis.print([fSize,'.']);
@@ -1049,7 +1031,7 @@ end;
 
 procedure TMAcList.AddMac(ParNum : cardinal;ParMac:TMacBase);
 begin
-	
+
 	if ParNum >= Mac_Num_params then fatal(Fat_Mac_num_to_high,'');
 	iParams[ParNum] := ParMac;
 end;

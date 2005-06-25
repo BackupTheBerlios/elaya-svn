@@ -23,7 +23,7 @@ uses strmbase,files,simplist,stdobj,progutil,listbind,error,elatypes,elacons;
 
 
 type
-	
+
 	TModule       = class;
 	TObjectStream = class;
 	TStrAbelRoot  = class(TRoot)
@@ -33,21 +33,21 @@ type
 	protected
 		property iCode      : TIdentNumber read voCode   write voCode;
 		property iModule    : TModule	   read voModule write voModule;
-		
+
 	public
-		
+
 		property    fCode   : TIdentNumber read voCode    write voCode;
 		property    fModule : TModule      read voModule;
-		
+
 		constructor Create;
 		constructor Load(ParWrite:TObjectStream);
 		function    LoadItem(ParWrite:TObjectStream):boolean;virtual;
 		function    SaveItem(ParWrite:TObjectStream):boolean;virtual;
 		procedure   SetModule(ParModule:TModule);
 	end;
-	
+
 	TClassStrAbelRoot = class of TStrAbelRoot;
-	
+
 	TModule=class(TStrAbelRoot)
 	private
 		voPtrList     : TPtrList;
@@ -68,25 +68,18 @@ type
 		procedure   AddBind(ParCode:TIdentNumber;ParItem : Pointer);
 		procedure   AddBindModule(ParItem,ParModule : TIdentNumber;ParDest : pointer);
 	end;
-	
-	
-	TObjectStreamItem=class(TSMListITem)
+
+
+
+	TObjectStreamList=class(TRoot)
 	private
-		voType        : TIdentNumber;
-		voVmtAddress  : TClassStrAbelRoot;
+		voItemList:array[IC_Begin..IC_Max] of TClassStrAbelRoot;
+	protected
+		procedure   commonsetup;override;
 	public
-		property    fType        : TIdentNumber        read voType;
-		property    fVmtAddress  : TClassStrAbelRoot read voVmtAddress;
-		
-		constructor Create(ParCode : TIdentNumber;ParVmtAddress:TClassStrAbelRoot);
-	end;
-	
-	
-	TObjectStreamList=class(TSMList)
-	public
-		procedure   AddObject(ParType : longint;ParVmtAddress:TClassStrAbelRoot);
-		function    GetIdentNumber(ParVmt:TClassStrAbeLRoot;var ParType:longint):boolean;
-		function    GetPtrByType(ParCode:longint):TClassStrAbelRoot;
+		procedure   AddObject(ParType : TIdentCode;ParVmtAddress:TClassStrAbelRoot);
+		function    GetIdentNumber(ParVmt:TClassStrAbeLRoot;var ParType:TIdentCode):boolean;
+		function    GetPtrByType(ParCode:TIdentCode):TClassStrAbelRoot;
 	end;
 
 TModuleLoadItem=class(TSmStringItem)
@@ -126,7 +119,7 @@ protected
 	procedure clear;override;
 public
 	constructor Create;
-	
+
 	property    fBufferFile : TFile    read voBufferFile;
 	property    fHashing    : longint  read voHashing write voHashing;
 	property    fName	    : ansistring   read voName;
@@ -173,9 +166,7 @@ public
 	procedure   AddToPtrList(ParObject:TStrAbelROot);
 	procedure   AddToPtrList(ParCode : TIdentNumber;ParObject : TStrAbelRoot);
 	function    WritePI(ParPtr:TStrAbelRoot):boolean;
-	function    WritePst(ParPst:TString):boolean;
 	function    ReadPi(var ParPtr:TStrAbelRoot):boolean;
-	function    ReadPst(var ParPst:TString):boolean;
 	function    ReadValue(var ParValue : TValue) : boolean;
 	function    WriteValue(ParValue : TValue) : boolean;
 	procedure   DoBind;
@@ -197,13 +188,13 @@ end;
 
 
 
-procedure AddObjectToStreamList(ParCode : longint;ParVmtAddress:TClassStrAbelRoot);
-function  GetObjectStreamType(ParVmtAddress:TClassStrAbelRoot;var ParType:TIdentNumber):boolean;
-function  GetPtrByType(ParType:TIdentNumber):TClassStrAbelRoot;
+procedure AddObjectToStreamList(ParCode : TIdentCode;ParVmtAddress:TClassStrAbelRoot);
+function  GetObjectStreamType(ParVmtAddress:TClassStrAbelRoot;var ParType:TIdentCode):boolean;
+function  GetPtrByType(ParType:TIdentCode):TClassStrAbelRoot;
 function  CreateObject(ParWriter:TObjectStream;var ParObj:TStrAbelRoot):cardinal;
 
 var     vgObjectStreamList:TObjectStreamList;
-	
+
 implementation
 
 
@@ -302,7 +293,7 @@ end;
 constructor TStrAbelRoot.Create;
 begin
 	inherited Create;
-	iCode   := IC_No_Code;
+	iCode   := IN_No_Code;
 	iModule := nil;
 end;
 
@@ -327,7 +318,7 @@ end;
 
 function TModule.ConvertPtrToCode(ParObject:TStrAbelRoot):TIdentNumber;
 begin
-	if ParObject.fCode = IC_No_Code then ParObject.iCode := GetNextIdentNumber;
+	if ParObject.fCode = IN_No_Code then ParObject.iCode := GetNextIdentNumber;
 	ConvertPtrToCode := ParObject.fCode;
 end;
 
@@ -379,7 +370,7 @@ procedure TModule.AddBindModule(ParItem,ParModule:TIdentNumber ; ParDest : point
 var
 	vlModule : TMOdule;
 begin
-	if ParModule <> IC_No_Code then begin
+	if ParModule <> IN_No_Code then begin
 		vlModule := TModule(GetPtrByNum(ParModule));
 		if vlModule = nil then Fatal(Fat_Invalid_Module,['Item=',cardinal(ParItem),' Module=',cardinal(ParModule)]);
 	end else begin
@@ -390,51 +381,42 @@ end;
 {---( TObjectStreamList )------------------------------------------}
 
 
-procedure TObjectStreamList.AddObject(ParType : longint;ParVmtAddress:TClassStrAbelRoot);
-var
-	vlItem : TObjectStreamItem;
-	vlType : TIdentNumber;
+procedure TObjectStreamList.AddObject(ParType : TIdentCode;ParVmtAddress:TClassStrAbelRoot);
 begin
-	if not GetIdentNumber(ParVmtAddress,vlType) then begin
-		vlItem := TObjectStreamItem.Create(ParType,ParVmtAddress);
-		insertAt(nil,vlItem);
+	voItemList[ParType] := ParVmtAddress;
+end;
+
+function TObjectStreamList.GetPtrByType(ParCode : TIdentCode):TClassStrAbelRoot;
+begin
+	if(Parcode >IC_Max) or (longint(ParCode) < 0) then begin
+		writeln('Invalid code=',cardinal(ParCode));
+		runerror(1);
 	end;
+
+	exit(voItemList[ParCode]);
 end;
 
-function TObjectStreamList.GetPtrByType(ParCode : longint):TClassStrAbelRoot;
+function TObjectStreamList.GetIdentNumber(ParVmt:TClassStrAbelRoot;var ParType : TIdentCode):boolean;
 var
-	vlCurrent:TObjectStreamItem;
+	vlCnt : TIDentCode;
 begin
-	GetPtrByType := nil;
-	vlCurrent := TObjectStreamItem(fStart);
-	while (vlCurrent<> nil) and (vlcurrent.fType <> ParCode) do vlcurrent := TObjectStreamItem(vlCurrent.fNxt);
-	if vlCurrent <> nil then GetPtrByType := vlCurrent.fVmtAddress;
-end;
 
-function TObjectStreamList.GetIdentNumber(ParVmt:TClassStrAbelRoot;var ParType : longint):boolean;
-var vlCurrent:TObjectStreamItem;
-begin
-	GeTIdentNumber := false;
-	vlCurrent := TObjectStreamItem(fStart);
-	while (vlCurrent <> nil) and ((vlCUrrent.fVmtAddress) <> (ParVmt)) do vlCurrent := TObjectStreamItem(vlCurrent.fNxt);
-	if vlCurrent <> nil then begin
-		ParType := vlCurrent.fType;
-		GetIdentNumber := true;
+	vlCnt := IC_Begin;
+	while (voItemList[vlCnt] <> ParVmt) and (vlCnt <=IC_Max) do inc(vlCnt);
+	if(vlCnt <= IC_Max) then begin
+		ParTYpe := vlCnt;
+		exit(true);
 	end;
+	ParType := IC_Unkown;
+	exit(false);
 end;
 
-
-{---( TObjectStreamItem )------------------------------------------}
-
-
-
-
-constructor  TObjectStreamItem.Create(ParCode : TIdentNumber;ParVmtAddress:TClassStrAbelRoot);
+procedure TObjectStreamList.Commonsetup;
 begin
-	inherited Create;
-	voType      := ParCode;
-	voVmtAddress := ParVmtAddress;
+	Inherited Commonsetup;
+	fillchar(voItemList,sizeof(voItemList),0);
 end;
+
 
 {---( TStream )----------------------------------------------------}
 
@@ -673,13 +655,13 @@ begin
 end;
 
 function  TObjectStream.WriteClassHeader(ParItem : TStrAbelRoot):boolean;
-var vlCode : TIdentNumber;
+var vlCode : TIdentCode;
 begin
 	if not streams.GetObjectStreamType(TClassStrabelRoot(ParItem.ClassType),vlCode) then begin
 		voElaErr := Err_Int_Object_not_Reg;
 		exit(true);
 	end;
-	if WriteLongint(vlCode) then exit(true);
+	if WriteLongint(longint(vlCode)) then exit(true);
 	if WritePI(ParItem) then exit(true);
 	exit(false);
 end;
@@ -803,13 +785,13 @@ end;
 
 function TObjectStream.ReadPi(var ParPtr:TStrAbelRoot):boolean;
 var vlItem,vlModule:TIdentNumber;
-	
+
 begin
 	ReadPi := true;
 	ParPtr := nil;
 	if ReadLongint(vlItem)   then exit;
 	if ReadLongint(vlModule) then exit;
-	if vlItem <> IC_No_Code then AddBind(vlItem,vlModule,@ParPtr)
+	if vlItem <> IN_No_Code then AddBind(vlItem,vlModule,@ParPtr)
 	else ParPtr := nil;
 	ReadPi := false;
 end;
@@ -820,9 +802,9 @@ procedure TObjectStream.ConvertItemPtr(ParItem:TStrAbelRoot;var ParNum,ParModule
 var
 	vlModule : TModule;
 begin
-	ParNum    := IC_No_Code;
-	ParModule := IC_No_Code;
-	
+	ParNum    := IN_No_Code;
+	ParModule := IN_No_Code;
+
 	if ParItem = nil then exit;
 
 	vlModule := TModule(ParItem.fModule);
@@ -842,43 +824,21 @@ begin
 	iModuleLoadList.AddModule(parModule,ParModuleObj);
 end;
 
-function TObjectStream.WritePst(ParPst:TString):boolean;
-var vlStr:ansistring;
-begin
-	if ParPst <> nil then begin
-		ParPst.GetString(vlStr);
-	end else begin
-		EmptyString(vlStr);
-	end;
-	exit(WriteString(vlStr));
-end;
-
-function TObjectStream.ReadPst(var ParPst:TString):boolean;
-var
-	vlStr:ansistring;
-begin
-	if ReadString(vlStr) then exit(true);
-	ParPst  := TString.Create(vlStr);
-	exit(false);
-end;
-
 procedure TObjectStream.DoBind;
 begin
 	iModuleLoadList.DoBind;
 end;
 
-
-
 {----( CallObject )---------------------------------------------------}
 
 
 function  CreateObject(ParWriter:TObjectStream;var ParObj:TStrAbelRoot):cardinal;
-var vlVmtAddress : TClassStrAbelRoot;
-	vlType       : TIdentNumber;
+var     vlVmtAddress : TClassStrAbelRoot;
+	vlType       : TIdentCode;
 	vlStatus     : cardinal;
 begin
 	ParObj := nil;
-	if ParWriter.ReadLongint(vlType) then exit(STS_ERROR);
+	if ParWriter.ReadLongint(longint(vlType)) then exit(STS_ERROR);
 	vlStatus := STS_Ok;
 	if vlType = IC_End_Mark then exit(STS_End_Mark);
 	vlVmtAddress  := GetPtrByType(vlType);
@@ -896,19 +856,19 @@ begin
 end;
 
 
-procedure AddObjectToStreamList(ParCode : longint;ParVmtAddress : TClassStrAbelRoot);
+procedure AddObjectToStreamList(ParCode : TIdentCode;ParVmtAddress : TClassStrAbelRoot);
 begin
 	vgObjectStreamList.AddObject(parCode,ParVmtAddress);
 end;
 
 
-function  GetObjectStreamType(ParVmtAddress : TClassStrAbelRoot;var ParType : TIdentNumber):boolean;
+function  GetObjectStreamType(ParVmtAddress : TClassStrAbelRoot;var ParType : TIdentCode):boolean;
 begin
 	GetObjectStreamType := vgObjectStreamList.GeTIdentNumber(ParVmtAddress,ParType);
 end;
 
 
-function GetPtrByType(ParType:TIdentNumber):TClassStrAbelRoot;
+function GetPtrByType(ParType:TIdentCode):TClassStrAbelRoot;
 begin
 	exit(vgObjectStreamList.GetPtrByType(ParType));
 end;

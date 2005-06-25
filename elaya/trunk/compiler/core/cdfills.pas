@@ -31,19 +31,19 @@ type
 	public
 		property fAt    : longint read voAt;
 		property fHasAt : boolean read voHasAt;
-		
+
 		constructor Create(ParFileName:ansiString);
 		function    WriteResLine(var ParFile:text):boolean;virtual;
 		function    SaveItem(ParStream:TObjectStream):boolean;override;
 		function    LoadItem(ParStream:TObjectStream):boolean;override;
-		
+
 	end;
-	
+
 	TCodeObjectItem=class(TCodeFileItem)
 	private
 		voIsObjectOfUnit : boolean;
 		property iIsObjectOfUnit : boolean read voIsObjectOfUnit write voIsObjectOfUnit;
-		
+
 	public
 		property fIsObjectOfUnit : boolean read voIsObjectOfUnit;
 		function  SaveItem(ParStream:TObjectStream):boolean;override;
@@ -52,7 +52,7 @@ type
 		function WriteResLine(var ParFile:Text):boolean;override;
 		constructor Create(ParName:ansiString;ParIsObjectOfUnit:boolean;ParHasAt : boolean;ParAt :longint);
 	end;
-	
+
 	TCodeFileList=class(TList)
 		procedure AddFile(ParItem:TCodeFileItem);
 		function  WriteResLines(var ParFile:Text):boolean;
@@ -60,9 +60,9 @@ type
 		procedure AddListToList(ParList:TCodeFileList);
 		function  GetObjectOfUnit:AnsiString;
 	end;
-	
-	
-	
+
+
+
 implementation
 
 {-----( TCodeObjectItem) -------------------------------------}
@@ -231,7 +231,7 @@ begin
 	while vlCurrent <> nil do begin
 		vlNxt := TCodeObjectItem(vLCurrent.fNxt);
 		ParList.CutOut(vlCurrent);
-		vlCurrent.fCode:= IC_No_Code;
+		vlCurrent.fCode:= In_No_Code;
 		vlCurrent.SetModule(nil);
 		AddFile(vlCurrent);
 		vlCurrent := vlNxt;

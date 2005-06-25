@@ -108,7 +108,7 @@ end;
 exit(FALSE);
 end;
 procedure TELA_Scanner.CheckLiteral(var ParSym:integer);
-var vlStr:string;
+var vlStr:ansistring;
 begin
       GetName(bp0,nextlen,vlStr);
       case byte(vlStr[1]) of

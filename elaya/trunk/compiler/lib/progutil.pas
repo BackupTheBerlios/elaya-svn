@@ -210,6 +210,8 @@ end;
 procedure GetCpuCycles(var ParLo,ParHi:cardinal);
 assembler;
 asm
+	push %ecx
+	push %ebx
 	push %esi
 	push %edi
 	mov ParLo,%edi
@@ -222,6 +224,8 @@ asm
 	movl %edx,(%esi)
 	pop %edi
 	pop %esi
+	pop %ebx
+	pop %ecx
 end;
 
 

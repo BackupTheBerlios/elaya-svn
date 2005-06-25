@@ -21,7 +21,7 @@ unit vars;
 interface
 uses varbase,Formbase,streams,elacons,compbase,asmcreat,progutil,stdobj,
 	display,elaTypes,macObj,asmdata,elacfg,node,ddefinit,asminfo,largenum,dsblsdef;
-	
+
 type
 
 	TVariableBase=class(TVarBase)
@@ -58,7 +58,7 @@ type
 		property  fName : cardinal read voName;
 		function  CreateMac(ParContext : TDefinition;ParOption:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
 	end;
-	
+
 	TTLVarNode  = class(TVarNode)
 	protected
 		procedure  clear;override;
@@ -88,13 +88,13 @@ type
 		function  SaveItem(ParWrite:TObjectStream):boolean;override;
       function    NeedReadableRecord : boolean;override;
 	end;
-	
+
 	TPointerCons=class(TConstant)
 	public
 		function  CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;PArCre:TSecCreator):TMacBase;override;
 		procedure Commonsetup;override;
 	end;
-	
+
 	TStringCons=class(TConstant)
 	public
 		function  CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;override;
@@ -102,12 +102,12 @@ type
 		function  CreateDb(ParCre:TCreator):boolean;override;
 		procedure CommonSetup;override;
 		constructor Create(const ParName : ansistring;const ParString : ansistring;ParType:TType);
-		function  GetString:TString;
+		function  GetString:AnsiString;
 		function  GetLength:cardinal;
 		function  CreateReadNode(ParCre : TCreator;ParContext : TDefinition):TFormulaNode;override;
 	end;
-	
-	
+
+
 	TEnumCons=class(TConstant)
 	protected
 		procedure commonsetup; override;
@@ -115,15 +115,15 @@ type
 		constructor Create(const ParName:ansistring;ParVal:TValue);
 		function GetNumber : TNumber;
 	end;
-	
+
 	TConstantNode = class(TVarNode)
 	public
 		function IsConstant : boolean;override;
 		function GetValue : TValue;override;
 	end;
 
-	
-	
+
+
 implementation
 
 uses execobj,ndcreat;
@@ -321,16 +321,15 @@ begin
 	SetValue(TString.Create(ParString));
 end;
 
-function TStringCons.GetString:TString;
+function TStringCons.GetString:ansistring;
 begin
-	exit(TString(fVal));
+	exit(TString(fVal).fText);
 end;
 
 
 function TStringCons.GetLength:cardinal;
 begin
-	GetLength := 0;
-	if GetString <> nil then GetLength := GetString.fLength;
+	exit(length(GetString));
 end;
 
 function TStringCons.CreateMac(ParContext : TDefinition;ParOpt:TMacCreateOption;ParCre:TSecCreator):TMacBase;
@@ -422,12 +421,14 @@ begin
 end;
 
 procedure TConstant.PrintDefinitionBody(ParDis:TDisplay);
+var
+	vlValueStr : ansistring;
 begin
 	ParDis.Write('<type>');
 	if fType <> nil then fType.PrintName(ParDis);
-	ParDis.Write('</type><value>');
-	ParDis.Print([fVal]);
-	ParDis.Write('</value>');
+	fVal.GetAsString(vlValueStr);
+	ParDis.Print(['</type>',stringToXML(vlValueStr),'</value>']);
+
 end;
 
 

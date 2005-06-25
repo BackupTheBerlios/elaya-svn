@@ -19,7 +19,7 @@ TELA_Parser=class(TELA_scanner)
       destructor  destroy;override;
       procedure   parse;override;
       procedure   Pragma;override;
-      procedure   GetErrorText(ParNo:longint;var ParErr:string);override;
+      procedure   GetErrorText(ParNo:longint;var ParErr:ansistring);override;
       Procedure _RIdentMention ( var ParDigi : TIdentHookDigiItem);
       Procedure _RShortProcDef ( ParRoutine : TRoutine);
       Procedure _RParameterList ( ParList : THookDigiList);
@@ -1401,11 +1401,17 @@ begin
             vlIsolate  := false;
             vlHasMain  := false;
             vlIsAbstract := false;
+            vlIsWrite    := false;
             ;
-            if (GetSym = 97) then begin
-                  _IWrite;
-                    vlIsWrite := true; ;
-            end;
+            if (GetSym in [75 , 97]) then begin
+                  if (GetSym = 97) then begin
+                        _IWrite;
+                          vlIsWrite := true; ;
+                  end
+                   else begin
+                        _IRead;
+                  end
+                  ;end;
             if (GetSym = 68) then begin
                   _RProcedureHead( vlDef,vlHasses);
             end
@@ -1532,7 +1538,7 @@ begin
                               88 : begin
                                     _RTypeBlock;
                               end;
-                              28, 33, 47, 63, 68, 97 : begin
+                              28, 33, 47, 63, 68, 75, 97 : begin
                                     _RRoutineForward;
                               end;
                                else begin
@@ -1722,82 +1728,90 @@ begin
             end
              else if (GetSym = 103) then begin
                   _ROperParDef( ParRoutine);
-                  case GetSym of
-                        105 : begin
-                              Get;
+                  if vgDynSet[6].isSet(GetSym) then begin
+                        case GetSym of
+                              105 : begin
+                                    Get;
+                              end;
+                              106 : begin
+                                    Get;
+                              end;
+                              107 : begin
+                                    Get;
+                              end;
+                              34 : begin
+                                    _IDiv;
+                              end;
+                              102 : begin
+                                    _IXor;
+                              end;
+                              56 : begin
+                                    _IMod;
+                              end;
+                              64 : begin
+                                    _IOr;
+                              end;
+                              14 : begin
+                                    _IAnd;
+                              end;
+                              108 : begin
+                                    Get;
+                              end;
+                              112 : begin
+                                    Get;
+                              end;
+                              113 : begin
+                                    Get;
+                              end;
+                              114 : begin
+                                    Get;
+                              end;
+                              115 : begin
+                                    Get;
+                              end;
+                              116 : begin
+                                    Get;
+                              end;
+                              111 : begin
+                                    Get;
+                              end;
+                              22 : begin
+                                    _IBetween;
+                              end;
+                              117 : begin
+                                    Get;
+                              end;
+                              80 : begin
+                                    _IShl;
+                              end;
+                              79 : begin
+                                    _IShr;
+                              end;
+                               else begin
+                                    Get;
+                              end;
                         end;
-                        106 : begin
-                              Get;
-                        end;
-                        107 : begin
-                              Get;
-                        end;
-                        34 : begin
-                              _IDiv;
-                        end;
-                        102 : begin
-                              _IXor;
-                        end;
-                        56 : begin
-                              _IMod;
-                        end;
-                        64 : begin
-                              _IOr;
-                        end;
-                        14 : begin
-                              _IAnd;
-                        end;
-                        108 : begin
-                              Get;
-                        end;
-                        112 : begin
-                              Get;
-                        end;
-                        113 : begin
-                              Get;
-                        end;
-                        114 : begin
-                              Get;
-                        end;
-                        115 : begin
-                              Get;
-                        end;
-                        116 : begin
-                              Get;
-                        end;
-                        111 : begin
-                              Get;
-                        end;
-                        22 : begin
-                              _IBetween;
-                        end;
-                        117 : begin
-                              Get;
-                        end;
-                        80 : begin
-                              _IShl;
-                        end;
-                        79 : begin
-                              _IShr;
-                        end;
-                        1 : begin
-                              Get;
-                        end;
-                        else begin
-                              SynError(136);
-                        end;
+                         
+                        					LexName(vlname);
+                        			   		ParRoutine.SetText(vlName);
+                        				;
+                        _ROperParDef( ParRoutine);
+                  end
+                   else if (GetSym = 109) then begin
+                        Get;
+                        _ROperParDef( ParRoutine);
+                        Expect(110);
+                          vlName := '[]';ParRoutine.SetText(vlName); ;
+                  end
+                  else begin
+                        SynError(136);
                   end;
-                   
-                  					LexName(vlname);
-                  			   		ParRoutine.SetText(vlName);
-                  				;
-                  _ROperParDef( ParRoutine);
-                  if (GetSym = 97) then begin
+                  ;if (GetSym = 97) then begin
                         _IWrite;
                         _ROperParDef( ParRoutine);
                          
                         					vlWrite := true;
-                        					if vlName <> '#' then ErrorText(Err_Not_Expected,'WRITE');
+                        					if (vlName <> '#') and (vlName  <> '[]') then ErrorText(Err_Not_Expected,'WRITE');
                         				;
                   end;
                   if (GetSym = 14) then begin
@@ -1816,13 +1830,13 @@ begin
                   _RRoutineType( vlType);
                    
                   vlHasreturn := true;
-                  if (vlName = ':=') or (vlWrite and (vlName = '#')) then SemError(Err_Cant_Return_value);
+                  if (vlName = ':=') or (vlWrite) then SemError(Err_Cant_Return_value);
                   TFunction(ParRoutine).SetFunType(fNDCreator,vlType);
                   ;
             end;
             Expect(8);
              
-            if (vlName <> ':=') and ((vlName <> '#') or not(vlWrite))  and not(vlHasReturn) then SemError(err_Must_Return_Value);
+            if (vlName <> ':=') and (not(vlWrite))  and not(vlHasReturn) then SemError(err_Must_Return_Value);
             ;
             if (GetSym = 24) then begin
                   _ICDecl;
@@ -2103,7 +2117,7 @@ begin
                   _IValue;
                     vlOfValue := true; ;
             end;
-            if vgDynSet[6].isSet(GetSym) then begin
+            if vgDynSet[7].isSet(GetSym) then begin
                   if (GetSym = 51) then begin
                         _IInherit;
                         _RIdent( vlParent);
@@ -2113,7 +2127,7 @@ begin
                   vlPrvAccess := fNDCreator.fCurrentDefAccess;
                   fNDCreator.fCurrentDefAccess := AF_Private;
                   ;
-                  WHILE vgDynSet[7].isSet(GetSym) do begin
+                  WHILE vgDynSet[8].isSet(GetSym) do begin
                         case GetSym of
                               72 : begin
                                     _IPrivate;
@@ -2185,8 +2199,8 @@ begin
                           vlDefType := DT_Meta; ;
                   end;
             end;
-            if vgDynSet[8].isSet(GetSym) then begin
-                  if vgDynSet[9].isSet(GetSym) then begin
+            if vgDynSet[9].isSet(GetSym) then begin
+                  if vgDynSet[10].isSet(GetSym) then begin
                         case GetSym of
                               59 : begin
                                     _ROrdDecl( vlType);
@@ -2347,7 +2361,7 @@ begin
                   _IConst;
                     vlConstFlag := true; ;
             end;
-            if vgDynSet[10].isSet(GetSym) then begin
+            if vgDynSet[11].isSet(GetSym) then begin
                   _RAnonymousType( vlType);
                     ParType := CreatePointerType(vlType,vlConstFlag); ;
             end
@@ -3616,7 +3630,7 @@ begin
                   fNDCreator.fCurrentDefAccess := AF_Private;
                   vlMainCB := vlRoutine;
             ;
-            WHILE vgDynSet[11].isSet(GetSym) do begin
+            WHILE vgDynSet[12].isSet(GetSym) do begin
                   case GetSym of
                         72 : begin
                               _IPrivate;
@@ -3643,18 +3657,21 @@ begin
             if (GetSym = 20) then begin
                    
                   vlRoutine.PreBlockOfCode(fNDCreator);
+                  vlRoutine.PreRoutine;
                   vlMainCb := vlRoutine.fPhysicalAddress;
                   if vlMainCB <> nil then begin
                   	vlPrn    := vlMainCB.fStatements;
                   end else begin
                   	vlPrn := nil;
                   end;
+                  
                   ;
                   _RBlockOfCode( vlPrn);
                    
                   if vlMainCb <> nil then vlMainCB.CreatePostCode(fNDCreator);
                   if Rtm_Abstract in vlRoutine.fRoutineModes then  ErrorDef(Err_No_Main_For_Abstr_fun,vlroutine);
                   if vlMainCb <> nil then vlMainCb.FinishNode(fNDCreator);
+                  vlRoutine.AfterRoutine;
                   ;
             end
              else if (GetSym = 38) then begin
@@ -3830,7 +3847,7 @@ begin
                   fNDCreator.fInPublicSection  := true;
                   fNDCreator.fCUrrentDefAccess := AF_Public;
                   ;
-                  WHILE vgDynSet[12].isSet(GetSym) do begin
+                  WHILE vgDynSet[13].isSet(GetSym) do begin
                         if (GetSym = 88) then begin
                               _RTypeBlock;
                         end
@@ -3857,14 +3874,14 @@ begin
             if not(fNDCreator.GetIsUnitFlag) and (vlHasPublic) then SemError(Err_Prog_Cant_Have_Pubs) else
             if fNDCreator.GetIsUnitFlag and not(vlHasPublic) then SemError(Err_Unit_Must_Have_Pubs);
             ;
-            WHILE vgDynSet[12].isSet(GetSym) do begin
+            WHILE vgDynSet[13].isSet(GetSym) do begin
                   if (GetSym = 88) then begin
                         _RTypeBlock;
                   end
                    else if (GetSym = 94) then begin
                         _RVarBlock;
                   end
-                   else if vgDynSet[13].isSet(GetSym) then begin
+                   else if vgDynSet[14].isSet(GetSym) then begin
                         _RRoutine;
                   end
                    else if (GetSym = 42) then begin
@@ -3950,7 +3967,7 @@ begin
              
             ParType := nil;
             ;
-            if vgDynSet[14].isSet(GetSym) then begin
+            if vgDynSet[15].isSet(GetSym) then begin
                   if (GetSym = 1) then begin
                         _RH_Type( ParType);
                   end
@@ -4204,7 +4221,7 @@ begin
              Get;
             _ELA;
       end;
-      procedure   TELA_Parser.GetErrorText(ParNo:longint;var ParErr:string);
+      procedure   TELA_Parser.GetErrorText(ParNo:longint;var ParErr:ansistring);
       begin
             case ParNo of
                   		0: ParErr :='EOF expected';
@@ -4354,17 +4371,17 @@ begin
                   			+'YPE","&",binary number ,hexidecimal number,integer number,st'
                   			+'ring expected';
                   		135: ParErr :='Invalid routine header:"CONSTRUCTOR","DESTRUCTOR" expected';
-                  		136: ParErr :='Invalid operator header:"+","-","*","DIV","XOR","MOD","OR","'
-                  			+'AND","=",">",">=","<=","<","<>",":=","BETWEEN","#","SHL","SH'
-                  			+'R",identifier expected';
+                  		136: ParErr :='Invalid operator header:"#","<>","<","<=",">=",">",":=","=",'
+                  			+'"*","-","+","XOR","SHL","SHR","OR","MOD","DIV","BETWEEN","AN'
+                  			+'D",identifier,"[" expected';
                   		137: ParErr :='Invalid operator header:"-","NOT","(" expected';
                   		138: ParErr :='Invalid routine name:"PRIVATE","PROTECTED","(",":",";" expec'
                   			+'ted';
                   		139: ParErr :='Invalid property definition:"READ","WRITE" expected';
-                  		140: ParErr :='Invalid class definition:"WRITE","VAR","TYPE","PUBLIC","PRIV'
-                  			+'ATE","PROTECTED","PROPERTY","PROCEDURE","OPERATOR","INHERIT"'
-                  			+',"FUNCTION","END","DESTRUCTOR","CONSTRUCTOR","CONST",";" exp'
-                  			+'ected';
+                  		140: ParErr :='Invalid class definition:"WRITE","VAR","TYPE","READ","PUBLIC'
+                  			+'","PRIVATE","PROTECTED","PROPERTY","PROCEDURE","OPERATOR","I'
+                  			+'NHERIT","FUNCTION","END","DESTRUCTOR","CONSTRUCTOR","CONST" '
+                  			+'etc... expected';
                   		141: ParErr :='Invalid type declaration:"NUMBER",identifier,"VOIDTYPE","CHA'
                   			+'RTYPE","ENUM","PTR","STRING","ASCIIZ","UNION","VIRTUAL","OVE'
                   			+'RRIDE","ISOLATE","CLASS","RECORD" expected';
@@ -4410,19 +4427,20 @@ begin
       const
       vgSetFill0:ARRAY[1..1] of cardinal=(0);
       vgSetFill1:ARRAY[1..15] of cardinal=(1,2,3,4,5,6,52,58,60,67,83,103,105,106,118);
-      vgSetFill2:ARRAY[1..7] of cardinal=(1,28,33,47,63,68,97);
+      vgSetFill2:ARRAY[1..8] of cardinal=(1,28,33,47,63,68,75,97);
       vgSetFill3:ARRAY[1..30] of cardinal=(1,2,3,4,5,6,17,20,23,29,30,31,41,43,45,49,50,52,58,60,67,77,83,97,98,100,103,105,106,118);
-      vgSetFill4:ARRAY[1..13] of cardinal=(27,28,33,47,54,63,68,70,71,72,88,94,97);
+      vgSetFill4:ARRAY[1..14] of cardinal=(27,28,33,47,54,63,68,70,71,72,75,88,94,97);
       vgSetFill5:ARRAY[1..8] of cardinal=(2,3,4,5,6,25,105,106);
-      vgSetFill6:ARRAY[1..15] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,88,94,97);
-      vgSetFill7:ARRAY[1..13] of cardinal=(27,28,33,47,63,68,70,71,72,73,88,94,97);
-      vgSetFill8:ARRAY[1..16] of cardinal=(1,15,18,21,25,26,39,53,59,66,74,76,84,90,95,99);
-      vgSetFill9:ARRAY[1..14] of cardinal=(1,18,25,26,39,53,59,66,74,76,84,90,95,99);
-      vgSetFill10:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
-      vgSetFill11:ARRAY[1..11] of cardinal=(28,33,47,63,68,70,71,72,88,94,97);
-      vgSetFill12:ARRAY[1..10] of cardinal=(27,28,33,42,47,63,68,88,94,97);
-      vgSetFill13:ARRAY[1..6] of cardinal=(28,33,47,63,68,97);
-      vgSetFill14:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
+      vgSetFill6:ARRAY[1..20] of cardinal=(1,14,22,34,56,64,79,80,102,105,106,107,108,111,112,113,114,115,116,117);
+      vgSetFill7:ARRAY[1..16] of cardinal=(27,28,33,38,47,51,63,68,70,71,72,73,75,88,94,97);
+      vgSetFill8:ARRAY[1..14] of cardinal=(27,28,33,47,63,68,70,71,72,73,75,88,94,97);
+      vgSetFill9:ARRAY[1..16] of cardinal=(1,15,18,21,25,26,39,53,59,66,74,76,84,90,95,99);
+      vgSetFill10:ARRAY[1..14] of cardinal=(1,18,25,26,39,53,59,66,74,76,84,90,95,99);
+      vgSetFill11:ARRAY[1..7] of cardinal=(15,18,59,74,76,84,90);
+      vgSetFill12:ARRAY[1..12] of cardinal=(28,33,47,63,68,70,71,72,75,88,94,97);
+      vgSetFill13:ARRAY[1..11] of cardinal=(27,28,33,42,47,63,68,75,88,94,97);
+      vgSetFill14:ARRAY[1..7] of cardinal=(28,33,47,63,68,75,97);
+      vgSetFill15:ARRAY[1..8] of cardinal=(1,15,18,59,74,76,84,90);
       
       
       procedure TELA_Parser.Commonsetup;
@@ -4449,6 +4467,7 @@ begin
                   vgDynSet[12].SetByArray(vgSetFill12);
                   vgDynSet[13].SetByArray(vgSetFill13);
                   vgDynSet[14].SetByArray(vgSetFill14);
+                  vgDynSet[15].SetByArray(vgSetFill15);
             end;
       end;
 end

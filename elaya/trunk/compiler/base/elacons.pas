@@ -1,4 +1,4 @@
-{  5;3~  Elaya, the compile5;3~5;3~5;3~r for the elaya language
+{  Elaya, the compile5;3~5;3~5;3~r for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
 
@@ -28,7 +28,7 @@ type
 
 
 	TNodeIdentCode=(
-      IC_UnkownNode ,
+	        IC_UnkownNode ,
 		IC_CallNode   ,
 		IC_MulNode    ,
 		IC_AddNode    ,
@@ -123,6 +123,8 @@ type
 	);
 
 	TIdentCode=(
+	IC_End_Mark  := -1,
+	IC_Begin     := 0,
 	IC_Unkown    := 0,
 	IC_Number    := 1,
 	IC_TypeAs    := 2,
@@ -140,12 +142,12 @@ type
 	IC_ParamVar  := 15,
 	IC_Bigger	 := 23,
 	IC_Lower	 := 24,
-	IC_BiggerEq  := 25,
-	IC_LowerEq   := 26,
-	IC_Eq	     := 27,
-	IC_NotEq	 := 28,
-	IC_Function  := 31,
-	IC_External  := 32,
+	IC_BiggerEq       := 25,
+	IC_LowerEq        := 26,
+	IC_Eq	          := 27,
+	IC_NotEq	  := 28,
+	IC_Function       := 31,
+	IC_External       := 32,
 	IC_Record	  := 33,
 	IC_Constant       := 37,
 	IC_IntConstant    := 38,
@@ -155,62 +157,63 @@ type
 	IC_RegisterSI     := 45,
 	IC_StackSI        := 46,
 	IC_CHooseType     := 47,
-	IC_RetAcc	         := 81,
-	IC_ExtProc	         := 84,
-	IC_ExtFun	         := 85,
-	IC_LocalVar	         := 90,
-	IC_ArrayType	      := 96,
-IC_StartupProc	         := 107,
-IC_AsciizType	         := 108,
-IC_POinterCOns	         := 109,
-IC_Union	 	            := 123,
-IC_VoidType	            := 125,
-IC_RoutineType  	      := 126,
-IC_ObjectFile           := 130,
-IC_ExternLibFileWindows := 131,
-IC_ExternObjFile  	   := 133,
-IC_ExternLibIntWindows  := 134,
-IC_ExternObjInt   	   := 136,
-IC_RoutineItem		      := 138,
-IC_RoutineCollection    := 139,
-iC_AsmAsm			      := 142,
-IC_RTLParameter		   := 143,
-IC_OperatorFunction     := 145,
-IC_Current_Definition   := 151,
-IC_Current_RoutineItem  := 152,
-IC_Current_Node         := 153,
-IC_Current_LCB          := 154,
-IC_FrameParameter       := 162,
-IC_VmtItem		         := 166,
-IC_VmtList		         := 167,
-IC_Meta		            := 168,
-IC_Frame			         := 169,
-IC_FrameVariable        := 170,
-IC_ConstantMapping      := 171,
-IC_NormalMapping        := 172,
-IC_LocalFrameVar        := 173,
-IC_VariableMapping      := 177,
-IC_NestParameter        := 178,
-IC_GlobalItem           := 186,
-IC_Abstract_Dirty_Item  := 188,
-IC_ClassType            := 189,
-IC_ClassFrameParameter  := 190,
-IC_Constructor          := 191,
-IC_Destructor           := 192,
-IC_Current_Class_Item	:= 193,
-IC_Class_Meta           := 194,
-IC_Object_Representor   := 195,
-IC_Fixed_Frame_Parameter:= 196,
-IC_Property             := 197,
-IC_Property_Item        := 198,
-IC_ENumCons             := 203,
-IC_BooleanType          := 204,
-IC_EnumCollection       := 205,
-Ic_Abstract				   := 206,
-IC_ConstantVariable     := 207,
-IC_ValueClassType       := 208,
-IC_ObjectClassType      := 209,
-IC_UnionFrameVariable   := 210
+	IC_RetAcc	        := 81,
+	IC_ExtProc	        := 84,
+	IC_ExtFun	        := 85,
+	IC_LocalVar	        := 90,
+	IC_ArrayType	        := 96,
+	IC_StartupProc	        := 107,
+	IC_AsciizType	        := 108,
+	IC_POinterCOns	        := 109,
+	IC_Union	        := 123,
+	IC_VoidType	        := 125,
+	IC_RoutineType          := 126,
+	IC_ObjectFile           := 130,
+	IC_ExternLibFileWindows := 131,
+	IC_ExternObjFile        := 133,
+	IC_ExternLibIntWindows  := 134,
+	IC_ExternObjInt         := 136,
+	IC_RoutineItem          := 138,
+	IC_RoutineCollection    := 139,
+	IC_AsmAsm               := 142,
+	IC_RTLParameter         := 143,
+	IC_OperatorFunction     := 145,
+	IC_Current_Definition   := 151,
+	IC_Current_RoutineItem  := 152,
+	IC_Current_Node         := 153,
+	IC_Current_LCB          := 154,
+	IC_FrameParameter       := 162,
+	IC_VmtItem              := 166,
+	IC_VmtList              := 167,
+	IC_Meta                 := 168,
+	IC_Frame                := 169,
+	IC_FrameVariable        := 170,
+	IC_ConstantMapping      := 171,
+	IC_NormalMapping        := 172,
+	IC_LocalFrameVar        := 173,
+	IC_VariableMapping      := 177,
+	IC_NestParameter        := 178,
+	IC_GlobalItem           := 186,
+	IC_Abstract_Dirty_Item  := 188,
+	IC_ClassType            := 189,
+	IC_ClassFrameParameter  := 190,
+	IC_Constructor          := 191,
+	IC_Destructor           := 192,
+	IC_Current_Class_Item	:= 193,
+	IC_Class_Meta           := 194,
+	IC_Object_Representor   := 195,
+	IC_Fixed_Frame_Parameter:= 196,
+	IC_Property             := 197,
+	IC_Property_Item        := 198,
+	IC_ENumCons             := 203,
+	IC_BooleanType          := 204,
+	IC_EnumCollection       := 205,
+	Ic_Abstract             := 206,
+	IC_ConstantVariable     := 207,
+	IC_ValueClassType       := 208,
+	IC_ObjectClassType      := 209,
+	IC_UnionFrameVariable   := 210,
+	IC_MAX                  := 210
 );
 
 TResourceIdentCode=(
@@ -244,11 +247,11 @@ const
 	Ext_Dll   ='DLL';
 	Ext_CDecl ='CDECL';
 	Ext_Normal='NORMAL';
-	
+
 type
-	
+
 	{Parameter compare}
-	
+
 	TParamCompareOption=(PC_Relaxed,PC_IgnoreName,PC_IgnoreState,PC_CheckAll);
 	TParamCompareOptions=set of TParamCompareOption;
 
@@ -606,17 +609,17 @@ const
 	Ofs_ExtR_Vmt_Begin	= 8;
 	Ofs_Class_Vmt_Begin = 12;
 	{----( Versie )--------------------}
-	
+
 	VER_Date  = 'Build '+{$i %FPCTARGET%}+' '+{$i %DATE%}+' '+{$i %TIME%};
 	VER_Head  = 'Copyright (C) 1998-2003 J.v.Iddekinge';
 	VER_No    = '0.5.5';
-	
+
 	{---( Validation )-----------------}
-	
+
 	type TConstantValidation=(Val_Ok,Val_Invalid,Val_Out_Of_Range);
-	
+
 	{--( OVModes )-------------------}
-	
+
 	TOVMode = (OVM_IS_Virtual,OVM_Found,OVM_Is_Routine,OVM_Change_After_Lock,OVM_Constructor);
 	TOVModes = set of TOVMode;
 
@@ -743,5 +746,5 @@ begin
 	LoadInt(Min_Word , 0);
 	LoadInt(Min_integer,-32768);
 	LoadInt(Max_Integer, 32767);
-	
+
 end.

@@ -31,36 +31,34 @@ type
 		function  AddIDentToCurrentList(ParIdent:TDefinition):TErrorType;
 		function  GetCurrentList:TIdentList;
 		procedure AddInitCall(ParCre:TSecCreator);
-		function    GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
+		function  GetPtrByArray(const ParName : ansistring;const ParArray : array of TRoot;var ParOwner,ParResult : TDefinition):TObjectFindState;
 		function GetPtrByObject(const ParName : ansistring;ParObject : TRoot;var ParOwner,ParResult : TDefinition) : TObjectFindState;
 	end;
-	
 
-	
+
+
 implementation
 uses pocobj,cblkbase,procs;
 
 type
-	
+
 	TIdentListItem=class(TListItem)
 	private
 		voIdentList : TIdentList;
-		voName      : TString;
+		voName      : ansistring;
 		voPublic    : boolean;
 		voLevel     : TUnitLevel;
-		property    iName      : TString    read voName      write voName;
+		property    iName      : ansistring read voName      write voName;
 		property    iLevel     : TUnitLevel read voLevel     write voLevel;
 		property    iIdentList : TIdentList read voIdentList write voIdentList;
 		property    iPublic    : boolean    read voPublic    write voPublic;
+	protected
+		procedure   Commonsetup;override;
 	public
 		property    fLevel  : TUnitLevel read voLevel;
 		property    fPublic : boolean read voPublic;
-		property    fName   : TString read voName;
-		
-		procedure   SetPublic(ParPub:boolean);
-		procedure   Commonsetup;override;
-		constructor Create(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentListItem:TIdentList);
-		destructor  Destroy;override;
+
+		constructor Create(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentListItem:TIdentList;ParPublic:boolean);
 		function    AddIDent(parIdent:TDefinition):TErrortype;
 		function    GetPtrByName(const ParText:ansistring;var ParOwner : TDefinition;var ParItem:TDefinition):boolean;
 		function    GetDefaultIdent(ParDefault:TDefaultTypeCode;ParSize : TSize;ParSign:boolean):TType;
@@ -104,7 +102,8 @@ begin
 end;
 
 procedure TIdentListCollection.AddIdentList(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentList:TIdentList;ParPublic:boolean);
-var vlItem : TIdentListITem;
+var
+	vlItem    : TIdentListITem;
 	vlCurrent : TIdentListItem;
 begin
 	ParIdentList.InitHashing;
@@ -112,9 +111,9 @@ begin
 	vlCurrent := TIdentListItem(fTop);
 	if(vlCurrent <> nil) then vlCurrent := TIdentListItem(vlCurrent.fPrv);
 	while (vlCurrent <> nil) and (vlCurrent.fLevel > ParLevel) do vlCurrent := TIdentListItem(vlCurrent.fPrv);
-	vlItem := TIdentListItem.Create(ParName,ParLevel,ParIdentList);
+	vlItem := TIdentListItem.Create(ParName,ParLevel,ParIdentList,ParPublic);
 	InsertAt(vlCurrent,vlItem);
-	vlItem.SetPublic(ParPublic);
+
 end;
 
 function TIDentListCollection.AddIDentToCurrentList(ParIdent:TDefinition):TErrorType;
@@ -193,13 +192,9 @@ end;
 
 function TIdentListItem.HasSameName(const ParName : ansistring):boolean;
 begin
-	exit(iName.IsEqualStr(ParName));
+	exit(iName = ParName);
 end;
 
-procedure TIdentListItem.SetPublic(ParPub:boolean);
-begin
-	voPublic := ParPub ;
-end;
 
 procedure TIdentListItem.Commonsetup;
 begin
@@ -208,12 +203,13 @@ begin
 end;
 
 
-constructor TIdentListItem.Create(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentListItem:TIdentList);
+constructor TIdentListItem.Create(const ParName:ansistring;ParLevel : TUnitLevel;ParIdentListItem:TIdentList;ParPublic:boolean);
 begin
 	inherited Create;
 	iIdentList := ParIdentlistItem;
-	iName      := TString.Create(ParName);
+	iName      := ParName;
 	iLevel     := ParLevel;
+	iPublic    := ParPublic;
 end;
 
 
@@ -261,12 +257,6 @@ begin
 			ParCre.AddSec(vlProc);
 		end;
 	end;
-end;
-
-destructor  TIdentListItem.Destroy;
-begin
-	inherited Destroy;
-	if iName <> nil then iName.Destroy;
 end;
 
 end.

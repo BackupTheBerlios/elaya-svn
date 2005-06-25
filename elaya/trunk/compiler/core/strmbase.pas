@@ -25,8 +25,8 @@ const
 	STS_Unkown_Object = 1;
 	STS_End_Mark      = 2;
 	STS_Error         = 3;
-	IC_End_Mark  	  = -2;
-	IC_No_Code        = -1;
+	IN_No_Code        = -1;
+
 type
 	TIdentNumber      = longint;
 

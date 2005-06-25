@@ -1,4 +1,5 @@
-{    Elaya, the compiler for the elaya language;
+{
+Elaya, the compiler for the elaya language;
 Copyright (C) 1999-2003  J.v.Iddekinge.
 web : www.elaya.org
 
@@ -86,7 +87,7 @@ type
 		function   IsMaximum(ParValue : TValue):boolean;virtual;{TODO 2 implement with other types inst of number}
 		function   CreateVarOfTypeUse(ParVar : TBaseDefinition): TUseItem;virtual;
 	end;
-	
+
 	TFormulaList=class(TNodeList)
 	private
 		voFormType        : TType;
@@ -100,7 +101,7 @@ type
 	public
 		property fOptimizeMethods : TOptimizeMethods read voOptimizeMethods;
 		property  fFormType : TType read voFormType;
-		
+
 		function  DetermenFormType(ParCre : TCreator;ParPrvType : TType;ParNode :TFormulaNode):TType;virtual;
 		procedure  proces(ParCre :TCreator);override;
 		function  Can(ParCan:TCan_Types):boolean;virtual;
@@ -111,9 +112,9 @@ type
 		function  FirstCpxOptimizeNode : TFormulaNode;virtual;
 		procedure ValidateAll(ParCre : TCreator;ParType : TType);virtual;
 	end;
-	
-	
-	
+
+
+
 	TFormulaNode=class(TNodeIdent)
 	private
 		voContext    : TDefinition;
@@ -135,43 +136,51 @@ type
 		function    IsCompByIdentCode(ParCode : TIdentCode):boolean;
 		function    IsCompWithType(ParType :TType):boolean;virtual;
 		function    IsDirectComp(ParNode:TFormulaNode):boolean;virtual;
-		function	CanWriteWith(ParExact : boolean;ParNode : TFormulaNode):boolean;
-		function	CanWriteWith(ParExact : boolean;ParType : TTYpe):boolean;
-		function	CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;virtual;
-		
+
+		function    CanWriteWith(ParExact : boolean;ParNode : TFormulaNode):boolean;
+		function    CanWriteWith(ParExact : boolean;ParType : TTYpe):boolean;
+		function    CanWriteTo(ParExact : boolean;ParTYpe : TType):boolean;virtual;
 		function    CAN(ParCan:TCan_Types):boolean;virtual;
+
 		function    GetType:TType;virtual;
 		function    GetOrgType:TType;virtual;
 		function    GetSize:TSize;
-		function    IsDominant(ParForm:TFormulaNode):TDomType;virtual;
+		function    GetTypeSize : TSize;
+		function    GetTypeSign : boolean;
+		procedure   GetTypeName(var ParName : ansistring);
 		function    GetTypeDefault:TDefaultTypeCode;
+		function    CanCastTo(ParType : TType):boolean;
+		function    ConvertNodeType(ParType : TType;ParCre : TCreator;var Parnode : TFormulaNode):boolean;virtual;
+		function    IsLikeType(const ParTypeClass : TTypeClass) : boolean;
+
+		function    IsDominant(ParForm:TFormulaNode):TDomType;virtual;
 		function    IsConstant : boolean;virtual;
 		function    GetValue : TValue;virtual;
 		function    CreateSec(ParCre:TSecCreator):boolean;override;
 		function    DoCreateSec(ParCre:TSecCreator):boolean;virtual;
 		function    CreateMac(ParOption : TMacCreateOption;ParCre : TSecCreator):TMacBase;override;
-		procedure   GetTypeName(var ParName : ansistring);
-		function    GetTypeSIze : TSize;
-		function    GetTypeSign : boolean;
+
+
 		procedure   ValidateConstant(ParCre :TCreator;ParProc : TConstantValidationProc);override;
-		function    CanCastTo(ParType : TType):boolean;
-		function    ConvertNodeType(ParType : TType;ParCre : TCreator;var Parnode : TFormulaNode):boolean;virtual;
-		function    IsLikeType(const ParTypeClass : TTypeClass) : boolean;
+
 		procedure   DetermenComplexity;virtual;
 		procedure   OptimizeCpx;virtual;
-		procedure  Optimize(ParCre : TCreator);override;
-		function   Optimize1(ParCre : TCreator):boolean;virtual;
-		function   OptimizeForm(ParCre :TCreator;var ParRepl : TFormulaNode):boolean;
-		function   IsOptUnsave:boolean;virtual;
+		procedure   Optimize(ParCre : TCreator);override;
+		function    Optimize1(ParCre : TCreator):boolean;virtual;
+		function    OptimizeForm(ParCre :TCreator;var ParRepl : TFormulaNode):boolean;
+
+		function  IsOptUnsave:boolean;virtual;
 		procedure InitDotFrame(ParCre : TSecCreator);virtual;
 		procedure DoneDotFrame;virtual;
-		function CreateObjectPointerOfNode(ParCre : TCreator) : TFormulaNode;virtual;
-		procedure ValidateAfter(ParCre : TCreator);override;
-		function   IsMinimum(ParValue : TValue):boolean;
-		function   IsMaximum(ParValue : TValue):boolean;
-		function   RecordReadCheck : boolean;
+		function  CreateObjectPointerOfNode(ParCre : TCreator) : TFormulaNode;virtual;
+
+		function  IsMinimum(ParValue : TValue):boolean;
+		function  IsMaximum(ParValue : TValue):boolean;
+		function  RecordReadCheck : boolean;
 		procedure Proces(ParCre :TCreator);override;
-	    	function CanSec:boolean;virtual;
+	    	function  CanSec:boolean;virtual;
+
+		procedure ValidateAfter(ParCre : TCreator);override;
   		procedure ValidatePre(ParCre : TCreator;ParIsSec : boolean);override;
 		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);override;
 		procedure ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);virtual;
@@ -210,12 +219,12 @@ end;
 
 	TFailedNode=class(TSubListFormulaNode);
 	TValueNode=class(TFormulaNode);
-		
-		
-		
+
+
+
 	implementation
-	
-	
+
+
 	uses ndcreat,execobj;
 
 {----( TSubListFormuleNode )----------------------------------------------------------------------}
@@ -295,7 +304,7 @@ begin
 	end;
 end;
 
-	
+
 	procedure TSubListFormulaNode.OptimizeCpx;
 	begin
 		DetermenComplexity;
@@ -320,7 +329,7 @@ end;
 		exit(false);
 	end;
 
-	
+
 	{---( TFormulaDefinition )-----------------------------------------}
 
 
@@ -375,7 +384,7 @@ end;
    begin
 		exit(CreateReadNode(ParCre,ParParent));
 	end;
-	
+
 	{--------(TFormulaNode )--------------------------------------}
 
 	function  TFormulaNode.GetDefinition : TDefinition;
@@ -389,21 +398,21 @@ end;
 		vlUse  : TUseItem;
 		vlDef  : TDefinition;
 	begin
-			vlList := ParUseList;
-  			if iRecord <> nil then begin
-				vlDef := iRecord.GetDefinition;
-				if vlDef = nil then exit;
-				vlUse := ParUseList.GetOrAddUseItem(vlDef);
-				if vlUse = nil then fatal(	FAT_no_du_list_from_context,'');
-				vlList := vlUse.GetSubList;
-				if vlList = nil then vlList := ParUseList;{TODO hack because of strings}
-			end;
-		   ValidateFormulaDefinitionUse(ParCre,ParMode,vlList);
+		vlList := ParUseList;
+  		if iRecord <> nil then begin
+			vlDef := iRecord.GetDefinition;
+			if vlDef = nil then exit;
+			vlUse := ParUseList.GetOrAddUseItem(vlDef);
+			if vlUse = nil then fatal(FAT_no_du_list_from_context,'');
+			vlList := vlUse.GetSubList;
+			if vlList = nil then vlList := ParUseList;{TODO hack because of strings}
+		end;
+		ValidateFormulaDefinitionUse(ParCre,ParMode,vlList);
 	end;
 
 	procedure TFormulaNode.ValidateFormulaDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList);
 	begin
-			inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
+		inherited ValidateDefinitionUse(ParCre,ParMode,ParUseList);
 	end;
 
 	procedure TFormulaNode.ValidatePre(ParCre : TCreator;ParIsSec : boolean);
@@ -465,7 +474,7 @@ end;
 	begin
 		exit(TObjectPointerNode.Create(self,nil));
 	end;
-	
+
 	procedure TFormulaNode.DoneDotFrame;
 	var
 		vlType : TType;
@@ -474,8 +483,8 @@ end;
       if iRecord <> nil then iRecord.DoneDotFrame;
 		if(vlType <> nil) then vlType.DoneDotFrame;
 	end;
-	
-	
+
+
 	procedure TFormulaNode.InitDotFrame(ParCre : TSecCreator);
 	var
 		vlType : TType;
@@ -484,29 +493,29 @@ end;
 		if (vlType <> nil) then vlType.InitDotFrame(ParCre,self,fContext);
       if iRecord <> nil then iRecord.InitDotFrame(ParCre);
 	end;
-	
+
 	function  TFormulaNode.IsOptUnsave:boolean;
 	begin
 		exit(false);
 	end;
-	
+
 	procedure TFormulaNode.OptimizeCpx;
 	begin
 		DetermenComplexity;
 	end;
-	
+
 	function TFormulaNode.Optimize1(ParCre : TCreator):boolean;
 	begin
 		exit(false);
 	end;
-	
+
 	procedure  TFormulaNode.Optimize(ParCre : TCreator);
 	begin
 	   repeat until not Optimize1(ParCre);
 		OptimizeCpx;
 	end;
-	
-	
+
+
 	function TFormulaNode.OptimizeForm(ParCre : TCreator;var ParRepl : TFormulaNode):boolean;
 	var
 		vlOpt : boolean;
@@ -521,7 +530,7 @@ end;
 		end;
 		exit(vlOpt);
 	end;
-	
+
 	procedure TFormulaNode.Commonsetup;
 	begin
 		inherited Commonsetup;
@@ -529,7 +538,7 @@ end;
 		iContext    := nil;
       iRecord     := nil;
 	end;
-	
+
 	function  TFormulaNode.IsLikeType(const ParTypeClass : TTypeClass) : boolean;
 	var
 		vlType : TType;
@@ -541,14 +550,14 @@ end;
 			exit(false);
 		end;
 	end;
-	
-	
+
+
 	function  TFormulaNode.ConvertNodeType(ParType : TType;ParCre : TCreator;var ParNode : TFormulaNode) : boolean;
 	begin
 		ParNode := nil;
 		exit(false);
 	end;
-	
+
 	function  TFormulaNode.CanCastTo(ParType : TType):boolean;
 	begin
 		if GetType <>nil then begin
@@ -557,7 +566,7 @@ end;
 			exit(false);
 		end;
 	end;
-	
+
 	procedure TFormulaNode.ValidateConstant(ParCre :TCreator;ParProc : TConstantValidationProc);
 	var vlValue : TValue;
 	begin
@@ -648,9 +657,7 @@ var
 begin
 	if ParType <> nil then begin
 		vlType := GetOrgType;
-        if vlType <> nil then begin
-			exit(ParType.CanWriteWith(ParExact,vlType));
-		end;
+		if vlType <> nil then exit(ParType.CanWriteWith(ParExact,vlType));
 	end;
 	exit(false);
 end;
@@ -679,7 +686,8 @@ end;
 
 
 function TFormulaNode.GetOrgType:TType;
-var vlType:TType;
+var
+	vlType:TType;
 begin
 	vlType := GetType;
 	if vlType <> nil then vlType :=vlType.GetOrgType;
@@ -736,7 +744,7 @@ begin
 end;
 
 
-function TFormulaNode.DOCreateSec(ParCre:TSecCreator):boolean;
+function TFormulaNode.DoCreateSec(ParCre:TSecCreator):boolean;
 var vlMac,vlMac2:TMacBase;
 	vlSec  : TCompFor;
 	vlOut  : TMacBase;
@@ -961,7 +969,7 @@ begin
 	ParCan -= [Can_Type ,Can_Size];
 	exit(inherited Can(ParCan));
 end;
-	
+
 procedure TType.COmmonSetup;
 begin
 	inherited CommonSetup;
@@ -1115,11 +1123,11 @@ begin
 		vlCurrent.OptimizeCpx;
 		vlCurrent := TFormulaNode(vlCurrent.fNxt);
 	end;
-	
+
 	if not CanOptimizeCpx then exit;
 	vlAt := nil;
 	if vlMax <> nil then vlAt := TFormulaNode(vlMax.fPrv);
-	
+
 	while vlMax <> nil do begin
 		vlCurrent := TFormulaNode(vlMax.fNxt);
 		while vlCurrent <> nil do begin
@@ -1165,7 +1173,8 @@ var
 	vlNode : TFormulaNode;
 begin
 	inherited Proces(ParCre);
-    vlNode := TFormulaNode(fStart);
+    	vlNode := TFormulaNode(fStart);
+	iFormType := nil;
 	while vlNode <> nil do begin
 		if vlNode is TFormulaNode then iFormType := DetermenFormType(ParCre,iFormType,vlNode);
 		vlNode := TFormulaNode(vlNode.fNxt);

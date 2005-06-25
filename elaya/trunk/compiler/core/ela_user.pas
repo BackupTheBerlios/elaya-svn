@@ -22,7 +22,7 @@ interface
 uses doperfun,largenum,confnode,progutil,module,compbase,initstrm,cmp_base,stdobj,cblkbase,
 error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,linkobj,
 cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,elacons,procs,classes,exprdigi,stmnodes;
-	
+
 type	TEla_User=class(TCompiler_Base)
 	private
 		voNdCreator       : TNDCreator;
@@ -30,7 +30,7 @@ type	TEla_User=class(TCompiler_Base)
 		voPrvConfigValues : TConfigValues;
 		voDestroyCfgVal   : boolean;
 		voLinkObjList     : TLinkObjList;
-		
+
 	protected
 		property iLinkObjList     : TLinkObjList  read voLinkObjList     write voLinkObjList;
 		property iOwnConfig       : boolean       read voOwnConfig       write voOwnConfig;
@@ -40,12 +40,12 @@ type	TEla_User=class(TCompiler_Base)
 	procedure   clear;override;
 	procedure  Commonsetup;override;
 
-		
+
 	private
-		
+
 	procedure OverrideRoutine(ParCurrentMeta : TMeta;ParOVMOdes : TOVModes;ParOther,ParRoutine : TRoutine);
 	procedure VirtualizeRoutine(ParCurrentMeta : TMeta;ParOVMOdes : TOVMOdes;ParRoutine : TRoutine);
-	
+
 public
 	procedure  SetDefinitionPos(ParDef : TDefinition);
 
@@ -82,7 +82,7 @@ public
 	ParWrite        : boolean
 	):TRoutine;
 	constructor Create(const ParFileName:ansistring);
-	
+
 	procedure AddLoopFlowNode(var ParNode:TNodeIdent;ParType:TRefLoopFlowNode);
 	procedure AddBreakNode(var ParNode : TNodeIdent);
 	procedure AddContinueNode(var ParNode : TNodeIdent);
@@ -93,12 +93,12 @@ public
 		      ParPrvPar  : TFormulaNode;
 		const ParOprStr  : ansistring;
 		      ParOperObj : TRefNodeIdent) : TFormulaNode;
-	
+
 	procedure ProcessBetweenOperator(
 	ParO1,ParO2,ParO3    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
 	const ParOprStr    : ansistring);
-	
+
 	procedure ProcessSingleOperator(
 	ParNewPar    : TNodeIdent;
 	var ParPrvPar: TNodeIdent;
@@ -109,13 +109,13 @@ public
 	var ParPrvPar: TNodeIdent;
 	const ParOprStr    : ansistring;
 	ParCode	     : TIdentCode);
-	
+
 	function  CreateShortERtn(ParRoutine : TDefinition;ParDigi : TDigiItem): TRoutine;
 	procedure CreateShortSubCb( ParRoutine    : TRoutine;
 	const ParName  : ansistring;
 	var   ParNewCB : TRoutine;
 	var   ParError : boolean);
-	
+
 	function  CreatePointerType(ParType : TType;ParConstFlag : boolean):TPtrType;
 	function  CreatePointerType(const ParName : ansistring;ParCanForward, ParConstFlag:boolean):TPtrType;
 	function  CreateIntNode(ParCon : TNumber) : TFormulaNode;
@@ -240,7 +240,7 @@ var
 	vlRes  : TCDTorsRoutine;
 begin
 	vlDef := fNDCreator.GetCurrentDefinition;
-	
+
 	if (vlDef= nil) or not(vlDef is TClassType) then begin
 		SemError(Err_CDTor_only_in_class);
 		vlType := nil;
@@ -310,17 +310,27 @@ var
 		exit(false);
 	end;
 
-begin{TODO.MUST Check if Parent is same type}
+begin
 	vlType := nil;
 	vlFoundIncompleet := false;
 	vlParent := nil;
 	if length(ParParent) <> 0 then begin
 		vlItem := fNDCreator.GetCheckItem(ParParent);
+
 		if vlItem <> nil then begin
+
+			if(vlItem is TType) then vlItem := TType(vlItem).getOrgType;
+
 			if not(vlItem is TClassType) then begin
 				ErrorText(Err_Not_A_Class,ParParent);
 			end else begin
 				vlParent := TClassType(vlItem);
+				if (ParOfValue) then begin
+					if not (vlParent is TValueClassType) then ErrorText(Err_parent_not_a_value_class ,ParParent);
+				end else begin
+					if not (vlParent is TObjectClassType) then ErrorText(Err_parent_is_a_value_class ,ParParent);
+				end;
+
 				if vlParent.fInCompleet then begin
 					ErrorText(Err_Parent_Class_Incompleet,ParParent);
 					vlParent := nil;
@@ -342,7 +352,7 @@ begin{TODO.MUST Check if Parent is same type}
 	end;
 	if not ParInCompleet then vlType.SetMetaFramePtr(fNDCreator);
 	vlCurrent := fNDCreator.GetCurrentDefinition;
-    if vlCurrent <>nil then begin
+	if vlCurrent <>nil then begin
 		if not(ParIsoLate) then ErrorText(Err_Nested_Require_Isolate,ParName);
 	end;
 	if ParVirtual <> Vir_None then begin
@@ -464,7 +474,7 @@ end;
 
 
 procedure TEla_User.HandleHasClause(const ParName : ansistring);
-var 
+var
 	vlDef     : TDefinition;
 	vlName    : ansistring;
 	vlRoutine : TRoutine;
@@ -597,7 +607,7 @@ begin
     				vlLineInfo.fLine := ParNode.fLine;
 				vlPrn.AddNode(vlLineInfo);
 		    	end;
-			
+
 			vlPrn.AddNode(vlExit);
 			vlPrn.FinishNode(fNDCreator,true);
 		end;
@@ -732,7 +742,7 @@ begin
 			end;
 		end;
 	end;
-	
+
 	if vlRoutine = nil then begin
 		GetNewAnonName(vlParentName);
 		vlRoutine := TProcedureObj.Create(vlParentName);
@@ -740,7 +750,7 @@ begin
 	end else begin
 		vlParent.CloneParameters(fNDCreator,vlRoutine,vlParentOwner,TRoutine(fNDCreator.GetCurrentRoutine),false);
 	end;
-	
+
 	vlRoutine.SetRoutineModes([RTM_ShortDCode],true);
 	vlRoutine.AutoMaticCreateMapping;
 	ProcessRoutineItem(vlRoutine,false,false,true,true,vlParentName,vir_none,OVL_Type,false,vlIsWrite);
@@ -758,12 +768,12 @@ begin
 	end else if not(OVM_Is_Routine in ParOVModes)  then begin
 		ErrorDef(ERR_Overides_non_Routine,ParOther);
 	end else begin
-		ParOther.ValidateCanOverrideByComp(fNDCreator,ParROutine);
+		ParOther.ValidateCanOverrideByComp(fNDCreator,ParRoutine);
 		if ParCurrentMeta <> nil then  begin
 			if ParOther.IsVirtual then begin
 				ParRoutine.fVmtItem := ParCurrentMeta.ChangeVirtualRoutine(ParOther,ParRoutine);
 			end else begin
-           		ParRoutine.fVmtItem := ParCurrentMeta.AddVirtualRoutine(ParRoutine);
+				ParRoutine.fVmtItem := ParCurrentMeta.AddVirtualRoutine(ParRoutine);
 			end;
 			if ParRoutine.fVmtItem = nil then begin
 				if not (OVM_Change_after_Lock in ParOVModes) then begin
@@ -841,10 +851,10 @@ begin
 		if  not(vlExtended) and (ParVirtual <> VIR_Virtual)  then ErrorDef(Err_Routine_Is_Not_Vir_Or_Ext,ParRoutine);
 		vlAttrib := vlAttrib + [RTM_Abstract];
 	end;
-  { if ParWrite then begin
-		if (vlMother = nil) or not(vlMother is TValueClassType) then ErrorDef(Err_Write_Rtn_Only_In_V_Class,ParRoutine);
+ 	if ParWrite then begin
+{		if (vlMother = nil) or not(vlMother is TValueClassType) then ErrorDef(Err_Write_Rtn_Only_In_V_Class,ParRoutine);}
 		vlAttrib := vlAttrib + [RTM_Write_Mode];
-	end;                }
+	end;                
 	if vlExtended then vlAttrib := vlAttrib + [RTM_Extended];
 	if ParInhFinal then vlAttrib := vlAttrib+[RTM_Inherit_Final];
 	if ParIsolate  then vlAttrib := vlAttrib+[RTM_Isolate];
@@ -889,7 +899,7 @@ begin
 		end else begin
 
 			vlLevelChk := vlParent.GetRoutineOwner;
-			
+
 			if(vlMother <> nil) then begin {TODO: is TRoutine test}
 				if not(vlMother.GetOwnerLevelTo(vlLevelChk,vlRelLevel)) then begin
 					vlName := vlMother.fText;
@@ -930,10 +940,10 @@ begin
 		SemError(Err_Identifier_cant_have_vir);
 		vlVirtual := vir_none;
 	end;
-	
+
 	vlRoutine.FinishSetup(TRoutine(vlParent),vlParentOwner,vlOtherOwner,fNDCreator,ParInherited);
 	case vlVirtual of
-		vir_Virtual		: VirtualizeRoutine(vlMeta,vlOvModes,vlRoutine);
+		vir_Virtual	: VirtualizeRoutine(vlMeta,vlOvModes,vlRoutine);
 		vir_Override    : OverrideRoutine(vlMeta,vlOvModes,vlOther,vlRoutine);
 		vir_Final    	: OverrideRoutine(vlMeta,vlOvModes,vlOther,vlRoutine);
 		vir_none        : if OVM_Found in   vlOvModes  then begin
@@ -1167,7 +1177,7 @@ var
 		vlOwner : TDefinition;
 		vlDepInfo : TDependItem;
 	begin
-	
+
 		vlType := ParItem.fType;
 		vlFileName := ParItem.fFile;
 	  	ParCDecl := ParItem.fCDecl;
@@ -1175,7 +1185,7 @@ var
 		if(vlItem <> nil) then begin
 			if vlItem is TExternalInterface then exit(TExternalInterface(vlItem));
 		end;
-		vlDepInfo := TDependItem(ParItem.fDependencyList.Fstart);		
+		vlDepInfo := TDependItem(ParItem.fDependencyList.Fstart);
 		while(vlDepInfo <> nil) do begin
 			AddExternalInterface(vlDepInfo.fItem);
 			vlDepInfo := TDependItem(vlDepInfo.fNxt);
@@ -1201,7 +1211,7 @@ begin
 	if(vlInfo <> nil) then begin
 		vlInter := AddExternalInterface(vlInfo);
 	end else begin
-		ErrorText(Err_Link_Name_Unkown,ParName);	
+		ErrorText(Err_Link_Name_Unkown,ParName);
 	end;
 
 	if vlInter = nil then begin
@@ -1213,7 +1223,7 @@ begin
 
 
 	fndCreator.AddCurrentDefinition(vlInter);
-	
+
 	exit(vlInter);
 end;
 
@@ -1226,7 +1236,7 @@ var
 	vlCallNode   : TCallNode;
 	vlResult     : TOperatorProcessResult;
 	vlCnt        : cardinal;
-   vlDef        : TRoutine;
+	vlDef        : TRoutine;
 	vlOwner      : TDefinition;
 	vlError      : TErrorTYpe;
 begin
@@ -1234,14 +1244,15 @@ begin
 		if ParParameters[vlCnt] <> nil then TNodeIdent(ParParameters[vlCnt]).Proces(fNDCreator);
 	end;
 	fNDCreator.GetPtrByArray(ParOperStr,ParParameters,vlOwner,vlDef);
+
 	vlError := Err_No_Error;
 	vlResult := Opr_Not_Found;
 	if vlDef = nil then begin
 		if ParError then vlError := Err_Unkown_Ident;
 	end else if not(vlDef is TOperatorFunction) then begin
 		if ParError then vlError := Err_Not_A_Operator;
-	end else if not vlDef.IsSameParamByNodesArray(ParParameters,false){  not vlDef.IsSameTypeByNode(vlCallNode)} then begin
-      if ParError then vlError := Err_Incompatible_Types;
+	end else if not vlDef.IsSameParamByNodesArray(ParParameters,false) then begin
+		if ParError then vlError := Err_Incompatible_Types;
 	end else begin
 		vlCallNode := TCallNode.Create(ParOperstr);
 
@@ -1277,7 +1288,7 @@ begin
 			ParNewPar := nil;
 		end;
 		exit(ParPrvPar);
-	end else begin	
+	end else begin
 		case ProcessOperator([ParPrvPar,ParNewPar],vlNode,ParOprStr,ParOperObj=nil) of
 			Opr_Ok:begin end;
 			Opr_Not_Found : begin{fatal error when paroperobj=nil ?}
@@ -1331,7 +1342,7 @@ begin
 
 	if ProcessOperator([ParO1,ParO2,ParO3],ParPrvPar,ParOprStr,false)=Opr_Ok then exit;
 	vlType :=fNDCreator.GetDefaultIdent(DT_Boolean,SIZE_DontCare,false);
-	
+
 	if vlType = nil then ErrorText(Err_Cant_Find_Type,'boolean');
 	vlNode := TBetweenNode.Create(vlType);
 	vlNode.AddNode(ParO1);
@@ -1478,7 +1489,7 @@ begin
 			vlCDeclFlag := true;
 			GetNextString(vlCDecl);
 			UpperStr(vlCDecl);
-		end;	
+		end;
 		vlItem := ParList.AddObject(vlName,vlFileName,vlType,vlCdeclFlag);
 		if(vlCDecl = 'DEPEND') then begin
 			vlText := vlCdecl;

@@ -115,14 +115,14 @@ const
 	Err_Must_Recompile		  = 1097;
 	Err_Assembler_Failed	  = 1098;
 	Err_Linker_Failed             = 1099;
-	Err_Invalid_Default_Code	  = 1100;
+	Err_Invalid_Default_Code      = 1100;
 	Err_Cant_Array_Index_Type     = 1101;
 	Err_Integer_Type_Expr_Exp     = 1102;
 	Err_Cant_Use_Dot_Oper         = 1103;
 	Err_Rtn_Has_No_Main           = 1104;
 	Err_Writing_Link_file_Failed  = 1105;
-	Err_Stat_Befor_vir_Param	  = 1106;
-	Err_Not_A_Constant             = 1107;
+	Err_Stat_Befor_vir_Param      = 1106;
+	Err_Not_A_Constant            = 1107;
 	Err_Not_A_Numeric_Type        = 1108;
 	Err_Override_by_Static        = 1109;
 	Err_No_Parameters_Expected    = 1110;
@@ -130,9 +130,9 @@ const
 	Err_Cant_Base_Type_On_This    = 1112;
 	Err_Invalid_Value             = 1113;
 	Err_Expr_Is_Out_Of_Range      = 1114;
-	Err_Not_A_Variable		  = 1115;
+	Err_Not_A_Variable            = 1115;
 	Err_Cant_Cast_To_This_Type    = 1116;
-	Err_Ovr_Dif_Routine_Type	  = 1117;
+	Err_Ovr_Dif_Routine_Type      = 1117;
 	Err_Ovr_Need_Overl            = 1118;
 	Err_Ovr_Need_Name_Overl       = 1119;
 	Err_Ovr_Param_different       = 1120;
@@ -171,13 +171,13 @@ const
 	Err_Methode_Expected          = 1153;
 	Err_CDTor_only_in_class       = 1154;
 	Err_Cant_Find_Routine         = 1155;
-	Err_CD_Must_Be_Public	 	   = 1156;
-	Err_CD_Cant_be_Isolated		   = 1157;
+	Err_CD_Must_Be_Public         = 1156;
+	Err_CD_Cant_be_Isolated       = 1157;
 	Err_Cant_Find_Parameter       = 1158;
-	Err_Not_A_Class_Method		   = 1159;
+	Err_Not_A_Class_Method        = 1159;
 	Err_Ovr_different_kind_obj    = 1160;
 	Err_Parent_not_over_ident     = 1161;
-	Err_Not_A_Class				   = 1162;
+	Err_Not_A_Class               = 1162;
 	Err_Wrong_Access_Level        = 1163;
 	Err_Recrusive_Call_in_prop    = 1164;
 	Err_Type_Differes_from_prop   = 1165;
@@ -193,14 +193,18 @@ const
 	Err_Forward_No_Main           = 1175;
 	Err_Forward_Has_Main          = 1176;
 	Err_Not_A_Operator            = 1181;
-	Err_Abs_cant_have_main        =1182;
-	Err_Vir_ch_Par_has_zu_Size    =1183;
-	Err_Array_Expected            =1184;
+	Err_Abs_cant_have_main        = 1182;
+	Err_Vir_ch_Par_has_zu_Size    = 1183;
+	Err_Array_Expected            = 1184;
 	Err_Write_Rtn_Only_In_V_Class = 1185;
-	Err_Invalid_Number	  	 	   = 1186;
+	Err_Invalid_Number            = 1186;
 	Err_Error_in_lib_info         = 1187;
 	Err_Link_Name_Unkown          = 1188;
 	Err_Routine_Expected          = 1189;
+	Err_Cant_Override_ext_by_non  = 1190;
+	Err_Cant_Override_non_by_ext  = 1191;
+	Err_parent_not_a_value_class  = 1192;
+	Err_parent_is_a_value_class   = 1193;
 
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
@@ -226,7 +230,7 @@ const
 	Err_Int_Value_ret_Unk_Err     = 2022;
 	Err_Int_Add_Non_Glob_To_Globl = 2023;
 	Err_Int_Cur_Ident_No_EC       = 2024;
-	
+
 	Err_Fail_Create_Unit_File= 3000;
 	Err_Invalid_Unit         = 3001;
 	Err_Cant_Open_Unit_File  = 3002;
@@ -240,7 +244,7 @@ const
 	Err_Write_Some_Without_Read   = 3503;
 	Err_Variable_Not_Used         = 3504;
 
-	
+
 	Fat_Pushed_INst_Not_in_List  = 4000;
 	Fat_Cant_Get_Stack_Frame_Reg = 4001;
 	Fat_Cant_Get_Stack_Pointer   = 4002;
@@ -346,8 +350,8 @@ const
 	procedure Fatal(ParError:TErrorType;const ParRes:ansistring);
 	procedure Fatal(PArError:TErrorTYpe;const ParArray:array of const);
 	implementation
-	
-	
+
+
 procedure Fatal(ParError:TErrorType;const ParRes:ansistring);
 var vlMsg:pchar;
 begin
@@ -540,7 +544,7 @@ begin
 		Err_Must_Pass_By_Name        : vlMsg := 'Must pass parameter by name';
 		Err_Must_Not_pass_By_Name    : vlMsg := 'Must pass parameter not by name';
 		Err_Symbol_Not_Expected      : vlMsg := 'Symbol not expected';
-		Err_Not_A_Routine	         : vlMsg := 'Not a routine';
+		Err_Not_A_Routine            : vlMsg := 'Not a routine';
 		Err_Rtn_Is_Name_Overloaded   : vlMsg := 'Routine is name overloaded';
 		Err_Rtn_is_Not_extended      : vlMsg := 'Routine is not extended';
 		Err_Params_Not_Inh_comp      : vlMsg := 'Parameters are not inheritable compatible';
@@ -668,6 +672,10 @@ begin
 		Err_Error_in_Lib_Info        : vlMsg := 'Error in link info file';
 		Err_Link_Name_Unkown         : vlMsg := 'Unkown link info name';
 		Err_Routine_Expected         : vlMsg := 'Invalid object for this operation, routine expected';
+		Err_Cant_Override_ext_by_non : vlMsg := 'Can''t override non extended by extended routine';
+		Err_Cant_Override_non_by_ext : vlMsg := 'Can''t override extended by non extended routine';
+		Err_parent_not_a_value_class : vlMsg := 'Parent is not a value class';
+		Err_parent_is_a_value_class  : vlMsg := 'Parent is a value class';
 
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';
