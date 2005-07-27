@@ -165,9 +165,9 @@ begin
 	writeln('-l[nN]         = Generate list file');
 	writeln('	              n=Print node/POC list file');
 	writeln('	              N=Turnoff printing node/POC list file');
-	writeln('-O[k]          = Optimize');
-	writeln('		           k=Optimize register use:');
-	writeln('  		          ku=Reuse register contents');
+	writeln('-O[k](+|-)      = Optimize');
+	writeln('		       k+=Optimize register use:');
+	writeln('  		       k1+=Reuse register contents');
 	writeln('-r      = rebuild, when source has changed or unit versions dont match');
 	{	writeln('	          b = Rebuild all programs'); }
 	writeln('-u             =Unit options');

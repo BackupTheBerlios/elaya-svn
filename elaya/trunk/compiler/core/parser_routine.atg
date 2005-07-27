@@ -1,59 +1,59 @@
-PRODUCTIONS
+ PRODUCTIONS
 
-(*			Procedure/function				*)
+(*   Procedure/function    *)
 
 RParamVarDef:"parameter definition"<vlRoutine:TRoutine;var vlVirCheck:boolean>
 (.
-	var
-		vlIdent   : ansistring;
-		vlAlias   : ansistring;
-		vlType    : TType;
-		vlVar     : boolean;
-		vlConst   : boolean;
-		vlName    : TNameList;
-		vlVirtual : boolean;
+ var
+  vlIdent   : ansistring;
+  vlAlias   : ansistring;
+  vlType    : TType;
+  vlVar     : boolean;
+  vlConst   : boolean;
+  vlName    : TNameList;
+  vlVirtual : boolean;
 .)
 
 =
 (.
-	vlName := TNameList.Create;
-	EmptyString(vlAlias);
-	vlVirtual := false;
-	vlVar     := false;
-	vlConst   := false;
-	vlType    := nil;
+ vlName := TNameList.Create;
+ EmptyString(vlAlias);
+ vlVirtual := false;
+ vlVar     := false;
+ vlConst   := false;
+ vlType    := nil;
 .)
-[ IVirtual				       (. vlVirtual := true .)]
+[ IVirtual           (. vlVirtual := true .)]
 
-[(IVar					       (. vlVar   := true;.))
-|(IConst				       (. vlConst := true; .))]
+[(IVar            (. vlVar   := true;.))
+|(IConst           (. vlConst := true; .))]
 
-RIdent<vlIdent> 		      	       (. vlName.AddName(vlIdent);.)
-{"," RIdent<vlIdent>          	       (. vlName.AddName(vlIdent);.)
+RIdent<vlIdent>                 (. vlName.AddName(vlIdent);.)
+{"," RIdent<vlIdent>                  (. vlName.AddName(vlIdent);.)
 }
 ':'
 RRoutineType<vlType>
 (.
-	if vlRoutine <> nil then vlRoutine.AddParam(fNDCreator,vlName,vlType,vlVar,vlConst,vlVirtual);
-	vlName.destroy;
-	if vlVirtual then begin
-		vlVirCheck := true;
-	end else if vlVirCheck then begin
-		ErrorText(Err_Stat_Befor_vir_Param,vlIdent);
-	end;
+ if vlRoutine <> nil then vlRoutine.AddParam(fNDCreator,vlName,vlType,vlVar,vlConst,vlVirtual);
+ vlName.destroy;
+ if vlVirtual then begin
+  vlVirCheck := true;
+ end else if vlVirCheck then begin
+  ErrorText(Err_Stat_Befor_vir_Param,vlIdent);
+ end;
  .)
 .
 
 
 RParamDef<ParRoutine:TRoutine>
 (.
-	var
-		vlVirCheck : boolean;
+ var
+  vlVirCheck : boolean;
 .)
 =
 (.
-	fNDCreator.AddCurrentDefinition(ParRoutine);
-	vlVirCheck := false;
+ fNDCreator.AddCurrentDefinition(ParRoutine);
+ vlVirCheck := false;
 .)
 
 "(" RParamVarDef<ParRoutine,vlVirCheck>
@@ -66,26 +66,26 @@ RParamDef<ParRoutine:TRoutine>
 
 RRoutineDotName<var ParName : ansistring;var ParHasses : cardinal>
 =
-	RIdent<ParName>
-	{ "."
+ RIdent<ParName>
+ { "."
                 (.
-					inc(ParHasses);
-					HandleRoutineDotName(ParName);
-				.)
-	  RIdent<ParName>
-	}
+     inc(ParHasses);
+     HandleRoutineDotName(ParName);
+    .)
+   RIdent<ParName>
+ }
 .
 
 RRoutineName:"routine name"<var ParName : ansistring;var ParAccess : TDefAccess;var ParHasses:cardinal>
 (.
-	var
-		vlname : ansistring;
+ var
+  vlname : ansistring;
 .)
 =
-	(.
-		ParHasses := 0;
-		ParAccess := AF_Current;
-	.)
+ (.
+  ParHasses := 0;
+  ParAccess := AF_Current;
+ .)
 
 (
 RRoutineDotName<vlName,ParHasses>
@@ -95,7 +95,7 @@ IHas
 
 
 (.
-	HandleHasClause(vlName);
+ HandleHasClause(vlName);
     inc(ParHasses);
 .)
 
@@ -206,17 +206,20 @@ IOperator
 	 ROperParDef<ParRoutine>
 	)
        |
-       ( ROperParDef<ParRoutine>
-	("+"|"-"|"*"|IDiv|IXor|IMod|IOr|IAnd|"="|">"|">="|"<="|"<"|"<>"|":="|IBetween|'#'|IShl|IShr|TIdent)
+       ( (ROperParDef<ParRoutine>
+	((("+"|"-"|"*"|IDiv|IXor|IMod|IOr|IAnd|"="|">"|">="|"<="|"<"|"<>"|":="|IBetween|'#'|IShl|IShr|TIdent)
 					(.
 						LexName(vlname);
 				   		ParRoutine.SetText(vlName);
 					.)
-	ROperParDef<ParRoutine>
+	ROperParDef<ParRoutine>)
+	|("[" ROperParDef<ParRoutine> "]" (. vlName := '[]';ParRoutine.SetText(vlName); .) ))
+
+	)
     [ IWrite ROperParDef<ParRoutine>
 					(.
 						vlWrite := true;
-						if vlName <> '#' then ErrorText(Err_Not_Expected,'WRITE');
+						if (vlName <> '#') and (vlName  <> '[]') then ErrorText(Err_Not_Expected,'WRITE');
 					.)
 	]
 	[ IAnd  ROperParDef<ParRoutine>
@@ -229,13 +232,13 @@ IOperator
 	[":" RRoutineType<vlType>
 (.
 	vlHasreturn := true;
-	if (vlName = ':=') or (vlWrite and (vlName = '#')) then SemError(Err_Cant_Return_value);
+	if (vlName = ':=') or (vlWrite) then SemError(Err_Cant_Return_value);
 	TFunction(ParRoutine).SetFunType(fNDCreator,vlType);
 .)
 	]
 	";"
 (.
-	if (vlName <> ':=') and ((vlName <> '#') or not(vlWrite))  and not(vlHasReturn) then SemError(err_Must_Return_Value);
+	if (vlName <> ':=') and (not(vlWrite))  and not(vlHasReturn) then SemError(err_Must_Return_Value);
 .)
 	[ ICDecl  ";" 	(. ParRoutine.SetRoutineModes([RTM_CDecl],true); .) ]
 .
@@ -342,35 +345,36 @@ RRoutineHeader<vlDef,true,vlHasLevel>
 RRoutineHeader:"routine header"<var ParRoutine:TRoutine;ParForward:boolean;var ParLevel : cardinal>
 (.
    var
-	vlDef         : TRoutine;
-	vlRootCB      : boolean;
-	vlInherit     : boolean;
-	vlParentName  : ansistring;
-	vlVirtual     : TVirtualMode;
-	vlName        : ansistring;
-	vlOverLoad    : TOverloadMode;
-	vlTmpAccess   : TDefAccess;
-	vlHasses      : cardinal;
-	vlInhFinal    : boolean;
-	vlIsolate     : boolean;
-	vlHasMain     : boolean;
-	vlIsAbstract  : boolean;
-	vlIsWrite     : boolean;
+ vlDef         : TRoutine;
+ vlRootCB      : boolean;
+ vlInherit     : boolean;
+ vlParentName  : ansistring;
+ vlVirtual     : TVirtualMode;
+ vlName        : ansistring;
+ vlOverLoad    : TOverloadMode;
+ vlTmpAccess   : TDefAccess;
+ vlHasses      : cardinal;
+ vlInhFinal    : boolean;
+ vlIsolate     : boolean;
+ vlHasMain     : boolean;
+ vlIsAbstract  : boolean;
+ vlIsWrite     : boolean;
 .)
 =
 (.
-	vlRootCB  := false;
-	vlInherit := false;
-	vlVirtual := VIr_None;
-	EmptyString(vlParentName);
-	vlOverload := Ovl_None;
-	vlInhFinal := false;
-	vlIsolate  := false;
-	vlHasMain  := false;
-	vlIsAbstract := false;
+ vlRootCB  := false;
+ vlInherit := false;
+ vlVirtual := VIr_None;
+ EmptyString(vlParentName);
+ vlOverload := Ovl_None;
+ vlInhFinal := false;
+ vlIsolate  := false;
+ vlHasMain  := false;
+ vlIsAbstract := false;
+ vlIsWrite    := true;
 .)
 
-[IWrite (. vlIsWrite := true; .)]
+[IRead (.vlIsWrite := false; .)]
 (RProcedureHead<vlDef,vlHasses>
 |RFunctionHead<vlDef,vlHasses>
 |RConstructorHead<vlDef,vlHasses>
@@ -486,37 +490,40 @@ RProperty|RVarBlock|RTypeBlock|RRoutine}
 (
 (.
 	vlRoutine.PreBlockOfCode(fNDCreator);
+	vlRoutine.PreRoutine;
 	vlMainCb := vlRoutine.fPhysicalAddress;
 	if vlMainCB <> nil then begin
 		vlPrn    := vlMainCB.fStatements;
 	end else begin
 		vlPrn := nil;
 	end;
+
 .)
 (RBlockOfCode<vlPrn>
 (.
 	if vlMainCb <> nil then vlMainCB.CreatePostCode(fNDCreator);
 	if Rtm_Abstract in vlRoutine.fRoutineModes then  ErrorDef(Err_No_Main_For_Abstr_fun,vlroutine);
 	if vlMainCb <> nil then vlMainCb.FinishNode(fNDCreator);
+	vlRoutine.AfterRoutine;
 .)
 )
 )
 |(
 
-	(. vlroutine.PreNoMain(fNDCreator); .)
-	IEnd
+ (. vlroutine.PreNoMain(fNDCreator); .)
+ IEnd
 
 )
 )
 ";"
 (.
 
-	if vlRoutine <> nil then begin
-		 vlRoutine.SetIsDefined;
-		if (vlRoutine.fStatements <> nil) and (vlMainCb <> vlRoutine) then vlRoutine.FinishNode(fNDCreator);
-	end;
-	fNDCreator.fCurrentDefAccess := vlPrvDefAccess;
-	fNDCreator.EndIdentNum(vlLevel);
+ if vlRoutine <> nil then begin
+   vlRoutine.SetIsDefined;
+  if (vlRoutine.fStatements <> nil) and (vlMainCb <> vlRoutine) then vlRoutine.FinishNode(fNDCreator);
+ end;
+ fNDCreator.fCurrentDefAccess := vlPrvDefAccess;
+ fNDCreator.EndIdentNum(vlLevel);
 .)
 .
 

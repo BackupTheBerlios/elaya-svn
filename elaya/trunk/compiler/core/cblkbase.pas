@@ -1979,11 +1979,28 @@ var
 	vlNumberOfUsedPar : cardinal;
 	vlError           : TErrorType;
 	vlName            : ansistring;
+	vlCurrentRoutine  : TRoutine;
+	vlOwner1           : TDefinition;
+	vlOwner2           : TDefinition;
 begin
 	inherited ValidatePre(ParCre,ParIsSec);
 	vlNode := TParamNode(fParts.fStart);
 	{should be in list?}
 	if not can([Can_Execute]) then TNDCreator(ParCre).AddNodeError(self,Err_Cant_Execute,fName);
+	if(iRoutineItem <> nil) then begin
+		vlOwner2 := iRoutineItem.GetRealOwner;
+		if((vlOwner2 <> nil) and (vlOwner2 is TValueClassType)) then begin
+			if RTM_Write_Mode in iRoutineItem.fRoutineModes then begin
+				vlCurrentRoutine := TRoutine(TNDCreator(ParCre).getCurrentRoutine);
+				if(vlCurrentRoutine <> nil) then begin
+					vlOwner1 := vlCurrentRoutine.GetRealOwner;
+					if((vlOwner1 <> nil) and (vlOwner1 is TValueClassType)) then begin
+						if not(RTM_Write_Mode in vlCurrentRoutine.fRoutineModes) then TNDCreator(ParCre).SemError(Err_call_Wrtn_Rtn_in_rd_rtn);
+					end;
+				end;
+			end;
+		end;
+	end;	
 	while vlNode <> nil do begin
 		vlName := vlNode.fName;
 		if length(vlName) > 0 then begin

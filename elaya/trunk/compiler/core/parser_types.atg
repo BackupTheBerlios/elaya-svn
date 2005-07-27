@@ -136,7 +136,7 @@ RRecord<var PArType:TType>
 = IRecord 					(. ParType := fNDCreator.CreateRecord; .)
   {RVarDecl}
   IEnd						(.
-  							fNDCreator.AllignToCurrentDefMode(ParType);cd
+  							fNDCreator.AllignToCurrentDefMode(ParType);
 							Endident;
 						 .)
 .
