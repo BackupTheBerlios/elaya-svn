@@ -17,11 +17,11 @@
 }
 
 {
-# -------------------------------------------------------- 
-#			ELAYA 
-#		    CONFIGURATIE 
-#			-FILE 
-# -------------------------------------------------------- 
+# --------------------------------------------------------
+#			ELAYA
+#		    CONFIGURATIE
+#			-FILE
+# --------------------------------------------------------
 }
 
 const No    := 'N';
@@ -36,10 +36,40 @@ section
 	write('Targe Os  :',Target_Platform);
 	Always_Stack_Frame           := 'N';
 	Print_Register_Res           := 'N';
-	Remember_External_Param_name := 'Y';	
+	Remember_External_Param_name := 'Y';
 	Is_Elf_Target                := 'N';
 	Auto_Load                    := 'core;sys;classes;memory;strings';
 	object_Path	             := '@Rtl_Build_Out@/'+Target_Platform;
+END;
+
+
+
+SECTION(source_name='strings')
+	Auto_Load := '';
+END;
+
+SECTION(source_name='sys_int')
+	Auto_Load := '';
+END;
+
+SECTION(source_name='sys')
+	Auto_Load := '';
+END;
+
+SECTION(source_name='core')
+	Auto_Load := '';
+END;
+
+SECTION(source_name='classes')
+	Auto_Load := '';
+END;
+
+SECTION(source_name='memory')
+	Auto_Load := '';
+END;
+
+SECTION(source_name='sockets')
+	Auto_Load := '';
 END;
 
 

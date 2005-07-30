@@ -18,18 +18,26 @@
 
 
 
-.PHONY:all clean rtl tools cfg compiler
+.PHONY:all clean rtl tools cfg compiler config
 
 
-all :eladep compiler tools cfg rtl 
 
+all :eladep compiler tools cfg rtl
 
+config:tools/config/bin/bc
+	$(MAKE) all -f conf.Makefile
+
+config/build_conf.gen:build_files/config/bc.linux
+	$(MAKE) all -f conf.Makefile
+
+tools/config/bin/bc:tools/config/bc.pas
+	$(MAKE) all -C tools/config
 
 
 compiler: eladep
 	$(MAKE) all -C compiler
 
-eladep :
+eladep : config/build_conf.gen
 	$(MAKE) all -C tools/eladep
 
 tools  : compiler
@@ -48,11 +56,11 @@ install:
 	$(MAKE) install -C cfg
 
 distclean:clean
-	rm -f config/*
-	rm -f cfg/ela.tpl
-	rm -r cfg/lib.tpl
-          
-clean  : 
+	$(cmd_rm) config/*
+	$(cmd_rm) -f cfg/ela.tpl
+	$(rmd_rm) -r cfg/lib.tpl
+
+clean  :
 	$(MAKE) clean -C compiler
 	$(MAKE) clean -C rtl
 	$(MAKE) clean -C cfg

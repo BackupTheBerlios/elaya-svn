@@ -31,5 +31,5 @@ endif
 Fpc_Unit_Path=$(Fpc_Opt_Unit_Path);$(Dir_Cpl_Lib)
 LIB_FPC=$(Fpc) -Fubin -FUbin -FEbin  $(Opt_Fpc)
 CFGC_CMD=$(root_path)tools/cfgc/bin/cfgc
-ELADEP_CMD=$(root_path)tools/eladep/bin/$(eladep)
+ELADEP_CMD=$(root_path)tools/eladep/bin/eladep
 

@@ -28,7 +28,7 @@ endif
 all_ela_sources=$(wildcard *.ELA) $(wildcard *.ela)
 
 Base_Dir:=$(root_path)rtl/bin/$(rtl_target)/
-ELA_CPL:=$(root_path)compiler/bin/$(ELA) -i$(root_path)/rtl/$(rtl_target).link  -c $(root_path)/cfg/bin/lib.cfg $(Opt_Ela) -o $(Rtl_Build_Out)/$(rtl_target) -t $(rtl_target) $(ela_opt)
+ELA_CPL:=$(root_path)compiler/bin/ela -i$(root_path)/rtl/$(rtl_target).link  -c $(root_path)/cfg/bin/lib.cfg $(Opt_Ela) -o $(Rtl_Build_Out)/$(rtl_target) -t $(rtl_target) $(ela_opt)
 
 dep_file:=dep_$(rtl_target)
 vpath %.emd $(Base_Dir)
@@ -46,7 +46,7 @@ install: $(zothinstall)
 clean: clean_main $(zothclean)
 	rm dep_$(rtl_target)
 
-dep:$(dep_file) 
+dep:$(dep_file)
 $(dep_file): $(all_ela_sources) $(root_path)include/alp.$(rtl_target)
 	$(ELADEP_CMD) -a $(root_path)include/alp.$(rtl_target) $(all_ela_sources) -c "ELA_CPL" -u $(Base_Dir)  -s .ela -e .emd -o $(dep_file)
 

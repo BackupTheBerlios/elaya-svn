@@ -1,0 +1,15 @@
+[]
+	dir_rtl=/usr/lib/elaya
+	opt_fpc=-a -O2 -Ci- -gl -S2c -Si -vrwen -Ratt
+	opt_ela=-votB -Cu -Ok+ -d -t linux
+	dir_config=/etc
+	install_extra=y
+	link_exe_to=/usr/bin/ela
+
+[linux]
+	as_program=as
+	ld_program=ld
+
+[win32]
+	as_program=win-as
+	ld_program=win-ld
