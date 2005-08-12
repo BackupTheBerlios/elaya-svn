@@ -629,7 +629,9 @@ type
          end;
 
        TGPollFunc = function (ufds:PGPollFD; nfsd:guint; timeout:gint):gint;cdecl;
+end public
 
+public
 
 external libglib
 

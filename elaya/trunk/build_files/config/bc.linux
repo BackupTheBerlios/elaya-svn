@@ -9,7 +9,9 @@
 [linux]
 	as_program=as
 	ld_program=ld
-
+	enabled=y
 [win32]
 	as_program=win-as
 	ld_program=win-ld
+	enabled=n
+

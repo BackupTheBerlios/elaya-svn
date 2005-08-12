@@ -182,12 +182,13 @@ Function mysql_info(mysql : PMYSQL): PAsc;
 Function mysql_reload(mysql : PMYSQL) : Longint; 
 Function mysql_thread_id(mysql : PMYSQL) : long; 
 Function mysql_error(mysql : PMYSQL) : pasc; 
-
+function mysql_connect (mysql : PMYSQL; host,user,passwd: pasc) : PMYSQL; 
 { Original functions }
 
 
 external mysql
-function mysql_connect (mysql : PMYSQL; host,user,passwd: pasc) : PMYSQL; name 'mysql_connect';
+
+
 function mysql_real_connect (mysql : PMYSQL; const host,user,passwd : pasc;
 				   port : long;
 				   unix_socket : pasc;
@@ -197,8 +198,8 @@ function mysql_close(sock : PMYSQL) : longint ; name 'mysql_close';
 function mysql_select_db(MYSQL : PMYSQL; db : PAsc) : longint; name 'mysql_select_db';
 function mysql_query(mysql : PMYSQL; q : pasc) : longint; name 'mysql_query';
 function mysql_real_query(mysql : PMYSQL; q : PAsc; length : longint) : longint; name 'mysql_real_query';
-function mysql_create_db(mysql : PMYSQL; db : pasc) : longint; name 'mysql_create_db';
-Function mysql_drop_db(mysql : PMYSQL; DB : PAsc) : longint; name 'mysql_drop_db';
+{function mysql_create_db(mysql : PMYSQL; db : pasc) : longint; name 'mysql_create_db';
+Function mysql_drop_db(mysql : PMYSQL; DB : PAsc) : longint; name 'mysql_drop_db';}{depracted}
 Function mysql_shutdown(mysql : PMYSQL) : longint; name 'mysql_shutdown';
 Function mysql_dump_debug_info(mysql : PMYSQL) : longint; name 'mysql_dump_debug_info';
 Function mysql_refresh(mysql : PMYSQL; refresh_options : long) : longint; name 'mysql_refresh';
@@ -225,7 +226,12 @@ Function mysql_escape_string(escto,escfrom : pasc; length : long) : long; name '
 Procedure mysql_debug(debug : pasc); name 'mysql_debug';
 end;
 
+
 end public
+function mysql_connect (mysql : PMYSQL; host,user,passwd: pasc) : PMYSQL;
+begin
+	exit(mysql_real_connect(mysql,host,user,passwd,3306,nil,0));
+end;
 
 Function  mysql_error(mysql : PMYSQL) : pasc;
 begin

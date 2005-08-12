@@ -95,7 +95,9 @@ end public
 
 function WIndowProc(ParHwnd : Hwnd;ParMsg : long;ParWparam:long;ParlParam : Longint) :long;
 begin
+	writeln('Window proc:',ParHwnd);
 	exit(DefWindowProc(ParHWnd,ParMsg,ParWParam,ParLParam));
+
 end;
 
 
@@ -171,7 +173,9 @@ procedure TInterInterface.commonsetup;override;
 var
 	vlRet:  long;
 begin
+
 	inherited Commonsetup;
+	writeln('begin register');
 	WindowClass.lpfnWndProc := @WindowProc;
 	WIndowClass.cbClsExtra := 0;
 	WindowClass.cbWndExtra := 0;
@@ -181,6 +185,7 @@ begin
 	WindowClass.hbrBackground := GetStockObject(WHITE_BRUSH);
 	WindowClass.lpszMenuName  := nil;
 	WIndowClass.lpszClassName := 'eclguiclass';
+	WindowClass.Style:=CS_HREDRAW or CS_VREDRAW;
 	vlRet := RegisterClass(voWindowClass);
 	writeln('RegisterClass=',vlRet);
 end;
@@ -261,8 +266,8 @@ begin
 	vlParent := 0;
 	if ParParent <> nil then vlParent := ParParent^.vrWindow;
 	ParWidget^.vrWindow := CreateWindow(windowclass.lpszClassName,@vlTItle,WS_OVERLAPPEDWINDOW,ParX,ParY,ParW,ParH,vlParent,0,GetInstance,nil);
-	writeln('Create window=',Parwidget^.vrWindow);
-	ShowWIndow(ParWidget^.vrWindow,1);
+	writeln('Create window=',Parwidget^.vrWindow,' ',sizeof(ParParent^.vrWindow));
+	writeln('Show=',ShowWIndow(ParWidget^.vrWindow,SW_SHOW));
 	UpdateWIndow(ParWIdget^.vrWindow);
 end;
 
@@ -283,7 +288,7 @@ end;
 
 
 
-	procedure TInterInterface.CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
+procedure TInterInterface.CreateInterLabel(ParX,ParY : longint;ParW,ParH : long;ParParent,ParWidget : PWIdgetHandle;const ParTitle : string);
 var
 	vlTitle : asciiz size=80;
 	vlParent : Handle;
@@ -312,10 +317,8 @@ end;
 
 procedure TInterInterface.InterRun;
 var
-	vlHandle : Handle;
    vlMsg : TMsg;
 begin
-	updatewindow(vlHandle);
 	while(GetMessage(@vlMsg,0,0,0)<>0) do begin
 		TranslateMessage(vlMsg);
 		DispatchMessage(vlMsg);

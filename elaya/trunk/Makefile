@@ -27,7 +27,7 @@ all :eladep compiler tools cfg rtl
 config:tools/config/bin/bc
 	$(MAKE) all -f conf.Makefile
 
-config/build_conf.gen:build_files/config/bc.linux
+config/build_conf.gen:build_files/config/bc.*
 	$(MAKE) all -f conf.Makefile
 
 tools/config/bin/bc:tools/config/bc.pas

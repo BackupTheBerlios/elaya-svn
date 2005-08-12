@@ -777,7 +777,6 @@ begin
 	vlArg2[1] := nil;
 	vlArgv := (@vlArg2) as PPASC;
 	gtk_Init(@vlArgc,@vlArgv);
-	gtk_signal_init;
 	ToolTips         := gtk_tooltips_new;
 	gtk_tooltips_enable(TOolTips);
 end;

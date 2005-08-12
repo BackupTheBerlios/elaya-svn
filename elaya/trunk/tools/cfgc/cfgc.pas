@@ -17,6 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 }
 
+{$i-}
 uses progutil,stdobj,simplist;
 
 
@@ -27,43 +28,29 @@ type  TVarValuesList=class(TSMList)
 
       TVarValueItem=class(TSMListItem)
       private
-             voVar : TString;
-             voValue : TString;
-             property iValue : TString read voValue write voValue;
-             property iVar   : TString read voVar   write voVar;
+             voVar   : ansistring;
+             voValue : ansistring;
+             property iValue : ansistring read voValue write voValue;
+             property iVar   : ansistring read voVar   write voVar;
       public
              function IsVarName(const ParName : ansistring):boolean;
-             function GetValueStr : ansistring;
+	     property fValue : ansistring read voValue;
              constructor Create(const ParName, ParValue : ansistring);
-             procedure Clear;override;
       end;
 
 {----( TVarValueItem )--------------------------------------------------------}
 
 function TVarValueItem.IsVarName(const ParName : ansistring):boolean;
 begin
-     exit(iVar.IsEqualStr(ParName));
+	exit(iVar = ParName);
 end;
 
-function TVarValueItem.GetValueStr : ansistring;
-var vlStr : ansistring;
-begin
-     iValue.GetString(vlStr);
-     exit(vlStr);
-end;
-
-procedure TVarValueItem.Clear;
-begin
-     inherited Clear;
-     if iVar <> nil then iVar.Destroy;
-     if iValue <> nil then iValue.Destroy;
-end;
 
 constructor TVarValueItem.Create(const ParName,ParValue : ansistring);
 begin
      inherited Create;
-     iVar := TString.Create(ParName);
-     iValue := TString.Create(ParValue);
+     iVar := ParName;
+     iValue := ParValue;
 end;
 
 {---( TVarValueList )-----------------------------------------------------}
@@ -83,7 +70,7 @@ begin
      vlCurrent := TVarValueItem(fStart);
      while (vlCurrent <> nil) and not(vlCurrent.IsVarName(ParName)) do vlCurrent := TVarValueItem(vlCurrent.fNxt);
      if (vlCurrent <> nil) then begin
-             ParValue := vlCUrrent.GetValueStr;
+             ParValue := vlCUrrent.fValue;
              exit(true);
      end else begin
              EmptyString(ParValue);
@@ -178,23 +165,23 @@ end;
 
 
 begin
-     writeln('Cfgc   Version: 0.1');
-     writeln('Cfgc comes with ABSOLUTELY NO WARENTY');
-     writeln('This is free software, under GPL license V 2');
-
-     vgVarList := TVarValuesList.Create;
-     if paramcount <> 3 then begin
-        writeln('Parameter error,usage :');
-        writeln('cgc <cfg_template_file> <cfg_var_list_file> <output_file_name>');
+      vgVarList := TVarValuesList.Create;
+     if (paramcount < 2) or (paramcount>3) then begin
+        writeln(stdErr,'Parameter error,usage :');
+        writeln(stdErr,'cgc <cfg_template_file> <cfg_var_list_file> [<output_file_name>]');
         halt(1);
      end;
      vgTemplateFileName := Paramstr(1);
      vgVarListFileName  := paramstr(2);
-     vgOutputFileName   := Paramstr(3);
+	if(paramcount=3) then begin
+		vgOutputFileName   := Paramstr(3);
+	end else begin
+		vgOutputFileName := '';
+	end;
      assign(vgVarListFile,vgVarListFileName);
      reset(vgVarListFile);
      if ioresult <> 0 then begin
-        writeln('Can''t open file ',vgVarListFileName);
+        writeln(stdErr,'Can''t open file ',vgVarListFileName);
         halt(1);
      end;
      vgLineCnt := 0;
@@ -215,13 +202,13 @@ begin
      assign(vgTemplateFile,vgTemplateFileName);
      reset(vgTemplateFile);
      if ioresult <> 0 then begin
-                 writeln('Can''t open file ',vgTemplateFileName);
+                 writeln(stdErr,'Can''t open file ',vgTemplateFileName);
                  halt(1);
      end;
      assign(vgOutputFile,vgOutputFileName);
      rewrite(vgOutputFile);
      if ioresult <> 0 then begin
-                 writeln('Can''t open output file ',vgOutputFileName);
+                 writeln(stdErr,'Can''t open output file ',vgOutputFileName);
                  close(vgTemplateFile);
                  halt(1);
      end;

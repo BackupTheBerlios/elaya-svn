@@ -107,6 +107,7 @@ var
 	vlError  : long;
 begin
 	vlNative := linux_GetErrNo;
+	linux_setErrNo(0);
 	ConvertError(vlNative,vlError);
 	SetNativeError(vlNative,vlError);
 	exit(vlError <> 0);
@@ -136,11 +137,13 @@ function  int_OpenDir(const ParName : string;var ParDir : TDir):boolean;
 var
 	vlPath : Asc;
 begin
-	 ResetErrors;
-	 vlPath := ParName;
+	ResetErrors;
+	vlPath := ParName;
+	parDir.pathName := ParName;
+	if(ParDir.pathName[ParDir.pathName.length] <> '/') then ParDir.pathName := ParDir.pathName  + '/';
 	 ParDir.spv := Linux_OpenDir(@vlPath);
-	 CheckErrors;
-	 exit(ParDir.spv =nil);
+	CheckErrors;
+	exit(ParDir.spv =nil);
 end;
 
 function  int_ReadDir(const ParDir : TDir;var ParFileInfo : TFileInfo):TReadStatus;
@@ -148,6 +151,7 @@ var
 	vlDirEnt : PDirEnt;
 	vlStat   : stat;
 	vlType   : long;
+	vlFileName :asc255;
 begin
 	ResetErrors;
 	vlDirEnt := linux_readdir(ParDir.spv);
@@ -160,7 +164,8 @@ begin
 		end;
 	end;
 	ParFileInfo.FileName := vlDirEnt^.d_name;
-	if linux_stat(@(vlDirEnt^.d_name),@vlStat) <> 0 then begin
+	vlFileName := ParDir.pathName + ParFileInfo.fileName;
+	if linux_stat(@vlFileName,@vlStat) <> 0 then begin
 		ParFileInfo.vrFailed := true;
 		ParFileInfo.FileSize := 0;
 		ParFileInfo.CreTime  := 0;

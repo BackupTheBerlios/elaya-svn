@@ -382,28 +382,28 @@ const
 	s_iwusr       = $0080;
 	s_ixusr       = $0040;
 type
-         align 4;
+        align 4;
 	stat=record
 	st_dev      : dev_t;
-	Pad1	   : clong;
+	Pad1	    : clong;
 	st_Ino      : ino_t;
 	st_mode     : mode_t;
-         st_nlink    : nlink_t;
+	st_nlink    : nlink_t;
 	st_uid      : uid_t;
 	st_gid      : gid_t;
 	st_rdev     : dev_t;
-	Pad2	   : clong;
+	Pad2	    : clong;
 	st_size     : off_t;
 	st_lblkSize : clong;
 	st_blocks   : clong;
-         st_atime    : time_t;
-	dm1	   : clong;
+	st_atime    : time_t;
+	dm1	    : clong;
 	st_mtime    : time_T;
-	dm2	   : clong;
+	dm2	    : clong;
 	st_ctime    : time_t;
-	dm3	   : clong;
-	dm4	   : clong;
-         dm5	   : clong;
+	dm3	    : clong;
+	dm4	    : clong;
+	dm5	    : clong;
 end;
 
 align 4;
@@ -1034,10 +1034,10 @@ type
         cs,csh : word;
         eflags : long;
         espsig : long;
-        ss,ssh : word;        
+        ss,ssh : word;
     end;
     PSigContext=ptr sigcontext;
-    
+
     SigInfo_t=record
           si_signo : cInt;
           si_errno : cInt;
@@ -1132,7 +1132,7 @@ external inter
 	function Linux_GetEnvp:PPAsc;cdecl;name 'inter_getenvp';
 	function Linux_GetArgc:clong;cdecl; name 'inter_getargc';
 	function Linux_GetArgp:PPAsc;cdecl;name 'inter_getargp';
-	function Linux_GetErrno:longint;cdecl;name 'inter_geterrno';
+	function Linux_GetErrno_location:plongint;cdecl;name 'inter_geterrno_location';
 end;
 
 external libc
@@ -1232,8 +1232,20 @@ procedure InitFaultHandlers;
 procedure DebugMessage(const ParStr : string);
 procedure DebugNumber(ParNum : longint);
 
+function linux_geterrno: longint;
+procedure linux_seterrno(parErrno : longint);
 
 end public
+
+function linux_geterrno: longint;
+begin
+	exit((linux_geterrno_location)^);
+end;
+
+procedure linux_seterrno(parErrno : longint);
+begin
+	linux_geterrno_location^ := parErrNo;
+end;
 
 function  Linux_WTermSig(ParStatus : cint) : cint;
 begin
@@ -1317,7 +1329,7 @@ begin
 end;
 
 procedure HandleSegmentFault(ParCodex:cInt;const ParInfo:Siginfo_t;ParOther:Psigcontext);cdecl;
-var 
+var
 	vlAddr : long;
 begin
 	if ParOther <> nil then begin

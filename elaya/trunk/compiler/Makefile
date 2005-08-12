@@ -28,7 +28,7 @@ copyfiles:
 	cp $(wildcard bin/ela) $(wildcard bin/ela.exe) $(Dir_Program)
 
 link_exe_to:
-	rm -f $(link_exe_to)
-	ln -s  $(Dir_Program)ela$(exe_ext) $(link_exe_to) 
+	$(cmd_rm) $(link_exe_to)
+	ln -s  $(Dir_Program)ela$(exe_ext) $(link_exe_to)
 include dep_info
 

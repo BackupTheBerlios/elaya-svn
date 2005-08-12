@@ -9,7 +9,7 @@ include $(root_path)Makefile.inc
 
 
 all:	oth_$(rtl_target) debug native eel cgi math
-
+	
 math:
 	$(MAKE) all -C math
 
@@ -17,30 +17,35 @@ math:
 
 eel:
 	$(MAKE) all -C eel
+
 cgi: eel
 	$(MAKE) all -C cgi	
 
 
-native :
+native : eel
 	$(MAKE) all -C native
 
-oth_linux:gtk mysql
+oth_linux:gtk 
 
 gtk:
 	$(MAKE) all -C gtk
-mysql: eel 
-	$(MAKE) all -C mysql
+
+
 
 oth_win32:
 
-install:
+install: install_$(rtl_target)
 	$(MAKE) install -C eel
 	$(MAKE) install -C cgi
-#	$(MAKE) install -C gtk
-#	$(MAKE) install -C mysql
-#	$(MAKE) install -C native
 	$(MAKE) install -C math
-   
+
+install_win32:
+
+install_linux:
+	$(MAKE) install -C gtk
+#	$(MAKE) install -C mysql
+	$(MAKE) install -C native
+
 clean:
 	$(MAKE) clean -C eel
 	$(MAKE) clean -C cgi

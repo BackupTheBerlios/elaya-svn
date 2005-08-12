@@ -205,7 +205,7 @@ const
 	Err_Cant_Override_non_by_ext  = 1191;
 	Err_parent_not_a_value_class  = 1192;
 	Err_parent_is_a_value_class   = 1193;
-
+	Err_call_Wrtn_Rtn_in_rd_rtn   = 1194;
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
 	Err_Int_Wrong_Enum_list  = 2002;
@@ -662,6 +662,7 @@ begin
 		Err_Vir_ch_Par_has_zu_Size : vlMsg := 'Virtual parameter can''''t have has zero or an undefined size';
 		Err_Array_Expected			  : vlMsg := 'Array type expression  expected';
 
+
 		Err_Read_Without_Write       : vlMsg := 'Read of unitialised variable' ;
 		Err_Read_Some_without_Write  : vlMsg := 'Read of variable which is sometimes unitialised';
 		Err_Write_Without_Read       : vlMsg := 'Previous value is not used';
@@ -676,6 +677,7 @@ begin
 		Err_Cant_Override_non_by_ext : vlMsg := 'Can''t override extended by non extended routine';
 		Err_parent_not_a_value_class : vlMsg := 'Parent is not a value class';
 		Err_parent_is_a_value_class  : vlMsg := 'Parent is a value class';
+		Err_call_Wrtn_Rtn_in_rd_rtn  : vlMsg := 'Can''t call a write routine inside a read routine';
 
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';

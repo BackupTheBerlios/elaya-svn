@@ -10,13 +10,13 @@ _start:
         push    %eax
         movl    %esi,ElayaArgc
 	lea 	0x4(%ebx,%esi,4),%ebx
-        andl    $0xfffffff8,%esp      
+        andl    $0xfffffff8,%esp
         movl    %ebx,ElayaEnvp
 
         xorl    %ebp,%ebp
         pushl   %esp
         pushl   %edx
-        pushl    $0   
+        pushl    $0
         pushl    $0
         pushl   %ebx
         pushl   %esi
@@ -48,11 +48,10 @@ inter_getargp:
 	mov ElayaArgp,%eax
 	ret
 
-.globl 	inter_geterrno
+.globl 	inter_geterrno_location
 
-inter_geterrno:
+inter_geterrno_location:
 	call __errno_location
-	movl (%eax),%eax
 	ret
 
 

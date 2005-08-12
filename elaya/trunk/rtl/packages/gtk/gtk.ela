@@ -59,55 +59,46 @@ const
      GTK_DIR_LEFT = 4;
      GTK_DIR_RIGHT = 5;
 type
+     PGtkCornerType = ptr TGtkCornerType;
+     TGtkCornerType = longint;
      PGtkJustification = ptr TGtkJustification;
      TGtkJustification = longint;
+     PGtkMatchType = ptr TGtkMatchType;
+     TGtkMatchType = longint;
+     PGtkMenuDirectionType = ptr TGtkMenuDirectionType;
+     TGtkMenuDirectionType = longint;
+     PGtkMenuFactoryType = ptr TGtkMenuFactoryType;
+     TGtkMenuFactoryType = longint;
+     PGtkMetricType = ptr TGtkMetricType;
+     TGtkMetricType = longint;
+     PGtkOrientation = ptr TGtkOrientation;
+     TGtkOrientation = longint;
+
 const
      GTK_JUSTIFY_LEFT = 0;
      GTK_JUSTIFY_RIGHT = 1;
      GTK_JUSTIFY_CENTER = 2;
      GTK_JUSTIFY_FILL = 3;
-type
-     PGtkMatchType = ptr TGtkMatchType;
-     TGtkMatchType = longint;
-const
      GTK_MATCH_ALL = 0;
      GTK_MATCH_ALL_TAIL = 1;
      GTK_MATCH_HEAD = 2;
      GTK_MATCH_TAIL = 3;
      GTK_MATCH_EXACT = 4;
      GTK_MATCH_LAST = 5;
-type
-     PGtkMenuDirectionType = ptr TGtkMenuDirectionType;
-     TGtkMenuDirectionType = longint;
-const
+
      GTK_MENU_DIR_PARENT = 0;
      GTK_MENU_DIR_CHILD = 1;
      GTK_MENU_DIR_NEXT = 2;
      GTK_MENU_DIR_PREV = 3;
-type
-     PGtkMenuFactoryType = ptr TGtkMenuFactoryType;
-     TGtkMenuFactoryType = longint;
-const
      GTK_MENU_FACTORY_MENU = 0;
      GTK_MENU_FACTORY_MENU_BAR = 1;
      GTK_MENU_FACTORY_OPTION_MENU = 2;
-type
-     PGtkMetricType = ptr TGtkMetricType;
-     TGtkMetricType = longint;
-const
+
      GTK_PIXELS = 0;
      GTK_INCHES = 1;
      GTK_CENTIMETERS = 2;
-type
-     PGtkOrientation = ptr TGtkOrientation;
-     TGtkOrientation = longint;
-const
      GTK_ORIENTATION_HORIZONTAL = 0;
      GTK_ORIENTATION_VERTICAL = 1;
-type
-     PGtkCornerType = ptr TGtkCornerType;
-     TGtkCornerType = longint;
-const
      GTK_CORNER_TOP_LEFT = 0;
      GTK_CORNER_BOTTOM_LEFT = 1;
      GTK_CORNER_TOP_RIGHT = 2;

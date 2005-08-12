@@ -19,7 +19,7 @@ var
 	cf_dir_config : ansistring;
 	cf_install_extra: ansistring;
 	cf_link_exe_to  : ansistring;
-
+	cf_enabled : ansistring;
 	cg_baseDir : ansistring;
 
 
@@ -202,7 +202,7 @@ var
 	l_key  : ansistring;
 	l_value: ansistring;
 begin
-
+	cf_enabled:='n';
 	setLength(cf_as_program,0);
 	setLength(cf_ld_program,0);
 	l_found := false;
@@ -228,6 +228,7 @@ begin
 					if(l_key = 'dir_program') then cf_dir_program := l_value else
 					if(l_key = 'dir_config') then cf_dir_config := l_value else
 					if(l_key = 'link_exe_to') then cf_link_exe_to := l_value else
+					if(l_key = 'enabled') then cf_enabled := l_value else
 					if(l_key = 'install_extra') then cf_install_extra := l_value else begin
 						writeln(stdErr,'invalid key=',l_key,' value=',l_value);
 					end;
@@ -268,31 +269,36 @@ begin
 		end;
 	end;
 
+
+
 	if((cf_target <> 'linux') and (cf_target <> 'win32')) then begin
 		writeln(stderr,'error: wrong target platform');
 		halt(1);
 	end;
 
-	if(cf_as_program = '') then begin
-		writeln(stdErr,'error: no entry for "as" program');
-		halt(1);
-	end;
+	if(cf_enabled='y') then begin
 
-	if(cf_ld_program = '') then begin
-		writeln(stdErr,'error: no entry for "ld" program');
-		halt(1);
-	end;
+		if(cf_as_program = '') then begin
+			writeln(stdErr,'error: no entry for "as" program');
+			halt(1);
+		end;
 
-	l_as_path := findInPath(cf_as_program);
-	if(l_as_path = '') then begin
-		writeln(stdErr,'Assembler "',cf_as_program,'" not found');
-		halt(1);
-	end;
+		if(cf_ld_program = '') then begin
+			writeln(stdErr,'error: no entry for "ld" program');
+			halt(1);
+		end;
 
-	l_ld_path := findInPath(cf_ld_program);
-	if(l_ld_path = '') then begin
-		writeln(stdErr,'Linker "',cf_ld_program,'" not found');
-		halt(1);
+		l_as_path := findInPath(cf_as_program);
+		if(l_as_path = '') then begin
+			writeln(stdErr,'Assembler "',cf_as_program,'" not found');
+			halt(1);
+		end;
+
+		l_ld_path := findInPath(cf_ld_program);
+		if(l_ld_path = '') then begin
+			writeln(stdErr,'Linker "',cf_ld_program,'" not found');
+			halt(1);
+		end;
 	end;
 
 	l_outputFileName := addToPath(cf_output,'build_conf.'+cf_host+'.'+cf_target);
@@ -319,16 +325,11 @@ begin
 	writeln(l_outputFile,'Fpc=fpc');
 	writeln(l_outputFile,'Ela=ela');
 	writeln(l_outputfile,'eladep=eladep');
+	writeln(l_outputFile,'enabled=',cf_enabled);
 	writeln(l_outputFile,'Can_Cross_Compile=y');
-	if(cf_host='win32') then begin
-		writeln(l_outputFile,'cmd_rm=del');
-		writeln(l_outputFile,'cmd_cp=copy');
-		writeln(l_outputFile,'pp_unit_ext=.ppw');
+	if(cf_target='win32') then begin
 		writeln(l_outputFile,'exe_ext=.exe');
-	end else if (cf_host='linux') then begin
-		writeln(l_outputFile,'cmd_rm=rm');
-		writeln(l_outputFile,'cmd_cp=copy');
-		writeln(l_outputFile,'pp_unit_ext=.ppu');
+	end else if (cf_target='linux') then begin
 		writeln(l_outputFile,'exe_ext=');
 	end;
 	writeln(l_outputFile,'Opt_Fpc=',cf_opt_fpc);
@@ -379,6 +380,16 @@ begin
 	writeln(l_outputFile,'Dir_Ela_Rtl_Base=',allwaysDir(addToPath(cf_dir_rtl,'lib')));
 	writeln(l_outputFile,'Rtl_Build_Out=',allwaysDir(AddToPath(AddToPath(cg_BaseDir,'rtl'),'bin')));
 	writeln(l_outputFile,'Dir_Cfg=',allwaysDir(cf_dir_config));
+	if(cf_host='win32') then begin
+		writeln(l_outputFile,'cmd_rm=del');
+		writeln(l_outputFile,'cmd_cp=copy');
+		writeln(l_outputFile,'pp_unit_ext=.ppw');
+
+	end else if (cf_host='linux') then begin
+		writeln(l_outputFile,'cmd_rm=rm -f');
+		writeln(l_outputFile,'cmd_cp=copy');
+		writeln(l_outputFile,'pp_unit_ext=.ppu');
+	end;
 	close(l_outputFile);
 
 

@@ -42,7 +42,7 @@ type
      end;
 
      PTextExtra=ptr TTextExtra;
-     
+
    TFileCloseRoutine = function(var ParFile:void):boolean;
    TFileEofRoutine   = function(var ParFile : void):boolean;
    TFileOpenRoutine  = function(ParSelf : pointer;var ParFileRec:void; const ParFileName : string; ParRw:TOpenMode):boolean;
@@ -65,7 +65,7 @@ type
 		vrSetBlockingRoutine    : TFileBlockingRoutine;
    end;
 
-   
+
    TFile=record
 		vrSelf        :PFileSelf;
 		vrHandle      :long;
@@ -135,7 +135,8 @@ var
                 InputFile  : TFile;
                 InputText  : TFile;
                 OutputFile : TFile;
-                
+                OutputText : TFile;
+
                 NormalFile : PFileSelf;
                 Textfile   : PFileSelf;
 
@@ -275,7 +276,7 @@ function CheckErrIfClosed(const ParFile : TFile):boolean;
 begin
      if not(ParFile.vrOpen)  then begin
         SetError(Err_Not_Open);
-        exit(true); 
+        exit(true);
      end;
      exit(false);
 end;
@@ -729,10 +730,11 @@ begin
    vlTextFileSelf.vrWriteRoutine := nil;
    vlTextFileSelf.vrWaitForReadRoutine := nil;
    vlTextFileSelf.vrSetBlockingRoutine := nil;
-   
+
    TextFile := @vlTextFileSelf;
    SetSegFaultHandler(@SegFaultHandler);
    ft_AssignHandle(TextFile,stdin_FileNo,InputText,OM_read);
+   ft_AssignHandle(TextFile,stdout_FileNo,OutputText,OM_Read_Write);
    AssignHandle(NormalFile,stdin_FileNo,InputFile,OM_read);
    AssignHandle(NormalFile,stdout_FileNo,OutputFile,OM_Read_Write);
 end.
