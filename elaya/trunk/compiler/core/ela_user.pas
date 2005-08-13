@@ -21,7 +21,7 @@ unit ela_user;
 interface
 uses doperfun,largenum,confnode,progutil,module,compbase,initstrm,cmp_base,stdobj,cblkbase,
 error,types,elaTypes,node,formbase,elacfg,ddefinit,NDCreat,confval,meta,nlinenum,linkobj,
-cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,elacons,procs,classes,exprdigi,stmnodes;
+cdfills,extern,cmp_type,asminfo,cfgp,sysutils,execobj,elacons,procs,classes,exprdigi,stmnodes,blknodes;
 
 type	TEla_User=class(TCompiler_Base)
 	private
@@ -145,11 +145,22 @@ public
 	procedure DoPropertyDefinition(ParName : ansistring;ParAccess : TDefAccess;ParPropertyType : TPropertyType;ParProperty :TProperty);
 	procedure HandleWriteStatement(ParExpr : TFormulaNode;const ParName : ansistring;ParRoutine,Parowner : TDefinition;ParNode : TSubListStatementNode);
 	procedure ReadLinkInfo(const ParFile : ansistring;ParList : TLinkObjList);
-
+	function AddBlock(const p_name : ansistring):TBlockNode;
 end;
 
 implementation
 
+function TEla_user.AddBlock(const P_name : ansistring):TBlockNode;
+var
+	l_nameObject : TNamendCodeBlock;
+begin
+	if(length(p_Name) > 0) then begin
+		l_nameObject := TNamendCodeBlock.Create;
+		l_nameObject.SetText(p_name);
+		addIdent(l_nameObject);
+	end;
+	exit(TBlockNode.Create(p_name));
+end;
 
 procedure TEla_User.HandleWriteStatement(ParExpr : TFormulaNode;const ParName : ansistring;ParRoutine,ParOwner : TDefinition;ParNode : TSubListStatementNode);
 var
@@ -854,7 +865,7 @@ begin
  	if ParWrite then begin
 {		if (vlMother = nil) or not(vlMother is TValueClassType) then ErrorDef(Err_Write_Rtn_Only_In_V_Class,ParRoutine);}
 		vlAttrib := vlAttrib + [RTM_Write_Mode];
-	end;                
+	end;
 	if vlExtended then vlAttrib := vlAttrib + [RTM_Extended];
 	if ParInhFinal then vlAttrib := vlAttrib+[RTM_Inherit_Final];
 	if ParIsolate  then vlAttrib := vlAttrib+[RTM_Isolate];

@@ -25,7 +25,7 @@ interface
 uses largenum,compbase,linklist,error,display,elaCons,pocobj,cmp_type,
 	macobj,progutil,elatypes,stdobj,objlist,strlist,useitem;
 type
-	
+
 TConstantValidationProc=function(ParValue : TValue):TConstantValidation of object;
 
 TNodeLIst   = class;
@@ -63,7 +63,7 @@ public
 	property fLine	      : cardinal  read voLine write voLine;
 	property fCol         : cardinal  read voCol;
 	property fPos	      : cardinal  read voPos;	property fIdentCode   : TNodeIdentCode read voIdentCode;
-	
+
 	procedure SetCanDelete(ParDelete:boolean);
 	function  GetReplace(ParCre:TCreator):TNodeIdent;virtual;
 	procedure GetPos(var ParLine,ParCol,ParPos:longint);
@@ -84,7 +84,7 @@ public
 	function  IsSubNodesSec:boolean;virtual;
 end;
 
-TRefNodeIdent =class of  TNodeIdent;
+	TRefNodeIdent =class of  TNodeIdent;
 	TSubListStatementNode=class(TNodeIdent)
 	private
 		voParts	 :  TNodeList;
@@ -112,29 +112,34 @@ private
 	voCurrentProc: TPocbase;
 	voObjectLIst : TObjectList;
 	voStringList : TStringList;
-	voLeaveLabel : TLabelPoc;
+	voBlockNodeList :TList;{TODO Recrusiv dependence with blknode=>abstract TNodeStack?}
 	property iPoc           : TSubPoc       read voPoc         write voPoc;
 	property iCurrentProc   : TPocBase      read voCurrentProc write voCurrentProc;
 	property iObjectLIst    : TObjectLIst   read voObjectLIst  write voObjectLIst;
 	property iLabelFalse    : TLabelPoc     read voLabelFalse  write voLabelFalse;
 	property iLabelTrue		: TLabelPoc		read voLabelTrue   write voLabelTrue;
 	property iStringList    : TStringList   read voStringList  write voStringList;
-	property iLeaveLabel    : TLabelPoc     read voLeaveLabel  write voLeaveLabel;
+	property iBlockNodeList : TList read voBlockNodeList write voBlockNodeList;
 protected
 	procedure   COmmonSetup;override;
 	procedure   clear;override;
 public
-	property fObjectLIst    : TObjectLIst   read voObjectLIst  write voObjectLIst;
 
-	property fLabelTrue   : TLabelPoc     read voLabelTrue;
-	property fLabelFalse  : TLabelPoc     read voLabelFalse;
-	property fCurrentProc	: TPocBase    read voCurrentProc write voCurrentProc;
-	property fPoc           : TSubPoc	  read voPoc;
-	property fLeaveLabel    : TLabelPoc   read voLeaveLabel write voLeaveLabel;
+	property fObjectLIst    : TObjectLIst    read voObjectLIst  write voObjectLIst;
 
-	function    NewLeaveLabel: TLabelPoc;
+	property fLabelTrue     : TLabelPoc     read voLabelTrue;
+	property fLabelFalse    : TLabelPoc     read voLabelFalse;
+	property fCurrentProc	: TPocBase      read voCurrentProc write voCurrentProc;
+	property fPoc           : TSubPoc	read voPoc;
+{block}
+	function GetBlockByName(const p_Name : ansistring): TNodeIdent;
+	function getCurrentBlock : TNodeIdent;
+	procedure AddBlock(ParNode : TNodeIdent);
+	procedure PopBlock;
+{}
+
 	function    CreateThreePoc(ParPoc:TRefFormulaPoc;ParMac1,ParMac2:TMacBase):TMacBase;
-	
+
 	function    MakeCompPoc(ParIn1,ParIn2 : TMacBase;ParType :TIdentCode) : TMacBase;
 	function    MakeAddPoc(ParIn1,ParIn2:TMacBase):TMacBase;
 	function    MakeAddPoc(ParIn:TMacBase;ParAdd:TNodeIdent;ParOpt : TMacCreateOption):TMacBase;
@@ -175,7 +180,7 @@ end;
 
 implementation
 
-uses asminfo;
+uses asminfo,blknodes;
 
 {------( TErrorNode )-------------------------------------------}
 
@@ -348,11 +353,7 @@ begin
 	AddLabel := iPoc.fPocList.AddLabel;
 end;
 
-function TSecCreator.NewLeaveLabel:TLabelPoc;
-begin
-	if iLeaveLabel = nil then iLeaveLabel := TLabelPoc.Create;
-	exit(iLeaveLabel);
-end;
+
 
 function TSecCreator.CreateLabel:TLabelPoc;
 begin
@@ -369,8 +370,28 @@ procedure TSecCreator.clear;
 begin
 	inherited Clear;
 	if iStringList <> nil then iStringList.Destroy;
+	if iBlockNodeList <> nil then iBlockNodeList.Destroy;
 end;
 
+function TSecCreator.GetBlockByName(const p_Name : ansistring): TNodeIdent;
+begin
+	exit(TBlockNodeList(iBlockNodeList).GetBlockByName(P_Name));
+end;
+
+function TSecCreator.getCurrentBlock : TNodeIdent;
+begin
+	exit(TBlockNodeLIst(iBlockNodeList).GetCurrentBlock);
+end;
+
+procedure TSecCreator.AddBlock(ParNode : TNodeIdent);
+begin
+	TBlockNodeList(iBlockNodelIst).AddNode(TBlockNode(parNode));
+end;
+
+procedure TSecCreator.PopBlock;
+begin
+	TBlockNodelIst(iBlockNodeList).PopBlock;
+end;
 
 procedure TSecCreator.commonSetup;
 begin
@@ -380,7 +401,7 @@ begin
 	iLabelFalse := nil;
 	iStringList  := TStringList.Create;
 	iPoc         := nil;
-	iLeaveLabel  := nil;
+	iBlockNodelist := TBlockNodeList.Create;
 end;
 
 
@@ -646,7 +667,7 @@ end;
 
 
 procedure TNodeIdent.FinishNode(ParCre : TCreator;ParIsSec : boolean);
-begin	
+begin
 	Proces(ParCre);
 	ValidatePre(ParCre,ParIsSec);
 	Optimize(ParCre);

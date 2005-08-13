@@ -87,6 +87,7 @@ begin
 	AddObjectToStreamList(IC_EnumCollection,TEnumCollection);
 	AddObjectToStreamList(IC_ConstantVariable,TConstantVariable);
 	AddObjectToStreamList(IC_UnionFrameVariable,TUnionFrameVariable);
+	AddObjectToStreamList(IC_NamendCodeBlock,TNamendCodeBlock);
 end;
 
 procedure DoneStreams;

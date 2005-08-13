@@ -58,9 +58,10 @@ type
 		IC_SubNode      ,
 		IC_LoadConvertNode,
 		IC_NegNode      ,
-	   IC_CompNode     ,
+		IC_CompNode     ,
 		IC_ParamNode	 ,
-		IC_BlockNode
+		IC_BlockNode	,
+		IC_NamendCodeBlockNode
 	);
 
 	TMacIdentCode=(
@@ -76,12 +77,12 @@ type
 		IC_StringConMac ,
 		IC_CompareMac   ,
 		IC_LocalVarMac  ,
-		IC_ErrorMac		,
+		IC_ErrorMac	,
 		IC_OffsetMac	,
 		IC_MemOfsMac	,
-		IC_LabelMac		,
-		IC_TLMac		,
-        IC_MethodPtrMac
+		IC_LabelMac	,
+		IC_TLMac	,
+		IC_MethodPtrMac
 
 	);
 
@@ -92,29 +93,29 @@ type
 	IC_CondJumpPoc ,
 	IC_SubPoc	   ,
 	IC_UnkPoc	   ,
-	IC_MetaPoc	   ,
-	IC_CallMetaPoc ,
-	IC_DotPoc	   ,
-	IC_NegPoc	   ,
-	IC_CallPoc		,
+	IC_MetaPoc      ,
+	IC_CallMetaPoc  ,
+	IC_DotPoc       ,
+	IC_NegPoc       ,
+	IC_CallPoc	,
 	IC_SetParPoc	,
-	IC_AndFor		,
-	IC_OrFor		,
-	IC_XorFor		,
-	IC_RetPoc		,
-	IC_AddFor		,
-	IC_SubFor		,
-	IC_MulFor		,
-	IC_DIvFOr		,
+	IC_AndFor	,
+	IC_OrFor	,
+	IC_XorFor	,
+	IC_RetPoc	,
+	IC_AddFor	,
+	IC_SubFor	,
+	IC_MulFor	,
+	IC_DIvFOr	,
 	IC_StringLoadFor,
-	IC_NotPoc		,
+	IC_NotPoc	,
 	IC_ReleasePoc   ,
 	IC_ShrPoc       ,
-	IC_ShlPoc		,
-	IC_ModFor		,
+	IC_ShlPoc	,
+	IC_ModFor	,
 	IC_IncDecFor    ,
 	IC_OptUnSavePoc ,
-    IC_LoadPoc      ,
+	IC_LoadPoc      ,
 	IC_CompPoc      ,
 	IC_LOngResMetaPoc,
 	IC_AsmPoc       ,
@@ -213,7 +214,8 @@ type
 	IC_ValueClassType       := 208,
 	IC_ObjectClassType      := 209,
 	IC_UnionFrameVariable   := 210,
-	IC_MAX                  := 210
+	IC_NamendCodeBlock      := 211,
+	IC_MAX                  := 211
 );
 
 TResourceIdentCode=(
@@ -536,7 +538,7 @@ DT_Max := 14
       );
 TDefaultTypes=set of TDefaultTypeCode;
 const
-DT_Description:array[DT_Nothing..DT_Max] of string[15]
+DT_Description:array[DT_Nothing..DT_Max] of string[16]
 =('Nothing','Boolean','Char','String','Number','asciiz','Void','Pointer','Routine','Meta','Pointer to Meta','Defualt','New','Constant Pointer','Dummy max');
 
 type      TDatType=(

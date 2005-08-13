@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 unit stmnodes;
 interface
-uses asminfo,elacons,types,stdobj,error, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,useitem,execobj,rtnenp;
+uses asminfo,elacons,types,stdobj,error,blknodes, display,compbase,elatypes,pocobj,macobj,node,formbase,ndcreat,useitem,execobj,rtnenp;
 
 type
 
@@ -32,7 +32,7 @@ type
 		property iReturnType  : TType            read voReturnType        write voReturnType;
 		property iReturnInstruction : TNodeIDent read voReturnInstruction write voReturnInstruction;
 	public
-		
+
 		constructor Create(ParReturnType : TType;ParReturnInstruction : TNodeIdent);
 		function    CreateSec(ParCre : TSecCreator):boolean;override;
 		procedure   PrintNode(ParDis : TDisplay);override;
@@ -104,7 +104,7 @@ type
 		procedure ValidateAfter(ParCre : TCreator);override;
 		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
-	
+
 	TConditionNode=class(TLoopCBNode)
 	private
 		voCond           : TFormulaNode;
@@ -122,21 +122,21 @@ type
 		procedure Proces(ParCre : TCreator);override;
 		procedure ValidateDefinitionUse(ParCre : TSecCreator;ParMode : TAccessMode;var ParUseList : TUseList); override;
 	end;
-	
+
 	TWhileNode=class(TConditionNode)
 	public
 		function    CreateSec(ParCre:TSecCreator):boolean;override;
 		procedure   PrintNode(ParDis:TDisplay);override;
 	end;
-	
-	
-	
+
+
+
 	TRepeatNode=class(TConditionNode)
 	public
 		procedure   PrintNode(ParDis:TDisplay);override;
 		function    CreateSec(ParCre:TSecCreator):boolean;override;
 	end;
-	
+
 	TForNode = class(TConditionNode)
 	private
 		voEnd   :TFormulaNode;
@@ -146,7 +146,7 @@ type
 		procedure  clear;override;
 
 	public
-		
+
 		property   fEnd : TFormulaNode read voEnd;
 		procedure  SetEnd(ParNode:TFormulaNode);
 		procedure  SetBegin(parNode:TFormulaNode);
@@ -175,8 +175,8 @@ type
 	end;
 
 
-	
-	
+
+
 	TRefLoopFlowNode = class of TLoopFlowNode;
 
 	TLoopFlowNode=class(TNodeIdent)
@@ -190,8 +190,8 @@ type
 		function GetJumpLabel:TLabelPoc;virtual;
 		function CreateSec(parCre:TSecCreator):boolean;override;
 	end;
-	
-	
+
+
 	TBreakNode = class(TLoopFlowNode)
 	protected
 		procedure Commonsetup;override;
@@ -200,7 +200,7 @@ type
 		function  GetJumpLabel:TLabelPoc;override;
 		procedure Print(ParDIs:TDisplay);override;
 	end;
-	
+
 	TContinueNode = class(TLoopFlowNode)
 	protected
 		procedure Commonsetup;override;
@@ -208,7 +208,7 @@ type
 	public
 		function  GetJumpLabel:TLabelPoc;override;
 		procedure Print(ParDIs:TDisplay);override;
-		
+
 	end;
 
 
@@ -230,12 +230,16 @@ type
 	end;
 
 	TLeaveNode=class(TNodeIdent)
+	private
+		voName : ansistring;
+		property iName : ansistring read voName write voName;
 	public
+		constructor create(const p_name : ansistring);
 		function  CreateSec(ParCre:TSecCreator):boolean;override;
 		procedure   PrintNode(ParDis:TDisplay);override;
 
 	end;
-   
+
 
 implementation
 
@@ -898,7 +902,7 @@ begin
 				if vlType <>nil then  vlName1 := vlType.GetErrorName;
 				if vlSecond.GetType <> nil then  vlName2 := vlSecond.GetType.GetErrorName;
 				TNDCreator(ParCre).AddNodeError(vlFirst,Err_Incompatible_types,'Expression '+vlName2+' loaded into '+vlName1);
-			end;	
+			end;
 		end;
 	end;
 	vlFirst  := TFormulaNode(fParts.fStart);
@@ -1036,7 +1040,7 @@ end;
 
 function TLoopCBNode.OptimizeThisNode(ParCre : TCreator;ParNode : TFormulaNode) : TFormulaNode;
 var vlRepl : TFormulaNode;
-	
+
 begin
 	if ParNode = nil then exit(nil);
 	ParNode.OptimizeForm(ParCre,vlRepl);
@@ -1074,14 +1078,29 @@ end;
 
 {---( TLEaveNode )---------------------------------------------------------------}
 
+constructor TLeaveNode.Create(const p_name: ansistring);
+begin
+	inherited Create;
+	iName := p_name;
+end;
+
 function  TLeaveNode.CreateSec(ParCre:TSecCreator):boolean;
 var
 	vlLabel : TLabelPoc;
 	vlJmp   : TJumpPoc;
+	vlNode  : TBlockNode;
 begin
-	vlLabel := ParCre.NewLeaveLabel;
-	vlJmp := TJumpPoc.Create(vlLabel);
-	ParCre.AddSec(vlJmp);
+	if(length(iName) >0) then begin
+		vlNode := TBlockNode(ParCre.GetBlockByName(iName));
+	end else begin
+		vlNode := TBlockNode(ParCre.GetCurrentBlock);
+	end;
+
+	if(vlNode <> nil) then begin
+		vlLabel := vlNode.getLeaveLabel;
+		vlJmp := TJumpPoc.Create(vlLabel);
+		ParCre.AddSec(vlJmp);
+	end;
 	exit(false);
 end;
 

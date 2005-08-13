@@ -20,8 +20,8 @@ unit simplist;
 interface
 uses   progutil,stdobj;
 type
-	
-	
+
+
 	TSMListItem=class(TRoot)
 	private
 		voPrv : TSMLISTITEM;
@@ -36,7 +36,7 @@ type
 		property fPrv:TSMListItem read voPrv write voPrv;
 		property fNxt:TSMListItem read voNxt write voNxt;
 	end;
-	
+
 	TSMStringItem=class(TSMListItem)
 	private
 		voString:ansiString;
@@ -49,8 +49,8 @@ type
 		constructor Create(const ParTxt:ansistring);
 		function    IsEqualStr(const ParStr:ansistring):boolean;
 	end;
-	
-	
+
+
 	TSMList=class(TRoot)
 	private
 		voStart : TSMListItem;
@@ -61,11 +61,11 @@ type
 	protected
 		procedure  Clear;override;
 		procedure  Commonsetup;override;
-	
+
 	public
 		property fStart : TSMListItem read voStart;
 		property fTop   : TSMListItem read voTop;
-		
+
 		function  CutOut(ParItem:TSMListItem):TSMListItem;
 		function  InsertAt(ParAt:TSMListItem;ParItem:TSMListItem):TSMListItem;
 		function  InsertAtTop(PArItem : TSMListItem) :TSMListItem;
@@ -76,8 +76,8 @@ type
 		function  GetNumItems:longint;
 		function  IsEmpty:boolean;
 	end;
-	
-	
+
+
 	TSMStringList=class(TSMList)
 	protected
 		function MakeItem(const ParString : ansistring) : TSMStringItem;virtual;
@@ -87,12 +87,12 @@ type
 		function GetStringByPosition(ParPosition : cardinal;var ParString : ansistring):boolean;
 		function GetItemByString(ParLast:TSMStringItem;const ParString:ansistring):TSMStringItem;virtual;
 	end;
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 implementation
 
 

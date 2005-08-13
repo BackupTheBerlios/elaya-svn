@@ -908,9 +908,18 @@ begin
       end;
       
       Procedure TELA_Parser._RCodes ( var ParNode:TSubListStatementNode);
+       
+      var
+      	vlName : ansistring;
+      
       begin
-              ParNode := TBlockNode.Create;;
+              EmptyString(vlName);;
             _IBegin;
+            if (GetSym = 16) then begin
+                  _IAs;
+                  _RIdent( vlName);
+            end;
+             ParNode := addBlock(vlName);;
             WHILE vgDynSet[3].isSet(GetSym) do begin
                   _RCode( ParNode);
                   Expect(8);
@@ -919,9 +928,17 @@ begin
       end;
       
       Procedure TELA_Parser._RLeave ( var ParNode : TNodeIdent);
+       
+      var
+      l_name : ansistring;
+      
       begin
+              EmptyString(l_name); ;
             _ILeave;
-              if ParNode <> nil then ParNode :=TLeaveNode.Create; ;
+            if (GetSym = 1) then begin
+                  _RIdent( l_name);
+            end;
+              ParNode :=TLeaveNode.Create(l_name); ;
       end;
       
       Procedure TELA_Parser._RExprDigi ( var ParExpr : TDigiItem);

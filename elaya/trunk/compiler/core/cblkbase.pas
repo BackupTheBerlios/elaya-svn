@@ -334,10 +334,21 @@ type
 			function    LoadItem(ParStream:TObjectStream):boolean;override;
 		end;
 
+		TNamendCodeBlock=class(TDefinition)
+		protected
+			procedure Commonsetup;override;
+		end;
+
 	implementation
+
 	uses execobj,procs,classes;
 
-
+	{----( TNamendCodeBlock )----------------------------------------------------}
+	procedure TNamendCodeBlock.Commonsetup;
+	begin
+		inherited Commonsetup;
+		iIdentCode := ic_NamendCodeBlock;
+	end;
 
 	{----( TLocalMetaVar )-------------------------------------------------------}
 
@@ -2000,7 +2011,7 @@ begin
 				end;
 			end;
 		end;
-	end;	
+	end;
 	while vlNode <> nil do begin
 		vlName := vlNode.fName;
 		if length(vlName) > 0 then begin

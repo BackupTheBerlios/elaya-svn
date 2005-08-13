@@ -21,7 +21,8 @@ public
 	procedure IntToHex(ParInt:Long;var ParHex:string;ParSize:byte);
 	function  StrTolong(const ParStr:String;var ParValue:long):boolean;
 	function  StrToInt(const ParStr:String;var ParValue:Longint):boolean;
-	procedure Concat(var parStr:string;const ParAt:string);
+	procedure Concat(var parStr:string;const ParAt:string);overload;
+	procedure Concat(var parStr:string;const ParAt:char);overload;
 	function  Pos(const ParCh:char;const ParWho:string):byte;overload;
 	function  Pos(const ParStr,ParWho:string):byte;overload;
 	procedure FillStr(ParSize:byte;ParChar:char;var ParStr:string);
@@ -30,7 +31,7 @@ public
 	procedure Str(ParInt:long;var ParStr:string);overload exact;
 	
 	function  IntToStr(ParInt:longint):str255;
-	function  Copy(const ParSrc:string;ParB1,ParLength:byte):str255;
+	function  Copy(const ParSrc:string;ParBegin,ParLength:byte):str255;
 	procedure ToUpper(var ParStr:string);
 	procedure ToLower(var ParStr:string);
 	procedure Delete(var ParStr:string;ParBegin,ParNum:byte);
@@ -49,7 +50,7 @@ public
 	operator (const ParA:Asc255) >  (const ParB:str255) : boolean;overload;
 	operator (const ParA:str255) >  (const ParB:Asc255) : boolean;overload;
 	operator (const ParA:Asc255) >  (const ParB:Asc255) : boolean;overload;
-	operator  (const ParA:Str255) >= (const ParB:str255) : boolean;overload;
+	operator (const ParA:Str255) >= (const ParB:str255) : boolean;overload;
 	operator (const ParA:Asc255) >= (const ParB:str255) : boolean;overload;
 	operator (const ParA:str255) >= (const ParB:Asc255) : boolean;overload;
 	operator (const ParA:Asc255) >= (const ParB:Asc255) : boolean;overload;
@@ -232,7 +233,7 @@ begin
 	exit(vlPtr - @ParAsc);
 end;
 
-function Copy(const ParSrc:string;ParB1,ParLength:byte):str255;
+function Copy(const ParSrc:string;ParBegin,ParLength:byte):str255;
 var
 
     vlDest  : byte;
@@ -241,21 +242,21 @@ var
     vlOut   : string;
     vlStart : byte;
 begin
-     vlStart := ParB1;
-     if vLStart = 0 then vlStart := 1;
-     if vlStart >ParSrc.Length then begin
+	vlStart := ParBegin;
+	if vlStart = 0 then vlStart := 1;
+	if vlStart >ParSrc.Length then begin
 		vlOut.length := 0;
-     end else begin
+	end else begin
 		vlNum := ParLength;
-		if ParB1 +vlNum -1 > ParSrc.length then vlNum := ParSrc.length + 1- ParB1;
-	   vlOut.Length := vlNum;
+		if ParBegin +vlNum -1 > ParSrc.length then vlNum := ParSrc.length + 1- ParBegin;
+		vlOut.Length := vlNum;
  		vlCnt  := vlStart;
 		Count vlDest from 1 to  vlNum do begin
-	        vlOut[vlDest] := ParSrc[vlCnt];
-    	    inc(vlCnt);
-    	end;
+	        	vlOut[vlDest] := ParSrc[vlCnt];
+			inc(vlCnt);
+		end;
 	end;
-    exit(vlOut);
+	exit(vlOut);
 end;
 
 
@@ -345,14 +346,14 @@ begin
 	vlInt := 0;
         while vlCnt <= vlLen do begin
 		if not((ParStr[vlCnt]) between ('0') and ('9')) then exit(true);
-            if(vlInt > Max_Long_div_10) then exit(true);
-			vlInt := vlInt * 10;
-			vlPrv := vlInt;
-			inc vlInt with  ParStr[vlCnt] as byte - 48;
-			if vlPrv > vlInt then exit(true);
+		if(vlInt > Max_Long_div_10) then exit(true);
+		vlInt := vlInt * 10;
+		vlPrv := vlInt;
+		inc vlInt with  ParStr[vlCnt] as byte - 48;
+		if vlPrv > vlInt then exit(true);
         	inc vlCnt;
 	end;
-         ParValue := vlInt;
+	ParValue := vlInt;
 	exit(false);
 end;
 
@@ -377,7 +378,7 @@ begin
 	end;
 	while vlCnt <= vlLen do begin
 		if not((ParStr[vlCnt]) between ('0') and ('9')) then exit(true);
-        if vlInt > Max_Longint_Div10 then exit(true);
+        	if vlInt > Max_Longint_Div10 then exit(true);
  		vlInt := vlInt * 10 ;
 		vlPrv := vlInt;
 		inc vlInt with ParStr[vlCnt] as byte - 48;
@@ -390,8 +391,15 @@ begin
 end;
 
 
+procedure Concat(var ParStr:string;const ParAt:char);overload;
+begin
+	if ParStr.length < 255 then begin
+		inc ParStr.length;
+		ParStr[ParStr.length] := ParAt;
+	end;
+end;
 
-procedure Concat(var ParStr:string;const ParAt:string);
+procedure Concat(var ParStr:string;const ParAt:string);overload;
 var
     vlCnt    : byte;
     vlLength : byte;
