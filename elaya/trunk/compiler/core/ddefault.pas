@@ -26,12 +26,12 @@ type
 		procedure AddDefault(ParDef:TDefinition);
 		function  GetDefaultBySize(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):TDefinition;
 	end;
-	
+
 	TDefaultItem = class(TObjectItem)
 	public
 		function IsDefault(ParDefault:TDefaultTypeCode;ParSize:TSize;ParSign:boolean):boolean;
 	end;
-	
+
 implementation
 uses formbase;
 
@@ -57,27 +57,26 @@ end;
 {------( TDefaultItem )------------------------------------------------------}
 
 function TDefaultItem.IsDefault(ParDefault : TDefaultTypeCode ; ParSize:TSize;ParSign:boolean):boolean;
-var vlType:TType;
+var
+	vlType:TType;
 	vlDef : TDefinition;
-	vlName : ansistring;
 begin
 	IsDefault := false;
-	
+
 	vlDef := TDefinition(fObject);
-	vlName := vlDef.fText;
 	if TDefinition(fObject).fDefault = ParDefault then begin
-		
+
 		if fObject is TType then begin
-			
+
 			vlType := TType(fObject);
 			if  vlType.IsDefaultType(ParDefault,ParSize,ParSign)  then IsDefault := true;
-			
+
 		end else begin
-			
+
 			isDefault := true;
-			
+
 		end;
-		
+
 	end;
 end;
 

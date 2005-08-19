@@ -52,8 +52,8 @@ public
 	procedure SetToSometimes;override;
 	function SetAccess(ParMode : TAccessMode):TAccessStatus;override;
 	procedure CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);override;
-   function Clone : TUseItem;override;
-   function IsCompleetInitialised : TDefinitionUseMode;override;
+	function Clone : TUseItem;override;
+	function IsCompleetInitialised : TDefinitionUseMode;override;
 	procedure SetDefault(ParRead:boolean);override;
 	procedure CombineIfWithElseUse(ParElse : TUseItem);override;
 	function IsUnused:boolean;override;
@@ -82,8 +82,8 @@ public
 	function IsUnused:boolean;override;
 	procedure CombineIfWithElseUse(ParElse : TUseItem);override;
 
-   function IsCompleetInitialised : TDefinitionUseMode;override;
-   function Clone : TUseItem;override;
+	function IsCompleetInitialised : TDefinitionUseMode;override;
+	function Clone : TUseItem;override;
 	procedure CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);override;
 	function SetAccess(ParMode : TAccessMode):TAccessStatus;override;
 	procedure SetToSometimes;override;
@@ -95,7 +95,7 @@ end;
 
 TUnionUseList=class(TStructDefinitionUseSubList)
 public
-				function SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TUseItem) : TAccessStatus;override;
+	function SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TUseItem) : TAccessStatus;override;
 end;
 
 TUnionUseItem=class(TStructDefinitionUseItem)
@@ -116,20 +116,19 @@ var
 begin
 	vlMode := inherited SetAccess(ParDefinition,ParMode,ParItem);
 	vlCurrent := TUnionItemUseItem(fStart);
-	if not(ParItem is TUnionItemUseItem) then begin
-		runerror(1);
-	end;
+	if not(ParItem is TUnionItemUseItem) then runerror(1);
+
 	vlThis := TUnionItemUseItem(ParItem);
 	while vlCurrent<> nil do begin
 		if (vlCurrent <> vlTHis) then begin
 			if vlCurrent.fSize <= vlThis.fSIze then begin
 				vlNewMode := vlCurrent.SetAccess(ParMode);
 				case vlNewMode of
-				as_no_write,AS_NO_Read : vlMode := vlNewMode;
-				as_maybe_no_write,as_maybe_no_read:if vlMode=AS_Normal then vlMode := vlNewMOde;
-            end;
+					as_no_write,AS_NO_Read : vlMode := vlNewMode;
+					as_maybe_no_write,as_maybe_no_read:if vlMode=AS_Normal then vlMode := vlNewMOde;
+        		    	end;
 			end;
-      end;
+		end;
 		vlCurrent := TUnionItemUseItem(vlCurrent.fNxt);
 	end;
 	exit(vlMode);
@@ -157,13 +156,13 @@ end;
 	end;
 
 	function TUnionItemUseItem.SetAccess(ParMode : TAccessMode):TAccessStatus;
-   begin
+	begin
 		exit(iUseItem.SetAccess(ParMode));
 	end;
 
 
 	procedure TUnionItemUseItem.CheckUnused(ParCre : TCreator;ParOwnerBase : TBaseDefinition);
-   begin
+	begin
 		iUseItem.CheckUnUsed(ParCre,ParOwnerBase);
 	end;
 
@@ -388,12 +387,6 @@ procedure TStructDefinitionUseItem.SetToSometimes;
 begin
 	iSubList.SetToSomeTimes;
 end;
-
-
-
-
-
-
 
 
 

@@ -1949,8 +1949,6 @@ end;
 
 
 procedure TPointerNode.PrintNode(ParDis:TDisplay);
-var
-	vlName : AnsiString;
 begin
 	ParDis.Write('<pointer>');
 	if fVariable <> nil then begin
@@ -2078,7 +2076,6 @@ end;
 procedure  TNegNode.Proces(ParCre:TCreator);
 var
 	vlType    : TType;
-	vlNode    : TFormulaNode;
 	vlNewNode : TLoadConvert;
 begin
 	inherited Proces(ParCre);

@@ -1106,7 +1106,8 @@ end;
 
 procedure TLeaveNOde.PrintNode(ParDis:TDisplay);
 begin
-	ParDis.Write('<leave>');
+	ParDis.write('<leave>');
+	ParDis.Write('<name>'+iName+'</name>');
 	ParDis.Writenl('</leave>');
 end;
 {----( TAsmNode )-------------------------------------------------------------}

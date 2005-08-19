@@ -21,7 +21,7 @@ var
 	cf_link_exe_to  : ansistring;
 	cf_enabled : ansistring;
 	cg_baseDir : ansistring;
-
+	cf_fpc     : ansistring;
 
 function AppendToFile(var ParOutFile : text;const ParToFile : ansistring):boolean;
 var
@@ -220,8 +220,8 @@ begin
 			end else begin
 				if(l_found) then begin
 					splitParameter(l_line,l_key,l_value);
-					if(l_key='as_program') then cf_as_program := l_value else
-					if(l_key='ld_program') then cf_ld_program := l_value else
+					if(l_key = 'as_program') then cf_as_program := l_value else
+					if(l_key = 'ld_program') then cf_ld_program := l_value else
 					if(l_key = 'opt_ela') then cf_opt_ela := l_value else
 					if(l_key = 'opt_fpc') then cf_opt_fpc := l_value else
 					if(l_key = 'dir_rtl') then cf_dir_rtl := l_value else
@@ -229,7 +229,8 @@ begin
 					if(l_key = 'dir_config') then cf_dir_config := l_value else
 					if(l_key = 'link_exe_to') then cf_link_exe_to := l_value else
 					if(l_key = 'enabled') then cf_enabled := l_value else
-					if(l_key = 'install_extra') then cf_install_extra := l_value else begin
+					if(l_key = 'install_extra') then cf_install_extra := l_value else
+					if(l_key = 'fpc') then cf_fpc :=l_value else begin
 						writeln(stdErr,'invalid key=',l_key,' value=',l_value);
 					end;
 				end;
@@ -322,7 +323,7 @@ begin
 	writeln(l_outputFile,'Dir_Cpl_Lib=',allwaysDir(addToPath(addToPath(cf_dir_rtl,'extra'),'lib')));
 	writeln(l_outputFile,'Dir_Rtl=',allwaysDir(addToPath(addToPath(cf_dir_rtl,'lib'),cf_target)));
 	writeln(l_outputFile,'Dir_Program=',allwaysDir(addToPath(cf_dir_rtl,'bin')));
-	writeln(l_outputFile,'Fpc=fpc');
+	writeln(l_outputFile,'Fpc=',cf_fpc);
 	writeln(l_outputFile,'Ela=ela');
 	writeln(l_outputfile,'eladep=eladep');
 	writeln(l_outputFile,'enabled=',cf_enabled);

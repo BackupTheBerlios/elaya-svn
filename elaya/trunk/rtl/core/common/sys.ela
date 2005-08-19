@@ -107,6 +107,8 @@ procedure Put(const ParStr : string);  overload;default;
 
 function  Eof(var ParFile : TFile):boolean;overload;
 function  OpenFile(ParSelf : PFileSelf;var ParFile : TFile; const ParFileName : string; ParMode:TOpenMode):boolean;
+
+function  readFileInMemory(const p_FileName : string;var p_Data:PByte;var p_Size :long):boolean;
 function  CloseFile(var ParFile:TFile):boolean;overload;
 function  ReadFile(var ParFile:TFile;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
 function  WriteFile(var ParFile:TFile;ParSize:Long;var ParWritten : long;const ParBuffer:void):boolean;
@@ -502,6 +504,52 @@ begin
      ParFound := ParFile.vrSelf^.vrWaitForReadRoutine^(ParFile,ParTimeOut,ParFound);
      exit(GetLastError<> 0);
 end;
+
+
+function  readFileInMemory(const p_FileName : string;var p_Data:PByte;var p_Size :long):boolean;
+var
+	l_file : TFile;
+	l_result : boolean;
+	l_read   : long;
+	l_buffer : PByte;
+	l_size   : long;
+begin
+	p_data := nil;
+	p_size := 0;
+	l_result := true;
+	l_buffer := nil;
+	if(OpenFile(normalFile ,l_file,p_FileName,OM_Read)) then exit(true);
+	begin as handleFile
+		l_size := getFileSize(l_file);
+		l_buffer := reserveMem(l_size+1);
+
+		if(l_buffer = nil) then leave handleFile;
+
+		if(l_size> 0) then begin
+			if readFile(l_file,l_size,l_read,l_buffer^) then leave handleFile;
+		end;
+
+		if(l_size <> l_read) then leave handleFile;
+
+		l_result := false;
+
+		p_data := l_buffer;
+		p_size := l_size;
+		(l_buffer + l_size)^ := 0;
+	end;
+
+	closeFile(l_file);
+
+	if l_result then begin
+		if l_buffer <> nil then freemem(l_buffer);
+	end;
+
+
+
+	exit(l_result);
+end;
+
+
 
 function OpenFile(ParSelf : PFileSelf;var ParFile : TFile; const ParFileName : string; ParMode:TOpenMode):boolean;
 begin

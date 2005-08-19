@@ -206,6 +206,7 @@ const
 	Err_parent_not_a_value_class  = 1192;
 	Err_parent_is_a_value_class   = 1193;
 	Err_call_Wrtn_Rtn_in_rd_rtn   = 1194;
+	Err_Ident_not_a_namend_block  = 1195;
 	Err_Int_Name_List_Open   = 2000;
 	Err_Int_name_List_Closed = 2001;
 	Err_Int_Wrong_Enum_list  = 2002;
@@ -678,6 +679,7 @@ begin
 		Err_parent_not_a_value_class : vlMsg := 'Parent is not a value class';
 		Err_parent_is_a_value_class  : vlMsg := 'Parent is a value class';
 		Err_call_Wrtn_Rtn_in_rd_rtn  : vlMsg := 'Can''t call a write routine inside a read routine';
+		Err_Ident_not_a_namend_block : vlMsg := 'Identifier is not a namend block';
 
 		Err_Int_Name_List_Open       : vlMsg := 'Internal error : Name list still open';
 		Err_Int_Name_List_Closed     : vlMsg := 'Internal error : Name list is closed';

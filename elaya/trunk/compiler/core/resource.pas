@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 unit Resource;
 interface
 uses largenum,asmdisp,i386cons,progutil,elatypes,elacons,cmp_base,cmp_type,display,register,compbase,error,elacfg,routasm,stdobj,confval,simplist;
-	
+
 type
 	TResource        = class;
 	TResourceUse     = class;
@@ -33,8 +33,8 @@ type
 	TStackRes        = class;
 	TNumberRes	      = class;
 	TOperand     = class;
-	
-	
+
+
 	TChangeItem=class(TSMListItem)
 	private
 		voChangeRegisterCode : TChangeCode;
@@ -42,7 +42,7 @@ type
 		voOperand            : TOperand;
 		voSoftChangeSize     : boolean;
 		voChangeToRegister   : TFlag;
-		
+
 		property  iChangeRegisterCode   :  TChangeCode  read voChangeRegisterCode write voChangeRegisterCode;
 		property  iOperand              :  TOperand    	read voOperand        	  write voOperand;
 		property  iSize	                :  TSize	    read voSize               write voSize;
@@ -69,7 +69,7 @@ type
 		function    IsOutput:boolean;
 		function    TestIdentNumber(ParIdent : TFlag) : boolean;
 	end;
-	
+
 	TChangeList=class(TSMList)
 	public
 		function  GetItemByIdentNumber(ParNo:cardinal):TChangeItem;
@@ -99,7 +99,7 @@ type
 		property fResource: TResource    read voResource;
 		property fSec     : TSecBase     read voSec;
 		property fUnUsed  : boolean      read voUnUsed  write voUnUsed;
-		
+
 		function    CanRelease:boolean;
 		constructor Create(ParSec:TSecBase);
 		function    IsPart(ParItem:TResource):boolean;
@@ -108,14 +108,14 @@ type
 		procedure   SetOutputLock(ParFlag : boolean);
 		function    IsUsing(ParRes : TResource):boolean;
 	end;
-	
-	
-	
+
+
+
 	TResourceUseList=class(TSMList)
 	private
 		voStackCnt:longint;
 		voUnUseOpt:boolean;
-		
+
 		property  iUnUseOpt:boolean read voUnUseOpt write voUnUseOpt;
 		function  GetResourceUse(ParSec:TSecBase):TResourceUse;
 		procedure SetStackCnt(ParCnt:Longint);
@@ -124,7 +124,7 @@ type
 		procedure IncStackCnt;
 		function  GetResource(ParSec:TSecBase):TResource;
 		function  AddResource(ParSec:TSecBase;ParRes:TResource):TResourceUse;
-		
+
 	protected
 		procedure Commonsetup;override;
 
@@ -136,7 +136,7 @@ type
 		procedure SaveResParts(ParCre:TInstCreator;ParRes:TResource);
 		procedure ReleaseResource(ParRes : TResource);
 		function  GetUseFromResource(ParRes:TResource):TResourceUse;
-		
+
 		function  SetResourceUse(ParSec:TSecBase;ParRes:TResource):TResourceUse;
 		procedure CrashList;
 		function  GetStackResItemByPos(ParPos:longint):TResourceUSe;
@@ -151,13 +151,13 @@ type
 		procedure DeleteUnUsedByRes(ParRes : TResource);
 		procedure AddUnUsedResource(ParSec : TSecBase;ParRes : TResource);
 	end;
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
 	TInstCreator=class(TCreator)
 	private
 		voResourceUseList   : TResourceUselist;
@@ -166,7 +166,7 @@ type
 		voAlwaysStackFrame  : boolean;
 		voPrintRegisterres  : boolean;
 		voRoutineAsm        : TRoutineAsm;
-		
+
 		property iRoutineAsm : TROutineAsm read voRoutineAsm write voRoutineAsm;
 		property iResourceUseList   : TResourceUSeList read voResourceUseList write voResourceUseList;
 		property iAlwaysStackFrame  : boolean          read voAlwaysStackFrame write voAlwaysStackFrame;
@@ -199,7 +199,7 @@ type
 		procedure DeleteUnusedByMac(ParSec : TSecBase;ParMode : TUnUsedDeleteMode);
 		procedure DeleteUnusedByRes(ParRes : TResource);
 		procedure AddUnUsedResourceUse(ParSec : TSecBase;ParRes : TResource);
-		
+
 		{Resource}
 		function  CanChangeResource(ParRes:TResource):boolean;
 		procedure ResourcePRLF(ParRes:TResource);
@@ -218,36 +218,36 @@ type
 		function  PopRes(PArStack:TStackRes;ParAfter:boolean):TResource;
 		procedure SaveResParts(ParRes:TResource);
 		function  ForceReserveRegister(PArCre:TInstCreator; ParRegister:TNormal;ParSign:boolean):TRegisterRes;
-		
+
 		procedure ReleaseResource(ParRes : TResource);
 		procedure SetResourceUse(ParSec:TSecBase;ParRes:TResource);
 		procedure SetResourceResLong(ParSec:TSecBase;ParMode:boolean;ParFixed:boolean);
 		function  GetNumberRes(ParNo:TNumber;ParSize:TSize;ParSign:boolean):TNumberRes;
 		function  GetNumberResLong(ParNo:cardinal;ParSize:TSize;ParSign:boolean):TNumberRes;
-		
+
 		{Resource mg}
 		function ReserveRegisterDirect(ParSize : TSize;ParSign : boolean):TRegisterRes;
-		
+
 		procedure  GetProcedureName(var parNAme : ansistring);
 		procedure  AddObject(ParITem : TRoot);
 		{rest}
 		procedure   Print(parDis:TAsmDisplay);
-		
+
 		function    GetPrintRegisterRes:boolean;
 		constructor Create(const ParName:ansistring;ParCompiler:TCompiler_Base;ParRoutine : TRoutineAsm);
 		{ptr/offset}
 		function    GetOffsetOf(ParRes:TResource;ParSize : TSize;ParSign:boolean):TResource;
 		function    GuaranteeRegister(ParRes : Tresource):TRegisterRes;
 		function    GuaranteeRegister(ParRes : Tresource;ParHint : TRegHint):TRegisterRes;
-		
+
 		function    GetByPtrOf(ParMac : TSecBase;ParSize : TSize;ParSign : boolean) : TResource;
 		function    GetByPtrOf(PArRes:TResource;ParSize : TSize;ParSign:boolean) : TResource;
 		{debug}
 		procedure   DumpUseList;
-		
+
 	end;
-	
-	
+
+
 	TResource=class(TRoot)
 	private
 		voSize     : TSize;
@@ -265,7 +265,7 @@ type
 		property   fCode     : TResourceIdentCode read voCode;
 		property   fSize     : TSize      read voSize;
 		property   fSign     : boolean    read voSign;
-		
+
 		procedure  SetLockResource;virtual;
 		procedure  ResetlockResource;virtual;
 		procedure  ReserveResource;virtual;
@@ -293,9 +293,9 @@ type
 		function   CanReleaseFromUse : boolean;virtual;
 		function   CanKeepInUse :boolean;virtual;
 		procedure  BeforeRelease;virtual;
-		
+
 	end;
-	
+
 	TLabelRes=class(TResource)
 	private
 		voLabelName : AnsiString;
@@ -305,24 +305,24 @@ type
 
 	public
 		property    fLabelName : AnsiString read voLabelName;
-		
+
 		constructor Create(const ParName:ansistring;ParSize : TSize);
 		function    IsSame(ParRes:TResource):boolean;override;
 		function    IsPart(ParRes:TResource):boolean;override;
 		function    IsUsing(parRes:TResource):boolean;override;
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
-	
+
 	TUnkRes=class(TResource)
 	protected
 		procedure CommonSetup;override;
 	public
 		procedure Print(ParDis:TAsmDisplay);override;
 	end;
-	
-	
-	
-	
+
+
+
+
 	TCmpFlagRes=class(TResource)
 	private
 		voCmpCode:TIdentCode;
@@ -338,14 +338,14 @@ type
 		procedure NotCondition;
 		procedure print(ParDis:TAsmDisplay);override;
 	end;
-	
-	
+
+
 	TVarRes=class(TResource)
 	public
 		function    CanSoftChangeSize(ParSize:TSize):boolean;override;
 		constructor Create(ParSize : TSize;ParSign:boolean);
 	end;
-	
+
 	TStorageRes=class(TVarRes)
 	private
 		voExtraOffset:TOffset;
@@ -353,8 +353,8 @@ type
 		function  GetExtraOffset:Toffset;override;
 		procedure SetExtraOffset(ParOffset:TOFfset);override;
 	end;
-	
-	
+
+
 	TStackRes=class(TVarRes)
 	private
 		voStackPos:longint;
@@ -371,10 +371,10 @@ type
 		function  CanReleaseFromUse : boolean;override;
 		function  CanKeepInUse :boolean;override;
 	end;
-	
-	
-	
-	
+
+
+
+
 	TByPtrRes = class(TStorageRes)
 	private
 		voPointer : TRegisterRes;
@@ -400,13 +400,13 @@ type
 		procedure   IncUse;override;
 		procedure  BeforeRelease;override;
 		procedure   AdviceChange(ParChange:TChangeItem);override;
-		
+
 	end;
-	
+
 	TMemoryRes=class(TStorageRes)
 	private
 		voName:AnsiString;
-		
+
 	protected
 		property    iName : AnsiString read voName write voName;
 		procedure   CommonSetup;override;
@@ -415,13 +415,13 @@ type
 		property    fName : AnsiString read voName;
 		function    IsSame(ParRes:TResource):boolean;override;
 		function    IsPart(ParRes:TResource):boolean;override;
-		constructor Create(const ParName:ansistring;ParSize : TSize;ParSign:boolean);	
+		constructor Create(const ParName:ansistring;ParSize : TSize;ParSign:boolean);
 		procedure   Print(parDis:TAsmDisplay);override;
 		function    CanSoftChangeSize(ParSize:TSize):boolean;override;
 		function    TryChangeSize(ParSize:TSize):TResource;override;
-		
+
 	end;
-	
+
 	TMemoryOffsetRes=class(TMemoryRes)
 	protected
 		procedure CommonSetup;override;
@@ -430,8 +430,8 @@ type
 		function  CanSoftChangeSize(ParSize:TSize):boolean;override;
 		function  TryChangeSize(ParSize:TSize):TResource;override;
 	end;
-	
-	
+
+
 	TRegisterRes=class(TVarRes)
 	private
 		voRegister:TRegister;
@@ -441,7 +441,7 @@ type
 
 	public
 		property fRegister : TRegister read voRegister;
-		
+
 		function    GetRegisterCode : cardinal;
 		procedure   SetLockResource;override;
 		procedure   ResetLockResource;override;
@@ -459,8 +459,8 @@ type
 		function    KeepContents(ParAcc:TAccess):TKeepContentsState;override;
 		function   TryChangeSize(ParSize:TSize):TResource;override;
 	end;
-	
-	
+
+
 	TNumberRes=class(TResource)
 	private
 		voNumber: TNumber;
@@ -472,14 +472,14 @@ type
 		property    fNumber : TNumber read voNumber write voNumber;
 		function    CanSoftChangeSize(ParSize:TSize):boolean;override;
 		function   TryChangeSize(ParSize:TSize):TResource;override;
-		
+
 		constructor Create(ParInt : TNumber);
 		procedure   Print(ParDis:TAsmDisplay);override;
 	end;
-	
-	
-	
-	
+
+
+
+
 	TOperand = class(TSMListItem)
 	private
 		voResource    : TResource;
@@ -495,8 +495,8 @@ type
 		property    fIsFixed       : boolean   read voIsFixed;
 		property    fIdentNumber   : TFlag     read voIdentNumber;
 		property    fResource      : TResource read voResource;
-		
-		
+
+
 		procedure   MakeFixed;
 		function    TestIdentNumber(ParIdent:TFlag):boolean;
 		procedure   Combine(ParRes:TOperand);
@@ -517,7 +517,7 @@ type
 		procedure   AfterRlf(parCre : TInstCreator);
 		procedure   SetIdentNumber(ParIdentNumber :TFlag);
 	end;
-	
+
 	TOperandList = class(TSMList)
 		procedure PopResource(ParCre : TInstCreator;ParRes : TOperand);
 		procedure CompleteOutput(ParCre:TInstCreator);virtual;
@@ -545,13 +545,13 @@ type
 		procedure ReplaceResource(ParCre : TInstCreator;ParRes:Tresource;ParItem : TOperand);
 		procedure ReplaceResourceWithReg(ParCre : TInstCreator ; ParOperand :TOperand);
 	end;
-	
-	
+
+
 	TInstruction=class(TSMListItem)
 	private
 		voOperandList : TOperandList;
 		voIdentCode   : T386InstructionCode;
-		
+
 	protected
 		property iIdentCode   : T386InstructionCode read voIdentCode   write voIdentCode;
 		property iOperandList : TOperandList        read voOperandList write voOperandList;
@@ -561,7 +561,7 @@ type
 	public
 		property fIdentCode   : T386InstructionCode read voIdentCode;
 		property fOperandList : TOperandList        read voOperandList;
-		
+
 		procedure  AddResItem(ParRes:TOperand);
 		procedure  InitOperandList;virtual;
 		function   AddOperand(ParRes:TResource;ParIdent:TFlag):TOperand;
@@ -570,18 +570,18 @@ type
 		procedure  InstructionFase(ParCre:TInstCreator);virtual;
 		procedure  GetInstructionName(var ParName : ansistring);virtual;
 	end;
-	
-	
-	
-	
-	
+
+
+
+
+
 	TCurrentInstList=class(TSMList)
 		function  GetCurrentInst:TInstruction;
 		procedure PushInst(ParInst:TInstruction);
 		procedure PopInst;
 	end;
-	
-	
+
+
 	TCurrentInstItem=class(TSMListItem)
 	private
 		voInst:TInstruction;
@@ -590,11 +590,11 @@ type
 		property fInstruction : TInstruction read voInst;
 		constructor Create(ParInst:TInstruction);
 	end;
-	
-	
-	
-	
-	
+
+
+
+
+
 implementation
 
 uses procinst,asminfo,macobj{TODO remove when setoutputlock is cleanedup ?};
@@ -812,7 +812,7 @@ end;
 
 
 function   TMemoryOffsetRes.TryChangeSize(ParSize:TSize):TResource;
-var 
+var
 	vlRes  : TResource;
 begin
 	vlRes := nil;
@@ -1207,7 +1207,7 @@ begin
 		while (vlReg <> nil) and
         	(vlReg.fSize <> ParSize)
             			do vlreg := vlreg.fSmallerSize;
-		
+
 	end;
 	exit(vlReg <> nil);
 end;
@@ -1298,7 +1298,7 @@ end;
 
 
 function   TMemoryRes.TryChangeSize(ParSize:TSize):TResource;
-var vlName : ansistring;
+var
 	vlRes  : TMemoryRes;
 begin
 	vlRes := nil;
@@ -1311,7 +1311,7 @@ end;
 
 
 procedure TMemoryRes.Print(ParDis:TAsmDisplay);
-var 
+var
 	vlName : ansistring;
 begin
 	vlName := iName;
@@ -1348,7 +1348,7 @@ begin
 	inherited Create;
 	SetSize(ParSize);
 	SetSign(ParSign);
-	
+
 end;
 
 
@@ -1448,7 +1448,7 @@ end;
 function  TResource.TryChangeSize(ParSize:TSize):TResource;
 begin
 	if CanSoftChangeSize(ParSize) then begin
-		
+
 		SetSize(ParSize);
 		exit(self);
 	end else exit(nil);
@@ -1513,7 +1513,7 @@ begin
 	SetExtraOffset(0);
 	SetMode([RM_InList],false);
 	iCode := RT_None;
-	
+
 end;
 
 
@@ -1662,7 +1662,7 @@ begin
 	vlRegflag := vlChange;
 	if ParChangeItem.fSoftChangeSize then begin
 		vlRes:=  ParResItem.fResource.TryChangeSize(vlNewSize);
-		
+
 		if (vlRes <> nil) and (vlOldSize <> vlNewSize) then begin
 			if(ParResItem.GetAccess(RA_Output)) then ParCre.ReplaceResource(ParResItem.fResource,vlRes);
 			ParCre.AddObject(vlRes);
@@ -1797,7 +1797,7 @@ begin
 		voRi2.IsUsed;
 		deletelink(voRi2);
 	end;
-	
+
 end;
 
 
@@ -1936,7 +1936,7 @@ begin
 			vlRes3 := vlRes;
 			vlRes  := vlRes2;
 		end;
-		if (vlRes.fSize > vlRes3.fSize) and (vlRes3 is TRegisterRes) then begin			
+		if (vlRes.fSize > vlRes3.fSize) and (vlRes3 is TRegisterRes) then begin
 			vlRes3 := Parcre.GetAsRegister(TRegisterRes(vlRes3),vlRes.fSize,vlRes.fSign);
 			if vlRes3 = nil then Fatal(Fat_Cant_Get_Register_Res,'');
 		end;
@@ -2407,7 +2407,7 @@ begin
 	str(vlName,vlNameStr);
 	vlNameStr := '.L'+vlNameStr;
 	exit(TLabelInst.Create(vlNameStr));
-	
+
 end;
 
 
@@ -2565,7 +2565,7 @@ begin
 	and (ParInst <> TInstruction(iRoutineAsm.GetFirstInstruction)) then begin
 		vlStr := 'AT:TInstCreator.PushInst, [Type='+ParInst.ClassName+']';
 		Fatal(FAT_Pushed_inst_Not_In_List,vlStr);
-		
+
 	end;
 	voCurrentInstList.PushInst(ParInst);
 end;
@@ -3015,12 +3015,12 @@ begin
 		if (vlCurrent <> nil) and (vlCurrent.CanRelease)  then begin
 			vlCurrent.SetResource(ParRes);
 			{     if vlCurrent.fUnUsed then fatal(FAT_Try_Change_UnUsed_Res,'');}
-			
+
 		end else begin
 			vlCurrent := AddResource(ParSec,ParRes);
 		end;
 		ParRes.ReserveResource;
-		
+
 	end;
 	exit(vlCurrent);
 end;
@@ -3069,10 +3069,10 @@ var vlStack : TStackRes;
 begin
 	IncStackCnt;
 	vlUse   := GetUseFromResource(ParRes);
-	
+
 	if vlUse <> nil then begin
 		if vlUse.fUnUsed then fatal(FAT_Try_Change_UnUsed_Res,'');
-		
+
 		vlPrvMd:=vlUse.fResMode;
 		vlUse.fResMode := RSM_Long_Reservation;
 	end;
@@ -3209,7 +3209,7 @@ var
 	vlUse : TResourceUSe;
 	vlNxt : TResourceUse;
 begin
-	
+
 	vlUse := TResourceUse(fStart);
 	while (vlUse <> nil) do begin
 		vlNxt := TResourceUse(vlUse.fNxt);
@@ -3218,7 +3218,7 @@ begin
 		end;
 		vlUse := vlNxt;
 	end;
-	
+
 end;
 
 

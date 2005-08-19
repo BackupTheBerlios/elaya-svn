@@ -1,4 +1,4 @@
-{                             
+{
  Elaya, the compiler for the elaya language
 Copyright (C) 1999-2003  J.v.Iddekinge.
 Web   : www.elaya.org
@@ -30,103 +30,98 @@ TAccessMode = (AM_Read,AM_ReadWrite,AM_Write,AM_Nothing,AM_Execute,AM_SizeOf,AM_
 {TODO Instead of using TUseList everywhere, use a sort of  TDefinitionUseItem}
 TUseList=class;
 TUseItem=class(TSMListItem)
-			private
-         	voContext    : TUseItem;
-			protected
-            property iContext    : TUseItem read voContext    write voContext;
-            procedure Commonsetup;override;
-			public
-            property fContext    : TUseItem read voContext write voContext;
-				function IsDefinition(ParDefinition : TBaseDefinition) : boolean;
-				procedure CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition);virtual;abstract;
-				procedure CombineFlow(ParOther : TUseItem);virtual;abstract;
-				procedure SetElseMode(ParElse :TUseItem);virtual;abstract;
-				function Clone : TUseItem;virtual;abstract;
-				procedure SetLike(ParItem : TUseItem);virtual;abstract;
-				function GetName : ansistring;
-				function SetAccess(ParMode : TAccessMode):TAccessStatus;virtual;abstract;
-				procedure AssumeIsWriten;
-				procedure SetDefault(ParRead :boolean);virtual;abstract;
-				function IsUnused:boolean;virtual;abstract;
-				procedure SetToSometimes;virtual;abstract;
-            function GetSubList : TUseList;virtual;
-            function IsCompleetInitialised : TDefinitionUseMode;virtual;abstract;
-			   procedure CombineIfWithElseUse(ParElse : TUseItem);virtual;abstract;
-            function GetDefinition : TBaseDefinition;virtual;abstract;
-         end;
+private
+	voContext    : TUseItem;
+protected
+	property iContext    : TUseItem read voContext    write voContext;
+	procedure Commonsetup;override;
+public
+	property fContext    : TUseItem read voContext write voContext;
+	function IsDefinition(ParDefinition : TBaseDefinition) : boolean;
+	procedure CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition);virtual;abstract;
+	procedure CombineFlow(ParOther : TUseItem);virtual;abstract;
+	function Clone : TUseItem;virtual;abstract;
+	function GetName : ansistring;
+	function SetAccess(ParMode : TAccessMode):TAccessStatus;virtual;abstract;
+	procedure AssumeIsWriten;
+	procedure SetDefault(ParRead :boolean);virtual;abstract;
+	function IsUnused:boolean;virtual;abstract;
+	procedure SetToSometimes;virtual;abstract;
+	function GetSubList : TUseList;virtual;
+	function IsCompleetInitialised : TDefinitionUseMode;virtual;abstract;
+	procedure CombineIfWithElseUse(ParElse : TUseItem);virtual;abstract;
+	function GetDefinition : TBaseDefinition;virtual;abstract;
+end;
 
 TUseList=class(TSMList)
-		private
-				voOwner      : TBaseDefinition;
-            voContext     : TUseItem;
+private
+	voOwner      : TBaseDefinition;
+	voContext     : TUseItem;
 
-				property iOwner     : TBaseDefinition read voOwner write voOwner;
-            property iContext : TUseItem read voContext write voContext;
- 		protected
-      		procedure commonsetup;override;
-				procedure AddListTo(ParList : TUseList);
+	property iOwner     : TBaseDefinition read voOwner write voOwner;
+        property iContext : TUseItem read voContext write voContext;
+ protected
+	procedure commonsetup;override;
+	procedure AddListTo(ParList : TUseList);
 
-			public
-            property fContext : TUseItem read voContext write voContext;
+public
+	property fContext : TUseItem read voContext write voContext;
 
-				function GetItemByDefinition(parDefinition :TBaseDefinition):TUseItem;
-				function SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TUseItem) : TAccessStatus;virtual;
-				function Clone:TUseList;
-            procedure CloneIntoList(ParList : TUseList);
-				procedure CombineFlow(ParTo : TUseList);
-				procedure CheckUnused(ParCre : TCreator);
-				constructor Create(ParDefinition : TBaseDefinition);
-				procedure   SetToSometimes;
-         	procedure AddItem(ParItem : TUseItem);virtual;
-				function GetOrAddUseItem(ParDefinition : TBaseDefinition) : TUseItem;
-       		procedure CombineIfWithElseUse(ParList : TUseList);
-			end;
+	function GetItemByDefinition(parDefinition :TBaseDefinition):TUseItem;
+	function SetAccess(ParDefinition : TBaseDefinition;ParMode : TAccessMode;var ParItem : TUseItem) : TAccessStatus;virtual;
+	function Clone:TUseList;
+	procedure CloneIntoList(ParList : TUseList);
+	procedure CombineFlow(ParTo : TUseList);
+	procedure CheckUnused(ParCre : TCreator);
+	constructor Create(ParDefinition : TBaseDefinition);
+	procedure   SetToSometimes;
+        procedure AddItem(ParItem : TUseItem);virtual;
+	function GetOrAddUseItem(ParDefinition : TBaseDefinition) : TUseItem;
+	procedure CombineIfWithElseUse(ParList : TUseList);
+end;
 
 TDefinitionUseItemBase=class(TUseItem)
-		private
-    			voWrite      : TDefinitionUseMode;
-				voRead		 : TDefinitionUseMode;
-				voRunRead    : TDefinitionUseMode;
-				property iRunRead   : TDefinitionUseMode read voRunRead    write voRunRead;
-				property iWrite     : TDefinitionUseMode read voWrite      write voWrite;
-				property iRead      : TDefinitionUseMode read voRead       write voRead;
-		protected
-				procedure commonsetup;override;
+private
+	voWrite      : TDefinitionUseMode;
+	voRead		 : TDefinitionUseMode;
+	voRunRead    : TDefinitionUseMode;
+	property iRunRead   : TDefinitionUseMode read voRunRead    write voRunRead;
+	property iWrite     : TDefinitionUseMode read voWrite      write voWrite;
+	property iRead      : TDefinitionUseMode read voRead       write voRead;
+protected
+	procedure commonsetup;override;
+	function CombineModes(ParMode1,ParMode2 : TDefinitionUseMode) : TDefinitionUseMode;
+	function CombineITRRUseModes(ParPMode,ParITMode : TDefinitionUseMode) : TDefinitionUseMode;
+	function SetRead : TAccessStatus;
+	function SetWrite: TAccessStatus;
 
-		public
-				property fRead      : TDefinitionUseMode read voRead;
-				property fRunRead   : TDefinitionUseMode read voRunRead;
-				property fWrite     : TDefinitionUseMode read voWrite;
+public
+	property fRead      : TDefinitionUseMode read voRead;
+	property fRunRead   : TDefinitionUseMode read voRunRead;
+	property fWrite     : TDefinitionUseMode read voWrite;
 
-
-			protected
-				function CombineModes(ParMode1,ParMode2 : TDefinitionUseMode) : TDefinitionUseMode;
-				function CombineITRRUseModes(ParPMode,ParITMode : TDefinitionUseMode) : TDefinitionUseMode;
-				function SetRead : TAccessStatus;
-				function SetWrite: TAccessStatus;
-
-			public
-				procedure CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition); override;
-				procedure CombineFlow(ParOther : TUseItem);override;
-				function  SetAccess(ParMode : TAccessMode):TAccessStatus;override;
-				procedure SetDefault(ParRead :boolean);override;
-				function  IsUnused:boolean;override;
-				procedure SetToSometimes;override;
-            function  IsCompleetInitialised : TDefinitionUseMode;override;
-			   procedure CombineIfWithElseUse(ParElse : TUseItem);override;
-				function  CombineIfAndElseUseModes(ParModeIf,ParModeElse : TDefinitionUseMode) : TDefinitionUseMode;
+	procedure CheckUnused(ParCre : TCreator;ParOwner : TBaseDefinition); override;
+	procedure CombineFlow(ParOther : TUseItem);override;
+	function  SetAccess(ParMode : TAccessMode):TAccessStatus;override;
+	procedure SetDefault(ParRead :boolean);override;
+	function  IsUnused:boolean;override;
+	procedure SetToSometimes;override;
+	function  IsCompleetInitialised : TDefinitionUseMode;override;
+	procedure CombineIfWithElseUse(ParElse : TUseItem);override;
+	function  CombineIfAndElseUseModes(ParModeIf,ParModeElse : TDefinitionUseMode) : TDefinitionUseMode;
 end;
 
 TDefinitionUseItem=class(TDefinitionUseItemBase)
 private
-				voDefinition : TBaseDefinition;
-				property iDefinition : TBaseDefinition read voDefinition write voDefinition;
+	voDefinition : TBaseDefinition;
+	property iDefinition : TBaseDefinition read voDefinition write voDefinition;
 public
-				property fDefinition : TBaseDefinition read voDefinition;
-				function GetDefinition  : TBaseDefinition;override;
-				constructor Create(ParDefinition : TBaseDefinition);
-				procedure SetLike(ParItem : TUseItem);override;
-				function  Clone : TUseItem;override;
+	procedure SetLike(ParItem : TUseItem);
+	property fDefinition : TBaseDefinition read voDefinition;
+	function GetDefinition  : TBaseDefinition;override;
+	constructor Create(ParDefinition : TBaseDefinition);
+
+	function  Clone : TUseItem;override;
 end;
 
 
@@ -148,7 +143,7 @@ begin
 end;
 
 
-procedure TDefinitionUseItem.SetLIke(ParItem : TUseItem);
+procedure TDefinitionUseItem.SetLike(ParItem : TUseItem);
 begin
 	if not(ParItem is TDefinitionUseItem) then fatal(FAT_Combine_Wrong_Type_DU,'');
 

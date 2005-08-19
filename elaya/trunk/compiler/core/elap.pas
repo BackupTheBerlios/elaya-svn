@@ -931,6 +931,7 @@ begin
        
       var
       l_name : ansistring;
+      l_item : TDefinition;
       
       begin
               EmptyString(l_name); ;
@@ -938,7 +939,17 @@ begin
             if (GetSym = 1) then begin
                   _RIdent( l_name);
             end;
-              ParNode :=TLeaveNode.Create(l_name); ;
+             
+            	if(length(l_name) > 0) then begin
+            		l_item := fNDCreator.getPtr(l_name);
+            		if(l_item = nil) then begin
+            			ErrorText(Err_Unkown_Ident,l_name);
+            		end else begin
+            			if not(l_item is TNamendCodeBlock) then ErrorText(Err_Ident_not_a_namend_block,l_name);
+            		end;
+            	end;
+            	ParNode :=TLeaveNode.Create(l_name); 
+            ;
       end;
       
       Procedure TELA_Parser._RExprDigi ( var ParExpr : TDigiItem);

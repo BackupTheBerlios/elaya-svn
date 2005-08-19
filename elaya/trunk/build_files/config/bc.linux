@@ -5,6 +5,7 @@
 	dir_config=/etc
 	install_extra=y
 	link_exe_to=/usr/bin/ela
+	fpc=/usr/lib/fpc/2.1.1/ppc386
 
 [linux]
 	as_program=as
