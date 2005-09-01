@@ -46,7 +46,6 @@ type
 		procedure GetLinkerOptions(var ParOptions:ansistring);
 		function  GetLinkerPAth:TString;
 		procedure GetLinkerPathStr(var ParPath:ansistring);
-		function  GetObjectPath(var ParOut:ansistring):boolean;
 		function  GetAutoLoad(ParNo : cardinal;var ParOut:ansistring):boolean;
 		function  GetPart(const ParIn:ansistring;ParNo : cardinal;var ParOut:ansistring):boolean;
 		procedure SetRememberExtParamName(ParSet:boolean);
@@ -98,15 +97,6 @@ begin
 	emptystring(ParOptions);
 	GetVarValue(CONF_Assembler_Options,ParOptions);
 end;
-
-function TElaConfig.GetObjectPath(var ParOut:ansistring):boolean;
-var vlStr:ansistring;
-begin
-	emptystring(ParOut);
-	GetObjectPath := true;
-	if GetVarValue(Conf_Object_Path,vlStr) then ParOut := vlStr;
-end;
-
 
 function TElaConfig.GetAutoLoad(parNo : cardinal;var ParOut:ansistring):boolean;
 var vlStr:ansistring;
@@ -236,20 +226,22 @@ begin
 end;
 
 function TElaConfig.SetValues(ParCfg : TConfigValues) : boolean;
-var vlAsmProg      : ansistring;
+var 
+	vlAsmProg       : ansistring;
 	vlLinkerPath    : ansistring;
 	vlNumberOfErrors: cardinal;
-	vlBool	       : boolean;
-	vlPath	       : ansistring;
-	vlAsmPath	    : ansistring;
+	vlBool	        : boolean;
+	vlPath	        : ansistring;
+	vlAsmPath       : ansistring;
 	vlSourceName    : ansistring;
-	vlExtName	    : ansistring;
+	vlExtName       : ansistring;
 	vlPathName      : ansistring;
-	vlCheck	       : ansistring;
+	vlCheck         : ansistring;
 	vlFileName      : ansistring;
-	vlHostOs	       : ansistring;
+	vlHostOs        : ansistring;
 	vlTargetOs      : ansistring;
 	vlOutPath       : ansistring;
+	vlObjectPath    : ansistring;
 begin
 	if ParCfg.fRunAssembler then vlCheck := 'Y' else vlCheck := 'N';
 	ParCfg.GetInputFileStr(vlFileName);
@@ -293,6 +285,8 @@ if GetVarValue(conf_link_information_file,vlPathName) then begin
 	if length(vlPathName) > 0 then ParCfg.AddLinkInfoFile(vlPathName);
 end;
 
+
+if GetVarValue(Conf_Object_Path,vlObjectPath) then ParCfg.AddObjectPath(vlObjectPath);
 if GetVarUpperBool(conf_Always_Stack_Frame,vlBool) then SetAlwaysStackFrame(vlBool);
 if GetVarUpperBool(CONF_Run_Assembler,vlBool) then ParCfg.SetRunAssembler(vlBool,CL_Conf);
 if GetVarUpperBool(CONF_Can_Use_Dll,vlBool) then ParCfg.SetCanUseDll(vlBool,CL_Conf);

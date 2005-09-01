@@ -1434,7 +1434,7 @@ var
 begin
 	if parType = nil then exit;
 	GetNewAnonName(vlname);
-	vlParameter := TRTLParameter.Create(vlName,1,ParFrame,ParType,Pv_Var,ParVirtual);
+	vlParameter := TRTLParameter.Create('RESULT',1,ParFrame,ParType,Pv_Var,ParVirtual);
 	vlParameter.fDefAccess := AF_Public;
 	AddParam(vlParameter);
 end;

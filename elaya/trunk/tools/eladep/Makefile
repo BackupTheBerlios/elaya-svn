@@ -21,7 +21,9 @@
 root_path=../../
 include $(root_path)/Makefile.inc
 
-.PHONY : all clean
+eladep_program=eladep$(exe_ext)
+
+.PHONY : all clean copy_exe_to link_exe_to
 
 name=eladep
 outfile=bin/$(name)$(exe_ext)
@@ -31,8 +33,14 @@ all: $(outfile)
 $(outfile) :eladep.pas
 		$(LIB_FPC) eladep $(Opt_Fpc) -FEbin -Fu"$(Fpc_Unit_Path)"
 
-install:
-	cp bin/eladep $(Dir_Program)
+install: copy_exe_to $(if $link_exe_to,link_exe_to)
+
+copy_exe_to:
+	cp bin/$(eladep_program) $(Dir_Program)
+	
+link_exe_to: copy_exe_to
+	rm -f $(link_exe_to_dir)$(eladep_program)
+	ln -s $(Dir_Program)$(eladep_program) $(link_exe_to_dir)$(eladep_program)
 
 clean : 
 	$(cmd_rm) $(outfile)

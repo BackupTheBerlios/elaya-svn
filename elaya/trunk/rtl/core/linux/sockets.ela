@@ -1,28 +1,248 @@
 unit;
-uses core,sys_int,linux,strings;
+uses core,strings,sys_int;
 
 public
 
+const
+
+    IPPROTO_IP = 0;   { Dummy protocol for TCP.  }
+    IPPROTO_HOPOPTS = 0;   { IPv6 Hop-by-Hop options.  }
+    IPPROTO_ICMP = 1;   { Internet Control Message Protocol.  }
+    IPPROTO_IGMP = 2;   { Internet Group Management Protocol. }
+    IPPROTO_IPIP = 4;   { IPIP tunnels (older KA9Q tunnels use 94).  }
+    IPPROTO_TCP = 6;   { Transmission Control Protocol.  }
+    IPPROTO_EGP = 8;   { Exterior Gateway Protocol.  }
+    IPPROTO_PUP = 12;   { PUP protocol.  }
+    IPPROTO_UDP = 17;   { User Datagram Protocol.  }
+    IPPROTO_IDP = 22;   { XNS IDP protocol.  }
+    IPPROTO_TP = 29;   { SO Transport Protocol Class 4.  }
+    IPPROTO_IPV6 = 41;     { IPv6 header.  }
+    IPPROTO_ROUTING = 43;  { IPv6 routing header.  }
+    IPPROTO_FRAGMENT = 44; { IPv6 fragmentation header.  }
+    IPPROTO_RSVP = 46;   { Reservation Protocol.  }
+    IPPROTO_GRE = 47;   { General Routing Encapsulation.  }
+    IPPROTO_ESP = 50;      { encapsulating security payload.  }
+    IPPROTO_AH = 51;       { authentication header.  }
+    IPPROTO_ICMPV6 = 58;   { ICMPv6.  }
+    IPPROTO_NONE = 59;     { IPv6 no next header.  }
+    IPPROTO_DSTOPTS = 60;  { IPv6 destination options.  }
+    IPPROTO_MTP = 92;   { Multicast Transport Protocol.  }
+    IPPROTO_ENCAP = 98;   { Encapsulation Header.  }
+    IPPROTO_PIM = 103;   { Protocol Independent Multicast.  }
+    IPPROTO_COMP = 108;   { Compression Header Protocol.  }
+    IPPROTO_RAW = 255;   { Raw IP packets.  }
+    IPPROTO_MAX =256;
+
+
+      IPPORT_ECHO = 7;{ Echo service.  }
+    IPPORT_DISCARD = 9;{ Discard transmissions service.  }
+    IPPORT_SYSTAT = 11;{ System status service.  }
+    IPPORT_DAYTIME = 13;{ Time of day service.  }
+    IPPORT_NETSTAT = 15;{ Network status service.  }
+    IPPORT_FTP = 21;{ File Transfer Protocol.  }
+    IPPORT_TELNET = 23;{ Telnet protocol.  }
+    IPPORT_SMTP = 25;{ Simple Mail Transfer Protocol.  }
+    IPPORT_TIMESERVER = 37;{ Timeserver service.  }
+    IPPORT_NAMESERVER = 42;{ Domain Name Service.  }
+    IPPORT_WHOIS = 43;{ Internet Whois service.  }
+    IPPORT_MTP = 57;
+
+    IPPORT_TFTP = 69;{ Trivial File Transfer Protocol.  }
+    IPPORT_RJE = 77;
+    IPPORT_FINGER = 79;{ Finger service.  }
+    IPPORT_TTYLINK = 87;
+    IPPORT_SUPDUP = 95;{ SUPDUP protocol.  }
+
+
+    IPPORT_EXECSERVER = 512;{ execd service.  }
+    IPPORT_LOGINSERVER = 513;{ rlogind service.  }
+    IPPORT_CMDSERVER = 514;
+    IPPORT_EFSSERVER = 520;
+
+    { UDP ports.  }
+    IPPORT_BIFFUDP = 512;
+    IPPORT_WHOSERVER = 513;
+    IPPORT_ROUTESERVER = 520;
+
+    { Ports less than this value are reserved for privileged processes.  }
+    IPPORT_RESERVED = 1024;
+
+    { Ports greater this value are reserved for (non-privileged) servers.  }
+    IPPORT_USERRESERVED = 5000 ;
+	PF_UNSPEC	=0;	{ Unspecified.  }
+	AF_UNSPEC	= PF_UNSPEC;
+	PF_LOCAL	=1;	{ Local to host (pipes and file-domain).  }
+	AF_LOCAL	= PF_LOCAL;
+	PF_UNIX		=PF_LOCAL; { Old BSD name for PF_LOCAL.  }
+	AF_UNIX		=PF_UNIX;
+	PF_FILE		=PF_LOCAL; { Another non-standard name for PF_LOCAL.  }
+	AF_FILE		=PF_FILE;
+	PF_INET		=2;	{ IP protocol family.  }
+	AF_INET		= PF_INET;
+	PF_AX25		=3;	{ Amateur Radio AX.25.  }
+	AF_AX25		=PF_AX25;
+	PF_IPX		=4;	{ Novell Internet Protocol.  }
+	AF_IPX		=PF_IPX;
+	PF_APPLETALK	=5;	{ Appletalk DDP.  }
+	AF_APPLETALK    = PF_APPLETALK;
+	PF_NETROM	=6;	{ Amateur radio NetROM.  }
+	AF_NETROM	=PF_NETROM;
+	PF_BRIDGE	=7;	{ Multiprotocol bridge.  }
+	AF_BRIDGE       =PF_BRIDGE;
+	PF_ATMPVC	=8;	{ ATM PVCs.  }
+	AF_ATMPVC	= PF_ATMPVC;
+	PF_X25		=9;	{ Reserved for X.25 project.  }
+	AF_X25		=PF_X25;
+	PF_INET6	=10;	{ IP version 6.  }
+	AF_INET6	=PF_INET6;
+	PF_ROSE		=11;	{ Amateur Radio X.25 PLP.  }
+	AF_ROSE		=PF_ROSE;
+	PF_DECnet	=12;	{ Reserved for DECnet project.  }
+	AF_DecNet	=PF_DecNet;
+	PF_NETBEUI	=13;	{ Reserved for 802.2LLC project.  }
+	AF_NetBeui	=PF_NetBeui;
+	PF_SECURITY	=14;	{ Security callback pseudo AF.  }
+	AF_Security	=PF_Security;
+	PF_KEY		=15;	{ PF_KEY key management API.  }
+	AF_Key		=PF_Key;
+	PF_NETLINK	=16 ;
+	AF_NetLink	=PF_NetLink;
+	PF_ROUTE	=PF_NETLINK; { Alias to emulate 4.4BSD.  }
+	AF_Route	=PF_Route;
+	PF_PACKET	=17;	{ Packet family.  }
+	AF_Packet	=PF_Packet;
+	PF_ASH		=18;	{ Ash.  }
+	AF_Ash		=PF_Ash;
+	PF_ECONET	=19;	{ Acorn Econet.  }
+	AF_Econet	=PF_Econet;
+	PF_ATMSVC	=20;	{ ATM SVCs.  }
+	AF_AtmSvc	=PF_AtmSvc;
+	PF_SNA		=22;	{ Linux SNA Project }
+	AF_Sna		=Pf_Sna;
+	PF_IRDA		=23;	{ IRDA sockets.  }
+	Af_Irda		=PF_Irda;
+	PF_MAX		=32;	{ For now..  }
+        AF_Max		=PF_Max;
+
+	Sock_Stream	= 1;
+	Sock_DGram	= 2;
+	Sock_RDM        = 4;
+	Sock_SeqPacket  = 5;
+	Sock_Packet	= 10;
+
+
+	SOL_SOCKET = 1;
+	SO_DEBUG  = 1;
+	SO_REUSEADDR = 2;
+	SO_TYPE = 3;
+	SO_ERROR=4;
+
+	fd_SetSize= 1024;
+type
+	fd_Mask    = clong;
+
+const 
+	NfDBits   = 8 * sizeof(fd_Mask);
+
+
+type 
+	TInaddr = record
+		s_addr:clong;
+	end;
+	
+
+	len_t	  = cint;
+	Size_t    = cint;
+	time_t    = longint;
+	TSaFamily= word;
+
+	align 1;
+	TIn6Addr=union
+		sAddr8  : array[0 to 15] of byte;
+		sAddr16 : array[0 to 7] of word;
+		sAddr32 : array[0 to 4] of clong;
+	end;
+
+  TSockaddr=record
+	sin     : TSaFamily;
+	sa_data : array[0 to 13] of byte;
+  end;
+
+  PSockAddr= ptr TSockAddr;
+
+  TSockaddr_In=record
+       sin_family: TSafamily;
+       sin_Port  : word;
+       sin_Addr  : array[0 to 3] of byte;
+       dummy : array[0 to (sizeof(TSockaddr) - sizeof(TSaFamily) - sizeof(TInAddr)-sizeof(word)-1)] of byte;
+   end;
+
+   align 4;
+   PPAsc    = ptr PAsc;
+   PHostEnt = Ptr THostEnt;
+   THostEnt =record
+      h_Name     : PAsc;
+      h_Aliases  : PPAsc;
+      h_AddrType : cInt;
+      h_Length   : cint;
+      h_Addr_List: PPAsc;
+   end;
+
+	Time_Val =record
+		tv_Sec  : Time_T;
+		tv_USec : Time_T;
+	end;
+
+
+
+	fd_set =  record
+     		_fds_bits:array[0 to FD_SETSIZE div NFDBITS - 1] of fd_Mask;
+	end;
+
+   TSocklen=cint;
+   TSocket =cint;
 
 	function  INetAddr(const ParStr:string;var ParAddr:long):boolean;overload;
 	function  INetAddr(ParA1,ParA2,ParA3,ParA4:byte;var Parlong:long):boolean; overload;
 	function  AddrToStr(ParAddr:long):string;
 	function  LtoH(ParWord:word):word;
-	function  Socket(ParDomain,ParType,ParProto : cint):cint;
-	function  Connect(ParSocket : cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;overload;
-	function  Connect(ParSocket :TSocket;const ParName : string;ParPort : word):boolean;overload;
+	function  Socket(ParDomain,ParType,ParProto : cint):cint;	
 	function  SocketClose(ParSocket : cint):boolean;
 	function  Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
 	function  Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
 	function  Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen) : TSocket;
 	function  listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
 	function  Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
-	function  GetHostByName(const ParName:String):PHostEnt;
 	procedure SetSocketBlocking(ParFile:TSocket;ParBlock:boolean);overload;
 	function  WaitForRead(ParHandle : cint;ParTimeOut:long):boolean;
 	function  WaitForWrite(ParHandle : cint;ParTimeOut:long):boolean;
 
+	external libc
+		function  GetHostByName(ParName : PAsc):PHostEnt;name 'gethostbyname';
+		function  Connect(ParSocket:TSocket;const ParAddres:PSockAddr;ParSockLen:TSockLen):cint;name 'connect';
+	end;
 end public
+
+
+external libc
+function  Linux_Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen):cint;name 'accept';
+function  Linux_Bind(ParSocket:TSocket;ParAddres:PSockAddr;ParSockLen:TSockLen):cint;name 'bind';
+function  Linux_Close(Parfd:cint):cint;name 'close';
+function  Linux_CloseDir(ParDir : PDir):cint;name 'closedir';
+
+function  Linux_GetHostId:cint;name 'gethostid';
+function  Linux_GetHostName(ParName:PAsc;ParSize:cint):cint;name 'gethostname';
+function  Linux_GetSockOpt(socket : cint;level : cint;optname : cint;var optval : void;var len:cint):cint;name 'getsockopt';
+function  linux_listen(ParSocket : TSocket;ParBackLog : cint) : cint;name 'listen';
+function  Linux_Recv(ParFd : cint;ParBuffer : PVoid;ParLength : len_t;ParFlags : cint) :cint;name 'recv';
+function  Linux_Socket(ParDomain:cint;ParType,ParProtoCol:cint):cint;name 'socket';
+function  Linux_Select(ParN:cint;var ParRead:fd_set;var ParWrite:fd_set;var ParExcept:fd_set;var ParTime:TIme_Val):cint;name 'select';
+function  Linux_Send(ParFd : cint;ParBuffer : PVoid;ParLength : len_t;ParFlags : cint) :cint;name 'send';
+function  Linux_SetHostId(ParHostId:cint):cint;name 'sethostid';
+function  Linux_SetHostName(ParName:Pasc;ParSIze:size_t):cint; name 'sethostname';
+end;
+
+
 
 function INetAddr(ParA1,ParA2,ParA3,ParA4:byte;var Parlong:long):boolean; overload;
 begin
@@ -86,74 +306,51 @@ end;
 
 function LtoH(ParWord:word):word;
 begin
-	exit((parWord div 256) + (ParWord and 255) * 256);
+	exit((parWord shr 8) + (ParWord shl  8));
 end;
 
 procedure SetInetAddres(ParW1,ParW2,ParW3,ParW4:word;ParPort:word;var vlAddr:TSockAddr_In);
 begin
-	vlAddr.Port := lToH(ParPort);
-	vlAddr.Addr[0] := ParW1;
-	vlAddr.Addr[1] := ParW2;
-	vlAddr.Addr[2] := ParW3;
-	vlAddr.Addr[3] := ParW4;
+	vlAddr.sin_Port := lToH(ParPort);
+	vlAddr.sin_Addr[0] := ParW1;
+	vlAddr.sin_Addr[1] := ParW2;
+	vlAddr.sin_Addr[2] := ParW3;
+	vlAddr.sin_Addr[3] := ParW4;
 end;
 
 function Socket(ParDomain,ParType,ParProto : cint):cint;
 var
 	vlHandle : cint;
 begin
-	vlHandle := int_socket(ParDomain,ParType,ParProto);
+	vlHandle := linux_socket(ParDomain,ParType,ParProto);
    	exit(vlHandle);
 end;
 
-function Connect(ParSocket :TSocket;const ParName : string;ParPort : word):boolean;overload;
-var vlAddr : TSockAddr_in;
-    vlEnt  : PHostEnt;
-    vlChk  : boolean;
-begin
-     vlEnt := GetHostByName(ParName);
-     if vlEnt = nil then exit(true);
-     vlAddr.Addr as long := ((vlEnt^.vrAddrList^) as plong)^;
-     vlAddr.sin := af_inet;
-     vlAddr.Port := LtoH(ParPort);
-     vlChk := (Connect(ParSocket,@vlAddr as PSockAddr,sizeof(vlAddr)));
-     exit(vlChk);
-end;
 
 
-function Connect(ParSocket :cint;const ParAddr : PSockAddr;ParAddrLen : TSockLen):boolean;overload;
-var vlRet : boolean;
-begin
-     vlRet := int_connect(ParSocket,ParAddr,ParAddrlen);
-     exit(vlRet);
-end;
+
 
 function SocketClose(ParSocket : cint):boolean;
 var vlRet : boolean;
 begin
-     vlRet := int_close(ParSocket);
+     vlRet := linux_close(ParSocket)<0;
      exit(vlRet);
 end;
 
-function GetHostByName(const ParName:String):PHostEnt;
-var vlHostEnt:PHostEnt;
-begin
-	vlHostEnt := int_GetHostByName(ParName);
-	exit(vlHostEnt);
-end;
+
 
 
 function  Recv(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
 var vlRet : cint;
 begin
-     vlRet := int_Recv(ParSocket,ParBuffer,ParSize,ParFlags);
+     vlRet := linux_Recv(ParSocket,ParBuffer,ParSize,ParFlags);
      exit(vlRet);
 end;
 
 function Send(ParSocket : cint;ParBuffer : PVoid;ParSize : TLength;ParFlags : cint) : cint;
 var vlRet : cint;
 begin
-     vlRet := int_Send(ParSocket,ParBuffer,ParSize,ParFlags);
+     vlRet := linux_Send(ParSocket,ParBuffer,ParSize,ParFlags);
      exit(vlRet);
 end;
 
@@ -161,7 +358,7 @@ function  listen(ParSocket : TSocket;ParBackLog : cint) : boolean;
 var
    vlRet : boolean;
 begin
-     vlRet := int_Listen(ParSocket,ParBackLog);
+     vlRet := linux_Listen(ParSocket,ParBackLog)<0;
      exit(vlRet);
 end;
 
@@ -169,20 +366,20 @@ end;
 function  Accept(ParSocket:TSocket; ParAddr:PSockAddr;var ParSockAddrLen:TSockLen) : TSocket;
 var vlRet : TSocket;
 begin
-     vlRet := int_accept(ParSocket,Paraddr,ParSockAddrlen);
+     vlRet := linux_accept(ParSocket,Paraddr,ParSockAddrlen);
      exit(vlRet);
 end;
 
 function  Bind(ParSocket:TSocket; ParAddres:PSockAddr;ParSockLen:TSockLen):boolean;
 var vlRet : boolean;
 begin
-     vlRet := int_bind(ParSocket,ParAddres,ParSockLen);
+     vlRet := linux_bind(ParSocket,ParAddres,ParSockLen)<0;
      exit(vlRet);
 end;
 
 procedure SetSocketBlocking(ParFile:TSocket;ParBlock:boolean); overload;
 begin
-	Int_SetInBlock(ParFile,ParBlock);
+	int_SetInBlock(ParFile,ParBlock);
 end;
 
 function WaitForRead(ParHandle : cint;ParTimeOut:long):boolean;

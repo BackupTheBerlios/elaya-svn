@@ -38,7 +38,7 @@ type
         vrBufferPos  : long;
         vrBufferFil  : long;
         vrReadMode   : boolean;
-        vrFilePos    : long;
+        vrFilePos    : long;	
      end;
 
      PTextExtra=ptr TTextExtra;
@@ -354,16 +354,14 @@ var
 	vlRet : boolean;
     vlExtra : PTextExtra;
 begin
-	vlRet := true;
-	if ParFileRec.vrOpen then begin
-		vlRet := int_Close(ParFileRec.vrHandle);
-		ParFileRec.vrOpen := false;
-		vlExtra := ParFileRec.vrExtra;
-		if vlExtra <> nil then begin
-			if vlExtra^.vrBufferSize <> 0 then Freemem(vlExtra^.vrBuffer);
-			Freemem(vlExtra);
-		end;
+	vlRet := int_Close(ParFileRec.vrHandle);
+	ParFileRec.vrOpen := false;
+	vlExtra := ParFileRec.vrExtra;
+	if vlExtra <> nil then begin
+		if vlExtra^.vrBufferSize <> 0 then Freemem(vlExtra^.vrBuffer);
+		Freemem(vlExtra);
 	end;
+	
 	exit(vlRet);
 end;
 
@@ -395,8 +393,8 @@ end;
 
 function fn_OpenFile(ParSelf : PFileSelf;var ParFileRec : TFile; const ParFileName : string; ParRw:TOpenMode):boolean;
 var
-    vlHandle : cint;
-    vlErr    : boolean;
+	vlHandle : cint;
+	vlErr    : boolean;
 begin
 	ParFileRec.vrOpen := false;
 	vlErr := int_open(ParFileName,ParRw,vlHandle);
@@ -407,14 +405,12 @@ end;
 
 function fn_WriteFile(var ParFile:TFile;ParSize:Long;var ParWritten : long;const ParBuffer:void):boolean;
 begin
-	if CheckErrIfClosed(ParFile) then exit(true);
 	ParWritten := int_Write(ParFile.vrHandle,@parBuffer,ParSize);
 	exit(GetLastError<>0);
 end;
 
 function fn_ReadFile(var ParFile:TFile;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
 begin
-	if CheckErrIfClosed(ParFile) then exit(true);
 	ParRead := int_Read(ParFile.vrHandle,@ParBuffer,ParSize);
 	exit(GetLastError<>0);
 end;
@@ -426,8 +422,6 @@ function fn_CloseFile(var ParFileRec:TFile):boolean;
 var
 	vlRet : boolean;
 begin
-	vlRet := true;
-	if CheckErrIfClosed(ParFileRec) then exit(true);
 	vlRet  := int_close(ParFileRec.vrHandle);
 	ParFileRec.vrOpen := false;
 	if (ParFileRec as TFile).vrExtra <> nil then freemem(ParFileRec.vrExtra);
@@ -439,16 +433,13 @@ function fn_Eof(var ParFileRec : TFile):boolean;
 var
 	vlRes : boolean;
 begin
-	if CheckErrIfClosed(ParFileRec) then exit(true);
 	vlRes := int_eof(ParFileRec.vrHandle);
 	exit(vlRes);
 end;
 
 
 function  fn_WaitForRead(var ParFile : TFile;ParTimeOut : long;var ParFound : boolean):boolean;
-begin
-	ParFound := false;
-	if CheckErrIfClosed(ParFile) then exit(true);
+begin	
 	ParFound := int_WaitForRead(ParFile.vrHandle,ParTimeOut);
 	exit(GetLastError<> 0);
 end;
@@ -465,6 +456,7 @@ begin
 		SetError(ERR_Not_Implemented);
 		exit(true);
 	end;
+	if CheckErrIfClosed(ParFile) then exit(true);
 	exit(ParFile.vrSelf^.vrSetBlockingRoutine^(ParFile,ParBlock));
 end;
 
@@ -488,21 +480,23 @@ end;
 function Eof(var ParFile : TFile):boolean;overload;
 begin
 	if (ParFile.vrSelf=nil) or (ParFile.vrSelf^.vrEofRoutine = nil) then begin
-        	SetError(Err_Not_Implemented);
-                exit(true);
+		SetError(Err_Not_Implemented);
+		exit(true);
 	end;
-        exit(ParFile.vrSelf^.vrEofRoutine^(ParFile));
+	if CheckErrIfClosed(ParFile) then exit(true);
+	exit(ParFile.vrSelf^.vrEofRoutine^(ParFile));
 end;
 
 function  WaitForRead(var ParFile : TFile;ParTimeOut : long;var ParFound : boolean):boolean;overload;
 begin
-     ParFound := false;
-     if(ParFile.vrSelf = nil) or (ParFile.vrSelf^.vrWaitForReadRoutine = nil) then begin
-     	   SetError(Err_Not_Implemented);
-           exit(true);
-     end;
-     ParFound := ParFile.vrSelf^.vrWaitForReadRoutine^(ParFile,ParTimeOut,ParFound);
-     exit(GetLastError<> 0);
+	ParFound := false;
+	if(ParFile.vrSelf = nil) or (ParFile.vrSelf^.vrWaitForReadRoutine = nil) then begin
+		SetError(Err_Not_Implemented);
+		exit(true);
+	end;
+	if CheckErrIfClosed(ParFile) then exit(true);		
+	ParFound := ParFile.vrSelf^.vrWaitForReadRoutine^(ParFile,ParTimeOut,ParFound);
+	exit(GetLastError<> 0);
 end;
 
 
@@ -566,16 +560,19 @@ begin
         	SetError(Err_Not_Implemented);
                 exit(true);
 	end;
+	if CheckErrIfClosed(ParFile) then exit(true);
         exit(ParFile.vrSelf^.vrCloseRoutine^(ParFile  ));
 end;
 
 
 function ReadFile(var ParFile:TFile;ParSize:long;var ParRead : long;var ParBuffer : void):boolean;
 begin
+	ParRead := 0;
 	if (ParFile.vrself= nil) or (ParFile.vrSelf^.vrReadRoutine= nil) then begin
 		SetError(Err_Not_Implemented);
  		exit(true);
 	end;
+	if CheckErrIfClosed(ParFile) then exit(true);
 	exit(ParFile.vrSelf^.vrReadRoutine^(ParFile,ParSize,ParRead,ParBuffer));
 end;
 
@@ -583,10 +580,12 @@ end;
 
 function WriteFile(var ParFile:TFile;ParSize:long;var ParWritten : long;const ParBuffer : void):boolean;
 begin
+	ParWritten := 0;
 	if (ParFile.vrSelf= nil) or (ParFile.vrSelf^.vrWriteRoutine = nil) then begin
 		SetError(Err_Not_Implemented);
 		exit(true);
 	end;
+	if CheckErrIfClosed(ParFile) then exit(true);
 	exit(ParFile.vrSelf^.vrWriteRoutine^(ParFile,ParSize,ParWritten,ParBuffer));
 end;
 

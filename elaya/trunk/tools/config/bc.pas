@@ -18,7 +18,7 @@ var
 	cf_dir_program: ansistring;
 	cf_dir_config : ansistring;
 	cf_install_extra: ansistring;
-	cf_link_exe_to  : ansistring;
+	cf_link_exe_to_dir  : ansistring;
 	cf_enabled : ansistring;
 	cg_baseDir : ansistring;
 	cf_fpc     : ansistring;
@@ -227,7 +227,7 @@ begin
 					if(l_key = 'dir_rtl') then cf_dir_rtl := l_value else
 					if(l_key = 'dir_program') then cf_dir_program := l_value else
 					if(l_key = 'dir_config') then cf_dir_config := l_value else
-					if(l_key = 'link_exe_to') then cf_link_exe_to := l_value else
+					if(l_key = 'link_exe_to_dir') then cf_link_exe_to_dir := l_value else
 					if(l_key = 'enabled') then cf_enabled := l_value else
 					if(l_key = 'install_extra') then cf_install_extra := l_value else
 					if(l_key = 'fpc') then cf_fpc :=l_value else begin
@@ -335,7 +335,7 @@ begin
 	end;
 	writeln(l_outputFile,'Opt_Fpc=',cf_opt_fpc);
 	writeln(l_outputFile,'Opt_Ela=',cf_opt_ela);
-	writeln(l_outputFile,'link_exe_to=',cf_link_exe_to);
+	writeln(l_outputFile,'link_exe_to_dir=',allwaysdir(cf_link_exe_to_dir));
 	writeln(l_outputFile,'install_exta=',cf_install_extra);
 	close(l_outputFile);
 end;

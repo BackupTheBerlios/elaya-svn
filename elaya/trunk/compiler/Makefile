@@ -4,6 +4,7 @@
 root_path=../
 include $(root_path)Makefile.inc
 
+ela_program=ela$(exe_ext)
 
 
 
@@ -25,10 +26,10 @@ copyfiles:
 	mkdir -p $(Dir_Program)
 	mkdir -p $(Dir_Cpl_Lib)
 	cp $(addprefix bin/,$(addsuffix .*,$(notdir $(basename $(wildcard lib/*.pas lib/*.PAS)))))  $(Dir_Cpl_Lib)
-	cp $(wildcard bin/ela) $(wildcard bin/ela.exe) $(Dir_Program)
+	cp $(wildcard bin/$(ela_program)) $(Dir_Program)
 
 link_exe_to:
-	$(cmd_rm) $(link_exe_to)
-	ln -s  $(Dir_Program)ela$(exe_ext) $(link_exe_to)
+	$(cmd_rm) $(link_exe_to_dir)$(ela_program)
+	ln -s  $(Dir_Program)ela$(exe_ext) $(link_exe_to_dir)$(ela_program)
 include dep_info
 

@@ -572,7 +572,7 @@ begin
 	rewrite(vlFile);
 	if ioresult <> 0 then exit(true);
 	vlCnt := 1;
-	GetConfig.GetObjectPath(vlPath);
+	vlPath := GetConfigValues.fObjectPath;
 	vlList := TSearchPathList.Create;
 	vlList.AddPath(vlPath);
 	while not vlList.GetPathByNum(vlCnt,vlPath) do begin
@@ -740,7 +740,7 @@ var
 	vlPath : ansistring;
 begin
 	voLoader :=TObjectStream.Create;
-	GetConfig.GetObjectPath(vlPath);
+	vlPath := GetConfigValues.fObjectPath;
 	voLoader.AddPath(vlPath);
 end;
 

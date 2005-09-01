@@ -250,11 +250,13 @@ begin
 		vlNum := ParLength;
 		if ParBegin +vlNum -1 > ParSrc.length then vlNum := ParSrc.length + 1- ParBegin;
 		vlOut.Length := vlNum;
- 		vlCnt  := vlStart;
+		vlCnt  := vlStart;
+		
 		Count vlDest from 1 to  vlNum do begin
-	        	vlOut[vlDest] := ParSrc[vlCnt];
+			vlOut[vlDest] := ParSrc[vlCnt];
 			inc(vlCnt);
-		end;
+		end;	
+		
 	end;
 	exit(vlOut);
 end;

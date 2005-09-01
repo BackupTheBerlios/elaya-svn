@@ -798,27 +798,20 @@ var vlLod     :TPocBase;
 	vlTestFirst : boolean;
 	vlValue     : TValue;
 	vlCheckLab  : TLabelPoc;
+	vlLab2      :TLabelPoc;
 begin
 	vlCount := iCount.CreateMac(MCO_Result,ParCre);
 	vlBegin := iBegin.CreateMac(MCO_Result,ParCre);
 	vlLod := ParCre.MakeLoadPoc(vlCount,vlBegin);
 	ParCre.AddSec(vlLod);
 	vlLab := ParCre.AddLabel;
-	if iEndCondition <>nil then begin
-		vlTrue := ParCre.CreateLabel;
-		vlPrvTrue := ParCre.SetLabelTrue(GetBreakLabel);
-		vlPrvFalse := ParCre.SetLabelFalse(vlTrue);
-		iEndCondition.CreateSec(ParCre);
-		ParCre.SetLabelTrue(vlPrvTrue);
-		ParCre.SetLabelFalse(vlPrvFalse);
-		ParCre.AddSec(vltrue);
-	end;
+	
 	iParts.CreateSec(ParCre);
 	ParCre.AddSec(GetContinueLabel);
 	vlAddFor := TIncDecFor.Create(iUp);
 	vlAddFor.SetVar(0,iCount.CreateMac(MCO_Result,ParCre));
 	vlAddFor.SetVar(1,iStep.CreateMac(MCO_Result,ParCre));
-   vlTestFirst := true;
+	vlTestFirst := true;
 
 	if iEnd <>nil then begin
 		vlValue := iEnd.GetValue;
@@ -834,14 +827,17 @@ begin
 
 	if not vlTestFirst then PArCre.AddSec(vlAddFor);
 	if iEnd <>nil then begin
-		if vlTestFirst then begin
-			vlCode := IC_Eq;
-			vlCheckLab := GetBreakLabel;
+
+		if(iEndCondition<> nil) or (vlTestFirst) then begin
+			vlCheckLab := getBreakLabel;
+			vlCode := IC_BiggerEq;
+			if not iUp then vlCode := IC_LowerEq;
 		end else begin
 			vlCode := IC_LowerEq;
 			if not iUp then vlCode := IC_BiggerEq;
 			vlCheckLab := vlLab;
 		end;
+		
 		vlEnd  := iEnd.CreateMac(MCO_Result,ParCre);
 		vlFlag := ParCre.MakeCompPoc(iCount.CreateMac(MCO_Result,ParCre),vlEnd,vlCOde);
 		vlJmp := TCondJumpPoc.create(true,vlFlag,vlCheckLab);
@@ -850,6 +846,22 @@ begin
 	end;
 
 	ParCre.AddSec(vlJmp);
+
+	if iEndCondition <>nil then begin
+	
+		vlPrvTrue := ParCre.SetLabelTrue(GetBreakLabel);
+		if not vlTestFirst then begin
+			vlPrvFalse := ParCre.SetLabelFalse(vlLab);
+		end else begin
+			vlPrvFalse := ParCre.SetLabelFalse(nil);
+		end;
+		iEndCondition.CreateSec(ParCre);
+		ParCre.SetLabelTrue(vlPrvTrue);
+		ParCre.SetLabelFalse(vlPrvFalse);		
+		
+	end;
+
+	
 	if vlTestFirst then begin
 		PArCre.AddSec(vlAddFor);
 		vlJmp := TJumpPoc.Create(vlLab);

@@ -627,7 +627,7 @@ begin
 	LoadUnitHeader := Lus_Failed;
 	GetUnitFileName(vlName);
 	vlLoad := TObjectStream.Create;
-	GetConfig.GetObjectPath(vlPath);
+	vlPath := GetConfigValues.fObjectPath;
 	vlLoad.AddPath(vlPath);
 	if not vlLoad.OpenFile(vlName) then begin
 		vlLoad.ReadLongint(vlDmy);

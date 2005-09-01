@@ -51,9 +51,9 @@ type
 		function    CreateReadNode(ParCre:TCreator;ParContext : TDefinition):TFormulaNode;override;
 		function    IsLargeType : boolean;
 		function    IsSame(ParOther : TVarBase):boolean;virtual;
-		function   	IsOptUnsave:boolean;virtual;
-		function   	GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
-    	function    CreateDefinitionUseItem : TUseItem;override;
+		function   IsOptUnsave:boolean;virtual;
+		function   GetPtrByObject(const ParName:ansistring;ParObject : TRoot;ParOption  : TSearchOptions;var ParOwner,ParItem : TDefinition) : TObjectFindState;override;
+    		function    CreateDefinitionUseItem : TUseItem;override;
 	end;
 
 	TVarNode=class(TValueNode)

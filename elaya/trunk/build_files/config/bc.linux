@@ -4,8 +4,8 @@
 	opt_ela=-votB -Cu -Ok+ -d -t linux
 	dir_config=/etc
 	install_extra=y
-	link_exe_to=/usr/bin/ela
-	fpc=/usr/lib/fpc/2.1.1/ppc386
+	link_exe_to_dir=/usr/bin
+	fpc=ppc386
 
 [linux]
 	as_program=as
@@ -14,5 +14,5 @@
 [win32]
 	as_program=win-as
 	ld_program=win-ld
-	enabled=n
+	enabled=y
 

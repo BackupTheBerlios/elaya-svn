@@ -249,13 +249,24 @@ end;
 
 procedure   TSecCreator.MakeJumpFromCond(ParCond   : TMacBase);
 var
-	vJump1 : TJumpPoc;
-	vJump2 : TCondJumpPoc;
+	l_Jump: TPocBase;
+	
 begin
-	vJump1 := TJumpPoc.create(iLabelFalse);
-	vJump2 := TCondJumpPoc.create(True,ParCond,iLabelTrue);
-	AddSec(vJump2);
-	AddSec(vJump1);
+
+	if(iLabelTrue <> nil) then begin
+		l_jump := TCondJumpPoc.create(True,ParCond,iLabelTrue);
+		AddSec(l_jump);
+	end;
+	if(iLabelFalse <> nil) then begin
+		if(iLabelTrue = nil) then begin
+			l_jump := TCondJumpPoc.create(false,ParCond,iLabelFalse);
+			
+		end else begin
+			l_jump := TJumpPoc.create(iLabelFalse);
+			
+		end;
+		AddSec(l_jump);
+	end;
 end;
 
 { Error handling special for nodes}

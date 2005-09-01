@@ -568,6 +568,7 @@ begin
 	end;
 	vlOut.Length := vlLe;
 	if (ParStr^[ParPos] <> 0 as char) then inc(ParPos);
+	Dbg(vlOut);DbgLn;
 	AddArgument(ParTop,vlOut);
 end;
 
